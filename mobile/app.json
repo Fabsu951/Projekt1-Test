@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "WildFind",
+    "name": "Djurapp",
     "slug": "mobile",
     "scheme": "wildfind",
     "version": "1.0.0",
@@ -27,7 +27,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "WildFind använder kameran för att identifiera djur du hittar."
+          "cameraPermission": "Djurapp använder kameran för att identifiera djur du hittar."
         }
       ]
     ]
