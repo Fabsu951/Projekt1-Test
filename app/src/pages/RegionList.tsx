@@ -20,7 +20,7 @@ export default function RegionList() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>Fjällvarning</h1>
+        <h1>Områden</h1>
         <p className="page__lead">
           Samlad lavinprognos, väder och säkerhetsinfo för svenska fjällen.
         </p>

@@ -8,6 +8,7 @@ import type { WeatherPoint } from "../types/weather";
 import DangerBadge from "../components/DangerBadge";
 import DangerScaleGuide from "../components/DangerScaleGuide";
 import SafetyChecklist from "../components/SafetyChecklist";
+import AvalancheProblems from "../components/AvalancheProblems";
 import { formatTime, symbolLabel, windCompass } from "../utils/weatherFormat";
 
 export default function RegionDetail() {
@@ -48,6 +49,13 @@ export default function RegionDetail() {
 
       {forecast?.isPlaceholder && (
         <div className="notice">{forecast.summary}</div>
+      )}
+
+      {forecast && forecast.problems.length > 0 && (
+        <section className="section">
+          <h2>Lavinproblem</h2>
+          <AvalancheProblems problems={forecast.problems} />
+        </section>
       )}
 
       <section className="section">
