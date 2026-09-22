@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Projekt1</string>
-    <string name="title_activity_main">Projekt1</string>
+    <string name="app_name">Fjällvarning</string>
+    <string name="title_activity_main">Fjällvarning</string>
     <string name="package_name">com.fabsu951.projekt1</string>
     <string name="custom_url_scheme">com.fabsu951.projekt1</string>
 </resources>
