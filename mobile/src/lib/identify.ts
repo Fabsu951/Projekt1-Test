@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 import { getApiUrl } from './config';
 import { buildSpeciesFromLabel, findBundledSpeciesByName, type Species } from './species';
