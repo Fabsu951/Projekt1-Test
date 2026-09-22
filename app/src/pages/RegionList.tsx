@@ -3,6 +3,7 @@ import { REGIONS } from "../data/regions";
 import { fetchAllForecasts } from "../services/avalancheService";
 import type { AvalancheForecast } from "../types/avalanche";
 import RegionCard from "../components/RegionCard";
+import NearestRegion from "../components/NearestRegion";
 
 export default function RegionList() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
@@ -25,6 +26,10 @@ export default function RegionList() {
           Samlad lavinprognos, väder och säkerhetsinfo för svenska fjällen.
         </p>
       </header>
+
+      <div className="nearest-region">
+        <NearestRegion />
+      </div>
 
       {anyPlaceholder && (
         <div className="notice">

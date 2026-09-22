@@ -133,6 +133,35 @@
   color: var(--text-muted);
 }
 
+.nearest-region {
+  margin-bottom: 16px;
+}
+
+.nearest-region__button {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.nearest-region__status {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.nearest-region__result {
+  display: inline-block;
+  background: var(--bg-elevated);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+}
+
 .region-list {
   display: flex;
   flex-direction: column;
