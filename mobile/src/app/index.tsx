@@ -11,7 +11,8 @@ type Stage =
   | { name: 'camera' }
   | { name: 'identifying'; photoUri: string }
   | { name: 'result'; photoUri: string; result: IdentificationResult; isNewSpecies: boolean }
-  | { name: 'saved'; xpAwarded: number };
+  | { name: 'saved'; xpAwarded: number }
+  | { name: 'error'; message: string };
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -27,9 +28,13 @@ export default function CameraScreen() {
 
     setStage({ name: 'identifying', photoUri: photo.uri });
 
-    const result = await identifySpecies(photo.uri);
-    const isNewSpecies = !(await hasSeenSpecies(result.species.taxonId));
-    setStage({ name: 'result', photoUri: photo.uri, result, isNewSpecies });
+    try {
+      const result = await identifySpecies(photo.uri);
+      const isNewSpecies = !(await hasSeenSpecies(result.species.taxonId));
+      setStage({ name: 'result', photoUri: photo.uri, result, isNewSpecies });
+    } catch (err) {
+      setStage({ name: 'error', message: err instanceof Error ? err.message : String(err) });
+    }
   }
 
   async function handleSave() {
@@ -112,12 +117,24 @@ export default function CameraScreen() {
     );
   }
 
+  if (stage.name === 'saved') {
+    return (
+      <SafeAreaView style={styles.centered}>
+        <Text style={styles.speciesName}>+{stage.xpAwarded} XP</Text>
+        <Text style={styles.message}>Fyndet är sparat i din samling.</Text>
+        <Pressable style={styles.button} onPress={handleRetake}>
+          <Text style={styles.buttonText}>Hitta nästa djur</Text>
+        </Pressable>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.centered}>
-      <Text style={styles.speciesName}>+{stage.xpAwarded} XP</Text>
-      <Text style={styles.message}>Fyndet är sparat i din samling.</Text>
+      <Text style={styles.speciesName}>Något gick fel</Text>
+      <Text style={styles.message}>{stage.message}</Text>
       <Pressable style={styles.button} onPress={handleRetake}>
-        <Text style={styles.buttonText}>Hitta nästa djur</Text>
+        <Text style={styles.buttonText}>Försök igen</Text>
       </Pressable>
     </SafeAreaView>
   );

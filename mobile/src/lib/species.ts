@@ -30,3 +30,27 @@ export function xpForRarity(rarity: Species['rarity']): number {
       return 10;
   }
 }
+
+/** Case-insensitive lookup against the small curated list above. */
+export function findBundledSpeciesByName(label: string): Species | undefined {
+  const normalized = label.trim().toLowerCase();
+  return Object.values(SPECIES_BY_TAXON_ID).find(
+    (s) => s.commonName.toLowerCase() === normalized || s.scientificName.toLowerCase() === normalized
+  );
+}
+
+/**
+ * Wraps a raw label from the vision API (no family/rarity data) into the
+ * same Species shape the rest of the app expects. taxonId is derived from
+ * the label itself since the API doesn't give us a stable identifier.
+ */
+export function buildSpeciesFromLabel(label: string): Species {
+  const taxonId = `label:${label.trim().toLowerCase().replace(/\s+/g, '-')}`;
+  return {
+    taxonId,
+    commonName: label,
+    scientificName: '',
+    family: 'Okänd',
+    rarity: 'common',
+  };
+}

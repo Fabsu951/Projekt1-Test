@@ -1,24 +1,31 @@
-import { SPECIES_BY_TAXON_ID, type Species } from './species';
+import * as FileSystem from 'expo-file-system';
+
+import { getApiUrl } from './config';
+import { buildSpeciesFromLabel, findBundledSpeciesByName, type Species } from './species';
 
 export type IdentificationResult = {
   species: Species;
   confidence: number;
 };
 
-/**
- * Stand-in for the real identifier. The plan is to swap this for the
- * on-device iNaturalist "Seek" TFLite model (offline, no account/network
- * needed) — see the tech-stack notes. Keeping the same return shape means
- * that swap only touches this file.
- */
 export async function identifySpecies(photoUri: string): Promise<IdentificationResult> {
-  await new Promise((resolve) => setTimeout(resolve, 1200));
+  const imageBase64 = await FileSystem.readAsStringAsync(photoUri, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
 
-  const taxonIds = Object.keys(SPECIES_BY_TAXON_ID);
-  const randomTaxonId = taxonIds[Math.floor(Math.random() * taxonIds.length)];
+  const response = await fetch(`${getApiUrl()}/identify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageBase64 }),
+  });
 
-  return {
-    species: SPECIES_BY_TAXON_ID[randomTaxonId],
-    confidence: 0.7 + Math.random() * 0.3,
-  };
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    throw new Error(`Identifiering misslyckades (${response.status}): ${body}`);
+  }
+
+  const data: { label: string; confidence: number } = await response.json();
+  const species = findBundledSpeciesByName(data.label) ?? buildSpeciesFromLabel(data.label);
+
+  return { species, confidence: data.confidence };
 }
