@@ -4,14 +4,15 @@ import { fetchAllForecasts } from "../services/avalancheService";
 import type { AvalancheForecast } from "../types/avalanche";
 import RegionCard from "../components/RegionCard";
 import NearestRegion from "../components/NearestRegion";
+import { withCache } from "../services/cache";
 
 export default function RegionList() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
 
   useEffect(() => {
-    fetchAllForecasts().then((list) => {
+    withCache("forecasts:all", fetchAllForecasts).then((result) => {
       const byId: Record<string, AvalancheForecast> = {};
-      for (const f of list) byId[f.regionId] = f;
+      for (const f of result.data) byId[f.regionId] = f;
       setForecasts(byId);
     });
   }, []);

@@ -82,6 +82,14 @@
   margin: 6px 0 0;
 }
 
+.notice--stale {
+  background: #16232f;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 8px 12px;
+}
+
 .error {
   color: #ff8a80;
 }

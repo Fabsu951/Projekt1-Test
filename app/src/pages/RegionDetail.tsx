@@ -10,6 +10,7 @@ import DangerScaleGuide from "../components/DangerScaleGuide";
 import SafetyChecklist from "../components/SafetyChecklist";
 import AvalancheProblems from "../components/AvalancheProblems";
 import { formatTime, symbolLabel, windCompass } from "../utils/weatherFormat";
+import { withCache } from "../services/cache";
 
 export default function RegionDetail() {
   const { id = "" } = useParams();
@@ -18,12 +19,19 @@ export default function RegionDetail() {
   const [forecast, setForecast] = useState<AvalancheForecast | null>(null);
   const [weather, setWeather] = useState<WeatherPoint[] | null>(null);
   const [weatherError, setWeatherError] = useState<string | null>(null);
+  const [weatherCachedAt, setWeatherCachedAt] = useState<string | null>(null);
+  const [weatherStale, setWeatherStale] = useState(false);
 
   useEffect(() => {
     if (!region) return;
     fetchForecast(region.id).then(setForecast);
-    fetchWeather(region.lat, region.lon)
-      .then(setWeather)
+
+    withCache(`weather:${region.id}`, () => fetchWeather(region.lat, region.lon))
+      .then((result) => {
+        setWeather(result.data);
+        setWeatherCachedAt(result.cachedAt);
+        setWeatherStale(result.stale);
+      })
       .catch((err) => setWeatherError(err.message));
   }, [region]);
 
@@ -62,6 +70,12 @@ export default function RegionDetail() {
         <h2>Väder</h2>
         {weatherError && <p className="error">Kunde inte hämta väderdata: {weatherError}</p>}
         {!weather && !weatherError && <p>Laddar väderdata…</p>}
+        {weatherStale && (
+          <p className="notice notice--stale">
+            Ingen kontakt just nu — visar sparad väderdata från{" "}
+            {weatherCachedAt ? formatTime(weatherCachedAt) : "tidigare"}.
+          </p>
+        )}
         {weather && (
           <div className="weather-table">
             {weather
