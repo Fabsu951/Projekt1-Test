@@ -4,8 +4,8 @@ import { MapContainer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { REGIONS } from "../data/regions";
-import { fetchAllForecasts } from "../services/avalancheService";
-import { withCache } from "../services/cache";
+import { loadForecasts } from "../services/avalancheService";
+import { forecastLabel } from "../utils/forecastLabel";
 import { getDangerInfo } from "../data/dangerScale";
 import type { AvalancheForecast } from "../types/avalanche";
 import SlopeLayer from "../components/SlopeLayer";
@@ -24,9 +24,9 @@ const SLOPE_LEGEND: Array<[string, string]> = [
 const SWEDEN_FJALL_CENTER: [number, number] = [65.6, 15.2];
 const DEFAULT_ZOOM = 5;
 
-function dangerIcon(dangerLevel: number | undefined): L.DivIcon {
+function dangerIcon(dangerLevel: number | null | undefined): L.DivIcon {
   const color = dangerLevel ? getDangerInfo(dangerLevel).color : "#5c6b7a";
-  const isDark = dangerLevel !== undefined && dangerLevel >= 5;
+  const isDark = !!dangerLevel && dangerLevel >= 5;
   return L.divIcon({
     className: "region-marker",
     html: `<span style="background:${color}; color:${isDark ? "#fff" : "#1a1a1a"}">${
@@ -43,11 +43,7 @@ export default function MapPage() {
   const [showSlope, setShowSlope] = useState(false);
 
   useEffect(() => {
-    withCache("forecasts:all", fetchAllForecasts).then((result) => {
-      const byId: Record<string, AvalancheForecast> = {};
-      for (const f of result.data) byId[f.regionId] = f;
-      setForecasts(byId);
-    });
+    loadForecasts().then((result) => setForecasts(result.byId));
   }, []);
 
   return (
@@ -105,7 +101,7 @@ export default function MapPage() {
                 {forecasts[region.id] && (
                   <>
                     <br />
-                    {getDangerInfo(forecasts[region.id].dangerLevel).label}
+                    {forecastLabel(forecasts[region.id])}
                   </>
                 )}
                 <br />

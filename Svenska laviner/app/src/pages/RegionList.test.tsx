@@ -3,54 +3,57 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import RegionList from "./RegionList";
 import { REGIONS } from "../data/regions";
+import type { AvalancheForecast, ForecastStatus } from "../types/avalanche";
 
-const { mockForecasts } = vi.hoisted(() => {
-  return {
-    mockForecasts: vi.fn(),
-  };
-});
+const { mockLoad } = vi.hoisted(() => ({ mockLoad: vi.fn() }));
 
-vi.mock("../services/avalancheService", () => ({
-  fetchAllForecasts: mockForecasts,
-}));
+vi.mock("../services/avalancheService", () => ({ loadForecasts: mockLoad }));
 
-mockForecasts.mockResolvedValue(
-  REGIONS.map((r) => ({
-    regionId: r.id,
-    dangerLevel: 2,
-    validFrom: "2026-01-01",
-    problems: [],
-    summary: "test",
-    isPlaceholder: true,
-  }))
-);
+function forecasts(status: ForecastStatus, dangerLevel: AvalancheForecast["dangerLevel"]) {
+  const byId: Record<string, AvalancheForecast> = {};
+  for (const r of REGIONS) {
+    byId[r.id] = {
+      regionId: r.id,
+      status,
+      dangerLevel,
+      problems: [],
+      headline: null,
+      publishedText: null,
+      sourceUrl: "https://www.lavinprognoser.se/",
+    };
+  }
+  return { byId, stale: false, cachedAt: null };
+}
+
+function renderList() {
+  render(
+    <MemoryRouter>
+      <RegionList />
+    </MemoryRouter>
+  );
+}
 
 describe("RegionList", () => {
   it("renders a card for every region with its danger level once loaded", async () => {
-    render(
-      <MemoryRouter>
-        <RegionList />
-      </MemoryRouter>
-    );
+    mockLoad.mockResolvedValue(forecasts("published", 2));
+    renderList();
 
     for (const region of REGIONS) {
       expect(screen.getByText(region.name)).toBeInTheDocument();
     }
-
     await waitFor(() => {
       expect(screen.getAllByText(/Måttlig fara/)).toHaveLength(REGIONS.length);
     });
   });
 
-  it("shows the placeholder-data notice when forecasts are marked as placeholders", async () => {
-    render(
-      <MemoryRouter>
-        <RegionList />
-      </MemoryRouter>
-    );
+  it("shows 'Säsongen slut' and a season notice instead of any danger level off-season", async () => {
+    mockLoad.mockResolvedValue(forecasts("season-over", null));
+    renderList();
 
     await waitFor(() => {
-      expect(screen.getByText(/exempeldata/)).toBeInTheDocument();
+      expect(screen.getAllByText("Säsongen slut")).toHaveLength(REGIONS.length);
     });
+    expect(screen.getByText(/Prognossäsongen är slut/)).toBeInTheDocument();
+    expect(screen.queryByText(/fara/)).not.toBeInTheDocument();
   });
 });

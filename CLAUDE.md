@@ -48,9 +48,20 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
     WMTS product at `/topowebb` so those credentials never reach the client
     bundle (this was a deliberate choice over embedding them client-side —
     see commit history around "Add Lantmäteriet topo basemap via Worker
-    proxy"). Also has a `/forecasts` route that scrapes lavinprognoser.se
-    (built but not yet wired into the frontend — the app currently generates
-    its own placeholder/synthetic forecasts client-side).
+    proxy"). Also has a `/forecasts` route that scrapes lavinprognoser.se.
+    The app reads it via `loadForecasts()` in `avalancheService.ts` (same
+    `VITE_MAP_PROXY_URL` base). The old synthetic placeholder forecasts are
+    **gone on purpose** — anything not fetched/parsed confidently shows as
+    "Ingen prognos"/"Säsongen slut"/"Ej bedömd" plus a link to the official
+    page; never reintroduce guessed danger levels. Avalanche problems are
+    not scraped, so that section only appears if a future source adds them.
+  - **Scraper not yet validated against the live site** (unreachable from
+    cloud sessions): 3 of 6 slugs in `worker/src/regions.ts` are guessed,
+    and `parse.ts`'s regexes are based on the toppturvarsel scraper, not
+    real markup. Check `https://fjallvarning-worker.fabian-n-sund.workers.dev/forecasts`
+    once the season starts (mid-December) — `fetchError` on a region means a
+    bad slug; `confidence: "none"` means the parser missed. Also watch that
+    `/ej\s+bedömd/` doesn't false-positive on a page legend.
 - Full rebuild+redeploy sequence when app code changes:
     ```powershell
     cd C:\Users\fabia\Documents\fjallvarning-repo

@@ -319,6 +319,46 @@
   box-shadow: 0 0 0 2px var(--snow);
 }
 
+.danger-badge--none {
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.official-forecast {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--signal);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-size: 0.92rem;
+}
+
+.official-forecast--none {
+  border-left-color: var(--border);
+  color: var(--text-muted);
+}
+
+.official-forecast p {
+  margin: 0 0 8px;
+}
+
+.official-forecast__headline {
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.official-forecast__meta {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.official-forecast__link {
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .danger-badge--large {
   font-size: 1.1rem;
   padding: 8px 16px;

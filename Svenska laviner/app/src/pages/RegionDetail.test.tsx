@@ -8,7 +8,7 @@ const { mockWeather } = vi.hoisted(() => ({ mockWeather: vi.fn() }));
 
 vi.mock("../services/weatherService", () => ({ fetchWeather: mockWeather }));
 vi.mock("../services/avalancheService", () => ({
-  fetchForecast: vi.fn().mockResolvedValue(null),
+  loadForecasts: vi.fn().mockResolvedValue({ byId: {}, stale: false, cachedAt: null }),
 }));
 vi.mock("../services/windStationService", () => ({
   findNearestWindStation: vi.fn().mockRejectedValue(new Error("offline")),

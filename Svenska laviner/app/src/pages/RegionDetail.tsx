@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getRegionById } from "../data/regions";
-import { fetchForecast } from "../services/avalancheService";
+import { loadForecasts } from "../services/avalancheService";
 import { fetchWeather } from "../services/weatherService";
 import type { AvalancheForecast } from "../types/avalanche";
 import type { WeatherPoint } from "../types/weather";
-import DangerBadge from "../components/DangerBadge";
+import ForecastBadge from "../components/ForecastBadge";
+import OfficialForecast from "../components/OfficialForecast";
 import DangerScaleGuide from "../components/DangerScaleGuide";
 import SafetyChecklist from "../components/SafetyChecklist";
 import AvalancheProblems from "../components/AvalancheProblems";
@@ -26,6 +27,7 @@ export default function RegionDetail() {
   const region = getRegionById(id);
 
   const [forecast, setForecast] = useState<AvalancheForecast | null>(null);
+  const [forecastStale, setForecastStale] = useState(false);
   const [weather, setWeather] = useState<WeatherPoint[] | null>(null);
   const [weatherError, setWeatherError] = useState<string | null>(null);
   const [weatherCachedAt, setWeatherCachedAt] = useState<string | null>(null);
@@ -37,7 +39,10 @@ export default function RegionDetail() {
 
   useEffect(() => {
     if (!region) return;
-    fetchForecast(region.id).then(setForecast);
+    loadForecasts().then((result) => {
+      setForecast(result.byId[region.id] ?? null);
+      setForecastStale(result.stale);
+    });
 
     withCache(`weather:${region.id}`, () => fetchWeather(region.lat, region.lon))
       .then((result) => {
@@ -77,15 +82,16 @@ export default function RegionDetail() {
         <h1>{region.name}</h1>
         <p className="page__lead">{region.subAreas.join(" · ")}</p>
         {forecast ? (
-          <DangerBadge level={forecast.dangerLevel} size="large" />
+          <ForecastBadge forecast={forecast} size="large" />
         ) : (
           <span className="skeleton skeleton--badge skeleton--badge-large" aria-label="Laddar farograd" />
         )}
       </header>
 
-      {forecast?.isPlaceholder && (
-        <div className="notice">{forecast.summary}</div>
+      {forecastStale && (
+        <p className="notice notice--stale">Ingen kontakt just nu — visar senast sparade prognos.</p>
       )}
+      {forecast && <OfficialForecast forecast={forecast} />}
 
       <section className="section">
         <h2>Om området</h2>

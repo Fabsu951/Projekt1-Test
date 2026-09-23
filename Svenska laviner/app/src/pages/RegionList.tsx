@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
 import { REGIONS } from "../data/regions";
-import { fetchAllForecasts } from "../services/avalancheService";
+import { loadForecasts } from "../services/avalancheService";
 import type { AvalancheForecast } from "../types/avalanche";
 import RegionCard from "../components/RegionCard";
 import NearestRegion from "../components/NearestRegion";
-import { withCache } from "../services/cache";
 
 export default function RegionList() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
+  const [stale, setStale] = useState(false);
 
   useEffect(() => {
-    withCache("forecasts:all", fetchAllForecasts).then((result) => {
-      const byId: Record<string, AvalancheForecast> = {};
-      for (const f of result.data) byId[f.regionId] = f;
-      setForecasts(byId);
+    loadForecasts().then((result) => {
+      setForecasts(result.byId);
+      setStale(result.stale);
     });
   }, []);
 
-  const anyPlaceholder = Object.values(forecasts).some((f) => f.isPlaceholder);
+  const loaded = Object.values(forecasts);
+  const allSeasonOver = loaded.length > 0 && loaded.every((f) => f.status === "season-over");
 
   return (
     <div className="page">
@@ -32,11 +32,14 @@ export default function RegionList() {
         <NearestRegion />
       </div>
 
-      {anyPlaceholder && (
+      {allSeasonOver && (
         <div className="notice">
-          Lavinprognoserna nedan är exempeldata i väntan på inkoppling mot
-          Naturvårdsverkets officiella källa.
+          Prognossäsongen är slut. Naturvårdsverket publicerar lavinprognoser
+          mitten av december–mitten av maj.
         </div>
+      )}
+      {stale && (
+        <p className="notice notice--stale">Ingen kontakt just nu — visar senast sparade prognoser.</p>
       )}
 
       <div className="region-list">
@@ -44,6 +47,14 @@ export default function RegionList() {
           <RegionCard key={region.id} region={region} forecast={forecasts[region.id]} />
         ))}
       </div>
+
+      <p className="source-list">
+        Farograder från Naturvårdsverkets{" "}
+        <a href="https://www.lavinprognoser.se/" target="_blank" rel="noreferrer">
+          lavinprognoser.se
+        </a>
+        .
+      </p>
     </div>
   );
 }

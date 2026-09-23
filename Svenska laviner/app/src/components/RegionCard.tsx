@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import type { AvalancheRegion, AvalancheForecast } from "../types/avalanche";
-import DangerBadge from "./DangerBadge";
+import ForecastBadge from "./ForecastBadge";
 
 interface Props {
   region: AvalancheRegion;
@@ -15,7 +15,7 @@ export default function RegionCard({ region, forecast }: Props) {
         <p className="region-card__sub">{region.subAreas.join(" · ")}</p>
       </div>
       {forecast ? (
-        <DangerBadge level={forecast.dangerLevel} />
+        <ForecastBadge forecast={forecast} />
       ) : (
         <span className="skeleton skeleton--badge" aria-label="Laddar farograd" />
       )}
