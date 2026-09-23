@@ -1,7 +1,18 @@
 import { REGION_SOURCES } from "./regions";
 import { parseForecastHtml, type ParsedForecast } from "./parse";
 import { corsHeaders, error, HttpError, json } from "./http";
-import { type CommunityEnv, currentUser, deleteAccount, login, logout, register } from "./auth";
+import {
+  type CommunityEnv,
+  currentUser,
+  deleteAccount,
+  forgotPassword,
+  login,
+  logout,
+  register,
+  resendVerification,
+  resetPassword,
+  verifyEmail,
+} from "./auth";
 import {
   createObservation,
   deleteObservation,
@@ -154,6 +165,11 @@ async function handleCommunity(request: Request, env: Env, origin: string): Prom
       return user ? json({ user }, origin) : error("Du är inte inloggad.", origin, 401);
     }
     if (pathname === "/auth/me" && method === "DELETE") return json(await deleteAccount(request, env), origin);
+    if (pathname === "/auth/verify" && method === "POST") return json(await verifyEmail(request, env), origin);
+    if (pathname === "/auth/resend-verification" && method === "POST")
+      return json(await resendVerification(request, env), origin);
+    if (pathname === "/auth/forgot" && method === "POST") return json(await forgotPassword(request, env), origin);
+    if (pathname === "/auth/reset" && method === "POST") return json(await resetPassword(request, env), origin);
 
     if (pathname === "/observations" && method === "GET") return json(await listObservations(request, env), origin);
     if (pathname === "/observations" && method === "POST")

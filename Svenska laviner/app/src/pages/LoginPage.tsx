@@ -54,6 +54,9 @@ export default function LoginPage() {
         </button>
       </form>
       <p className="form__alt">
+        <Link to="/glomt-losenord">Glömt lösenordet?</Link>
+      </p>
+      <p className="form__alt">
         Inget konto? <Link to={`/registrera?next=${encodeURIComponent(next)}`}>Skapa ett här</Link>
       </p>
     </div>

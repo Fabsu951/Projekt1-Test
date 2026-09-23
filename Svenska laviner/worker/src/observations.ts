@@ -1,4 +1,4 @@
-import { type CommunityEnv, type User, requireUser } from "./auth";
+import { type CommunityEnv, type User, requirePoster, requireUser } from "./auth";
 import { HttpError, nowIso } from "./http";
 import { REGION_SOURCES } from "./regions";
 
@@ -124,7 +124,7 @@ function field(form: FormData, name: string): string {
 }
 
 export async function createObservation(request: Request, env: CommunityEnv) {
-  const user = await requireUser(request, env);
+  const user = await requirePoster(request, env);
 
   const since = new Date(Date.now() - 3600 * 1000).toISOString();
   const recent = await env.DB.prepare("SELECT COUNT(*) AS n FROM observations WHERE user_id = ? AND created_at > ?")
@@ -205,7 +205,7 @@ async function getRow(env: CommunityEnv, id: number): Promise<ObservationRow> {
 }
 
 export async function reportObservation(request: Request, env: CommunityEnv, id: number) {
-  const user = await requireUser(request, env);
+  const user = await requirePoster(request, env);
   const row = await getRow(env, id);
   if (row.user_id === user.id) throw new HttpError(400, "Du kan inte anmäla din egen observation.");
 

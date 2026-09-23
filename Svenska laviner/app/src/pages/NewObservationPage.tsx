@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import LocationPicker, { type Point } from "../components/LocationPicker";
 import PageLoading from "../components/PageLoading";
+import VerifyEmailNotice from "../components/VerifyEmailNotice";
 import { OBSERVATION_TYPES } from "../data/observationTypes";
 import { REGIONS } from "../data/regions";
 import { createObservation } from "../services/observationService";
@@ -36,6 +37,16 @@ export default function NewObservationPage() {
 
   if (loading) return <PageLoading />;
   if (!user || !token) return <Navigate to="/logga-in?next=/observationer/ny" replace />;
+  if (!user.canPost) {
+    return (
+      <div className="page">
+        <header className="page__header">
+          <h1>Ny observation</h1>
+        </header>
+        <VerifyEmailNotice />
+      </div>
+    );
+  }
 
   async function onImage(file: File | undefined) {
     setError(null);

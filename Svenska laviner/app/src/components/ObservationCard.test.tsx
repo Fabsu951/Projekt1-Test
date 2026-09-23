@@ -28,9 +28,10 @@ function as(user: User | null) {
   render(<ObservationCard observation={obs} />);
 }
 
-const owner: User = { id: 1, email: "a@b.se", displayName: "Fjällräv", isAdmin: false };
-const other: User = { id: 2, email: "c@d.se", displayName: "Annan", isAdmin: false };
-const admin: User = { id: 3, email: "e@f.se", displayName: "Admin", isAdmin: true };
+const base = { emailVerified: true, canPost: true };
+const owner: User = { ...base, id: 1, email: "a@b.se", displayName: "Fjällräv", isAdmin: false };
+const other: User = { ...base, id: 2, email: "c@d.se", displayName: "Annan", isAdmin: false };
+const admin: User = { ...base, id: 3, email: "e@f.se", displayName: "Admin", isAdmin: true };
 
 describe("ObservationCard", () => {
   it("shows the type label, author, region, and text", () => {
@@ -56,6 +57,11 @@ describe("ObservationCard", () => {
     as(other);
     expect(screen.getByRole("button", { name: "Anmäl" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Ta bort" })).not.toBeInTheDocument();
+  });
+
+  it("hides the report button until the user may post (email unverified)", () => {
+    as({ ...other, emailVerified: false, canPost: false });
+    expect(screen.queryByRole("button", { name: "Anmäl" })).not.toBeInTheDocument();
   });
 
   it("lets admins delete anyone's observation", () => {

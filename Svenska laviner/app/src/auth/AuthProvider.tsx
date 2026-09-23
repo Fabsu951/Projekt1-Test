@@ -84,6 +84,17 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         setToken(null);
         setUser(null);
       },
+      async refreshUser() {
+        if (!token) return;
+        const { user } = await api<{ user: User }>("/auth/me", { token });
+        setUser(user);
+      },
+      async resendVerification() {
+        await api("/auth/resend-verification", { method: "POST", token });
+      },
+      async resetPassword(resetToken, password) {
+        await start(await api("/auth/reset", { method: "POST", json: { token: resetToken, password } }));
+      },
     }),
     [user, token, loading, start]
   );

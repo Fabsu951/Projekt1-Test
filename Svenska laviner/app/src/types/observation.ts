@@ -21,4 +21,7 @@ export interface User {
   email: string;
   displayName: string;
   isAdmin: boolean;
+  emailVerified: boolean;
+  /** False until the email is verified (when the server enforces it). */
+  canPost: boolean;
 }

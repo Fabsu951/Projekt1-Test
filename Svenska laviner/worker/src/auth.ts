@@ -1,6 +1,7 @@
 import { HttpError, readJson, nowIso } from "./http";
+import { appUrl, emailConfigured, type EmailEnv, resetEmail, sendEmail, verificationEmail } from "./email";
 
-export interface CommunityEnv {
+export interface CommunityEnv extends EmailEnv {
   DB: D1Database;
   IMAGES: R2Bucket;
 }
@@ -10,6 +11,13 @@ export interface User {
   email: string;
   displayName: string;
   isAdmin: boolean;
+  emailVerified: boolean;
+  /**
+   * Whether this user may post/report. Requires a verified email once
+   * email sending is configured; before that, verification can't happen,
+   * so it isn't enforced.
+   */
+  canPost: boolean;
 }
 
 // Cloudflare Workers cap PBKDF2 at 100k iterations.
@@ -88,12 +96,23 @@ interface UserRow {
   email: string;
   display_name: string;
   is_admin: number;
+  email_verified: number;
   password_hash: string;
 }
 
-function toUser(row: UserRow): User {
-  return { id: row.id, email: row.email, displayName: row.display_name, isAdmin: row.is_admin === 1 };
+function toUser(row: UserRow, env: CommunityEnv): User {
+  const emailVerified = row.email_verified === 1;
+  return {
+    id: row.id,
+    email: row.email,
+    displayName: row.display_name,
+    isAdmin: row.is_admin === 1,
+    emailVerified,
+    canPost: emailVerified || !emailConfigured(env),
+  };
 }
+
+const USER_COLUMNS = "u.id, u.email, u.display_name, u.is_admin, u.email_verified, u.password_hash";
 
 function bearerToken(request: Request): string | null {
   const header = request.headers.get("Authorization") ?? "";
@@ -105,19 +124,140 @@ export async function currentUser(request: Request, env: CommunityEnv): Promise<
   const token = bearerToken(request);
   if (!token) return null;
   const row = await env.DB.prepare(
-    `SELECT u.id, u.email, u.display_name, u.is_admin, u.password_hash
+    `SELECT ${USER_COLUMNS}
        FROM sessions s JOIN users u ON u.id = s.user_id
       WHERE s.token_hash = ? AND s.expires_at > ?`
   )
     .bind(await sha256(token), nowIso())
     .first<UserRow>();
-  return row ? toUser(row) : null;
+  return row ? toUser(row, env) : null;
 }
 
 export async function requireUser(request: Request, env: CommunityEnv): Promise<User> {
   const user = await currentUser(request, env);
   if (!user) throw new HttpError(401, "Du behöver logga in.");
   return user;
+}
+
+/** For posting and reporting: logged in and (when enforced) email verified. */
+export async function requirePoster(request: Request, env: CommunityEnv): Promise<User> {
+  const user = await requireUser(request, env);
+  if (!user.canPost) throw new HttpError(403, "Bekräfta din e-postadress först — kolla din inkorg.");
+  return user;
+}
+
+const VERIFY_TTL_MS = 24 * 3600 * 1000;
+const RESET_TTL_MS = 3600 * 1000;
+/** Per user and purpose, to stop the endpoints being used to spam an inbox. */
+const MAX_EMAILS_PER_HOUR = 3;
+
+async function createEmailToken(
+  env: CommunityEnv,
+  userId: number,
+  purpose: "verify" | "reset",
+  ttlMs: number
+): Promise<string | null> {
+  const hourAgo = new Date(Date.now() - 3600 * 1000).toISOString();
+  const recent = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM email_tokens WHERE user_id = ? AND purpose = ? AND created_at > ?"
+  )
+    .bind(userId, purpose, hourAgo)
+    .first<{ n: number }>();
+  if ((recent?.n ?? 0) >= MAX_EMAILS_PER_HOUR) return null;
+
+  const token = toBase64Url(crypto.getRandomValues(new Uint8Array(32)));
+  const now = new Date();
+  await env.DB.prepare(
+    "INSERT INTO email_tokens (token_hash, user_id, purpose, created_at, expires_at) VALUES (?, ?, ?, ?, ?)"
+  )
+    .bind(await sha256(token), userId, purpose, now.toISOString(), new Date(now.getTime() + ttlMs).toISOString())
+    .run();
+  return token;
+}
+
+/** Marks a token used and returns its user id, or throws if invalid/expired/used. */
+async function consumeEmailToken(env: CommunityEnv, token: string, purpose: "verify" | "reset"): Promise<number> {
+  const hash = await sha256(token);
+  const now = nowIso();
+  const row = await env.DB.prepare(
+    "SELECT user_id FROM email_tokens WHERE token_hash = ? AND purpose = ? AND used_at IS NULL AND expires_at > ?"
+  )
+    .bind(hash, purpose, now)
+    .first<{ user_id: number }>();
+  if (!row) throw new HttpError(400, "Länken är ogiltig eller har gått ut. Begär en ny.");
+  // Conditional update so two simultaneous requests can't both use it.
+  const used = await env.DB.prepare("UPDATE email_tokens SET used_at = ? WHERE token_hash = ? AND used_at IS NULL")
+    .bind(now, hash)
+    .run();
+  if (used.meta.changes === 0) throw new HttpError(400, "Länken är redan använd.");
+  return row.user_id;
+}
+
+async function sendVerification(env: CommunityEnv, user: { id: number; email: string; displayName: string }) {
+  const token = await createEmailToken(env, user.id, "verify", VERIFY_TTL_MS);
+  if (!token) throw new HttpError(429, "Vi har redan skickat flera mejl. Vänta en stund och försök igen.");
+  try {
+    await sendEmail(env, verificationEmail(user.email, user.displayName, `${appUrl(env)}/verifiera?token=${token}`));
+  } catch {
+    throw new HttpError(502, "Kunde inte skicka mejlet just nu. Försök igen om en stund.");
+  }
+}
+
+export async function resendVerification(request: Request, env: CommunityEnv) {
+  const user = await requireUser(request, env);
+  if (user.emailVerified) return { ok: true, alreadyVerified: true };
+  await sendVerification(env, user);
+  return { ok: true };
+}
+
+export async function verifyEmail(request: Request, env: CommunityEnv) {
+  const { token } = await readJson<{ token?: string }>(request);
+  if (!token) throw new HttpError(400, "Länken är ogiltig.");
+  const userId = await consumeEmailToken(env, token, "verify");
+  await env.DB.prepare("UPDATE users SET email_verified = 1 WHERE id = ?").bind(userId).run();
+  return { ok: true };
+}
+
+/** Always answers the same way, so it can't be used to find out who has an account. */
+export async function forgotPassword(request: Request, env: CommunityEnv) {
+  const { email } = await readJson<{ email?: string }>(request);
+  const row = await env.DB.prepare("SELECT id, email, display_name FROM users WHERE email = ?")
+    .bind((email ?? "").trim().toLowerCase())
+    .first<{ id: number; email: string; display_name: string }>();
+  if (row) {
+    const token = await createEmailToken(env, row.id, "reset", RESET_TTL_MS);
+    if (token) {
+      try {
+        await sendEmail(env, resetEmail(row.email, row.display_name, `${appUrl(env)}/aterstall-losenord?token=${token}`));
+      } catch {
+        // Don't reveal (via a different error) that this address has an account.
+      }
+    }
+  }
+  return { ok: true };
+}
+
+export async function resetPassword(request: Request, env: CommunityEnv) {
+  const { token, password } = await readJson<{ token?: string; password?: string }>(request);
+  if (!password || password.length < MIN_PASSWORD_LENGTH || password.length > 200)
+    throw new HttpError(400, `Lösenordet måste vara minst ${MIN_PASSWORD_LENGTH} tecken.`);
+  if (!token) throw new HttpError(400, "Länken är ogiltig.");
+  const userId = await consumeEmailToken(env, token, "reset");
+  // A reset link proves control of the inbox, so it also verifies the email.
+  // Every existing session is logged out.
+  await env.DB.batch([
+    env.DB.prepare("UPDATE users SET password_hash = ?, email_verified = 1 WHERE id = ?").bind(
+      await hashPassword(password),
+      userId
+    ),
+    env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(userId),
+    env.DB.prepare("UPDATE email_tokens SET used_at = ? WHERE user_id = ? AND purpose = 'reset' AND used_at IS NULL").bind(
+      nowIso(),
+      userId
+    ),
+  ]);
+  const row = await env.DB.prepare(`SELECT ${USER_COLUMNS} FROM users u WHERE u.id = ?`).bind(userId).first<UserRow>();
+  return { token: await createSession(env, userId), user: toUser(row!, env) };
 }
 
 interface RegisterBody {
@@ -155,22 +295,36 @@ export async function register(request: Request, env: CommunityEnv) {
     .run();
   const userId = Number(result.meta.last_row_id);
   const token = await createSession(env, userId);
-  return { token, user: { id: userId, email, displayName, isAdmin: false } satisfies User };
+  try {
+    await sendVerification(env, { id: userId, email, displayName });
+  } catch (err) {
+    // The account exists either way; the user can resend from their profile.
+    console.error("verification email failed", err);
+  }
+  return {
+    token,
+    user: {
+      id: userId,
+      email,
+      displayName,
+      isAdmin: false,
+      emailVerified: false,
+      canPost: !emailConfigured(env),
+    } satisfies User,
+  };
 }
 
 export async function login(request: Request, env: CommunityEnv) {
   const body = await readJson<{ email?: string; password?: string }>(request);
   const email = (body.email ?? "").trim().toLowerCase();
-  const row = await env.DB.prepare(
-    "SELECT id, email, display_name, is_admin, password_hash FROM users WHERE email = ?"
-  )
+  const row = await env.DB.prepare(`SELECT ${USER_COLUMNS} FROM users u WHERE u.email = ?`)
     .bind(email)
     .first<UserRow>();
   // Same message either way, so the endpoint doesn't reveal which emails have accounts.
   if (!row || !(await verifyPassword(body.password ?? "", row.password_hash))) {
     throw new HttpError(401, "Fel e-postadress eller lösenord.");
   }
-  return { token: await createSession(env, row.id), user: toUser(row) };
+  return { token: await createSession(env, row.id), user: toUser(row, env) };
 }
 
 export async function logout(request: Request, env: CommunityEnv) {
@@ -191,6 +345,7 @@ export async function deleteAccount(request: Request, env: CommunityEnv) {
     env.DB.prepare("DELETE FROM reports WHERE user_id = ? OR observation_id IN (SELECT id FROM observations WHERE user_id = ?)").bind(user.id, user.id),
     env.DB.prepare("DELETE FROM observations WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(user.id),
+    env.DB.prepare("DELETE FROM email_tokens WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM users WHERE id = ?").bind(user.id),
   ]);
   return { ok: true };

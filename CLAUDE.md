@@ -133,8 +133,20 @@ the start, exact map point.
 - **Test locally**: in `worker/`, `npx wrangler d1 migrations apply
   fjallvarning --local` then `npx wrangler dev --local`; build the app with
   `VITE_MAP_PROXY_URL=http://127.0.0.1:8787`.
-- **Known gaps**: no password reset or email verification (needs an email
-  service); no login rate limiting beyond PBKDF2 cost; no Turnstile/captcha.
+- **Email** (`worker/src/email.ts`, migration `0002`): verification on
+  signup + "glömt lösenord" reset links, sent via **Resend**. Needs a domain
+  Fabian owns verified in Resend, `EMAIL_FROM` in `wrangler.toml` and the
+  `RESEND_API_KEY` secret. Until both are set, emails are only logged
+  (`wrangler tail`) and verification is **not enforced** (`canPost` is true
+  for everyone) — otherwise nobody could ever post. Once configured, posting
+  and reporting require a verified email (`requirePoster`). Tokens are
+  single-use, stored hashed, max 3 emails/hour/user/purpose; a password
+  reset logs out all sessions and also verifies the email.
+- **Privacy policy** on `/om-appen#integritet`. `PRIVACY_CONTACT_EMAIL` in
+  `app/src/data/contact.ts` is **empty until Fabian picks an address** — set
+  it before opening signups to the public.
+- **Known gaps**: no login rate limiting beyond PBKDF2 cost; no
+  Turnstile/captcha; not reviewed by a lawyer.
 
  (context for why some code looks the way it does)
 
@@ -178,5 +190,5 @@ the start, exact map point.
 - No service worker / PWA caching in the app (checked — ruled out as a cause
   of stale-content confusion earlier).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (52 tests as of 2026-09-23, all passing). Worker has its own small Vitest
+  (61 tests as of 2026-09-23, all passing). Worker has its own small Vitest
   suite in `Svenska laviner/worker` (`npm test`).

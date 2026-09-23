@@ -79,7 +79,7 @@ export default function ObservationCard({ observation: o, onChanged, showAdminAc
           </a>
         </span>
         <span className="observation-card__actions">
-          {user && !isOwner && !o.hidden && (
+          {user?.canPost && !isOwner && !o.hidden && (
             <button type="button" className="link-button" onClick={onReport} disabled={busy}>
               Anmäl
             </button>

@@ -63,7 +63,8 @@ export default function RegisterPage() {
         </label>
         <p className="form__privacy">
           Vi sparar din e-post, ditt användarnamn och det du publicerar. Du kan när som helst radera ditt
-          konto från profilsidan, och då tas allt du delat bort.
+          konto från profilsidan, och då tas allt du delat bort. Läs mer i vår{" "}
+          <Link to="/om-appen#integritet">integritetspolicy</Link>.
         </p>
         {error && <p className="error" role="alert">{error}</p>}
         <button type="submit" className="button button--primary" disabled={busy}>

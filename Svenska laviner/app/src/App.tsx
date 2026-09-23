@@ -10,6 +10,9 @@ import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 import ObservationsPage from "./pages/ObservationsPage";
 import AdminPage from "./pages/AdminPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 import PageLoading from "./components/PageLoading";
 import "./App.css";
 
@@ -48,6 +51,9 @@ function App() {
         <Route path="/registrera" element={<RegisterPage />} />
         <Route path="/profil" element={<ProfilePage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/glomt-losenord" element={<ForgotPasswordPage />} />
+        <Route path="/aterstall-losenord" element={<ResetPasswordPage />} />
+        <Route path="/verifiera" element={<VerifyEmailPage />} />
       </Route>
     </Routes>
   );

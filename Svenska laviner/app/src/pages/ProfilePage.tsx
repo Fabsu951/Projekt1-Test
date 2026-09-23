@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import ObservationCard from "../components/ObservationCard";
 import PageLoading from "../components/PageLoading";
+import VerifyEmailNotice from "../components/VerifyEmailNotice";
 import { fetchMyObservations } from "../services/observationService";
 import type { Observation } from "../types/observation";
 
@@ -58,6 +59,8 @@ export default function ProfilePage() {
           </button>
         </div>
       </header>
+
+      <VerifyEmailNotice />
 
       <section className="section">
         <h2>Mina observationer</h2>

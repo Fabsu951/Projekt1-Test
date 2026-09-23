@@ -4,6 +4,12 @@ compatibility_date = "2026-09-01"
 
 [vars]
 ALLOWED_ORIGIN = "*"
+# Public site URL, used in links in emails.
+APP_URL = "https://fjallvarning.pages.dev"
+# Sender for verification/reset emails; must be on a domain verified in
+# Resend. Emails are only sent once the RESEND_API_KEY secret is set too:
+#   npx wrangler secret put RESEND_API_KEY
+# EMAIL_FROM = "Fjällvarning <noreply@example.se>"
 
 # User accounts + observations. Create once with:
 #   npx wrangler d1 create fjallvarning
