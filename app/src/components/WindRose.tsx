@@ -39,15 +39,19 @@ function colorFor(loadIndex: number, maxLoad: number): string {
 
 interface Props {
   sectors: SectorWindLoad[];
+  /** Describes the data source in running Swedish text, e.g. "prognosen" or "mätningen". */
+  sourceLabel: string;
+  /** Table caption, e.g. "Vindlast per väderstreck (senaste prognosen)". */
+  tableCaption: string;
 }
 
-export default function WindRose({ sectors }: Props) {
+export default function WindRose({ sectors, sourceLabel, tableCaption }: Props) {
   const maxLoad = Math.max(0, ...sectors.map((s) => s.loadIndex));
   const top = mostLoadedSectors(sectors, 1)[0];
 
   const summary =
     maxLoad === 0
-      ? "Ingen betydande vindtransport i prognosen."
+      ? `Ingen betydande vindtransport i ${sourceLabel}.`
       : `Mest vindlastat: ${top.sector}-vända sluttningar.`;
 
   return (
@@ -89,7 +93,7 @@ export default function WindRose({ sectors }: Props) {
       <p className="wind-rose__summary">{summary}</p>
 
       <table className="wind-rose__table">
-        <caption>Vindlast per väderstreck (senaste prognosen)</caption>
+        <caption>{tableCaption}</caption>
         <thead>
           <tr>
             <th scope="col">Väderstreck</th>

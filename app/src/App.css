@@ -330,6 +330,24 @@
   margin: -4px 0 14px;
 }
 
+.wind-subsection {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.wind-subsection:first-of-type {
+  margin-top: 8px;
+  padding-top: 0;
+  border-top: none;
+}
+
+.wind-subsection h3 {
+  font-size: 0.95rem;
+  margin: 0 0 8px;
+  color: var(--text-muted);
+}
+
 .wind-rose {
   display: flex;
   flex-direction: column;

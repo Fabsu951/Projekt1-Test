@@ -1,6 +1,10 @@
-import type { WeatherPoint } from "../types/weather";
-
 export type CompassSector = "N" | "NO" | "O" | "SO" | "S" | "SV" | "V" | "NV";
+
+/** Structurally compatible with WeatherPoint and WindSample alike. */
+export interface WindReading {
+  windSpeed: number;
+  windDirection: number;
+}
 
 export const COMPASS_SECTORS: CompassSector[] = ["N", "NO", "O", "SO", "S", "SV", "V", "NV"];
 
@@ -34,7 +38,7 @@ function sectorIndex(directionDegrees: number): number {
  * Based on forecast data, so this describes upcoming wind loading, not the
  * accumulated history of the existing snowpack.
  */
-export function computeWindLoading(weather: WeatherPoint[]): SectorWindLoad[] {
+export function computeWindLoading(weather: WindReading[]): SectorWindLoad[] {
   const load = new Array(8).fill(0) as number[];
   const hours = new Array(8).fill(0) as number[];
 

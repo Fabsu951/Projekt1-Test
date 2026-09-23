@@ -13,6 +13,12 @@ import WindRose from "../components/WindRose";
 import { formatTime, symbolLabel, windCompass } from "../utils/weatherFormat";
 import { computeWindLoading } from "../utils/windAnalysis";
 import { withCache } from "../services/cache";
+import {
+  findNearestWindStation,
+  fetchStationWindSeries,
+  type WindStation,
+  type WindSample,
+} from "../services/windStationService";
 
 export default function RegionDetail() {
   const { id = "" } = useParams();
@@ -23,6 +29,10 @@ export default function RegionDetail() {
   const [weatherError, setWeatherError] = useState<string | null>(null);
   const [weatherCachedAt, setWeatherCachedAt] = useState<string | null>(null);
   const [weatherStale, setWeatherStale] = useState(false);
+
+  const [station, setStation] = useState<WindStation | null>(null);
+  const [stationSeries, setStationSeries] = useState<WindSample[] | null>(null);
+  const [stationError, setStationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!region) return;
@@ -35,9 +45,24 @@ export default function RegionDetail() {
         setWeatherStale(result.stale);
       })
       .catch((err) => setWeatherError(err.message));
+
+    withCache(`wind-station:${region.id}`, async () => {
+      const nearestStation = await findNearestWindStation(region.lat, region.lon);
+      const series = await fetchStationWindSeries(nearestStation.id);
+      return { station: nearestStation, series };
+    })
+      .then((result) => {
+        setStation(result.data.station);
+        setStationSeries(result.data.series);
+      })
+      .catch((err) => setStationError(err.message));
   }, [region]);
 
-  const windLoading = useMemo(() => computeWindLoading(weather ?? []), [weather]);
+  const forecastWindLoading = useMemo(() => computeWindLoading(weather ?? []), [weather]);
+  const observedWindLoading = useMemo(
+    () => computeWindLoading(stationSeries ?? []),
+    [stationSeries]
+  );
 
   if (!region) {
     return (
@@ -100,16 +125,49 @@ export default function RegionDetail() {
         )}
       </section>
 
-      {weather && (
+      {(weather || stationSeries || stationError) && (
         <section className="section">
           <h2>Vindanalys</h2>
           <p className="section__intro">
-            Beräknad vindlast per väderstreck utifrån väderprognosen — visar var
-            vinden väntas föra snö de kommande timmarna, inte historisk
-            uppbyggnad i snötäcket. Ett förenklat mått, inte en fysikalisk
-            modell.
+            Beräknad vindlast per väderstreck — vilken sida snön väntas läggas
+            på av vinden. Ett förenklat mått (linjärt ovanför transportgränsen),
+            inte en fysikalisk modell.
           </p>
-          <WindRose sectors={windLoading} />
+
+          <div className="wind-subsection">
+            <h3>Uppmätt, senaste dygnet</h3>
+            {stationError && (
+              <p className="error">Kunde inte hämta mätdata: {stationError}</p>
+            )}
+            {!stationSeries && !stationError && <p>Laddar mätdata…</p>}
+            {stationSeries && stationSeries.length === 0 && (
+              <p className="section__intro">Ingen mätdata tillgänglig just nu.</p>
+            )}
+            {stationSeries && stationSeries.length > 0 && station && (
+              <>
+                <p className="section__intro">
+                  Baserat på SMHI:s mätstation {station.name}, ~
+                  {Math.round(station.distanceKm)} km bort.
+                </p>
+                <WindRose
+                  sectors={observedWindLoading}
+                  sourceLabel="mätningen"
+                  tableCaption="Vindlast per väderstreck (uppmätt, senaste dygnet)"
+                />
+              </>
+            )}
+          </div>
+
+          {weather && (
+            <div className="wind-subsection">
+              <h3>Prognos, kommande timmar</h3>
+              <WindRose
+                sectors={forecastWindLoading}
+                sourceLabel="prognosen"
+                tableCaption="Vindlast per väderstreck (senaste prognosen)"
+              />
+            </div>
+          )}
         </section>
       )}
 
