@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { AspectRosette } from "./CompassIcons";
 import type { WindReading } from "../utils/windAnalysis";
 import {
   computeWindLoading,
@@ -142,7 +143,17 @@ export default function WindRose({ readings, sourceLabel, tableCaption }: Props)
         })}
       </svg>
 
-      <p className="wind-rose__summary">{summary}</p>
+      <div className="wind-rose__summary-row">
+        {!calm && (
+          <AspectRosette
+            highlighted={mostLoadedSectors(sectors, 2).map((s) => s.sector)}
+            label={`Mest vindlastade väderstreck: ${mostLoadedSectors(sectors, 2)
+              .map((s) => s.sector)
+              .join(", ")}`}
+          />
+        )}
+        <p className="wind-rose__summary">{summary}</p>
+      </div>
       {showCalmDirections && (
         <p className="wind-rose__hint">De grå fälten visar varifrån vinden blåser, inte vindlast.</p>
       )}

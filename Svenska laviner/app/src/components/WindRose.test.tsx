@@ -14,6 +14,16 @@ describe("WindRose", () => {
     expect(screen.getByText(/Pilen visar vindens riktning/)).toBeInTheDocument();
   });
 
+  it("highlights the most loaded aspects in the aspect rosette", () => {
+    renderRose([{ windSpeed: 12, windDirection: 270 }]);
+    expect(screen.getByRole("img", { name: "Mest vindlastade väderstreck: O" })).toBeInTheDocument();
+  });
+
+  it("shows no aspect rosette when it's too calm for transport", () => {
+    renderRose([{ windSpeed: 3, windDirection: 270 }]);
+    expect(screen.queryByRole("img", { name: /Mest vindlastade/ })).not.toBeInTheDocument();
+  });
+
   it("shows where the wind came from when it's too calm for transport", () => {
     const { container } = renderRose([
       { windSpeed: 3, windDirection: 110 },

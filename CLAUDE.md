@@ -92,7 +92,7 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   `topowebb` layer (id confirmed via GetCapabilities — NOT `topowebb-ccby`,
   that's only part of the URL path) via the Worker proxy, `TopoLayer.tsx`,
   falls back to OSM when `VITE_MAP_PROXY_URL` is unset.
-- **A** — design/layout (ski-focused visual identity): **mostly done**.
+- **A** — design/layout (ski-focused visual identity): **done**.
   User asked for **"Äventyrlig/utomhus"** (Gaia GPS / onX spirit, not
   photorealistic) with simple SVG graphics, no photos. Implemented:
   - "Granite & ice" palette tokens in `index.css` (`--bg`, `--bg-elevated`,
@@ -106,7 +106,10 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
     said "behåll skalan" when level 5 (black) was hard to see; the fix is a
     snow-white ring (`box-shadow: 0 0 0 2px var(--snow)`) on badges,
     scale swatches, and map markers instead.
-  - Possible next: custom compass/aspect icons.
+  - Compass icons (`CompassIcons.tsx`): `WindArrow` (points where wind
+    blows TO) in the weather table, and `AspectRosette` (8-sector aspect
+    pictogram, affected aspects in orange) next to the wind-loading
+    summary — reusable for avalanche-problem aspects if those get scraped.
 
 ## Bugs fixed this session (context for why some code looks the way it does)
 
@@ -150,5 +153,5 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
 - No service worker / PWA caching in the app (checked — ruled out as a cause
   of stale-content confusion earlier).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (44 tests as of 2026-09-23, all passing). Worker has its own small Vitest
+  (52 tests as of 2026-09-23, all passing). Worker has its own small Vitest
   suite in `Svenska laviner/worker` (`npm test`).

@@ -479,6 +479,49 @@
   align-items: center;
 }
 
+.weather-table__wind {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.weather-table__wind .wind-arrow {
+  margin-top: 2px;
+}
+
+.wind-arrow {
+  flex: none;
+}
+
+.wind-arrow line {
+  stroke: var(--accent);
+}
+
+.wind-arrow polygon {
+  fill: var(--accent);
+}
+
+.aspect-rosette {
+  flex: none;
+}
+
+.aspect-rosette__sector {
+  fill: var(--bg-raised);
+  stroke: var(--border);
+  stroke-width: 0.8;
+}
+
+.aspect-rosette__sector--on {
+  fill: var(--signal);
+  stroke: var(--bg);
+}
+
+.aspect-rosette__north {
+  fill: var(--text-muted);
+  font-size: 7px;
+  font-weight: 700;
+}
+
 .weather-table__time {
   color: var(--text-muted);
 }
@@ -540,11 +583,23 @@
   font-weight: 700;
 }
 
-.wind-rose__summary {
+.wind-rose__summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin: 4px 0 12px;
+}
+
+.wind-rose__summary {
+  margin: 0;
   font-size: 0.9rem;
   color: var(--text-muted);
   text-align: center;
+}
+
+.wind-rose__summary-row .aspect-rosette + .wind-rose__summary {
+  text-align: left;
 }
 
 .wind-rose__hint {

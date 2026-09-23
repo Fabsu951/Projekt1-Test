@@ -12,6 +12,7 @@ import SafetyChecklist from "../components/SafetyChecklist";
 import AvalancheProblems from "../components/AvalancheProblems";
 import SourceList from "../components/SourceList";
 import WindRose from "../components/WindRose";
+import { WindArrow } from "../components/CompassIcons";
 import PageLoading from "../components/PageLoading";
 import { formatTime, symbolLabel, windCompass } from "../utils/weatherFormat";
 import { withCache } from "../services/cache";
@@ -137,9 +138,12 @@ export default function RegionDetail() {
                   <span className="weather-table__time">{formatTime(w.time)}</span>
                   <span>{symbolLabel(w.symbol)}</span>
                   <span>{w.temperature.toFixed(0)}°C</span>
-                  <span>
-                    {w.windSpeed.toFixed(0)} m/s {windCompass(w.windDirection)}
-                    {w.windGust > w.windSpeed + 3 ? ` (byar ${w.windGust.toFixed(0)})` : ""}
+                  <span className="weather-table__wind">
+                    <WindArrow fromDegrees={w.windDirection} />
+                    <span>
+                      {w.windSpeed.toFixed(0)} m/s {windCompass(w.windDirection)}
+                      {w.windGust > w.windSpeed + 3 ? ` (byar ${w.windGust.toFixed(0)})` : ""}
+                    </span>
                   </span>
                 </div>
               ))}
