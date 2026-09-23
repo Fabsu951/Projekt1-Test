@@ -1,28 +1,28 @@
-name = "fjallvarning-worker"
+name = "fjallkoll-worker"
 main = "src/index.ts"
 compatibility_date = "2026-09-01"
 
 [vars]
 ALLOWED_ORIGIN = "*"
 # Public site URL, used in links in emails.
-APP_URL = "https://fjallvarning.pages.dev"
+APP_URL = "https://fjallkoll.pages.dev"
 # Sender for verification/reset emails; must be on a domain verified in
 # Resend. Emails are only sent once the RESEND_API_KEY secret is set too:
 #   npx wrangler secret put RESEND_API_KEY
-# EMAIL_FROM = "Fjällvarning <noreply@example.se>"
+# EMAIL_FROM = "Fjällkoll <noreply@example.se>"
 
 # User accounts + observations. Create once with:
-#   npx wrangler d1 create fjallvarning
+#   npx wrangler d1 create fjallkoll
 # and paste the printed database_id below, then apply the schema:
-#   npx wrangler d1 migrations apply fjallvarning --remote
+#   npx wrangler d1 migrations apply fjallkoll --remote
 [[d1_databases]]
 binding = "DB"
-database_name = "fjallvarning"
+database_name = "fjallkoll"
 database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
 migrations_dir = "migrations"
 
 # Observation photos. Create once with:
-#   npx wrangler r2 bucket create fjallvarning-images
+#   npx wrangler r2 bucket create fjallkoll-images
 [[r2_buckets]]
 binding = "IMAGES"
-bucket_name = "fjallvarning-images"
+bucket_name = "fjallkoll-images"

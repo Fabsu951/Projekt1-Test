@@ -17,7 +17,7 @@ export default function AboutPage() {
       </header>
 
       <div className="notice notice--danger">
-        <strong>Fjällvarning ersätter inte officiell lavinprognos eller lavinutbildning.</strong>
+        <strong>Fjällkoll ersätter inte officiell lavinprognos eller lavinutbildning.</strong>
         <p>
           Farograderna hämtas automatiskt från den officiella prognosen och kan vara
           fördröjda eller, i sällsynta fall, feltolkade. Innan du ger dig ut, läs alltid hela
@@ -32,7 +32,7 @@ export default function AboutPage() {
       <section className="section">
         <h2>Vad appen gör</h2>
         <p>
-          Fjällvarning samlar väderprognoser, en lavinskale-förklaring och en
+          Fjällkoll samlar väderprognoser, en lavinskale-förklaring och en
           säkerhetsguide för svenska fjällens sex officiella lavinprognosområden på
           ett ställe, som ett komplement till — inte en ersättning för — de
           officiella källorna. Inloggade användare kan också dela egna
@@ -80,7 +80,7 @@ export default function AboutPage() {
       <section className="section privacy" id="integritet">
         <h2>Integritetspolicy</h2>
         <p>
-          Den här delen beskriver vilka personuppgifter Fjällvarning behandlar när du skapar ett
+          Den här delen beskriver vilka personuppgifter Fjällkoll behandlar när du skapar ett
           konto och delar observationer, och vilka rättigheter du har enligt dataskyddsförordningen
           (GDPR). Du kan använda prognoser, väder, karta och säkerhetsguide utan konto. Då sparar vi
           inga personuppgifter om dig.

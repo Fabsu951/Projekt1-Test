@@ -4,7 +4,7 @@ import { api, ApiError } from "../services/api";
 import type { User } from "../types/observation";
 import { AuthContext, type AuthState } from "./authContext";
 
-const TOKEN_KEY = "fjallvarning:auth-token";
+const TOKEN_KEY = "fjallkoll:auth-token";
 
 async function saveToken(token: string | null) {
   try {

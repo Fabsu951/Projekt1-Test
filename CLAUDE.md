@@ -1,6 +1,17 @@
-# Fjällvarning — project state
+# Fjällkoll — project state
 
-Swedish avalanche forecast/safety app ("Fjällvarning") for backcountry skiers,
+> **Renamed 2026-09-23 from "Fjällvarning" to "Fjällkoll"** (user's
+> choice). All branding and Cloudflare resource names in the repo now use
+> `fjallkoll`: Pages project `fjallkoll` (→ `fjallkoll.pages.dev`), worker
+> `fjallkoll-worker`, D1 `fjallkoll`, R2 `fjallkoll-images`. The OLD
+> deployments (`fjallvarning.pages.dev`, `fjallvarning-worker`) still exist
+> in Fabian's Cloudflare account until he deletes them; the new worker
+> needs the `LANTMATERIET_*` secrets set again. Not renamed on purpose:
+> the local folder `fjallvarning-repo`, branch `svenska-laviner`, and the
+> Capacitor appId `com.fabsu951.projekt1`. Privacy contact address will be
+> created to match the new name (not yet chosen); no domain bought yet.
+
+Swedish avalanche forecast/safety app ("Fjällkoll") for backcountry skiers,
 inspired by Varsom, Rusk, and Skiguide. TypeScript, packaged as both a website
 and native iOS/Android apps (Capacitor) from one codebase.
 
@@ -20,22 +31,22 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
 
 ## Deployment (IMPORTANT — has bitten us before)
 
-- **Site**: Cloudflare Pages project `fjallvarning`. Stable production URL:
-  `https://fjallvarning.pages.dev`.
+- **Site**: Cloudflare Pages project `fjallkoll`. Stable production URL:
+  `https://fjallkoll.pages.dev`.
   - Deploy from `Svenska laviner/app` after `npm run build`:
     ```powershell
-    npx wrangler pages deploy dist --project-name=fjallvarning --branch=production --commit-dirty=true
+    npx wrangler pages deploy dist --project-name=fjallkoll --branch=production --commit-dirty=true
     ```
   - **`--branch=production` is required.** Without it, wrangler infers the
     branch from git (`svenska-laviner`), which creates a random-subdomain
-    *preview* deployment that never updates `fjallvarning.pages.dev`. This
+    *preview* deployment that never updates `fjallkoll.pages.dev`. This
     caused a real confusion earlier — always redeploy with that flag, and
-    always verify on `fjallvarning.pages.dev` itself, never a bookmarked
+    always verify on `fjallkoll.pages.dev` itself, never a bookmarked
     preview URL.
   - Must build with `VITE_MAP_PROXY_URL` set (see below) or the map falls
     back to plain OpenStreetMap tiles instead of the Lantmäteriet basemap.
-- **Worker**: `fjallvarning-worker`, deployed at
-  `https://fjallvarning-worker.fabian-n-sund.workers.dev`. Deploy from
+- **Worker**: `fjallkoll-worker`, deployed at
+  `https://fjallkoll-worker.fabian-n-sund.workers.dev`. Deploy from
   `Svenska laviner/worker`:
     ```powershell
     npx wrangler deploy
@@ -62,7 +73,7 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
     and "Ej bedömd" (a legend), so the parser now only accepts a danger
     level when the page names exactly one, and "Ej bedömd" never overrides
     a parsed level. Danger-level regexes are still unverified against real
-    in-season markup. Check `https://fjallvarning-worker.fabian-n-sund.workers.dev/forecasts`
+    in-season markup. Check `https://fjallkoll-worker.fabian-n-sund.workers.dev/forecasts`
     once the season starts (mid-December) — `fetchError` on a region means a
     bad slug; `confidence: "none"` means the parser missed. Also watch that
     `/ej\s+bedömd/` doesn't false-positive on a page legend.
@@ -71,9 +82,9 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
     cd C:\Users\fabia\Documents\fjallvarning-repo
     git pull origin svenska-laviner
     cd "Svenska laviner\app"
-    $env:VITE_MAP_PROXY_URL="https://fjallvarning-worker.fabian-n-sund.workers.dev"
+    $env:VITE_MAP_PROXY_URL="https://fjallkoll-worker.fabian-n-sund.workers.dev"
     npm run build
-    npx wrangler pages deploy dist --project-name=fjallvarning --branch=production --commit-dirty=true
+    npx wrangler pages deploy dist --project-name=fjallkoll --branch=production --commit-dirty=true
     ```
   - `npm install` can fail on Windows the first time (`sharp`/`@capacitor/assets`
     postinstall downloading `libvips` from a GitHub release times out) — this
@@ -119,8 +130,8 @@ User chose: own accounts, publish immediately + report button, photos from
 the start, exact map point.
 
 - **Backend** (worker): `auth.ts`, `observations.ts`, `http.ts`, schema in
-  `worker/migrations/`. D1 binding `DB` (database `fjallvarning`), R2
-  binding `IMAGES` (bucket `fjallvarning-images`). Bearer-token sessions
+  `worker/migrations/`. D1 binding `DB` (database `fjallkoll`), R2
+  binding `IMAGES` (bucket `fjallkoll-images`). Bearer-token sessions
   (SHA-256 of token stored), PBKDF2 passwords. Hidden after 3 reports;
   admins (`users.is_admin = 1`, set by hand via `wrangler d1 execute`)
   see `/admin` in the app to restore/delete.
@@ -131,7 +142,7 @@ the start, exact map point.
   downscaled + re-encoded client-side (`utils/image.ts`) which strips EXIF
   GPS data.
 - **Test locally**: in `worker/`, `npx wrangler d1 migrations apply
-  fjallvarning --local` then `npx wrangler dev --local`; build the app with
+  fjallkoll --local` then `npx wrangler dev --local`; build the app with
   `VITE_MAP_PROXY_URL=http://127.0.0.1:8787`.
 - **Email** (`worker/src/email.ts`, migration `0002`): verification on
   signup + "glömt lösenord" reset links, sent via **Resend**. Needs a domain
@@ -182,7 +193,7 @@ the start, exact map point.
 ## Other notes
 
 - Cloud (claude.ai/code) sessions cannot reach SMHI, Cloudflare, or
-  fjallvarning.pages.dev (network policy), so deploys and live checks are
+  fjallkoll.pages.dev (network policy), so deploys and live checks are
   done by Fabian locally; screenshots in-session use mocked SMHI data.
 - Fabian pasted a live `CLOUDFLARE_API_TOKEN` into chat earlier in this
   project's history; he was advised to rotate it (Cloudflare dashboard → My

@@ -11,7 +11,7 @@ export interface CachedResult<T> {
   stale: boolean;
 }
 
-const PREFIX = "fjallvarning:cache:";
+const PREFIX = "fjallkoll:cache:";
 
 async function readCache<T>(key: string): Promise<CacheEnvelope<T> | null> {
   try {

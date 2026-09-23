@@ -9,7 +9,7 @@ describe("email", () => {
   });
 
   it("puts the link in both the text and HTML versions", () => {
-    const link = "https://fjallvarning.pages.dev/verifiera?token=abc";
+    const link = "https://fjallkoll.pages.dev/verifiera?token=abc";
     const mail = verificationEmail("a@b.se", "Åkare", link);
     expect(mail.text).toContain(link);
     expect(mail.html).toContain(link);

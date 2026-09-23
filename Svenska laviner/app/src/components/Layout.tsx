@@ -46,7 +46,7 @@ export default function Layout() {
       <header className="app-shell__header">
         <NavLink to="/" className="app-shell__brand">
           <BrandMark />
-          Fjällvarning
+          Fjällkoll
         </NavLink>
         <nav className="app-shell__nav">
           {NAV_ITEMS.map((item) => (
