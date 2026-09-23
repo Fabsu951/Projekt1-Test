@@ -8,6 +8,15 @@ import { fetchAllForecasts } from "../services/avalancheService";
 import { withCache } from "../services/cache";
 import { getDangerInfo } from "../data/dangerScale";
 import type { AvalancheForecast } from "../types/avalanche";
+import SlopeLayer from "../components/SlopeLayer";
+
+const SLOPE_LEGEND: Array<[string, string]> = [
+  ["< 28°", "#325a82"],
+  ["30–35°", "#ffeb3b"],
+  ["35–40°", "#ff9800"],
+  ["40–45°", "#f44336"],
+  ["> 45°", "#8c145a"],
+];
 
 // Roughly centers and frames the Swedish fjällen (Kebnekaise in the north to
 // Härjedalen in the south) without needing a tile provider account.
@@ -30,6 +39,7 @@ function dangerIcon(dangerLevel: number | undefined): L.DivIcon {
 
 export default function MapPage() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
+  const [showSlope, setShowSlope] = useState(false);
 
   useEffect(() => {
     withCache("forecasts:all", fetchAllForecasts).then((result) => {
@@ -48,12 +58,42 @@ export default function MapPage() {
         </p>
       </header>
 
+      <div className="map-toolbar">
+        <label className="map-toolbar__toggle">
+          <input
+            type="checkbox"
+            checked={showSlope}
+            onChange={(e) => setShowSlope(e.target.checked)}
+          />
+          Terränglutning (zooma in för att se den)
+        </label>
+        {showSlope && (
+          <div className="slope-legend">
+            {SLOPE_LEGEND.map(([label, color]) => (
+              <span key={label} className="slope-legend__item">
+                <span className="slope-legend__swatch" style={{ backgroundColor: color }} />
+                {label}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {showSlope && (
+        <p className="notice notice--stale">
+          Terränglutningen är beräknad från öppen höjddata med ~30 m upplösning
+          (SRTM/NASADEM) och är en grov approximation — inte tillräckligt exakt
+          för att ensam avgöra om en specifik sluttning är säker.
+        </p>
+      )}
+
       <div className="map-container">
         <MapContainer center={SWEDEN_FJALL_CENTER} zoom={DEFAULT_ZOOM} scrollWheelZoom>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsgivare'
             url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <SlopeLayer enabled={showSlope} />
           {REGIONS.map((region) => (
             <Marker
               key={region.id}

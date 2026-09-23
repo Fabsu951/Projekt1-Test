@@ -55,6 +55,12 @@ export default function AboutPage() {
             </a>{" "}
             -bidragsgivare
           </li>
+          <li>
+            Terränglutning: höjddata (SRTM/NASADEM, ~30 m upplösning) från{" "}
+            <a href="https://mapterhorn.com/attribution/" target="_blank" rel="noreferrer">
+              Mapterhorn
+            </a>
+          </li>
         </ul>
       </section>
 
