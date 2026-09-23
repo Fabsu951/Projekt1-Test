@@ -15,7 +15,7 @@ export const COMPASS_SECTORS: CompassSector[] = ["N", "NO", "O", "SO", "S", "SV"
  * not a physical saltation-transport model; it's meant to point at which
  * aspects are worth extra caution, not to quantify slab thickness.
  */
-const TRANSPORT_THRESHOLD_MS = 6;
+export const TRANSPORT_THRESHOLD_MS = 6;
 
 export interface SectorWindLoad {
   sector: CompassSector;
@@ -56,6 +56,23 @@ export function computeWindLoading(weather: WindReading[]): SectorWindLoad[] {
     loadIndex: Math.round(load[i] * 10) / 10,
     hoursWithTransport: hours[i],
   }));
+}
+
+export interface RawWindSummary {
+  maxSpeed: number;
+  maxSpeedDirection: number;
+}
+
+/**
+ * The highest measured/forecast reading in the series, regardless of the
+ * transport threshold — lets the UI show that data genuinely came back
+ * (just calm) instead of looking identical to a broken fetch when every
+ * sector's load index is zero.
+ */
+export function rawWindSummary(readings: WindReading[]): RawWindSummary | null {
+  if (readings.length === 0) return null;
+  const top = readings.reduce((a, b) => (b.windSpeed > a.windSpeed ? b : a));
+  return { maxSpeed: top.windSpeed, maxSpeedDirection: top.windDirection };
 }
 
 export function mostLoadedSectors(loads: SectorWindLoad[], count = 2): SectorWindLoad[] {

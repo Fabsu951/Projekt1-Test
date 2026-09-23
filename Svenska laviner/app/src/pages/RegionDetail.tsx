@@ -13,7 +13,7 @@ import SourceList from "../components/SourceList";
 import WindRose from "../components/WindRose";
 import PageLoading from "../components/PageLoading";
 import { formatTime, symbolLabel, windCompass } from "../utils/weatherFormat";
-import { computeWindLoading } from "../utils/windAnalysis";
+import { computeWindLoading, rawWindSummary } from "../utils/windAnalysis";
 import { withCache } from "../services/cache";
 import {
   findNearestWindStation,
@@ -65,6 +65,8 @@ export default function RegionDetail() {
     () => computeWindLoading(stationSeries ?? []),
     [stationSeries]
   );
+  const forecastRawWind = useMemo(() => rawWindSummary(weather ?? []), [weather]);
+  const observedRawWind = useMemo(() => rawWindSummary(stationSeries ?? []), [stationSeries]);
 
   if (!region) {
     return (
@@ -176,6 +178,7 @@ export default function RegionDetail() {
                   sectors={observedWindLoading}
                   sourceLabel="mätningen"
                   tableCaption="Vindlast per väderstreck (uppmätt, senaste dygnet)"
+                  raw={observedRawWind}
                 />
               </>
             )}
@@ -188,6 +191,7 @@ export default function RegionDetail() {
                 sectors={forecastWindLoading}
                 sourceLabel="prognosen"
                 tableCaption="Vindlast per väderstreck (senaste prognosen)"
+                raw={forecastRawWind}
               />
             </div>
           )}

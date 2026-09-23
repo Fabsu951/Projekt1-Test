@@ -1,5 +1,6 @@
-import type { SectorWindLoad } from "../utils/windAnalysis";
-import { mostLoadedSectors } from "../utils/windAnalysis";
+import type { RawWindSummary, SectorWindLoad } from "../utils/windAnalysis";
+import { mostLoadedSectors, TRANSPORT_THRESHOLD_MS } from "../utils/windAnalysis";
+import { windCompass } from "../utils/weatherFormat";
 
 // Validated (node scripts/validate_palette.js --ordinal --mode dark --surface
 // "#132132") 5-step single-hue sequential ramp. On this dark surface the
@@ -43,15 +44,21 @@ interface Props {
   sourceLabel: string;
   /** Table caption, e.g. "Vindlast per väderstreck (senaste prognosen)". */
   tableCaption: string;
+  /** Highest raw reading in the underlying series, so a genuinely calm
+   *  period (all sectors below the transport threshold) doesn't look
+   *  identical to missing/broken data. */
+  raw?: RawWindSummary | null;
 }
 
-export default function WindRose({ sectors, sourceLabel, tableCaption }: Props) {
+export default function WindRose({ sectors, sourceLabel, tableCaption, raw }: Props) {
   const maxLoad = Math.max(0, ...sectors.map((s) => s.loadIndex));
   const top = mostLoadedSectors(sectors, 1)[0];
 
   const summary =
     maxLoad === 0
-      ? `Ingen betydande vindtransport i ${sourceLabel}.`
+      ? raw
+        ? `Ingen betydande vindtransport i ${sourceLabel} — högsta vinden var ${raw.maxSpeed.toFixed(1)} m/s (${windCompass(raw.maxSpeedDirection)}), under transportgränsen på ${TRANSPORT_THRESHOLD_MS} m/s.`
+        : `Ingen betydande vindtransport i ${sourceLabel}.`
       : `Mest vindlastat: ${top.sector}-vända sluttningar.`;
 
   return (

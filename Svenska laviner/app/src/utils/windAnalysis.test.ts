@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeWindLoading, mostLoadedSectors } from "./windAnalysis";
+import { computeWindLoading, mostLoadedSectors, rawWindSummary } from "./windAnalysis";
 import type { WeatherPoint } from "../types/weather";
 
 function point(windSpeed: number, windDirection: number): WeatherPoint {
@@ -57,5 +57,16 @@ describe("mostLoadedSectors", () => {
   it("returns fewer than `count` when fewer sectors have any load", () => {
     const loads = computeWindLoading([point(10, 0)]);
     expect(mostLoadedSectors(loads, 3)).toHaveLength(1);
+  });
+});
+
+describe("rawWindSummary", () => {
+  it("returns null for an empty series", () => {
+    expect(rawWindSummary([])).toBeNull();
+  });
+
+  it("picks the highest reading even when it's below the transport threshold", () => {
+    const summary = rawWindSummary([point(1, 10), point(5.8, 220), point(3, 40)]);
+    expect(summary).toEqual({ maxSpeed: 5.8, maxSpeedDirection: 220 });
   });
 });
