@@ -17,7 +17,7 @@ export default function RegionCard({ region, forecast }: Props) {
       {forecast ? (
         <DangerBadge level={forecast.dangerLevel} />
       ) : (
-        <span className="region-card__loading">Laddar…</span>
+        <span className="skeleton skeleton--badge" aria-label="Laddar farograd" />
       )}
     </Link>
   );

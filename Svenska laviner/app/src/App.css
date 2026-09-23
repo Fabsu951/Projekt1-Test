@@ -223,9 +223,34 @@
   font-size: 0.85rem;
 }
 
-.region-card__loading {
-  color: var(--text-muted);
-  font-size: 0.85rem;
+.skeleton {
+  display: inline-block;
+  background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--border) 50%, var(--bg-elevated) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.skeleton--badge {
+  width: 92px;
+  height: 24px;
+  border-radius: 999px;
+}
+
+.skeleton--badge-large {
+  width: 150px;
+  height: 38px;
+  border-radius: 999px;
+  margin-top: 8px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .danger-badge {

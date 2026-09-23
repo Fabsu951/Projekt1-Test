@@ -10,6 +10,7 @@ import DangerScaleGuide from "../components/DangerScaleGuide";
 import SafetyChecklist from "../components/SafetyChecklist";
 import AvalancheProblems from "../components/AvalancheProblems";
 import WindRose from "../components/WindRose";
+import PageLoading from "../components/PageLoading";
 import { formatTime, symbolLabel, windCompass } from "../utils/weatherFormat";
 import { computeWindLoading } from "../utils/windAnalysis";
 import { withCache } from "../services/cache";
@@ -81,7 +82,11 @@ export default function RegionDetail() {
       <header className="page__header">
         <h1>{region.name}</h1>
         <p className="page__lead">{region.subAreas.join(" · ")}</p>
-        {forecast && <DangerBadge level={forecast.dangerLevel} size="large" />}
+        {forecast ? (
+          <DangerBadge level={forecast.dangerLevel} size="large" />
+        ) : (
+          <span className="skeleton skeleton--badge skeleton--badge-large" aria-label="Laddar farograd" />
+        )}
       </header>
 
       {forecast?.isPlaceholder && (
@@ -98,7 +103,18 @@ export default function RegionDetail() {
       <section className="section">
         <h2>Väder</h2>
         {weatherError && <p className="error">Kunde inte hämta väderdata: {weatherError}</p>}
-        {!weather && !weatherError && <p>Laddar väderdata…</p>}
+        {!weather && !weatherError && (
+          <div className="weather-table">
+            {Array.from({ length: 4 }, (_, i) => (
+              <div key={i} className="weather-table__row">
+                <span className="skeleton" style={{ width: 60, height: 14 }} />
+                <span className="skeleton" style={{ width: 70, height: 14 }} />
+                <span className="skeleton" style={{ width: 40, height: 14 }} />
+                <span className="skeleton" style={{ width: 90, height: 14 }} />
+              </div>
+            ))}
+          </div>
+        )}
         {weatherStale && (
           <p className="notice notice--stale">
             Ingen kontakt just nu — visar sparad väderdata från{" "}
@@ -139,7 +155,7 @@ export default function RegionDetail() {
             {stationError && (
               <p className="error">Kunde inte hämta mätdata: {stationError}</p>
             )}
-            {!stationSeries && !stationError && <p>Laddar mätdata…</p>}
+            {!stationSeries && !stationError && <PageLoading label="Laddar mätdata…" />}
             {stationSeries && stationSeries.length === 0 && (
               <p className="section__intro">Ingen mätdata tillgänglig just nu.</p>
             )}
