@@ -1,3 +1,5 @@
+import SourceList from "./SourceList";
+
 const ITEMS = [
   "Lavinsändare (ARVA/transceiver) — testad och laddad",
   "Lavinspade",
@@ -21,6 +23,14 @@ export default function SafetyChecklist() {
       <p className="safety-checklist__emergency">
         Nödnummer: <strong>112</strong>
       </p>
+      <SourceList
+        sources={[
+          {
+            label: "Fjällsäkerhetsrådet",
+            url: "https://www.fjallsakerhetsradet.se/forbered-fjallturen/lavinsakerhet/",
+          },
+        ]}
+      />
     </div>
   );
 }

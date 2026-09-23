@@ -380,6 +380,16 @@
   margin: -4px 0 14px;
 }
 
+.source-list {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  margin: 10px 0 0;
+}
+
+.source-list a {
+  color: var(--accent);
+}
+
 .wind-subsection {
   margin-top: 20px;
   padding-top: 16px;

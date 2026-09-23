@@ -1,10 +1,22 @@
 import SafetyChecklist from "../components/SafetyChecklist";
+import SourceList from "../components/SourceList";
+import type { Source } from "../types/avalanche";
+
+const FJALLSAKERHETSRADET: Source = {
+  label: "Fjällsäkerhetsrådet",
+  url: "https://www.fjallsakerhetsradet.se/forbered-fjallturen/lavinsakerhet/",
+};
 
 const STEEPNESS_LEVELS = [
   {
-    range: "< 30°",
+    range: "< 25°",
     risk: "Låg",
-    note: "De flesta laviner sker inte i så flack terräng, men var uppmärksam på terräng ovanför dig.",
+    note: "Fjällsäkerhetsrådets rekommenderade gräns för säker skidåkning. De flesta laviner sker inte i så flack terräng, men var uppmärksam på brantare terräng ovanför dig.",
+  },
+  {
+    range: "25–30°",
+    risk: "Ökande",
+    note: "Fortfarande relativt säkert, men risken börjar öka och enstaka flaklaviner är möjliga.",
   },
   {
     range: "30–35°",
@@ -65,6 +77,7 @@ export default function SafetyGuide() {
             </div>
           ))}
         </div>
+        <SourceList sources={[FJALLSAKERHETSRADET, { label: "lavinprognoser.se – Ordlista", url: "https://www.lavinprognoser.se/ordlista/" }]} />
       </section>
 
       <section className="section">
@@ -78,6 +91,7 @@ export default function SafetyGuide() {
             <li key={trap}>{trap}</li>
           ))}
         </ul>
+        <SourceList sources={[FJALLSAKERHETSRADET]} />
       </section>
 
       <section className="section">
@@ -87,6 +101,7 @@ export default function SafetyGuide() {
             <li key={rule}>{rule}</li>
           ))}
         </ul>
+        <SourceList sources={[FJALLSAKERHETSRADET]} />
       </section>
 
       <section className="section">

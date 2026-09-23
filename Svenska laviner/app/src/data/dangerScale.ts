@@ -1,4 +1,13 @@
-import type { DangerLevelInfo } from "../types/avalanche";
+import type { DangerLevelInfo, Source } from "../types/avalanche";
+
+/**
+ * The standard 5-level European avalanche danger scale, defined by EAWS
+ * (European Avalanche Warning Services) and used identically by all ~30
+ * member avalanche services, including lavinprognoser.se.
+ */
+export const DANGER_SCALE_SOURCES: Source[] = [
+  { label: "EAWS – Avalanche Danger Scale", url: "https://www.avalanches.org/standards/avalanche-danger-scale/" },
+];
 
 export const DANGER_SCALE: DangerLevelInfo[] = [
   {

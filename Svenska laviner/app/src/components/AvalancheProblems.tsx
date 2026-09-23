@@ -1,5 +1,6 @@
 import type { AvalancheProblem } from "../types/avalanche";
-import { PROBLEM_LABELS } from "../data/avalancheProblems";
+import { PROBLEM_LABELS, PROBLEM_SOURCES } from "../data/avalancheProblems";
+import SourceList from "./SourceList";
 
 interface Props {
   problems: AvalancheProblem[];
@@ -19,6 +20,7 @@ export default function AvalancheProblems({ problems }: Props) {
           </div>
         );
       })}
+      <SourceList sources={PROBLEM_SOURCES} />
     </div>
   );
 }

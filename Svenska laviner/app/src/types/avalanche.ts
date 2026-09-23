@@ -11,9 +11,9 @@ export interface AvalancheRegion {
 export type AvalancheProblem =
   | "nysno"
   | "vindpack"
-  | "flaklavin"
+  | "gammal_svag_lagring"
   | "vatsno"
-  | "gammal_svag_lagring";
+  | "glidlavin";
 
 export interface AvalancheForecast {
   regionId: string;
@@ -29,4 +29,9 @@ export interface DangerLevelInfo {
   label: string;
   color: string;
   description: string;
+}
+
+export interface Source {
+  label: string;
+  url: string;
 }

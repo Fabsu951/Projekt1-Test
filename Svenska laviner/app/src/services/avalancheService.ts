@@ -16,9 +16,9 @@ import { REGIONS } from "../data/regions";
 const PROBLEM_POOL: AvalancheProblem[] = [
   "nysno",
   "vindpack",
-  "flaklavin",
-  "vatsno",
   "gammal_svag_lagring",
+  "vatsno",
+  "glidlavin",
 ];
 
 function seedFromString(value: string): number {

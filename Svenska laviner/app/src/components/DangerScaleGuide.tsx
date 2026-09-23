@@ -1,4 +1,5 @@
-import { DANGER_SCALE } from "../data/dangerScale";
+import { DANGER_SCALE, DANGER_SCALE_SOURCES } from "../data/dangerScale";
+import SourceList from "./SourceList";
 
 export default function DangerScaleGuide() {
   return (
@@ -18,6 +19,7 @@ export default function DangerScaleGuide() {
           </div>
         </div>
       ))}
+      <SourceList sources={DANGER_SCALE_SOURCES} />
     </div>
   );
 }
