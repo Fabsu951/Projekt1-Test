@@ -1,7 +1,18 @@
 import { REGION_SOURCES } from "./regions";
 import { parseForecastHtml, type ParsedForecast } from "./parse";
+import { corsHeaders, error, HttpError, json } from "./http";
+import { type CommunityEnv, currentUser, deleteAccount, login, logout, register } from "./auth";
+import {
+  createObservation,
+  deleteObservation,
+  listObservations,
+  listReported,
+  reportObservation,
+  restoreObservation,
+  serveImage,
+} from "./observations";
 
-export interface Env {
+export interface Env extends CommunityEnv {
   ALLOWED_ORIGIN?: string;
   LANTMATERIET_USER?: string;
   LANTMATERIET_PASSWORD?: string;
@@ -18,14 +29,6 @@ interface RegionForecastResponse extends ParsedForecast {
   sourceUrl: string;
   fetchedAt: string;
   fetchError: string | null;
-}
-
-function corsHeaders(origin: string): HeadersInit {
-  return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
 }
 
 function emptyForecast(
@@ -133,6 +136,50 @@ async function proxyTopowebb(request: Request, env: Env, origin: string): Promis
   return response;
 }
 
+/**
+ * Accounts and user observations. Returns null for paths it doesn't own.
+ * Auth is a bearer token (not a cookie), so it works cross-origin from
+ * pages.dev and from the native Capacitor app alike.
+ */
+async function handleCommunity(request: Request, env: Env, origin: string): Promise<Response | null> {
+  const { pathname } = new URL(request.url);
+  const method = request.method;
+
+  try {
+    if (pathname === "/auth/register" && method === "POST") return json(await register(request, env), origin, 201);
+    if (pathname === "/auth/login" && method === "POST") return json(await login(request, env), origin);
+    if (pathname === "/auth/logout" && method === "POST") return json(await logout(request, env), origin);
+    if (pathname === "/auth/me" && method === "GET") {
+      const user = await currentUser(request, env);
+      return user ? json({ user }, origin) : error("Du är inte inloggad.", origin, 401);
+    }
+    if (pathname === "/auth/me" && method === "DELETE") return json(await deleteAccount(request, env), origin);
+
+    if (pathname === "/observations" && method === "GET") return json(await listObservations(request, env), origin);
+    if (pathname === "/observations" && method === "POST")
+      return json(await createObservation(request, env), origin, 201);
+    if (pathname === "/admin/reported" && method === "GET") return json(await listReported(request, env), origin);
+
+    const obsMatch = pathname.match(/^\/observations\/(\d+)(\/report|\/restore)?$/);
+    if (obsMatch) {
+      const id = Number(obsMatch[1]);
+      if (obsMatch[2] === "/report" && method === "POST") return json(await reportObservation(request, env, id), origin);
+      if (obsMatch[2] === "/restore" && method === "POST")
+        return json(await restoreObservation(request, env, id), origin);
+      if (!obsMatch[2] && method === "DELETE") return json(await deleteObservation(request, env, id), origin);
+    }
+
+    if (pathname.startsWith("/images/") && method === "GET") {
+      return await serveImage(env, pathname.slice("/images/".length), corsHeaders(origin));
+    }
+  } catch (err) {
+    if (err instanceof HttpError) return error(err.message, origin, err.status);
+    console.error(err);
+    return error("Något gick fel på servern. Försök igen.", origin, 500);
+  }
+  return null;
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const origin = env.ALLOWED_ORIGIN ?? "*";
@@ -170,6 +217,9 @@ export default {
     if (url.pathname === "/topowebb") {
       return proxyTopowebb(request, env, origin);
     }
+
+    const community = await handleCommunity(request, env, origin);
+    if (community) return community;
 
     if (url.pathname === "/health") {
       return new Response("ok", { headers: corsHeaders(origin) });

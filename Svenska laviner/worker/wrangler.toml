@@ -4,3 +4,19 @@ compatibility_date = "2026-09-01"
 
 [vars]
 ALLOWED_ORIGIN = "*"
+
+# User accounts + observations. Create once with:
+#   npx wrangler d1 create fjallvarning
+# and paste the printed database_id below, then apply the schema:
+#   npx wrangler d1 migrations apply fjallvarning --remote
+[[d1_databases]]
+binding = "DB"
+database_name = "fjallvarning"
+database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
+migrations_dir = "migrations"
+
+# Observation photos. Create once with:
+#   npx wrangler r2 bucket create fjallvarning-images
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "fjallvarning-images"
