@@ -49,6 +49,12 @@ export default function AboutPage() {
               Naturvårdsverket
             </a>
           </li>
+          <li>
+            Kartor: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+              OpenStreetMap
+            </a>{" "}
+            -bidragsgivare
+          </li>
         </ul>
       </section>
 

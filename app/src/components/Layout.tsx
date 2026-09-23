@@ -2,6 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 
 const NAV_ITEMS = [
   { to: "/", label: "Områden", end: true },
+  { to: "/karta", label: "Karta", end: false },
   { to: "/sakerhetsguide", label: "Säkerhetsguide", end: false },
   { to: "/om-appen", label: "Om appen", end: false },
 ];
