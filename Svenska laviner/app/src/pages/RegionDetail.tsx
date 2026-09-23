@@ -7,6 +7,9 @@ import type { AvalancheForecast } from "../types/avalanche";
 import type { WeatherPoint } from "../types/weather";
 import ForecastBadge from "../components/ForecastBadge";
 import OfficialForecast from "../components/OfficialForecast";
+import ObservationCard from "../components/ObservationCard";
+import { fetchObservations } from "../services/observationService";
+import type { Observation } from "../types/observation";
 import DangerScaleGuide from "../components/DangerScaleGuide";
 import SafetyChecklist from "../components/SafetyChecklist";
 import AvalancheProblems from "../components/AvalancheProblems";
@@ -29,6 +32,7 @@ export default function RegionDetail() {
 
   const [forecast, setForecast] = useState<AvalancheForecast | null>(null);
   const [forecastStale, setForecastStale] = useState(false);
+  const [observations, setObservations] = useState<Observation[] | null>(null);
   const [weather, setWeather] = useState<WeatherPoint[] | null>(null);
   const [weatherError, setWeatherError] = useState<string | null>(null);
   const [weatherCachedAt, setWeatherCachedAt] = useState<string | null>(null);
@@ -40,6 +44,10 @@ export default function RegionDetail() {
 
   useEffect(() => {
     if (!region) return;
+    fetchObservations({ region: region.id, limit: 5 })
+      .then(setObservations)
+      .catch(() => setObservations([]));
+
     loadForecasts().then((result) => {
       setForecast(result.byId[region.id] ?? null);
       setForecastStale(result.stale);
@@ -196,6 +204,26 @@ export default function RegionDetail() {
           )}
         </section>
       )}
+
+      <section className="section">
+        <h2>Observationer i området</h2>
+        <p className="section__intro">Senaste observationerna från andra åkare. Granskas inte i förväg.</p>
+        {!observations && <PageLoading label="Laddar observationer…" />}
+        {observations && observations.length === 0 && (
+          <p className="section__intro">Inga observationer från området än.</p>
+        )}
+        <div className="observation-list">
+          {observations?.map((o) => <ObservationCard key={o.id} observation={o} />)}
+        </div>
+        <p>
+          <Link to="/observationer" className="back-link">
+            Alla observationer →
+          </Link>{" "}
+          <Link to="/observationer/ny" className="back-link">
+            + Dela en observation
+          </Link>
+        </p>
+      </section>
 
       <section className="section">
         <DangerScaleGuide />

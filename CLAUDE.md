@@ -111,7 +111,32 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
     pictogram, affected aspects in orange) next to the wind-loading
     summary — reusable for avalanche-problem aspects if those get scraped.
 
-## Bugs fixed this session (context for why some code looks the way it does)
+## Community observations (user accounts) — added 2026-09-23
+
+Users register (email + password + display name), then post observations
+(type, map point, time, description, optional photo) that everyone sees.
+User chose: own accounts, publish immediately + report button, photos from
+the start, exact map point.
+
+- **Backend** (worker): `auth.ts`, `observations.ts`, `http.ts`, schema in
+  `worker/migrations/`. D1 binding `DB` (database `fjallvarning`), R2
+  binding `IMAGES` (bucket `fjallvarning-images`). Bearer-token sessions
+  (SHA-256 of token stored), PBKDF2 passwords. Hidden after 3 reports;
+  admins (`users.is_admin = 1`, set by hand via `wrangler d1 execute`)
+  see `/admin` in the app to restore/delete.
+- **App**: `auth/` (AuthProvider + useAuth, token in Capacitor
+  Preferences), pages `/logga-in`, `/registrera`, `/profil`,
+  `/observationer`, `/observationer/ny` (lazy, Leaflet picker), `/admin`;
+  pins on `/karta`; latest 5 per region on region pages. Photos are
+  downscaled + re-encoded client-side (`utils/image.ts`) which strips EXIF
+  GPS data.
+- **Test locally**: in `worker/`, `npx wrangler d1 migrations apply
+  fjallvarning --local` then `npx wrangler dev --local`; build the app with
+  `VITE_MAP_PROXY_URL=http://127.0.0.1:8787`.
+- **Known gaps**: no password reset or email verification (needs an email
+  service); no login rate limiting beyond PBKDF2 cost; no Turnstile/captcha.
+
+ (context for why some code looks the way it does)
 
 1. **EAWS terminology**: "flaklavin" was wrongly used as one of the 5
    avalanche-problem categories; correct EAWS term is "glidlavin" (gliding

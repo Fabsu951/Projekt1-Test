@@ -18,3 +18,20 @@ export function haversineDistanceKm(
 
   return 2 * EARTH_RADIUS_KM * Math.asin(Math.min(1, Math.sqrt(h)));
 }
+
+/** The forecast region whose center is closest to a point. */
+export function nearestRegionId(
+  point: { lat: number; lon: number },
+  regions: Array<{ id: string; lat: number; lon: number }>
+): string | null {
+  let best: string | null = null;
+  let bestDistance = Infinity;
+  for (const r of regions) {
+    const d = haversineDistanceKm(point, r);
+    if (d < bestDistance) {
+      bestDistance = d;
+      best = r.id;
+    }
+  }
+  return best;
+}

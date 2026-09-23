@@ -10,6 +10,17 @@ import { getDangerInfo } from "../data/dangerScale";
 import type { AvalancheForecast } from "../types/avalanche";
 import SlopeLayer from "../components/SlopeLayer";
 import TopoLayer from "../components/TopoLayer";
+import { fetchObservations } from "../services/observationService";
+import { observationTypeLabel } from "../data/observationTypes";
+import type { Observation } from "../types/observation";
+
+const OBSERVATION_ICON = L.divIcon({
+  className: "observation-pin",
+  html: "<span></span>",
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+  popupAnchor: [0, -9],
+});
 
 const SLOPE_LEGEND: Array<[string, string]> = [
   ["< 28°", "#325a82"],
@@ -41,6 +52,15 @@ function dangerIcon(dangerLevel: number | null | undefined): L.DivIcon {
 export default function MapPage() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
   const [showSlope, setShowSlope] = useState(false);
+  const [showObservations, setShowObservations] = useState(true);
+  const [observations, setObservations] = useState<Observation[]>([]);
+
+  useEffect(() => {
+    if (!showObservations) return;
+    fetchObservations({ limit: 200 })
+      .then(setObservations)
+      .catch(() => setObservations([]));
+  }, [showObservations]);
 
   useEffect(() => {
     loadForecasts().then((result) => setForecasts(result.byId));
@@ -56,6 +76,15 @@ export default function MapPage() {
       </header>
 
       <div className="map-toolbar">
+        <label className="map-toolbar__toggle">
+          <input
+            type="checkbox"
+            checked={showObservations}
+            onChange={(e) => setShowObservations(e.target.checked)}
+          />
+          <span className="observation-pin observation-pin--legend"><span /></span>
+          Observationer
+        </label>
         <label className="map-toolbar__toggle">
           <input
             type="checkbox"
@@ -88,6 +117,21 @@ export default function MapPage() {
         <MapContainer center={SWEDEN_FJALL_CENTER} zoom={DEFAULT_ZOOM} scrollWheelZoom>
           <TopoLayer />
           <SlopeLayer enabled={showSlope} />
+          {showObservations &&
+            observations.map((o) => (
+              <Marker key={`obs-${o.id}`} position={[o.lat, o.lon]} icon={OBSERVATION_ICON} zIndexOffset={1000}>
+                <Popup>
+                  <strong>{observationTypeLabel(o.type)}</strong>
+                  <br />
+                  {new Date(o.observedAt).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}{" "}
+                  · {o.author}
+                  <br />
+                  {o.description.length > 140 ? `${o.description.slice(0, 140)}…` : o.description}
+                  <br />
+                  <Link to="/observationer">Alla observationer →</Link>
+                </Popup>
+              </Marker>
+            ))}
           {REGIONS.map((region) => (
             <Marker
               key={region.id}

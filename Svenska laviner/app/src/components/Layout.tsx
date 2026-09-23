@@ -1,9 +1,11 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import ErrorBoundary from "./ErrorBoundary";
+import { useAuth } from "../auth/useAuth";
 
 const NAV_ITEMS = [
   { to: "/", label: "Områden", end: true },
   { to: "/karta", label: "Karta", end: false },
+  { to: "/observationer", label: "Observationer", end: false },
   { to: "/sakerhetsguide", label: "Säkerhetsguide", end: false },
   { to: "/om-appen", label: "Om appen", end: false },
 ];
@@ -37,6 +39,7 @@ function Ridgeline() {
 
 export default function Layout() {
   const location = useLocation();
+  const { user } = useAuth();
 
   return (
     <div className="app-shell">
@@ -58,6 +61,16 @@ export default function Layout() {
               {item.label}
             </NavLink>
           ))}
+          <NavLink
+            to={user ? "/profil" : "/logga-in"}
+            className={({ isActive }) =>
+              isActive
+                ? "app-shell__nav-link app-shell__nav-link--account app-shell__nav-link--active"
+                : "app-shell__nav-link app-shell__nav-link--account"
+            }
+          >
+            {user ? user.displayName : "Logga in"}
+          </NavLink>
         </nav>
         <Ridgeline />
       </header>
