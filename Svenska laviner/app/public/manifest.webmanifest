@@ -4,8 +4,8 @@
   "description": "Lavinprognos, väder och säkerhetsguide för svenska fjällen.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0b1622",
-  "theme_color": "#0b1622",
+  "background_color": "#10161d",
+  "theme_color": "#10161d",
   "icons": [
     {
       "src": "icons/icon-48.webp",

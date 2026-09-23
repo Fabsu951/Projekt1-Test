@@ -1,12 +1,27 @@
 :root {
-  --bg: #0b1622;
-  --bg-elevated: #132132;
-  --text: #eef3f8;
-  --text-muted: #9fb0c3;
-  --accent: #5aa9e6;
-  --border: #23344a;
+  /* "Granite & ice": dark granite surfaces, ice-blue for links/interactive
+     elements, a trail-marker orange for emphasis, and a snow white used as
+     a ring around danger level colors so every level (including the black
+     EAWS level 5) stands out against the dark background. */
+  --bg: #10161d;
+  --bg-elevated: #1b242e;
+  --bg-raised: #232e3a;
+  --text: #eef3f7;
+  --text-muted: #a2b0be;
+  --accent: #7cc7ec;
+  --signal: #ff9f43;
+  --snow: #e9eff4;
+  --border: #2e3b49;
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   color-scheme: dark;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
 }
 
 * {

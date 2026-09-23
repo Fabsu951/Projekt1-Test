@@ -9,7 +9,7 @@ export default function DangerScaleGuide() {
         <div key={info.level} className="danger-scale-guide__row">
           <span
             className="danger-scale-guide__swatch"
-            style={{ backgroundColor: info.color }}
+            style={{ backgroundColor: info.color, color: info.level >= 5 ? "#fff" : undefined }}
           >
             {info.level}
           </span>
