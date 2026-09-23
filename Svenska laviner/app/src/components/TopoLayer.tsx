@@ -7,8 +7,10 @@ import { TileLayer } from "react-leaflet";
 // without a deployed worker).
 const PROXY_BASE = import.meta.env.VITE_MAP_PROXY_URL as string | undefined;
 
-const TOPOWEBB_LAYER = "topowebb-ccby";
+const TOPOWEBB_LAYER = "topowebb";
 const TOPOWEBB_TILEMATRIXSET = "3857";
+// GetCapabilities lists TileMatrix identifiers 0–15 for the 3857 matrix set.
+const TOPOWEBB_MAX_ZOOM = 15;
 
 const TOPOWEBB_URL = PROXY_BASE
   ? `${PROXY_BASE.replace(/\/$/, "")}/topowebb?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=${TOPOWEBB_LAYER}&STYLE=default&TILEMATRIXSET=${TOPOWEBB_TILEMATRIXSET}&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png`
@@ -19,5 +21,12 @@ const TOPOWEBB_ATTRIBUTION = PROXY_BASE
   : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsgivare';
 
 export default function TopoLayer() {
-  return <TileLayer attribution={TOPOWEBB_ATTRIBUTION} url={TOPOWEBB_URL} maxZoom={17} />;
+  return (
+    <TileLayer
+      attribution={TOPOWEBB_ATTRIBUTION}
+      url={TOPOWEBB_URL}
+      maxZoom={19}
+      maxNativeZoom={PROXY_BASE ? TOPOWEBB_MAX_ZOOM : undefined}
+    />
+  );
 }
