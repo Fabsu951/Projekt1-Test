@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getRegionById } from "../data/regions";
 import { fetchForecast } from "../services/avalancheService";
@@ -9,7 +9,9 @@ import DangerBadge from "../components/DangerBadge";
 import DangerScaleGuide from "../components/DangerScaleGuide";
 import SafetyChecklist from "../components/SafetyChecklist";
 import AvalancheProblems from "../components/AvalancheProblems";
+import WindRose from "../components/WindRose";
 import { formatTime, symbolLabel, windCompass } from "../utils/weatherFormat";
+import { computeWindLoading } from "../utils/windAnalysis";
 import { withCache } from "../services/cache";
 
 export default function RegionDetail() {
@@ -34,6 +36,8 @@ export default function RegionDetail() {
       })
       .catch((err) => setWeatherError(err.message));
   }, [region]);
+
+  const windLoading = useMemo(() => computeWindLoading(weather ?? []), [weather]);
 
   if (!region) {
     return (
@@ -95,6 +99,19 @@ export default function RegionDetail() {
           </div>
         )}
       </section>
+
+      {weather && (
+        <section className="section">
+          <h2>Vindanalys</h2>
+          <p className="section__intro">
+            Beräknad vindlast per väderstreck utifrån väderprognosen — visar var
+            vinden väntas föra snö de kommande timmarna, inte historisk
+            uppbyggnad i snötäcket. Ett förenklat mått, inte en fysikalisk
+            modell.
+          </p>
+          <WindRose sectors={windLoading} />
+        </section>
+      )}
 
       <section className="section">
         <DangerScaleGuide />
