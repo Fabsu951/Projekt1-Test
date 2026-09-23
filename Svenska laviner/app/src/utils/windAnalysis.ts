@@ -17,6 +17,16 @@ export const COMPASS_SECTORS: CompassSector[] = ["N", "NO", "O", "SO", "S", "SV"
  */
 export const TRANSPORT_THRESHOLD_MS = 6;
 
+/**
+ * Speeds from here up to the transport threshold are flagged as "close":
+ * the 6 m/s cut-off is a rule of thumb, and loose new snow or gusts on
+ * exposed ridges can start drifting a little below it.
+ */
+export const NEAR_THRESHOLD_MS = 5;
+
+/** Below this, a reading's direction is too unreliable to be meaningful. */
+const CALM_MS = 1;
+
 export interface SectorWindLoad {
   sector: CompassSector;
   /** Compass bearing this sector is centered on, 0-315 in 45° steps. */
@@ -26,7 +36,7 @@ export interface SectorWindLoad {
   hoursWithTransport: number;
 }
 
-function sectorIndex(directionDegrees: number): number {
+export function sectorIndex(directionDegrees: number): number {
   const normalized = ((directionDegrees % 360) + 360) % 360;
   return Math.round(normalized / 45) % 8;
 }
@@ -80,4 +90,29 @@ export function mostLoadedSectors(loads: SectorWindLoad[], count = 2): SectorWin
     .filter((l) => l.loadIndex > 0)
     .sort((a, b) => b.loadIndex - a.loadIndex)
     .slice(0, count);
+}
+
+export function oppositeSector(sector: CompassSector): CompassSector {
+  return COMPASS_SECTORS[(COMPASS_SECTORS.indexOf(sector) + 4) % 8];
+}
+
+export interface SectorWindFrom {
+  sector: CompassSector;
+  centerDegrees: number;
+  /** Hours in the series where the wind blew FROM this sector. */
+  hours: number;
+}
+
+/**
+ * How many hours the wind blew from each sector, regardless of speed
+ * (dead-calm readings excluded). Lets a calm period still show where the
+ * wind came from instead of an empty chart.
+ */
+export function windFromDistribution(readings: WindReading[]): SectorWindFrom[] {
+  const hours = new Array(8).fill(0) as number[];
+  for (const r of readings) {
+    if (r.windSpeed < CALM_MS) continue;
+    hours[sectorIndex(r.windDirection)] += 1;
+  }
+  return COMPASS_SECTORS.map((sector, i) => ({ sector, centerDegrees: i * 45, hours: hours[i] }));
 }

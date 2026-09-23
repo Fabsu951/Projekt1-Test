@@ -1,5 +1,14 @@
-import type { RawWindSummary, SectorWindLoad } from "../utils/windAnalysis";
-import { mostLoadedSectors, TRANSPORT_THRESHOLD_MS } from "../utils/windAnalysis";
+import { useMemo } from "react";
+import type { WindReading } from "../utils/windAnalysis";
+import {
+  computeWindLoading,
+  mostLoadedSectors,
+  NEAR_THRESHOLD_MS,
+  oppositeSector,
+  rawWindSummary,
+  TRANSPORT_THRESHOLD_MS,
+  windFromDistribution,
+} from "../utils/windAnalysis";
 import { windCompass } from "../utils/weatherFormat";
 
 // Validated (node scripts/validate_palette.js --ordinal --mode dark --surface
@@ -10,6 +19,9 @@ import { windCompass } from "../utils/weatherFormat";
 // the darkest-but-still-visible step marks the lowest.
 const LOAD_RAMP = ["#184f95", "#256abf", "#3987e5", "#6da7ec", "#9ec5f4"];
 const NEUTRAL = "#3a4a5c";
+// Direction-only (no transport) wedges: visibly lighter than NEUTRAL but
+// grey, so they don't read as a step of the loading ramp.
+const CALM_FILL = "#6b7c90";
 
 const CENTER = 130;
 const HUB_RADIUS = 26;
@@ -39,27 +51,36 @@ function colorFor(loadIndex: number, maxLoad: number): string {
 }
 
 interface Props {
-  sectors: SectorWindLoad[];
+  /** Hourly wind readings (forecast or observed). */
+  readings: WindReading[];
   /** Describes the data source in running Swedish text, e.g. "prognosen" or "mätningen". */
   sourceLabel: string;
   /** Table caption, e.g. "Vindlast per väderstreck (senaste prognosen)". */
   tableCaption: string;
-  /** Highest raw reading in the underlying series, so a genuinely calm
-   *  period (all sectors below the transport threshold) doesn't look
-   *  identical to missing/broken data. */
-  raw?: RawWindSummary | null;
 }
 
-export default function WindRose({ sectors, sourceLabel, tableCaption, raw }: Props) {
+export default function WindRose({ readings, sourceLabel, tableCaption }: Props) {
+  const sectors = useMemo(() => computeWindLoading(readings), [readings]);
+  const raw = useMemo(() => rawWindSummary(readings), [readings]);
+  const fromDistribution = useMemo(() => windFromDistribution(readings), [readings]);
+
   const maxLoad = Math.max(0, ...sectors.map((s) => s.loadIndex));
   const top = mostLoadedSectors(sectors, 1)[0];
+  const windFrom = top ? oppositeSector(top.sector) : null;
 
-  const summary =
-    maxLoad === 0
-      ? raw
-        ? `Ingen betydande vindtransport i ${sourceLabel} — högsta vinden var ${raw.maxSpeed.toFixed(1)} m/s (${windCompass(raw.maxSpeedDirection)}), under transportgränsen på ${TRANSPORT_THRESHOLD_MS} m/s.`
-        : `Ingen betydande vindtransport i ${sourceLabel}.`
-      : `Mest vindlastat: ${top.sector}-vända sluttningar.`;
+  // When nothing crosses the transport threshold, show where the wind came
+  // FROM instead (in neutral grey), so a calm period doesn't look like
+  // missing data.
+  const calm = maxLoad === 0;
+  const maxFromHours = Math.max(0, ...fromDistribution.map((d) => d.hours));
+  const showCalmDirections = calm && maxFromHours > 0;
+  const nearThreshold = calm && raw !== null && raw.maxSpeed >= NEAR_THRESHOLD_MS;
+
+  const summary = !calm
+    ? `Vind från ${windFrom} → mest vindlastat: ${top.sector}-vända sluttningar.`
+    : raw
+      ? `Ingen betydande vindtransport i ${sourceLabel} — högsta vinden var ${raw.maxSpeed.toFixed(1)} m/s (${windCompass(raw.maxSpeedDirection)}), under transportgränsen på ${TRANSPORT_THRESHOLD_MS} m/s.`
+      : `Ingen betydande vindtransport i ${sourceLabel}.`;
 
   return (
     <div className="wind-rose">
@@ -69,16 +90,40 @@ export default function WindRose({ sectors, sourceLabel, tableCaption, raw }: Pr
         aria-label={`Vindlastros per väderstreck. ${summary}`}
         className="wind-rose__svg"
       >
-        {sectors.map((s) => {
-          const radius = maxLoad > 0 ? HUB_RADIUS + (MAX_RADIUS - HUB_RADIUS) * (s.loadIndex / maxLoad) : HUB_RADIUS + 8;
-          return (
-            <path
-              key={s.sector}
-              d={wedgePath(s.centerDegrees, radius)}
-              fill={colorFor(s.loadIndex, maxLoad)}
-            />
-          );
-        })}
+        {showCalmDirections
+          ? fromDistribution.map((d) => {
+              const radius = HUB_RADIUS + (MAX_RADIUS - HUB_RADIUS) * (d.hours / maxFromHours);
+              return (
+                <path
+                  key={d.sector}
+                  d={wedgePath(d.centerDegrees, d.hours > 0 ? radius : HUB_RADIUS + 8)}
+                  fill={d.hours > 0 ? CALM_FILL : NEUTRAL}
+                />
+              );
+            })
+          : sectors.map((s) => {
+              const radius = maxLoad > 0 ? HUB_RADIUS + (MAX_RADIUS - HUB_RADIUS) * (s.loadIndex / maxLoad) : HUB_RADIUS + 8;
+              return (
+                <path
+                  key={s.sector}
+                  d={wedgePath(s.centerDegrees, radius)}
+                  fill={colorFor(s.loadIndex, maxLoad)}
+                />
+              );
+            })}
+        {top && (
+          // Arrow across the hub: from the windward side toward the loaded lee side.
+          <g className="wind-rose__arrow" transform={`rotate(${top.centerDegrees} ${CENTER} ${CENTER})`}>
+            <line x1={CENTER} y1={CENTER + 18} x2={CENTER} y2={CENTER - 10} strokeWidth={3} />
+            <polygon points={`${CENTER},${CENTER - 20} ${CENTER - 7},${CENTER - 8} ${CENTER + 7},${CENTER - 8}`} />
+          </g>
+        )}
+        {calm && raw && (
+          <text x={CENTER} y={CENTER} textAnchor="middle" className="wind-rose__hub-text">
+            <tspan x={CENTER} dy="-0.2em">Ingen</tspan>
+            <tspan x={CENTER} dy="1.1em">transport</tspan>
+          </text>
+        )}
         {sectors.map((s) => {
           const [lx, ly] = toXY(s.centerDegrees, MAX_RADIUS + 16);
           const isTop = top && s.sector === top.sector;
@@ -98,6 +143,17 @@ export default function WindRose({ sectors, sourceLabel, tableCaption, raw }: Pr
       </svg>
 
       <p className="wind-rose__summary">{summary}</p>
+      {showCalmDirections && (
+        <p className="wind-rose__hint">De grå fälten visar varifrån vinden blåser, inte vindlast.</p>
+      )}
+      {!calm && (
+        <p className="wind-rose__hint">Pilen visar vindens riktning; fälten visar var snön läggs (läsidan).</p>
+      )}
+      {nearThreshold && (
+        <p className="wind-rose__near">
+          Nära transportgränsen — lös snö kan ändå börja driva, särskilt i byar och på krön.
+        </p>
+      )}
 
       <table className="wind-rose__table">
         <caption>{tableCaption}</caption>

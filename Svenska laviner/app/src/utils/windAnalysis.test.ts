@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { computeWindLoading, mostLoadedSectors, rawWindSummary } from "./windAnalysis";
+import {
+  computeWindLoading,
+  mostLoadedSectors,
+  oppositeSector,
+  rawWindSummary,
+  windFromDistribution,
+} from "./windAnalysis";
 import type { WeatherPoint } from "../types/weather";
 
 function point(windSpeed: number, windDirection: number): WeatherPoint {
@@ -68,5 +74,25 @@ describe("rawWindSummary", () => {
   it("picks the highest reading even when it's below the transport threshold", () => {
     const summary = rawWindSummary([point(1, 10), point(5.8, 220), point(3, 40)]);
     expect(summary).toEqual({ maxSpeed: 5.8, maxSpeedDirection: 220 });
+  });
+});
+
+describe("windFromDistribution", () => {
+  it("counts hours per FROM sector regardless of the transport threshold", () => {
+    const dist = windFromDistribution([point(3, 130), point(5.8, 140), point(2, 270)]);
+    expect(dist.find((d) => d.sector === "SO")!.hours).toBe(2);
+    expect(dist.find((d) => d.sector === "V")!.hours).toBe(1);
+  });
+
+  it("ignores dead-calm readings whose direction is meaningless", () => {
+    const dist = windFromDistribution([point(0.3, 90)]);
+    expect(dist.every((d) => d.hours === 0)).toBe(true);
+  });
+});
+
+describe("oppositeSector", () => {
+  it("maps each sector to the one 180° away", () => {
+    expect(oppositeSector("V")).toBe("O");
+    expect(oppositeSector("NO")).toBe("SV");
   });
 });

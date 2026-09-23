@@ -438,6 +438,35 @@
   text-align: center;
 }
 
+.wind-rose__hint {
+  margin: -8px 0 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.wind-rose__near {
+  margin: -4px 0 12px;
+  padding: 6px 10px;
+  border-left: 3px solid #e0a43a;
+  background: rgba(224, 164, 58, 0.1);
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.wind-rose__arrow line {
+  stroke: var(--text);
+}
+
+.wind-rose__arrow polygon {
+  fill: var(--text);
+}
+
+.wind-rose__hub-text {
+  fill: var(--text-muted);
+  font-size: 9px;
+}
+
 .wind-rose__table {
   width: 100%;
   border-collapse: collapse;

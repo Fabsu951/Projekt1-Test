@@ -58,7 +58,7 @@ describe("RegionDetail forecast wind rose", () => {
     const heading = await screen.findByRole("heading", { name: "Prognos, kommande timmar" });
     const subsection = heading.closest(".wind-subsection") as HTMLElement;
     // Westerly wind loads east-facing (lee) slopes.
-    expect(within(subsection).getByText("Mest vindlastat: O-vända sluttningar.")).toBeInTheDocument();
+    expect(within(subsection).getByText("Vind från V → mest vindlastat: O-vända sluttningar.")).toBeInTheDocument();
     const eastRow = within(subsection).getByRole("row", { name: /^O / });
     expect(eastRow).toHaveTextContent("9");
   });

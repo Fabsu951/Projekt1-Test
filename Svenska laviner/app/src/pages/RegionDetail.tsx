@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getRegionById } from "../data/regions";
 import { fetchForecast } from "../services/avalancheService";
@@ -13,7 +13,6 @@ import SourceList from "../components/SourceList";
 import WindRose from "../components/WindRose";
 import PageLoading from "../components/PageLoading";
 import { formatTime, symbolLabel, windCompass } from "../utils/weatherFormat";
-import { computeWindLoading, rawWindSummary } from "../utils/windAnalysis";
 import { withCache } from "../services/cache";
 import {
   findNearestWindStation,
@@ -59,14 +58,6 @@ export default function RegionDetail() {
       })
       .catch((err) => setStationError(err.message));
   }, [region]);
-
-  const forecastWindLoading = useMemo(() => computeWindLoading(weather ?? []), [weather]);
-  const observedWindLoading = useMemo(
-    () => computeWindLoading(stationSeries ?? []),
-    [stationSeries]
-  );
-  const forecastRawWind = useMemo(() => rawWindSummary(weather ?? []), [weather]);
-  const observedRawWind = useMemo(() => rawWindSummary(stationSeries ?? []), [stationSeries]);
 
   if (!region) {
     return (
@@ -175,10 +166,9 @@ export default function RegionDetail() {
                   {Math.round(station.distanceKm)} km bort.
                 </p>
                 <WindRose
-                  sectors={observedWindLoading}
+                  readings={stationSeries}
                   sourceLabel="mätningen"
                   tableCaption="Vindlast per väderstreck (uppmätt, senaste dygnet)"
-                  raw={observedRawWind}
                 />
               </>
             )}
@@ -188,10 +178,9 @@ export default function RegionDetail() {
             <div className="wind-subsection">
               <h3>Prognos, kommande timmar</h3>
               <WindRose
-                sectors={forecastWindLoading}
+                readings={weather}
                 sourceLabel="prognosen"
                 tableCaption="Vindlast per väderstreck (senaste prognosen)"
-                raw={forecastRawWind}
               />
             </div>
           )}
