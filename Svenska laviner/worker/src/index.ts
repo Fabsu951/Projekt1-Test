@@ -28,56 +28,62 @@ function corsHeaders(origin: string): HeadersInit {
   };
 }
 
-async function fetchRegion(regionId: string, slug: string): Promise<RegionForecastResponse> {
-  const sourceUrl = `${SOURCE_BASE}/${slug}/`;
+function emptyForecast(
+  regionId: string,
+  sourceUrl: string,
+  fetchedAt: string,
+  fetchError: string
+): RegionForecastResponse {
+  return {
+    regionId,
+    sourceUrl,
+    fetchedAt,
+    fetchError,
+    assessed: false,
+    danger: null,
+    seasonOver: false,
+    notAssessed: false,
+    confidence: "none",
+    headline: null,
+    publishedText: null,
+  };
+}
+
+/** Tries each candidate slug in order; a 404 moves on to the next one. */
+async function fetchRegion(regionId: string, slugs: string[]): Promise<RegionForecastResponse> {
   const fetchedAt = new Date().toISOString();
+  let lastUrl = `${SOURCE_BASE}/${slugs[0]}/`;
 
-  try {
-    const res = await fetch(sourceUrl, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "sv-SE,sv;q=0.9,en;q=0.8",
-      },
-      cf: { cacheTtl: CACHE_TTL_SECONDS, cacheEverything: true },
-    });
+  for (const slug of slugs) {
+    const sourceUrl = `${SOURCE_BASE}/${slug}/`;
+    lastUrl = sourceUrl;
+    try {
+      const res = await fetch(sourceUrl, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language": "sv-SE,sv;q=0.9,en;q=0.8",
+        },
+        cf: { cacheTtl: CACHE_TTL_SECONDS, cacheEverything: true },
+      });
 
-    if (!res.ok) {
-      return {
+      if (res.status === 404) continue;
+      if (!res.ok) return emptyForecast(regionId, sourceUrl, fetchedAt, `HTTP ${res.status}`);
+
+      const parsed = parseForecastHtml(await res.text());
+      return { regionId, sourceUrl, fetchedAt, fetchError: null, ...parsed };
+    } catch (err) {
+      return emptyForecast(
         regionId,
         sourceUrl,
         fetchedAt,
-        fetchError: `HTTP ${res.status}`,
-        assessed: false,
-        danger: null,
-        seasonOver: false,
-        notAssessed: false,
-        confidence: "none",
-        headline: null,
-        publishedText: null,
-      };
+        err instanceof Error ? err.message : "unknown fetch error"
+      );
     }
-
-    const html = await res.text();
-    const parsed = parseForecastHtml(html);
-
-    return { regionId, sourceUrl, fetchedAt, fetchError: null, ...parsed };
-  } catch (err) {
-    return {
-      regionId,
-      sourceUrl,
-      fetchedAt,
-      fetchError: err instanceof Error ? err.message : "unknown fetch error",
-      assessed: false,
-      danger: null,
-      seasonOver: false,
-      notAssessed: false,
-      confidence: "none",
-      headline: null,
-      publishedText: null,
-    };
   }
+
+  return emptyForecast(regionId, lastUrl, fetchedAt, `HTTP 404 (tried: ${slugs.join(", ")})`);
 }
 
 // Proxies Lantmäteriet's topowebb-ccby WMTS endpoint so the Basic Auth
@@ -147,7 +153,7 @@ export default {
       }
 
       const results = await Promise.all(
-        REGION_SOURCES.map((r) => fetchRegion(r.id, r.slug))
+        REGION_SOURCES.map((r) => fetchRegion(r.id, r.slugs))
       );
 
       const response = new Response(JSON.stringify({ regions: results }), {

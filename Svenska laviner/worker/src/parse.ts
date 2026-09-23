@@ -8,13 +8,28 @@ export interface ParsedForecast {
   publishedText: string | null;
 }
 
-const DANGER_WORDS: Array<{ pattern: RegExp; level: number }> = [
-  { pattern: /mycket\s+stor\s+lavinfara/i, level: 5 },
-  { pattern: /stor\s+lavinfara/i, level: 4 },
-  { pattern: /betydande\s+lavinfara/i, level: 3 },
-  { pattern: /måttlig\s+lavinfara/i, level: 2 },
-  { pattern: /liten\s+lavinfara/i, level: 1 },
-];
+// "mycket stor" must come before "stor" in the alternation so level 5
+// isn't also counted as level 4.
+const DANGER_PHRASE = /(mycket\s+stor|stor|betydande|måttlig|liten)\s+lavinfara/gi;
+const DANGER_PHRASE_LEVELS: Record<string, number> = {
+  "mycket stor": 5,
+  stor: 4,
+  betydande: 3,
+  måttlig: 2,
+  liten: 1,
+};
+const RISK_ALT = /alt="[^"]*[Rr]isk\s*([0-5])[^"]*"/g;
+
+/**
+ * Returns a level only when the page mentions exactly one distinct level.
+ * A page that also carries a danger-scale legend (all five levels) is
+ * ambiguous, and an ambiguous page must yield no level rather than
+ * whichever one happens to match first.
+ */
+function singleLevel(levels: number[]): number | null {
+  const distinct = new Set(levels.filter((l) => l >= 1 && l <= 5));
+  return distinct.size === 1 ? [...distinct][0] : null;
+}
 
 function decodeEntities(html: string): string {
   return html
@@ -50,34 +65,43 @@ export function parseForecastHtml(rawHtml: string): ParsedForecast {
 
   const seasonOver =
     /prognossäsongen\s+är\s+avslutad/i.test(text) || /säsongen\s+är\s+slut/i.test(text);
-  const notAssessed = /ej\s+bedömd/i.test(text);
+  // "Ej bedömd" also appears in the site's legend on every page (seen live
+  // 2026-09: every region matched it), so it must not override a parsed
+  // level — it only counts when no level was found.
+  const notAssessedText = /ej\s+bedömd/i.test(text);
 
-  if (seasonOver || notAssessed) {
+  if (seasonOver) {
     return {
       assessed: false,
       danger: null,
       seasonOver,
-      notAssessed,
+      notAssessed: notAssessedText,
       confidence: "explicit-none",
       headline: null,
       publishedText: null,
     };
   }
 
-  let danger: number | null = null;
-
-  const altMatch = html.match(/alt="[^"]*[Rr]isk\s*([0-5])[^"]*"/);
-  if (altMatch) {
-    danger = Number(altMatch[1]);
-  }
+  let danger = singleLevel([...html.matchAll(RISK_ALT)].map((m) => Number(m[1])));
 
   if (danger === null) {
-    for (const { pattern, level } of DANGER_WORDS) {
-      if (pattern.test(text)) {
-        danger = level;
-        break;
-      }
-    }
+    danger = singleLevel(
+      [...text.matchAll(DANGER_PHRASE)].map(
+        (m) => DANGER_PHRASE_LEVELS[m[1].toLowerCase().replace(/\s+/g, " ")] ?? 0
+      )
+    );
+  }
+
+  if (danger === null && notAssessedText) {
+    return {
+      assessed: false,
+      danger: null,
+      seasonOver: false,
+      notAssessed: true,
+      confidence: "explicit-none",
+      headline: null,
+      publishedText: null,
+    };
   }
 
   const headlineMatch = text.match(/Huvudbudskap[:\s]+([^.]{10,400}\.)/i);

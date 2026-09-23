@@ -57,3 +57,39 @@ describe("parseForecastHtml", () => {
     expect(result.confidence).toBe("none");
   });
 });
+
+describe("parseForecastHtml ambiguity guards", () => {
+  const LEGEND = `
+    <ul class="legend">
+      <li>Liten lavinfara</li><li>Måttlig lavinfara</li><li>Betydande lavinfara</li>
+      <li>Stor lavinfara</li><li>Mycket stor lavinfara</li><li>Ej bedömd</li>
+    </ul>`;
+
+  it("doesn't let an 'Ej bedömd' legend entry hide a published level", () => {
+    const html = `<img alt="Risk 3 - Betydande lavinfara" />${LEGEND}`;
+    const result = parseForecastHtml(html);
+    expect(result.danger).toBe(3);
+    expect(result.notAssessed).toBe(false);
+  });
+
+  it("returns no level when a legend lists every level and no single icon is found", () => {
+    const result = parseForecastHtml(`<p>Ingen prognos idag.</p>${LEGEND}`);
+    expect(result.danger).toBeNull();
+    expect(result.notAssessed).toBe(true);
+  });
+
+  it("doesn't count 'mycket stor' as a second level (stor)", () => {
+    expect(parseForecastHtml(`<p>Mycket stor lavinfara idag.</p>`).danger).toBe(5);
+  });
+
+  it("returns no level when risk icons disagree", () => {
+    const html = `<img alt="Risk 2" /><img alt="Risk 4" />`;
+    expect(parseForecastHtml(html).danger).toBeNull();
+  });
+
+  it("treats season-over as authoritative even if the legend says 'Ej bedömd'", () => {
+    const result = parseForecastHtml(`<p>Prognossäsongen är avslutad.</p>${LEGEND}`);
+    expect(result.seasonOver).toBe(true);
+    expect(result.danger).toBeNull();
+  });
+});

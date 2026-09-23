@@ -54,10 +54,15 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
     "Ingen prognos"/"Säsongen slut"/"Ej bedömd" plus a link to the official
     page; never reintroduce guessed danger levels. Avalanche problems are
     not scraped, so that section only appears if a future source adds them.
-  - **Scraper not yet validated against the live site** (unreachable from
-    cloud sessions): 3 of 6 slugs in `worker/src/regions.ts` are guessed,
-    and `parse.ts`'s regexes are based on the toppturvarsel scraper, not
-    real markup. Check `https://fjallvarning-worker.fabian-n-sund.workers.dev/forecasts`
+  - **Scraper partly validated** (lavinprognoser.se is unreachable from
+    cloud sessions; Fabian pasted live `/forecasts` output 2026-09-23): 5 of
+    6 slugs load. `riksgransfjallen` 404'd — the worker now tries several
+    "Abisko/Riksgränsfjällen" spellings in order; pin the working one in
+    `worker/src/regions.ts` once seen. Every page matched both "season over"
+    and "Ej bedömd" (a legend), so the parser now only accepts a danger
+    level when the page names exactly one, and "Ej bedömd" never overrides
+    a parsed level. Danger-level regexes are still unverified against real
+    in-season markup. Check `https://fjallvarning-worker.fabian-n-sund.workers.dev/forecasts`
     once the season starts (mid-December) — `fetchError` on a region means a
     bad slug; `confidence: "none"` means the parser missed. Also watch that
     `/ej\s+bedömd/` doesn't false-positive on a page legend.
