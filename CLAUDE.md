@@ -14,10 +14,9 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
 - Cloudflare Worker (map tile proxy + forecast scraper) lives under
   `Svenska laviner/worker/`.
 - Git branch: **`svenska-laviner`** (branch names can't contain spaces, hence
-  the mismatch with the folder name). Work from the 2026-09-23 session (wind
-  rose improvements + redesign) lives on **`claude/tender-fermat-e79z2v`**,
-  branched from `svenska-laviner` and not yet merged back — deploy from that
-  branch (swap the `git pull` line below) until it is merged.
+  the mismatch with the folder name). Cloud sessions develop on a
+  `claude/...` branch and fast-forward `svenska-laviner` when Fabian asks;
+  always deploy from `svenska-laviner`.
 
 ## Deployment (IMPORTANT — has bitten us before)
 
