@@ -156,10 +156,26 @@
 }
 
 .avalanche-problems__item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 12px;
+}
+
+.problem-icon {
+  flex: none;
+  display: inline-block;
+  border-radius: 8px;
+  overflow: hidden;
+  /* Sky behind the slope cross-section. */
+  background: linear-gradient(180deg, #2b3a4a 0%, #1f2b37 100%);
+}
+
+.problem-icon svg {
+  display: block;
 }
 
 .avalanche-problems__item p {

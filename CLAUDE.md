@@ -14,7 +14,10 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
 - Cloudflare Worker (map tile proxy + forecast scraper) lives under
   `Svenska laviner/worker/`.
 - Git branch: **`svenska-laviner`** (branch names can't contain spaces, hence
-  the mismatch with the folder name).
+  the mismatch with the folder name). Work from the 2026-09-23 session (wind
+  rose improvements + redesign) lives on **`claude/tender-fermat-e79z2v`**,
+  branched from `svenska-laviner` and not yet merged back — deploy from that
+  branch (swap the `git pull` line below) until it is merged.
 
 ## Deployment (IMPORTANT — has bitten us before)
 
@@ -74,16 +77,21 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   `topowebb` layer (id confirmed via GetCapabilities — NOT `topowebb-ccby`,
   that's only part of the URL path) via the Worker proxy, `TopoLayer.tsx`,
   falls back to OSM when `VITE_MAP_PROXY_URL` is unset.
-- **A** — design/layout (ski-focused visual identity): **in progress, not
-  started yet**. User's answers when asked (via AskUserQuestion):
-  - Visual direction: **"Äventyrlig/utomhus"** (adventure/outdoor) — more
-    visually driven than the current plain dark theme; deeper palette
-    (ice-blue, granite-grey, orange/yellow accent), stronger typography,
-    in the spirit of Gaia GPS / onX Backcountry (not photorealistic).
-  - Graphics: **yes, simple SVG icons/illustrations** — e.g. a mountain
-    silhouette in the header, custom icons for compass directions/avalanche
-    problem types instead of generic ones. No photos, no heavy assets.
-  - Nothing has been implemented for A yet — this is the next task.
+- **A** — design/layout (ski-focused visual identity): **mostly done**.
+  User asked for **"Äventyrlig/utomhus"** (Gaia GPS / onX spirit, not
+  photorealistic) with simple SVG graphics, no photos. Implemented:
+  - "Granite & ice" palette tokens in `index.css` (`--bg`, `--bg-elevated`,
+    `--bg-raised`, `--accent` ice-blue, `--signal` orange, `--snow`).
+  - Barlow Condensed via `@fontsource/barlow-condensed` (self-hosted, so it
+    works offline in the native app) for headings, brand, nav.
+  - Header with SVG brand mark + ridgeline silhouette (`Layout.tsx`).
+  - Original SVG pictograms per avalanche problem (`ProblemIcon.tsx`) —
+    deliberately NOT copies of EAWS's own artwork.
+  - **Danger scale colors are intentionally unchanged** — user explicitly
+    said "behåll skalan" when level 5 (black) was hard to see; the fix is a
+    snow-white ring (`box-shadow: 0 0 0 2px var(--snow)`) on badges,
+    scale swatches, and map markers instead.
+  - Possible next: custom compass/aspect icons.
 
 ## Bugs fixed this session (context for why some code looks the way it does)
 
@@ -107,38 +115,25 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
    `rawWindSummary()` and surfacing the actual max measured speed/direction
    in `WindRose.tsx`'s summary text when load is zero.
 
-## Open issue — NOT YET RESOLVED
-
-User reported (most recent message before this file was written): the
-**forecast** wind rose ("Prognos, kommande timmar" subsection in
-`RegionDetail.tsx`, the one below "Uppmätt, senaste dygnet") still shows no
-wind data, even though the region's own hourly weather table showed forecast
-wind speeds of 13 m/s and 11 m/s — well above the 6 m/s transport threshold,
-so that rose should NOT be all-zero. This was never actually diagnosed — I'd
-asked for a screenshot scrolled further down to see that specific subsection,
-but the session ended before getting a reply. **First thing to check next
-session.** Possible angles:
-- Is the "Prognos, kommande timmar" section rendering at all? (Gated on
-  `{weather && (...)}` in `RegionDetail.tsx` — should be truthy given the
-  Väder table has data.)
-- Is `forecastWindLoading`/`computeWindLoading(weather ?? [])` actually
-  producing non-zero sectors for that data? (`computeWindLoading` and
-  `rawWindSummary` are pure functions over the same `weather` array already
-  proven correct elsewhere on the page — worth writing a quick repro test
-  with the exact values from the user's screenshot: 13 m/s, 11 m/s, 7 m/s,
-  4 m/s, 3 m/s, 3 m/s at directions V/V/V/VSV/SSV/SV.)
-- Could be a stale-deploy issue again (check they're on
-  `fjallvarning.pages.dev`, hard-refreshed, and the deploy actually included
-  the latest commit) rather than a code bug — rule this out first before
-  changing code.
+4. **Forecast wind rose "empty"** (reported end of previous session):
+   was a stale deploy, not a code bug — `RegionDetail.test.tsx` reproduces
+   the user's exact values and passes. Follow-up UX changes in
+   `WindRose.tsx` (now takes raw `readings`): calm periods draw wind-FROM
+   directions in grey with "Ingen transport" in the hub; a note appears at
+   5–6 m/s (`NEAR_THRESHOLD_MS`); loaded view says "Vind från V → mest
+   vindlastat: O-vända sluttningar" with an arrow, because users read the
+   lee-side wedges as the wind direction.
 
 ## Other notes
 
+- Cloud (claude.ai/code) sessions cannot reach SMHI, Cloudflare, or
+  fjallvarning.pages.dev (network policy), so deploys and live checks are
+  done by Fabian locally; screenshots in-session use mocked SMHI data.
 - Fabian pasted a live `CLOUDFLARE_API_TOKEN` into chat earlier in this
   project's history; he was advised to rotate it (Cloudflare dashboard → My
   Profile → API Tokens). Unconfirmed whether he did.
 - No service worker / PWA caching in the app (checked — ruled out as a cause
   of stale-content confusion earlier).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (36 tests as of this writing, all passing). Worker has its own small Vitest
+  (44 tests as of 2026-09-23, all passing). Worker has its own small Vitest
   suite in `Svenska laviner/worker` (`npm test`).
