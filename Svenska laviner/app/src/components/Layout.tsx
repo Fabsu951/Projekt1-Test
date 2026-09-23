@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import ErrorBoundary from "./ErrorBoundary";
 
 const NAV_ITEMS = [
   { to: "/", label: "Områden", end: true },
@@ -8,6 +9,8 @@ const NAV_ITEMS = [
 ];
 
 export default function Layout() {
+  const location = useLocation();
+
   return (
     <div className="app-shell">
       <header className="app-shell__header">
@@ -30,7 +33,9 @@ export default function Layout() {
         </nav>
       </header>
       <main>
-        <Outlet />
+        <ErrorBoundary key={location.pathname}>
+          <Outlet />
+        </ErrorBoundary>
       </main>
     </div>
   );
