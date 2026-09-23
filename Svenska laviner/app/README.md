@@ -1,6 +1,6 @@
-# Projekt1
+# Fjällvarning
 
-TypeScript-webbapp (React + Vite) paketerad med [Capacitor](https://capacitorjs.com/) för att kunna publiceras till App Store (iOS) och Google Play (Android).
+TypeScript-webbapp (React + Vite) paketerad med [Capacitor](https://capacitorjs.com/) för att kunna publiceras till App Store (iOS) och Google Play (Android) — och samma kod publiceras som en vanlig hemsida.
 
 ## Struktur
 
@@ -46,6 +46,16 @@ npx cap open ios
 ```
 
 Arkivera och ladda upp appen via Xcode Organizer till [App Store Connect](https://appstoreconnect.apple.com/).
+
+## Publicera som hemsida (Cloudflare Pages)
+
+1. Skapa ett gratis konto på [Cloudflare](https://dash.cloudflare.com/sign-up) om du inte redan har ett.
+2. I Cloudflare-dashboarden: **Workers & Pages → Create → Pages → Connect to Git**, välj repot `Fabsu951/Projekt1-Test` och branchen `svenska-laviner`.
+3. Bygginställningar:
+   - **Root directory**: `Svenska laviner/app`
+   - **Build command**: `npm run build`
+   - **Build output directory**: `dist`
+4. Klart — varje push till branchen bygger och publicerar om sidan automatiskt. `public/_redirects` ser till att sid-routing (t.ex. `/omrade/kebnekaisefjallen`) fungerar vid direktnavigering, inte bara via länkar i appen.
 
 ## Lint
 
