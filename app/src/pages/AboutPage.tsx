@@ -41,7 +41,8 @@ export default function AboutPage() {
         <h2>Källor</h2>
         <ul>
           <li>
-            Väderdata: <a href="https://www.smhi.se" target="_blank" rel="noreferrer">SMHI</a>{" "}
+            Väderprognos och uppmätt vinddata:{" "}
+            <a href="https://www.smhi.se" target="_blank" rel="noreferrer">SMHI</a>{" "}
             öppna data
           </li>
           <li>
