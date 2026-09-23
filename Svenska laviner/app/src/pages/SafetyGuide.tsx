@@ -7,6 +7,57 @@ const FJALLSAKERHETSRADET: Source = {
   url: "https://www.fjallsakerhetsradet.se/forbered-fjallturen/lavinsakerhet/",
 };
 
+const FJALLSAKERHETSRADET_FAKTA: Source = {
+  label: "Fjällsäkerhetsrådet – Fakta om laviner",
+  url: "https://www.fjallsakerhetsradet.se/vader-och-prognoser/fakta-om-laviner/",
+};
+
+const SMHI_LAVINER: Source = {
+  label: "SMHI – Laviner",
+  url: "https://www.smhi.se/kunskapsbanken/meteorologi/sno--och-isfenomen/laviner",
+};
+
+const EAWS_GLOSSARY: Source = {
+  label: "EAWS – Glossary",
+  url: "https://www.avalanches.org/glossary/",
+};
+
+const LAVINPROGNOSER_LAS_FORST: Source = {
+  label: "lavinprognoser.se – Läs här först",
+  url: "https://www.lavinprognoser.se/sa-laser-du-lavinprognosen/las-har-forst/",
+};
+
+const LAVINPROGNOSER_PROBLEM: Source = {
+  label: "lavinprognoser.se – Typer av lavinproblem",
+  url: "https://www.lavinprognoser.se/sa-laser-du-lavinprognosen/lavinproblem/",
+};
+
+const WEATHER_FACTORS = [
+  {
+    title: "Nysnö",
+    text: "Nysnö har lägre densitet än äldre snö och binder inte direkt till underlaget. Så mycket som 80 % av alla laviner sker inom ett dygn efter ett större snöfall, och risken kvarstår förhöjd i flera dagar efteråt.",
+  },
+  {
+    title: "Vind",
+    text: "Vind flyttar snö även utan nederbörd. På läsidor byggs hårda, spröda vindflak upp — ofta den enskilt vanligaste orsaken till skidåkarutlösta laviner. Ju hårdare vind, desto snabbare och mer omfattande omlagring.",
+  },
+  {
+    title: "Temperatur",
+    text: "Snabb temperaturhöjning, solvärme eller regn försvagar snötäcket och kan utlösa våtsnölaviner. Stora temperaturskillnader inne i snötäcket driver också omvandling som kan skapa nya svaga lager djupt nere.",
+  },
+];
+
+const SNOWPACK_BASICS = [
+  {
+    title: "Ytrimfrost (surface hoar)",
+    text: "Bildas på kalla, klara och vindstilla nätter när fukt fryser direkt på snöytan, som frost på en bilruta. Om det snöar in ovanpå utan att rimfrosten bryts ner blir det ett svagt, glasartat lager djupt i snötäcket som kan hålla sig farligt i veckor.",
+  },
+  {
+    title: "Kantkorn och djuprimfrost (depth hoar)",
+    text: "Uppstår genom en process som kallas temperaturgradient-metamorfos: stor temperaturskillnad mellan markvärme och kall yta får vattenånga att vandra genom snötäcket och bygga om kristallerna till lösa, kantiga korn med svag sammanhållning — vanligast vid tunt, tidigt snötäcke.",
+  },
+];
+
 const STEEPNESS_LEVELS = [
   {
     range: "< 25°",
@@ -63,6 +114,41 @@ export default function SafetyGuide() {
       </header>
 
       <section className="section">
+        <h2>Hur bildas laviner?</h2>
+        <p>
+          Snötäcket byggs upp av lager som faller vid olika tillfällen och under
+          olika väder. En lavin sker när ett övre lager inte längre håller ihop
+          med det som ligger under — ofta på grund av ett svagt lager djupt nere
+          som kan ligga kvar i veckor eller hela vintern.
+        </p>
+        <div className="avalanche-problems">
+          {SNOWPACK_BASICS.map((item) => (
+            <div key={item.title} className="avalanche-problems__item">
+              <strong>{item.title}</strong>
+              <p>{item.text}</p>
+            </div>
+          ))}
+        </div>
+        <SourceList sources={[EAWS_GLOSSARY]} />
+      </section>
+
+      <section className="section">
+        <h2>Väder som ökar lavinrisken</h2>
+        <p>
+          Tre väderfaktorer påverkar stabiliteten i snötäcket mer än några andra:
+        </p>
+        <div className="avalanche-problems">
+          {WEATHER_FACTORS.map((item) => (
+            <div key={item.title} className="avalanche-problems__item">
+              <strong>{item.title}</strong>
+              <p>{item.text}</p>
+            </div>
+          ))}
+        </div>
+        <SourceList sources={[SMHI_LAVINER, FJALLSAKERHETSRADET_FAKTA]} />
+      </section>
+
+      <section className="section">
         <h2>Branthet och lavinrisk</h2>
         <p>
           Sluttningens lutning är en av de viktigaste faktorerna för lavinrisk. De
@@ -102,6 +188,39 @@ export default function SafetyGuide() {
           ))}
         </ul>
         <SourceList sources={[FJALLSAKERHETSRADET]} />
+      </section>
+
+      <section className="section">
+        <h2>Så läser du lavinprognosen</h2>
+        <p>
+          En officiell svensk lavinprognos (från Naturvårdsverket via
+          lavinprognoser.se) består av flera delar som hör ihop:
+        </p>
+        <ul>
+          <li>
+            <strong>Farograd (1–5)</strong> — se lavinskalan nedan
+          </li>
+          <li>
+            <strong>Huvudbudskap</strong> — en kort text som sammanfattar dagens
+            viktigaste risk
+          </li>
+          <li>
+            <strong>Lavinproblem</strong> — vilken typ av problem som är aktuell
+            och var i terrängen den finns (se ovan)
+          </li>
+          <li>
+            <strong>Fjällväder</strong> — dagens väderprognos för området
+          </li>
+          <li>
+            <strong>Utveckling</strong> — hur risken väntas förändras de
+            kommande dagarna
+          </li>
+        </ul>
+        <p className="section__intro">
+          Farograden ensam säger inte var faran finns — det gör lavinproblemet.
+          Läs alltid hela prognosen, inte bara siffran.
+        </p>
+        <SourceList sources={[LAVINPROGNOSER_LAS_FORST, LAVINPROGNOSER_PROBLEM]} />
       </section>
 
       <section className="section">
