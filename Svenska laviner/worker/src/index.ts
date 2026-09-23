@@ -3,10 +3,15 @@ import { parseForecastHtml, type ParsedForecast } from "./parse";
 
 export interface Env {
   ALLOWED_ORIGIN?: string;
+  LANTMATERIET_USER?: string;
+  LANTMATERIET_PASSWORD?: string;
 }
 
 const SOURCE_BASE = "https://www.lavinprognoser.se/oversikt-alla-omraden";
 const CACHE_TTL_SECONDS = 60 * 30;
+
+const TOPOWEBB_BASE = "https://maps.lantmateriet.se/open/topowebb-ccby/v1/wmts";
+const TOPOWEBB_CACHE_TTL_SECONDS = 60 * 60 * 24 * 30;
 
 interface RegionForecastResponse extends ParsedForecast {
   regionId: string;
@@ -75,6 +80,53 @@ async function fetchRegion(regionId: string, slug: string): Promise<RegionForeca
   }
 }
 
+// Proxies Lantmäteriet's topowebb-ccby WMTS endpoint so the Basic Auth
+// credentials for our Geotorget account never reach the client bundle.
+// Only the fixed upstream host is forwarded to (no user-controlled
+// destination), and the free CC0 tile/capabilities data itself is public —
+// the credentials are the only thing worth protecting here.
+async function proxyTopowebb(request: Request, env: Env, origin: string): Promise<Response> {
+  if (!env.LANTMATERIET_USER || !env.LANTMATERIET_PASSWORD) {
+    return new Response("Map proxy not configured", { status: 500, headers: corsHeaders(origin) });
+  }
+
+  const reqUrl = new URL(request.url);
+  const upstreamUrl = new URL(TOPOWEBB_BASE);
+  upstreamUrl.search = reqUrl.search;
+
+  const cache = caches.default;
+  const cacheKey = new Request(upstreamUrl.toString(), request);
+  const cached = await cache.match(cacheKey);
+  if (cached) {
+    return new Response(cached.body, {
+      headers: { ...corsHeaders(origin), "Content-Type": cached.headers.get("Content-Type") ?? "image/png" },
+    });
+  }
+
+  const auth = btoa(`${env.LANTMATERIET_USER}:${env.LANTMATERIET_PASSWORD}`);
+  const upstream = await fetch(upstreamUrl.toString(), {
+    headers: { Authorization: `Basic ${auth}` },
+  });
+
+  if (!upstream.ok) {
+    return new Response(`Upstream error: HTTP ${upstream.status}`, {
+      status: upstream.status,
+      headers: corsHeaders(origin),
+    });
+  }
+
+  const contentType = upstream.headers.get("Content-Type") ?? "image/png";
+  const response = new Response(upstream.body, {
+    headers: {
+      ...corsHeaders(origin),
+      "Content-Type": contentType,
+      "Cache-Control": `public, max-age=${TOPOWEBB_CACHE_TTL_SECONDS}`,
+    },
+  });
+  await cache.put(cacheKey, response.clone());
+  return response;
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const origin = env.ALLOWED_ORIGIN ?? "*";
@@ -107,6 +159,10 @@ export default {
       });
       await cache.put(cacheKey, response.clone());
       return response;
+    }
+
+    if (url.pathname === "/topowebb") {
+      return proxyTopowebb(request, env, origin);
     }
 
     if (url.pathname === "/health") {

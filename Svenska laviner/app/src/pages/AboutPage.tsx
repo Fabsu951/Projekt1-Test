@@ -51,10 +51,10 @@ export default function AboutPage() {
             </a>
           </li>
           <li>
-            Kartor: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-              OpenStreetMap
+            Topografisk karta: <a href="https://www.lantmateriet.se/" target="_blank" rel="noreferrer">
+              Lantmäteriet
             </a>{" "}
-            -bidragsgivare
+            (Topografisk webbkarta Visning, översiktlig), CC0
           </li>
           <li>
             Terränglutning: höjddata (SRTM/NASADEM, ~30 m upplösning) från{" "}

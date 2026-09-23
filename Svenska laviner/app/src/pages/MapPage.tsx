@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { REGIONS } from "../data/regions";
@@ -9,6 +9,7 @@ import { withCache } from "../services/cache";
 import { getDangerInfo } from "../data/dangerScale";
 import type { AvalancheForecast } from "../types/avalanche";
 import SlopeLayer from "../components/SlopeLayer";
+import TopoLayer from "../components/TopoLayer";
 
 const SLOPE_LEGEND: Array<[string, string]> = [
   ["< 28°", "#325a82"],
@@ -89,10 +90,7 @@ export default function MapPage() {
 
       <div className="map-container">
         <MapContainer center={SWEDEN_FJALL_CENTER} zoom={DEFAULT_ZOOM} scrollWheelZoom>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsgivare'
-            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+          <TopoLayer />
           <SlopeLayer enabled={showSlope} />
           {REGIONS.map((region) => (
             <Marker
