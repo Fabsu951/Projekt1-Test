@@ -9,6 +9,7 @@ import DangerBadge from "../components/DangerBadge";
 import DangerScaleGuide from "../components/DangerScaleGuide";
 import SafetyChecklist from "../components/SafetyChecklist";
 import AvalancheProblems from "../components/AvalancheProblems";
+import SourceList from "../components/SourceList";
 import WindRose from "../components/WindRose";
 import PageLoading from "../components/PageLoading";
 import { formatTime, symbolLabel, windCompass } from "../utils/weatherFormat";
@@ -92,6 +93,12 @@ export default function RegionDetail() {
       {forecast?.isPlaceholder && (
         <div className="notice">{forecast.summary}</div>
       )}
+
+      <section className="section">
+        <h2>Om området</h2>
+        <p>{region.description}</p>
+        <SourceList sources={region.sources} />
+      </section>
 
       {forecast && forecast.problems.length > 0 && (
         <section className="section">

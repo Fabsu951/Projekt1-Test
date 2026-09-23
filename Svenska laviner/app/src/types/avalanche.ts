@@ -6,6 +6,8 @@ export interface AvalancheRegion {
   subAreas: string[];
   lat: number;
   lon: number;
+  description: string;
+  sources: Source[];
 }
 
 export type AvalancheProblem =
