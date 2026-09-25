@@ -11,8 +11,8 @@ APP_URL = "https://fjallkoll.pages.dev"
 #   npx wrangler secret put RESEND_API_KEY
 # EMAIL_FROM = "Fjällkoll <noreply@example.se>"
 
-# User accounts + observations. Create once with:
-#   npx wrangler d1 create fjallkoll
+# User accounts + observations, stored in the EU. Create once with:
+#   npx wrangler d1 create fjallkoll --jurisdiction eu
 # and paste the printed database_id below, then apply the schema:
 #   npx wrangler d1 migrations apply fjallkoll --remote
 [[d1_databases]]
@@ -21,8 +21,9 @@ database_name = "fjallkoll"
 database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
 migrations_dir = "migrations"
 
-# Observation photos. Create once with:
-#   npx wrangler r2 bucket create fjallkoll-images
+# Observation photos, stored in the EU. Create once with:
+#   npx wrangler r2 bucket create fjallkoll-images --jurisdiction eu
 [[r2_buckets]]
 binding = "IMAGES"
 bucket_name = "fjallkoll-images"
+jurisdiction = "eu"
