@@ -18,7 +18,7 @@ APP_URL = "https://fjallkoll.pages.dev"
 [[d1_databases]]
 binding = "DB"
 database_name = "fjallkoll"
-database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
+database_id = "46459915-5ba5-475c-a83f-5da13c873b42"
 migrations_dir = "migrations"
 
 # Observation photos, stored in the EU. Create once with:
