@@ -7,7 +7,7 @@ const NAV_ITEMS = [
   { to: "/karta", label: "Karta", end: false },
   { to: "/observationer", label: "Observationer", end: false },
   { to: "/sakerhetsguide", label: "Säkerhetsguide", end: false },
-  { to: "/om-appen", label: "Om appen", end: false },
+  { to: "/om-appen", label: "Om Fjällkoll", end: false },
 ];
 
 function BrandMark() {

@@ -13,7 +13,11 @@ export default function AboutPage() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>Om appen</h1>
+        <h1>Om Fjällkoll</h1>
+        <p className="page__lead">
+          Lavinläget, vädret och terrängen i de svenska fjällen samlat på ett ställe, för dig
+          som åker skidor utanför pisten.
+        </p>
       </header>
 
       <div className="notice notice--danger">
@@ -30,18 +34,37 @@ export default function AboutPage() {
       </div>
 
       <section className="section">
-        <h2>Vad appen gör</h2>
+        <h2>Vad Fjällkoll gör</h2>
         <p>
-          Fjällkoll samlar väderprognoser, en lavinskale-förklaring och en
-          säkerhetsguide för svenska fjällens sex officiella lavinprognosområden på
-          ett ställe, som ett komplement till — inte en ersättning för — de
-          officiella källorna. Inloggade användare kan också dela egna
-          lavinobservationer med andra åkare.
+          Fjällkoll är ett komplement till de officiella källorna, inte en ersättning för dem. För
+          de sex officiella lavinprognosområdena i svenska fjällen får du:
         </p>
+        <ul>
+          <li>
+            <strong>Farograd</strong> från den officiella lavinprognosen, med länk till hela
+            prognosen
+          </li>
+          <li>
+            <strong>Väder och vind</strong> från SMHI, med uppskattning av vilka sluttningar som
+            kan vara vindlastade
+          </li>
+          <li>
+            <strong>Karta</strong> med Lantmäteriets topografiska karta och lager som visar hur
+            brant terrängen är
+          </li>
+          <li>
+            <strong>Observationer</strong> från andra åkare: skapa ett konto för att dela vad du
+            själv ser i fjällen
+          </li>
+          <li>
+            <strong>Säkerhetsguide</strong> med grunderna om snötäcket, lavinproblemen och
+            lavinskalan
+          </li>
+        </ul>
       </section>
 
       <section className="section">
-        <h2>Vad appen inte gör</h2>
+        <h2>Vad Fjällkoll inte gör</h2>
         <ul>
           <li>Ersätter inte lavinutbildning eller erfarenhet i fjällterräng</li>
           <li>Ersätter inte ett dagligt beslut baserat på den officiella lavinprognosen</li>
@@ -129,7 +152,8 @@ export default function AboutPage() {
         </p>
         <ul>
           <li>
-            <strong>Cloudflare</strong>: webbhotell, databas och bildlagring.
+            <strong>Cloudflare</strong>: webbhotell, databas och bildlagring. Databasen och
+            bilderna lagras inom EU.
           </li>
           <li>
             <strong>Resend</strong>: utskick av e-post för bekräftelse och lösenordsåterställning.

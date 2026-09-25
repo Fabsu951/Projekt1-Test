@@ -4,6 +4,17 @@ import { describe, expect, it } from "vitest";
 import AboutPage from "./AboutPage";
 
 describe("AboutPage", () => {
+  it("is titled after the app and lists what it offers", () => {
+    render(
+      <MemoryRouter>
+        <AboutPage />
+      </MemoryRouter>
+    );
+    expect(screen.getByRole("heading", { level: 1, name: "Om Fjällkoll" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Vad Fjällkoll gör" })).toBeInTheDocument();
+    expect(screen.getByText("Observationer")).toBeInTheDocument();
+  });
+
   it("shows an explicit safety disclaimer", () => {
     render(
       <MemoryRouter>
