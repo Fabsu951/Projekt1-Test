@@ -1112,3 +1112,63 @@
 .official-forecast__message {
   color: var(--text);
 }
+
+/* The last week's danger levels (RegionDetail) */
+.danger-history {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 420px;
+}
+
+.danger-history__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.danger-history__label {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.danger-history__level {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-weight: 700;
+  /* Same snow ring as the badges, so level 5 (black) stays visible on dark. */
+  box-shadow: 0 0 0 2px var(--snow);
+}
+
+.danger-history__level--none {
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.danger-history__note {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin: 8px 0 0;
+}
+
+@media (max-width: 480px) {
+  /* Seven days share a phone's width: let "I morgon" wrap instead of overflowing. */
+  .danger-history__label {
+    white-space: normal;
+    text-align: center;
+    line-height: 1.15;
+    min-height: 2.3em;
+    display: flex;
+    align-items: flex-end;
+  }
+}

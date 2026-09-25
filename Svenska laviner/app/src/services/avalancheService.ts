@@ -118,6 +118,34 @@ export async function fetchAllForecasts(workerBase = WORKER_BASE): Promise<Avala
   return REGIONS.map((r) => byId.get(r.id) ?? unavailable(r.id));
 }
 
+/** One day in a region's recent danger levels. */
+export interface HistoryDay {
+  /** YYYY-MM-DD, Swedish time. */
+  date: string;
+  /** Null when no published forecast was recorded that day. */
+  dangerLevel: DangerLevel | null;
+}
+
+/** Keeps well-formed days only; anything but a level 1–5 counts as "no forecast". */
+export function toHistory(raw: unknown): HistoryDay[] {
+  const days = (raw as { days?: unknown })?.days;
+  if (!Array.isArray(days)) return [];
+  return days.flatMap((d): HistoryDay[] => {
+    if (typeof d?.date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(d.date)) return [];
+    const level = d.danger;
+    const valid = Number.isInteger(level) && level >= 1 && level <= 5;
+    return [{ date: d.date, dangerLevel: valid ? (level as DangerLevel) : null }];
+  });
+}
+
+/** The last week's recorded danger levels for a region, oldest first. */
+export async function fetchForecastHistory(regionId: string, workerBase = WORKER_BASE): Promise<HistoryDay[]> {
+  if (!workerBase) return [];
+  const res = await fetch(`${workerBase.replace(/\/$/, "")}/forecasts/history?region=${encodeURIComponent(regionId)}&days=7`);
+  if (!res.ok) throw new Error(`Historikhämtning misslyckades: ${res.status}`);
+  return toHistory(await res.json());
+}
+
 export interface LoadedForecasts {
   byId: Record<string, AvalancheForecast>;
   /** True when the network failed and these came from the offline cache. */

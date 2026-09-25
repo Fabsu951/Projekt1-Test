@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getRegionById } from "../data/regions";
-import { loadForecasts } from "../services/avalancheService";
+import { fetchForecastHistory, loadForecasts, type HistoryDay } from "../services/avalancheService";
+import DangerHistory from "../components/DangerHistory";
 import { fetchWeather } from "../services/weatherService";
 import type { AvalancheForecast } from "../types/avalanche";
 import type { WeatherPoint } from "../types/weather";
@@ -32,6 +33,7 @@ export default function RegionDetail() {
 
   const [forecast, setForecast] = useState<AvalancheForecast | null>(null);
   const [forecastStale, setForecastStale] = useState(false);
+  const [history, setHistory] = useState<HistoryDay[]>([]);
   const [observations, setObservations] = useState<Observation[] | null>(null);
   const [weather, setWeather] = useState<WeatherPoint[] | null>(null);
   const [weatherError, setWeatherError] = useState<string | null>(null);
@@ -47,6 +49,10 @@ export default function RegionDetail() {
     fetchObservations({ region: region.id, limit: 5 })
       .then(setObservations)
       .catch(() => setObservations([]));
+
+    withCache(`forecast-history:${region.id}`, () => fetchForecastHistory(region.id))
+      .then((result) => setHistory(result.data))
+      .catch(() => setHistory([]));
 
     loadForecasts().then((result) => {
       setForecast(result.byId[region.id] ?? null);
@@ -101,6 +107,17 @@ export default function RegionDetail() {
         <p className="notice notice--stale">Ingen kontakt just nu — visar senast sparade prognos.</p>
       )}
       {forecast && <OfficialForecast forecast={forecast} />}
+
+      {history.some((d) => d.dangerLevel !== null) && (
+        <section className="section">
+          <h2>Senaste dagarna</h2>
+          <DangerHistory
+            days={history}
+            today={new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm" }).format(new Date())}
+          />
+          <p className="danger-history__note">Farograd enligt lavinprognoser.se, som Fjällkoll sparat dag för dag.</p>
+        </section>
+      )}
 
       {forecast && forecast.problems.length > 0 && (
         <section className="section">

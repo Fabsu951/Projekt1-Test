@@ -96,6 +96,17 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
     `app/src/data/avalancheProblems.ts` maps the site's slugs to them.
     Region pages show the problems right under the official forecast
     (`ForecastProblems.tsx`, with `AspectRosette` + `ElevationIcon`).
+  - **Danger-level history (2026-09-25):** D1 table `forecast_history`
+    (migration `0003`, one row per region + Swedish date the forecast is
+    valid until). Written by a cron trigger (`[triggers]` in
+    `wrangler.toml`, 06/07/16/17:20 UTC = just after the 08:00 and 18:00
+    publications) and on every `/forecasts` cache miss (`ctx.waitUntil`).
+    `GET /forecasts/history?region=<id>&days=7` → `{ days: [{date, danger,
+    problems}] }`, gaps as null, window ends tomorrow once tomorrow's
+    forecast is out. Region pages show it as "Senaste dagarna"
+    (`DangerHistory.tsx`), hidden until at least one day has a level. Needs
+    `npx wrangler d1 migrations apply fjallkoll --remote` + `wrangler
+    deploy` before it records anything; history only exists from then on.
 - Full rebuild+redeploy sequence when app code changes:
     ```powershell
     cd C:\Users\fabia\Documents\fjallvarning-repo
@@ -226,6 +237,6 @@ the start, exact map point.
 - No service worker / PWA caching in the app (checked — ruled out as a cause
   of stale-content confusion earlier).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (69 tests as of 2026-09-25, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 22 tests, including the
+  (72 tests as of 2026-09-25, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 27 tests, including the
   real-page fixtures).

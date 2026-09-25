@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchAllForecasts, toForecast, type WorkerProblem, type WorkerRegionForecast } from "./avalancheService";
+import { fetchAllForecasts, toForecast, toHistory, type WorkerProblem, type WorkerRegionForecast } from "./avalancheService";
 import { REGIONS } from "../data/regions";
 
 function item(overrides: Partial<WorkerRegionForecast> = {}): WorkerRegionForecast {
@@ -114,5 +114,28 @@ describe("fetchAllForecasts", () => {
   it("throws on an HTTP error so the offline cache can take over", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("", { status: 502 })));
     await expect(fetchAllForecasts("https://worker.example")).rejects.toThrow("502");
+  });
+});
+
+describe("toHistory", () => {
+  it("keeps each day, with anything but a level 1–5 as no forecast", () => {
+    const days = toHistory({
+      days: [
+        { date: "2026-02-18", danger: 2, problems: [] },
+        { date: "2026-02-19", danger: null, problems: [] },
+        { date: "2026-02-20", danger: 9, problems: [] },
+        { date: "igår", danger: 3 },
+      ],
+    });
+    expect(days).toEqual([
+      { date: "2026-02-18", dangerLevel: 2 },
+      { date: "2026-02-19", dangerLevel: null },
+      { date: "2026-02-20", dangerLevel: null },
+    ]);
+  });
+
+  it("returns nothing for an unexpected response", () => {
+    expect(toHistory(null)).toEqual([]);
+    expect(toHistory({ days: "x" })).toEqual([]);
   });
 });
