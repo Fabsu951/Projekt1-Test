@@ -1,0 +1,131 @@
+{
+  "controls": {
+    "seed": 7,
+    "cutoff": 640,
+    "future_new_share": 0.45,
+    "label_miss_rate": 0.2
+  },
+  "selected_k": 5,
+  "search": [
+    {
+      "K": 1,
+      "train_error": 0.0,
+      "validation_error": 0.13239875389408096,
+      "validation_balanced_accuracy": 0.731405693950178
+    },
+    {
+      "K": 5,
+      "train_error": 0.07740259740259736,
+      "validation_error": 0.1090342679127726,
+      "validation_balanced_accuracy": 0.7447508896797153
+    },
+    {
+      "K": 25,
+      "train_error": 0.0867532467532468,
+      "validation_error": 0.0950155763239875,
+      "validation_balanced_accuracy": 0.7366770462633452
+    },
+    {
+      "K": 100,
+      "train_error": 0.09766233766233767,
+      "validation_error": 0.09034267912772587,
+      "validation_balanced_accuracy": 0.691103202846975
+    }
+  ],
+  "test": [
+    {
+      "index": "Majority baseline",
+      "n": 642.0,
+      "accuracy": 0.8753894080996885,
+      "balanced_accuracy": 0.5,
+      "default_recall": 0.0
+    },
+    {
+      "index": "Selected KNN",
+      "n": 642.0,
+      "accuracy": 0.9127725856697819,
+      "balanced_accuracy": 0.7411254448398576,
+      "default_recall": 0.5125
+    }
+  ],
+  "leakage": [
+    {
+      "index": "K=5, application features",
+      "n": 642.0,
+      "accuracy": 0.9127725856697819,
+      "balanced_accuracy": 0.7411254448398576,
+      "default_recall": 0.5125
+    },
+    {
+      "index": "K=5, future field (INVALID)",
+      "n": 642.0,
+      "accuracy": 1.0,
+      "balanced_accuracy": 1.0,
+      "default_recall": 1.0
+    }
+  ],
+  "populations": [
+    {
+      "population": "Register",
+      "n": 6000,
+      "new_share": 0.309,
+      "mean_credit": 668.0436172575687,
+      "label_observed_share": 0.5348333333333334
+    },
+    {
+      "population": "Modeling file",
+      "n": 3209,
+      "new_share": 0.0,
+      "mean_credit": 702.500399191829,
+      "label_observed_share": 1.0
+    },
+    {
+      "population": "Next quarter",
+      "n": 3000,
+      "new_share": 0.4583333333333333,
+      "mean_credit": 661.3429686886312,
+      "label_observed_share": 0.0
+    }
+  ],
+  "simulation_only_reveal": [
+    {
+      "evaluation": "Historical test / recorded",
+      "n": 642,
+      "accuracy": 0.9127725856697819,
+      "balanced_accuracy": 0.7411254448398576,
+      "default_recall": 0.5125
+    },
+    {
+      "evaluation": "Historical test / oracle",
+      "n": 642,
+      "accuracy": 0.9034267912772586,
+      "balanced_accuracy": 0.7275003882590464,
+      "default_recall": 0.4787234042553192
+    },
+    {
+      "evaluation": "Future all / oracle",
+      "n": 3000,
+      "accuracy": 0.707,
+      "balanced_accuracy": 0.656742125984252,
+      "default_recall": 0.5009842519685039
+    },
+    {
+      "evaluation": "Future established / oracle",
+      "n": 1625,
+      "accuracy": 0.8338461538461538,
+      "balanced_accuracy": 0.7247307373653686,
+      "default_recall": 0.5
+    },
+    {
+      "evaluation": "Future new / oracle",
+      "n": 1375,
+      "accuracy": 0.5570909090909091,
+      "balanced_accuracy": 0.5507074202726376,
+      "default_recall": 0.5016722408026756
+    }
+  ],
+  "versions": {
+    "python": "3.11.15",
+    "sklearn": "1.9.1"
+  }
+}
