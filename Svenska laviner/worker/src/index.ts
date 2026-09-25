@@ -1,5 +1,6 @@
 import { REGION_SOURCES } from "./regions";
 import { parseForecastHtml, type ParsedForecast } from "./parse";
+import { historyRow, readHistory, recordHistory, type HistoryRow } from "./history";
 import { corsHeaders, error, HttpError, json } from "./http";
 import {
   type CommunityEnv,
@@ -62,6 +63,7 @@ function emptyForecast(
     publishedText: null,
     mainMessage: null,
     problems: [],
+    validUntil: null,
   };
 }
 
@@ -198,8 +200,55 @@ async function handleCommunity(request: Request, env: Env, origin: string): Prom
   return null;
 }
 
+async function fetchAllRegions(): Promise<RegionForecastResponse[]> {
+  return Promise.all(REGION_SOURCES.map((r) => fetchRegion(r.id, r.slugs)));
+}
+
+/** Saves today's published levels; never lets a database problem break forecasts. */
+async function recordAll(env: Env, results: RegionForecastResponse[]): Promise<void> {
+  if (!env.DB) return;
+  const rows = results
+    .map((r) => historyRow(r.regionId, r))
+    .filter((r): r is HistoryRow => r !== null);
+  try {
+    await recordHistory(env.DB, rows, new Date());
+  } catch (err) {
+    console.error("Could not record forecast history", err);
+  }
+}
+
+const HISTORY_CACHE_TTL_SECONDS = 60 * 10;
+
+async function forecastHistory(url: URL, env: Env, origin: string): Promise<Response> {
+  const regionId = url.searchParams.get("region") ?? "";
+  if (!REGION_SOURCES.some((r) => r.id === regionId)) return error("Okänt område.", origin, 400);
+  const days = Math.min(30, Math.max(1, Number(url.searchParams.get("days")) || 7));
+  try {
+    const history = await readHistory(env.DB, regionId, new Date(), days);
+    return new Response(JSON.stringify({ regionId, days: history }), {
+      headers: {
+        ...corsHeaders(origin),
+        "Content-Type": "application/json",
+        "Cache-Control": `public, max-age=${HISTORY_CACHE_TTL_SECONDS}`,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    return error("Kunde inte läsa prognoshistoriken.", origin, 500);
+  }
+}
+
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  /**
+   * Runs shortly after forecasts are published (08:00 and 18:00 Swedish
+   * time, see wrangler.toml) so history builds up even on days nobody
+   * opens the app.
+   */
+  async scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil(fetchAllRegions().then((results) => recordAll(env, results)));
+  },
+
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const origin = env.ALLOWED_ORIGIN ?? "*";
     const url = new URL(request.url);
 
@@ -217,9 +266,8 @@ export default {
         });
       }
 
-      const results = await Promise.all(
-        REGION_SOURCES.map((r) => fetchRegion(r.id, r.slugs))
-      );
+      const results = await fetchAllRegions();
+      ctx.waitUntil(recordAll(env, results));
 
       const response = new Response(JSON.stringify({ regions: results }), {
         headers: {
@@ -230,6 +278,10 @@ export default {
       });
       await cache.put(cacheKey, response.clone());
       return response;
+    }
+
+    if (url.pathname === "/forecasts/history" && request.method === "GET") {
+      return forecastHistory(url, env, origin);
     }
 
     if (url.pathname === "/topowebb") {

@@ -129,6 +129,11 @@ function stockholmOffsetMinutes(at: Date): number {
   return Math.round((asUtc - at.getTime()) / 60000);
 }
 
+/** YYYY-MM-DD of an instant in Swedish local time. */
+export function stockholmDate(at: Date): string {
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm" }).format(at);
+}
+
 /** Parses the site's "fredag 20-02-2026 18:00" (Swedish local time). */
 export function parseSwedishDateTime(text: string | null | undefined): Date | null {
   const m = text?.match(/(\d{2})-(\d{2})-(\d{4})\s+(\d{2}):(\d{2})/);

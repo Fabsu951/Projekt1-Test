@@ -1,4 +1,4 @@
-import { extractModel, readForecast, type ModelForecast, type ParsedProblem } from "./model";
+import { extractModel, readForecast, stockholmDate, type ModelForecast, type ParsedProblem } from "./model";
 
 export type { ParsedProblem } from "./model";
 
@@ -13,6 +13,8 @@ export interface ParsedForecast {
   /** The forecast's main message ("huvudbudskap") below the headline. */
   mainMessage: string | null;
   problems: ParsedProblem[];
+  /** ISO time the published forecast is valid until; null without a level. */
+  validUntil: string | null;
 }
 
 /** A daily forecast is valid 10–24 h; anything much longer is not a daily forecast. */
@@ -91,6 +93,7 @@ function parseForecastText(rawHtml: string): ParsedForecast {
       publishedText: null,
       mainMessage: null,
       problems: [],
+      validUntil: null,
     };
   }
 
@@ -115,6 +118,7 @@ function parseForecastText(rawHtml: string): ParsedForecast {
       publishedText: null,
       mainMessage: null,
       problems: [],
+      validUntil: null,
     };
   }
 
@@ -131,6 +135,7 @@ function parseForecastText(rawHtml: string): ParsedForecast {
     publishedText: publishedMatch ? publishedMatch[1].trim() : null,
     mainMessage: null,
     problems: [],
+    validUntil: null,
   };
 }
 
@@ -145,12 +150,8 @@ function noForecast(flags: { seasonOver?: boolean; notAssessed?: boolean } = {})
     publishedText: null,
     mainMessage: null,
     problems: [],
+    validUntil: null,
   };
-}
-
-/** YYYY-MM-DD of an instant in Swedish local time. */
-function stockholmDate(at: Date): string {
-  return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm" }).format(at);
 }
 
 /**
@@ -190,6 +191,7 @@ function fromModel(f: ModelForecast, now: Date): ParsedForecast {
     publishedText: f.validFromText,
     mainMessage: f.mainMessage,
     problems: f.problems,
+    validUntil: f.validTo!.toISOString(),
   };
 }
 

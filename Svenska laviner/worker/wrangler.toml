@@ -2,6 +2,11 @@ name = "fjallkoll-worker"
 main = "src/index.ts"
 compatibility_date = "2026-09-01"
 
+# Records each day's danger levels shortly after lavinprognoser.se publishes
+# (08:00 and 18:00 Swedish time; UTC hours cover both winter and summer time).
+[triggers]
+crons = ["20 6,7,16,17 * * *"]
+
 [vars]
 ALLOWED_ORIGIN = "*"
 # Public site URL, used in links in emails.
