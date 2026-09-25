@@ -111,6 +111,12 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   `topowebb` layer (id confirmed via GetCapabilities — NOT `topowebb-ccby`,
   that's only part of the URL path) via the Worker proxy, `TopoLayer.tsx`,
   falls back to OSM when `VITE_MAP_PROXY_URL` is unset.
+  **Possible end date:** a web search (2026-09-25) said Lantmäteriet will
+  discontinue "Topografisk webbkarta Visning, översiktlig" on
+  **2026-12-31**. Not yet verified (lantmateriet.se is blocked from cloud
+  sessions). Fabian should check the product page on Geotorget and find the
+  replacement product before the winter season. The licence **is** CC0;
+  "ccby" in the URL is just a leftover name.
 - **A** — design/layout (ski-focused visual identity): **done**.
   User asked for **"Äventyrlig/utomhus"** (Gaia GPS / onX spirit, not
   photorealistic) with simple SVG graphics, no photos. Implemented:
