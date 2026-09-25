@@ -1,6 +1,11 @@
+import AvalancheProblems from "../components/AvalancheProblems";
+import DangerScaleGuide from "../components/DangerScaleGuide";
 import SafetyChecklist from "../components/SafetyChecklist";
 import SourceList from "../components/SourceList";
-import type { Source } from "../types/avalanche";
+import { PROBLEM_LABELS } from "../data/avalancheProblems";
+import type { AvalancheProblem, Source } from "../types/avalanche";
+
+const ALL_PROBLEMS = Object.keys(PROBLEM_LABELS) as AvalancheProblem[];
 
 const FJALLSAKERHETSRADET: Source = {
   label: "Fjällsäkerhetsrådet",
@@ -191,6 +196,16 @@ export default function SafetyGuide() {
       </section>
 
       <section className="section">
+        <h2>Lavinproblemen</h2>
+        <p className="section__intro">
+          Prognoserna beskriver faran med fem standardiserade lavinproblem. Varje
+          problem har sina egna typiska platser i terrängen och kräver olika
+          sätt att undvika det.
+        </p>
+        <AvalancheProblems problems={ALL_PROBLEMS} />
+      </section>
+
+      <section className="section">
         <h2>Så läser du lavinprognosen</h2>
         <p>
           En officiell svensk lavinprognos (från Naturvårdsverket via
@@ -221,6 +236,7 @@ export default function SafetyGuide() {
           Läs alltid hela prognosen, inte bara siffran.
         </p>
         <SourceList sources={[LAVINPROGNOSER_LAS_FORST, LAVINPROGNOSER_PROBLEM]} />
+        <DangerScaleGuide />
       </section>
 
       <section className="section">
