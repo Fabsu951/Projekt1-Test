@@ -5,8 +5,16 @@
 > `fjallkoll`: Pages project `fjallkoll` (→ `fjallkoll.pages.dev`), worker
 > `fjallkoll-worker`, D1 `fjallkoll`, R2 `fjallkoll-images`. The OLD
 > deployments (`fjallvarning.pages.dev`, `fjallvarning-worker`) still exist
-> in Fabian's Cloudflare account until he deletes them; the new worker
-> needs the `LANTMATERIET_*` secrets set again. Not renamed on purpose:
+> in Fabian's Cloudflare account until he deletes them.
+>
+> **Set up 2026-09-25:** D1 `fjallkoll` (id `46459915-…`, jurisdiction
+> **eu**, migrations 0001+0002 applied remotely) and R2 `fjallkoll-images`
+> (jurisdiction **eu** — pass `--jurisdiction eu` to any `wrangler r2`
+> command or it reports the bucket missing) both exist; `wrangler.toml`
+> points at them. `fjallkoll-worker` deployed with both `LANTMATERIET_*`
+> secrets (`/topowebb` GetCapabilities verified). Pages project
+> `fjallkoll` created with production branch `production` and first
+> deployed from `claude/bold-lamport-juktha`. Not renamed on purpose:
 > the local folder `fjallvarning-repo`, branch `svenska-laviner`, and the
 > Capacitor appId `com.fabsu951.projekt1`. Privacy contact address will be
 > created to match the new name (not yet chosen); no domain bought yet.
