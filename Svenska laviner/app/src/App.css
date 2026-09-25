@@ -1021,3 +1021,94 @@
 .form__privacy a {
   color: var(--accent);
 }
+
+/* Today's avalanche problems (RegionDetail) */
+.forecast-problems {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.forecast-problem {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.forecast-problem__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.forecast-problem__header h3 {
+  margin: 0;
+}
+
+.forecast-problem__where {
+  display: flex;
+  gap: 20px;
+  margin: 12px 0 4px;
+}
+
+.forecast-problem__where figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 140px;
+}
+
+.forecast-problem__where figcaption {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.forecast-problem__facts {
+  margin: 8px 0 0;
+}
+
+.forecast-problem__facts dt {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 10px;
+}
+
+.forecast-problem__facts dd {
+  margin: 2px 0 0;
+  font-size: 0.92rem;
+}
+
+.forecast-problem__more {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.elevation-icon {
+  flex: none;
+}
+
+.elevation-icon__band {
+  fill: var(--bg-raised);
+}
+
+.elevation-icon__band--on {
+  fill: var(--signal);
+}
+
+.elevation-icon__divider {
+  stroke: var(--bg);
+  stroke-width: 1.2;
+}
+
+.official-forecast__message {
+  color: var(--text);
+}

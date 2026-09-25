@@ -1,5 +1,7 @@
-import type { AvalancheForecast, DangerLevel } from "../types/avalanche";
+import type { AvalancheForecast, DangerLevel, Elevation, ForecastProblem } from "../types/avalanche";
 import { REGIONS } from "../data/regions";
+import { SITE_PROBLEM_TYPES } from "../data/avalancheProblems";
+import { COMPASS_SECTORS, type CompassSector } from "../utils/windAnalysis";
 import { withCache } from "./cache";
 
 /**
@@ -16,6 +18,20 @@ const WORKER_BASE = import.meta.env.VITE_MAP_PROXY_URL as string | undefined;
 
 export const OFFICIAL_FORECAST_URL = "https://www.lavinprognoser.se/";
 
+/** One avalanche problem as the worker sends it (see worker/src/model.ts). */
+export interface WorkerProblem {
+  type: string;
+  name: string;
+  aspects: string[];
+  elevations: string[];
+  metersAbove: number | null;
+  metersBelow: number | null;
+  sensitivity: string | null;
+  size: string | null;
+  where: string | null;
+  infoUrl: string | null;
+}
+
 /** Shape of one entry in the worker's `{ regions: [...] }` response. */
 export interface WorkerRegionForecast {
   regionId: string;
@@ -26,6 +42,37 @@ export interface WorkerRegionForecast {
   notAssessed: boolean;
   headline: string | null;
   publishedText: string | null;
+  /** Missing from workers deployed before problems were parsed. */
+  mainMessage?: string | null;
+  problems?: WorkerProblem[];
+}
+
+const ELEVATIONS: Elevation[] = ["kalfjall", "tradgrans", "under_tradgrans"];
+const text = (v: unknown): string | null => (typeof v === "string" && v.trim() ? v.trim() : null);
+const metres = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
+
+/** Keeps only well-formed problems, and only the aspects/elevations we know how to draw. */
+export function toProblems(raw: unknown): ForecastProblem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((p): ForecastProblem[] => {
+    const name = text(p?.name);
+    if (!name) return [];
+    const list = (v: unknown) => (Array.isArray(v) ? v : []);
+    return [
+      {
+        type: SITE_PROBLEM_TYPES[p.type] ?? null,
+        name,
+        aspects: COMPASS_SECTORS.filter((s: CompassSector) => list(p.aspects).includes(s)),
+        elevations: ELEVATIONS.filter((e) => list(p.elevations).includes(e)),
+        metersAbove: metres(p.metersAbove),
+        metersBelow: metres(p.metersBelow),
+        sensitivity: text(p.sensitivity),
+        size: text(p.size),
+        where: text(p.where),
+        infoUrl: typeof p.infoUrl === "string" && p.infoUrl.startsWith("https://") ? p.infoUrl : null,
+      },
+    ];
+  });
 }
 
 function unavailable(regionId: string, sourceUrl = OFFICIAL_FORECAST_URL): AvalancheForecast {
@@ -35,6 +82,7 @@ function unavailable(regionId: string, sourceUrl = OFFICIAL_FORECAST_URL): Avala
     dangerLevel: null,
     problems: [],
     headline: null,
+    mainMessage: null,
     publishedText: null,
     sourceUrl,
   };
@@ -51,7 +99,9 @@ export function toForecast(item: WorkerRegionForecast): AvalancheForecast {
       status: "published",
       dangerLevel: item.danger as DangerLevel,
       headline: item.headline,
+      mainMessage: text(item.mainMessage),
       publishedText: item.publishedText,
+      problems: toProblems(item.problems),
     };
   }
   return base;

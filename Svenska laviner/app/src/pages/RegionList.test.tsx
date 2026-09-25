@@ -18,6 +18,7 @@ function forecasts(status: ForecastStatus, dangerLevel: AvalancheForecast["dange
       dangerLevel,
       problems: [],
       headline: null,
+    mainMessage: null,
       publishedText: null,
       sourceUrl: "https://www.lavinprognoser.se/",
     };

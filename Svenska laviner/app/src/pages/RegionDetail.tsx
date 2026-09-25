@@ -12,7 +12,7 @@ import { fetchObservations } from "../services/observationService";
 import type { Observation } from "../types/observation";
 import DangerScaleGuide from "../components/DangerScaleGuide";
 import SafetyChecklist from "../components/SafetyChecklist";
-import AvalancheProblems from "../components/AvalancheProblems";
+import ForecastProblems from "../components/ForecastProblems";
 import SourceList from "../components/SourceList";
 import WindRose from "../components/WindRose";
 import { WindArrow } from "../components/CompassIcons";
@@ -102,18 +102,18 @@ export default function RegionDetail() {
       )}
       {forecast && <OfficialForecast forecast={forecast} />}
 
+      {forecast && forecast.problems.length > 0 && (
+        <section className="section">
+          <h2>Lavinproblem</h2>
+          <ForecastProblems problems={forecast.problems} />
+        </section>
+      )}
+
       <section className="section">
         <h2>Om området</h2>
         <p>{region.description}</p>
         <SourceList sources={region.sources} />
       </section>
-
-      {forecast && forecast.problems.length > 0 && (
-        <section className="section">
-          <h2>Lavinproblem</h2>
-          <AvalancheProblems problems={forecast.problems} />
-        </section>
-      )}
 
       <section className="section">
         <h2>Väder</h2>

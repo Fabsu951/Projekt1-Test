@@ -23,6 +23,7 @@ export default function OfficialForecast({ forecast }: Props) {
       {published ? (
         <>
           {forecast.headline && <p className="official-forecast__headline">{forecast.headline}</p>}
+          {forecast.mainMessage && <p className="official-forecast__message">{forecast.mainMessage}</p>}
           {forecast.publishedText && (
             <p className="official-forecast__meta">Publicerad {forecast.publishedText}</p>
           )}

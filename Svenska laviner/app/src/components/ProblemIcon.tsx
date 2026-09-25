@@ -4,7 +4,8 @@ import type { AvalancheProblem } from "../types/avalanche";
 // Original pictograms (not EAWS's own artwork): each is a tilted
 // cross-section of a snow slope, drawn flat in a rotated frame, with the
 // problem's distinguishing detail — falling flakes, wind, a buried weak
-// layer, melt water, or a glide crack down to the ground.
+// layer, melt water, or a glide crack down to the ground. Cornices are
+// drawn as a ridge with snow built out over its lee side instead.
 
 const GROUND = "#5b6875";
 const OLD_SNOW = "#c9d4de";
@@ -92,6 +93,17 @@ const ICONS: Record<AvalancheProblem, ReactNode> = {
         <path d="M9 17.5 L6 20 L9 22.5" />
       </g>
     </Slope>
+  ),
+  hangdrivor: (
+    <>
+      <path d="M-2 48 L-2 34 L27 21 L30 48 Z" fill={GROUND} />
+      <path d="M-2 34 L27 21 Q40 17 45 23 Q37 23 31 27 L27 26 L-2 38 Z" fill={NEW_SNOW} />
+      <line x1={31} y1={19.5} x2={31} y2={27} stroke={SIGNAL} strokeWidth={1.6} strokeDasharray="2 1.5" />
+      <g stroke={ICE} strokeWidth={1.8} strokeLinecap="round" fill="none">
+        <path d="M3 10 H15 q4 0 4 -3" />
+        <path d="M6 16 H20" />
+      </g>
+    </>
   ),
 };
 

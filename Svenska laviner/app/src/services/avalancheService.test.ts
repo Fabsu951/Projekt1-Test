@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchAllForecasts, toForecast, type WorkerRegionForecast } from "./avalancheService";
+import { fetchAllForecasts, toForecast, type WorkerProblem, type WorkerRegionForecast } from "./avalancheService";
 import { REGIONS } from "../data/regions";
 
 function item(overrides: Partial<WorkerRegionForecast> = {}): WorkerRegionForecast {
@@ -16,6 +16,22 @@ function item(overrides: Partial<WorkerRegionForecast> = {}): WorkerRegionForeca
   };
 }
 
+function problem(overrides: Partial<WorkerProblem> = {}): WorkerProblem {
+  return {
+    type: "drevsnoflak",
+    name: "Drevsnöflak",
+    aspects: ["N", "NO", "V", "NV"],
+    elevations: ["kalfjall"],
+    metersAbove: null,
+    metersBelow: null,
+    sensitivity: "Det är lätt att starta laviner på enstaka branta sluttningar.",
+    size: "Laviner kan bli stora nog att begrava och döda dig (storlek 2).",
+    where: "I tydliga läformationer.",
+    infoUrl: "https://www.lavinprognoser.se/sa-laser-du-lavinprognosen/lavinproblem/drevsnoflak/",
+    ...overrides,
+  };
+}
+
 describe("toForecast", () => {
   it("maps a parsed danger level to a published forecast", () => {
     const f = toForecast(item({ danger: 3, headline: "Vindpackad snö i lä.", publishedText: "22 januari 2027, 18:00" }));
@@ -23,6 +39,42 @@ describe("toForecast", () => {
     expect(f.dangerLevel).toBe(3);
     expect(f.headline).toBe("Vindpackad snö i lä.");
     expect(f.sourceUrl).toContain("kebnekaisefjallen");
+  });
+
+  it("maps the forecast's avalanche problems onto our problem types", () => {
+    const f = toForecast(
+      item({
+        danger: 2,
+        mainMessage: "Snödrev kan bilda drevsnöflak.",
+        problems: [problem(), problem({ type: "hangdrivor", name: "Hängdrivor" }), problem({ type: "okand-typ", name: "Ny typ" })],
+      })
+    );
+    expect(f.mainMessage).toBe("Snödrev kan bilda drevsnöflak.");
+    expect(f.problems.map((p) => [p.type, p.name])).toEqual([
+      ["vindpack", "Drevsnöflak"],
+      ["hangdrivor", "Hängdrivor"],
+      [null, "Ny typ"],
+    ]);
+    expect(f.problems[0]).toMatchObject({ aspects: ["N", "NO", "V", "NV"], elevations: ["kalfjall"] });
+  });
+
+  it("drops malformed problem data instead of drawing it", () => {
+    const f = toForecast(
+      item({
+        danger: 2,
+        problems: [
+          problem({ aspects: ["N", "ÖST", "S"], elevations: ["kalfjall", "moln"], infoUrl: "javascript:alert(1)" }),
+          { ...problem(), name: "" },
+        ],
+      })
+    );
+    expect(f.problems).toHaveLength(1);
+    expect(f.problems[0]).toMatchObject({ aspects: ["N", "S"], elevations: ["kalfjall"], infoUrl: null });
+  });
+
+  it("shows no problems without a published level, and copes with older workers", () => {
+    expect(toForecast(item({ notAssessed: true, problems: [problem()] })).problems).toEqual([]);
+    expect(toForecast(item({ danger: 3 })).problems).toEqual([]);
   });
 
   it("reports season-over and not-assessed without a danger level", () => {

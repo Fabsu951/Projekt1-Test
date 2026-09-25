@@ -198,9 +198,10 @@ export default function SafetyGuide() {
       <section className="section">
         <h2>Lavinproblemen</h2>
         <p className="section__intro">
-          Prognoserna beskriver faran med fem standardiserade lavinproblem. Varje
-          problem har sina egna typiska platser i terrängen och kräver olika
-          sätt att undvika det.
+          Varje lavinprognos beskriver faran med ett eller flera av de här
+          lavinproblemen, med samma namn som på lavinprognoser.se. Varje problem
+          har sina egna typiska platser i terrängen och kräver olika sätt att
+          undvika det.
         </p>
         <AvalancheProblems problems={ALL_PROBLEMS} />
       </section>

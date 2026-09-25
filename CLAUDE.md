@@ -71,20 +71,31 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
     `VITE_MAP_PROXY_URL` base). The old synthetic placeholder forecasts are
     **gone on purpose** — anything not fetched/parsed confidently shows as
     "Ingen prognos"/"Säsongen slut"/"Ej bedömd" plus a link to the official
-    page; never reintroduce guessed danger levels. Avalanche problems are
-    not scraped, so that section only appears if a future source adds them.
-  - **Scraper partly validated** (lavinprognoser.se is unreachable from
-    cloud sessions; Fabian pasted live `/forecasts` output 2026-09-23): 5 of
-    6 slugs load. `riksgransfjallen` 404'd — the worker now tries several
-    "Abisko/Riksgränsfjällen" spellings in order; pin the working one in
-    `worker/src/regions.ts` once seen. Every page matched both "season over"
-    and "Ej bedömd" (a legend), so the parser now only accepts a danger
-    level when the page names exactly one, and "Ej bedömd" never overrides
-    a parsed level. Danger-level regexes are still unverified against real
-    in-season markup. Check `https://fjallkoll-worker.fabian-n-sund.workers.dev/forecasts`
-    once the season starts (mid-December) — `fetchError` on a region means a
-    bad slug; `confidence: "none"` means the parser missed. Also watch that
-    `/ej\s+bedömd/` doesn't false-positive on a page legend.
+    page; never reintroduce guessed danger levels.
+  - **Forecast parsing (2026-09-25):** each lavinprognoser.se page embeds its
+    data as `window.__model = {...}`; `worker/src/model.ts` reads the danger
+    level, headline, main message and every avalanche problem (aspects,
+    elevation bands kalfjäll/trädgräns/under trädgräns, optional metres,
+    sensitivity, size, "här finns"). Validated against 30 real in-season
+    pages from 2025/26 in `worker/src/fixtures/lavinprognoser/`, fetched by
+    Fabian with `worker/scripts/fetch-fixtures.ps1` (the site serves past
+    forecasts via `?forecast_date=YYYY-MM-DD`; cloud sessions can't reach
+    it). Safety rules in `parse.ts`: a level is shown only if the forecast
+    is in force now, valid ≤ 48 h, and not published after today (the
+    archive had a two-month "Måttlig" record for Södra Jämtland);
+    `risk: 0` = "Ej bedömd"; `forecast: null` = no forecast. The old text
+    regex parser is only a fallback for pages without the model. All six
+    slugs are verified (`abisko_riksgransfjallen` for Riksgränsfjällen).
+    Still worth a glance at `https://fjallkoll-worker.fabian-n-sund.workers.dev/forecasts`
+    on the first forecast day of the season (mid-December) to confirm the
+    live page matches the archive.
+  - **Problem names follow lavinprognoser.se**, not EAWS English:
+    Nysnöflak, Drevsnöflak, Bestående flak, Våta laviner, Glidlaviner,
+    Hängdrivor. Internal ids stay `nysno`, `vindpack`, `gammal_svag_lagring`,
+    `vatsno`, `glidlavin`, `hangdrivor`; `SITE_PROBLEM_TYPES` in
+    `app/src/data/avalancheProblems.ts` maps the site's slugs to them.
+    Region pages show the problems right under the official forecast
+    (`ForecastProblems.tsx`, with `AspectRosette` + `ElevationIcon`).
 - Full rebuild+redeploy sequence when app code changes:
     ```powershell
     cd C:\Users\fabia\Documents\fjallvarning-repo
@@ -215,5 +226,6 @@ the start, exact map point.
 - No service worker / PWA caching in the app (checked — ruled out as a cause
   of stale-content confusion earlier).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (61 tests as of 2026-09-23, all passing). Worker has its own small Vitest
-  suite in `Svenska laviner/worker` (`npm test`).
+  (69 tests as of 2026-09-25, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 22 tests, including the
+  real-page fixtures).
