@@ -60,6 +60,8 @@ function emptyForecast(
     confidence: "none",
     headline: null,
     publishedText: null,
+    mainMessage: null,
+    problems: [],
   };
 }
 

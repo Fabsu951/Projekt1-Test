@@ -2,13 +2,9 @@ import { describe, expect, it } from "vitest";
 import { parseForecastHtml } from "./parse";
 
 /**
- * These fixtures are hand-written approximations of what the site's markup
- * is expected to look like, based on the patterns documented by the
- * "toppturvarsel" open-source scraper for the same source. They have not
- * been validated against the live site (blocked from this environment) —
- * treat this as a regression test for the parsing *logic*, not proof the
- * regexes match production markup. Re-check against lavinprognoser.se the
- * first time a real forecast is published this season and adjust if needed.
+ * Hand-written pages without the embedded JSON model, exercising the
+ * text-matching fallback that only runs if lavinprognoser.se ever stops
+ * embedding `window.__model`. Real pages are covered in model.test.ts.
  */
 
 describe("parseForecastHtml", () => {
