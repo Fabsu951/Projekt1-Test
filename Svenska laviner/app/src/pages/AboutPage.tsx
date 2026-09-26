@@ -113,7 +113,8 @@ export default function AboutPage() {
         <ul>
           <li>
             <strong>Konto:</strong> e-postadress, användarnamn och ditt lösenord i krypterad (hashad)
-            form. Vi kan aldrig se ditt lösenord.
+            form. Vi kan aldrig se ditt lösenord. När du är inloggad sparas också vilka områden du
+            stjärnmärkt, så att de följer med mellan dina enheter.
           </li>
           <li>
             <strong>Observationer:</strong> det du själv publicerar, alltså typ, plats på kartan, tidpunkt,

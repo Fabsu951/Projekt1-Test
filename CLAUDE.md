@@ -211,7 +211,12 @@ the start, exact map point.
   (`FavoriteButton.tsx`) on region cards and the region page title;
   `favorites/` (FavoritesProvider + useFavorites) keeps starred region ids
   on the device in Capacitor Preferences (`fjallkoll:favorites`), no
-  account needed. The region list shows "Mina områden" first, then
+  account needed. When signed in they also sync to the account (migration
+  `0007` `users.favorites`, `GET/POST /auth/favorites` in
+  `worker/src/favorites.ts`): on login the account's and the device's
+  lists are merged (account order first) and saved back; every star
+  change is POSTed while signed in. Added 2026-09-26 after Fabian's
+  computer favourites didn't show up on his phone. The region list shows "Mina områden" first, then
   "Övriga områden". `RegionCard` is now a div with a link + the star
   (a button can't sit inside a link). Notifications for favorites: see
   "Web push" below (browsers only; native apps would need Firebase + APNs).
@@ -301,6 +306,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (87 tests as of 2026-09-26, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 50 tests, including the
+  (90 tests as of 2026-09-26, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 52 tests, including the
   real-page fixtures).

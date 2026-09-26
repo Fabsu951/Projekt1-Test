@@ -1,6 +1,7 @@
 import { REGION_SOURCES } from "./regions";
 import { parseForecastHtml, type ParsedForecast } from "./parse";
 import { findChanges, historyRow, readHistory, recordHistory, type HistoryRow } from "./history";
+import { getFavorites, saveFavorites } from "./favorites";
 import { notifyChanges, publicKey, subscribe, unsubscribe, type PushEnv } from "./push";
 import { stockholmDate } from "./model";
 import type { VapidEnv } from "./webpush";
@@ -172,6 +173,8 @@ async function handleCommunity(request: Request, env: Env, origin: string): Prom
       return user ? json({ user }, origin) : error("Du är inte inloggad.", origin, 401);
     }
     if (pathname === "/auth/me" && method === "DELETE") return json(await deleteAccount(request, env), origin);
+    if (pathname === "/auth/favorites" && method === "GET") return json(await getFavorites(request, env), origin);
+    if (pathname === "/auth/favorites" && method === "POST") return json(await saveFavorites(request, env), origin);
     if (pathname === "/auth/verify" && method === "POST") return json(await verifyEmail(request, env), origin);
     if (pathname === "/auth/resend-verification" && method === "POST")
       return json(await resendVerification(request, env), origin);
