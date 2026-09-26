@@ -213,9 +213,8 @@ the start, exact map point.
   on the device in Capacitor Preferences (`fjallkoll:favorites`), no
   account needed. The region list shows "Mina områden" first, then
   "Övriga områden". `RegionCard` is now a div with a link + the star
-  (a button can't sit inside a link). Push notifications for favorites
-  (the rest of feature 3) are not built yet — they need Firebase (Android)
-  and an Apple Developer account (iOS) set up by Fabian.
+  (a button can't sit inside a link). Notifications for favorites: see
+  "Web push" below (browsers only; native apps would need Firebase + APNs).
 - **Richer observations (2026-09-26, Regobs-style):** migration `0004`
   adds `danger_signs` (JSON array; ids in `DANGER_SIGNS` in
   `worker/src/observations.ts` and `app/src/data/dangerSigns.ts`, which must
@@ -249,7 +248,8 @@ the start, exact map point.
   `push_subscriptions`. `recordAll` in `index.ts` runs `findChanges`
   (level differs from the latest stored forecast within 3 days; the very
   first record never notifies) → `recordHistory` → `notifyChanges`.
-  Turn on: from `worker/`, `node scripts/setup-push.mjs` (creates and
+  Deployed 2026-09-26 (`d6e510f`); `deploy.ps1` runs the key setup step,
+  confirm with `GET /push/key`. Turn on manually: from `worker/`, `node scripts/setup-push.mjs` (creates and
   stores `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` as secrets, refuses to
   overwrite; `VAPID_SUBJECT` is in `wrangler.toml`). Never rotate the keys
   casually — every subscription is bound to the public key. iPhones only
