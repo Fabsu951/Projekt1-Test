@@ -1,9 +1,10 @@
-# Publishes the latest Fjällkoll: pulls from GitHub, updates the worker
+﻿# Publishes the latest Fjällkoll: pulls from GitHub, updates the worker
 # (database migrations + code) and the website. Run from anywhere:
 #
 #   powershell -ExecutionPolicy Bypass -File "C:\Users\fabia\Documents\fjallvarning-repo\Svenska laviner\deploy.ps1"
 #
 # Stops at the first step that fails, so nothing is half-published silently.
+# Saved as UTF-8 with BOM so Windows PowerShell 5.1 shows å, ä and ö correctly.
 
 $repo = Resolve-Path (Join-Path $PSScriptRoot "..")
 $worker = Join-Path $PSScriptRoot "worker"
