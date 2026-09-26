@@ -239,6 +239,22 @@ the start, exact map point.
   for the Capacitor apps), put the site key in `.env.production`,
   `npx wrangler secret put TURNSTILE_SECRET_KEY`, deploy. Set both or
   neither — secret without site key blocks all signups.
+- **Web push (built, OFF until keys exist):** "Notis när farograden ändras i
+  mina områden" checkbox under "Mina områden" (`PushToggle.tsx`,
+  `services/push.ts`, `public/sw.js`), shown only in browsers with push
+  support (not in the Capacitor apps) and once `/push/key` returns a key.
+  Worker: `webpush.ts` (VAPID + aes128gcm with WebCrypto, no library),
+  `push.ts` (`/push/key`, `/push/subscribe`, `/push/unsubscribe`, delivery
+  only to Google/Mozilla/Apple/Microsoft push hosts), migration `0006`
+  `push_subscriptions`. `recordAll` in `index.ts` runs `findChanges`
+  (level differs from the latest stored forecast within 3 days; the very
+  first record never notifies) → `recordHistory` → `notifyChanges`.
+  Turn on: from `worker/`, `node scripts/setup-push.mjs` (creates and
+  stores `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` as secrets, refuses to
+  overwrite; `VAPID_SUBJECT` is in `wrangler.toml`). Never rotate the keys
+  casually — every subscription is bound to the public key. iPhones only
+  get web push after "Lägg till på hemskärmen". Native app push (Firebase
+  + APNs) is still not built.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -281,9 +297,10 @@ the start, exact map point.
 - Fabian pasted a live `CLOUDFLARE_API_TOKEN` into chat earlier in this
   project's history; he was advised to rotate it (Cloudflare dashboard → My
   Profile → API Tokens). Unconfirmed whether he did.
-- No service worker / PWA caching in the app (checked — ruled out as a cause
-  of stale-content confusion earlier).
+- `app/public/sw.js` is a service worker **for push notifications only**
+  (added 2026-09-26): no fetch handler, no caching, so it can't cause the
+  stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (83 tests as of 2026-09-26, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 31 tests, including the
+  (87 tests as of 2026-09-26, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 50 tests, including the
   real-page fixtures).

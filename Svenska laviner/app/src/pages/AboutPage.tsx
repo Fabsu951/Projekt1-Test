@@ -128,6 +128,12 @@ export default function AboutPage() {
             efter ett dygn.
           </li>
           <li>
+            <strong>Notiser:</strong> om du slår på notiser för dina områden sparar vi den adress som din
+            webbläsares push-tjänst (Google, Mozilla eller Apple) ger oss, och vilka områden du valt. Den
+            kopplas inte till ditt konto. Notisernas innehåll skickas krypterat. Stänger du av notiserna
+            raderas uppgifterna.
+          </li>
+          <li>
             <strong>På din enhet:</strong> appen sparar din inloggning och senast hämtade prognoser och
             väder lokalt, så att den fungerar utan täckning. Vi använder inga kakor för spårning, ingen
             annonsering och ingen analys av hur du använder appen.

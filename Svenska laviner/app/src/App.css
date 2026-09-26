@@ -1331,3 +1331,22 @@
 .turnstile {
   min-height: 65px;
 }
+
+/* Web push opt-in under "Mina områden" */
+.push-toggle {
+  margin: -4px 0 10px;
+}
+
+.push-toggle__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.push-toggle__message {
+  color: #ff8a80;
+  font-size: 0.85rem;
+  margin: 4px 0 0;
+}

@@ -5,6 +5,7 @@ import type { AvalancheForecast } from "../types/avalanche";
 import RegionCard from "../components/RegionCard";
 import NearestRegion from "../components/NearestRegion";
 import { useFavorites } from "../favorites/useFavorites";
+import PushToggle from "../components/PushToggle";
 
 export default function RegionList() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
@@ -47,6 +48,7 @@ export default function RegionList() {
       {favorites.length > 0 ? (
         <>
           <h2 className="region-list__heading">Mina områden</h2>
+          <PushToggle />
           <div className="region-list">
             {favorites.map((id) => {
               const region = REGIONS.find((r) => r.id === id)!;
