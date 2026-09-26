@@ -5,6 +5,19 @@ import { REGION_SOURCES } from "./regions";
 export const OBSERVATION_TYPES = ["lavin", "sprickor", "kollaps", "glidsprickor", "snotacke", "ovrigt"] as const;
 type ObservationType = (typeof OBSERVATION_TYPES)[number];
 
+/** Warning signs an observer can tick, stored as a JSON array of these ids. */
+export const DANGER_SIGNS = [
+  "farska_laviner",
+  "skjutsprickor",
+  "wumpf",
+  "snodrev",
+  "mycket_nysno",
+  "snabb_uppvarmning",
+] as const;
+type DangerSign = (typeof DANGER_SIGNS)[number];
+
+export const MAX_SNOW_DEPTH_CM = 1000;
+
 const MAX_DESCRIPTION = 2000;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_PER_HOUR = 10;
@@ -28,6 +41,8 @@ interface ObservationRow {
   image_key: string | null;
   hidden: number;
   report_count: number;
+  danger_signs: string | null;
+  snow_depth_cm: number | null;
 }
 
 export interface Observation {
@@ -45,6 +60,32 @@ export interface Observation {
   imagePath: string | null;
   hidden: boolean;
   reportCount: number;
+  dangerSigns: DangerSign[];
+  snowDepthCm: number | null;
+}
+
+/** Known signs only, each once, in DANGER_SIGNS order. */
+export function cleanDangerSigns(values: unknown[]): DangerSign[] {
+  return DANGER_SIGNS.filter((sign) => values.includes(sign));
+}
+
+function storedDangerSigns(json: string | null): DangerSign[] {
+  try {
+    const parsed = JSON.parse(json ?? "[]");
+    return Array.isArray(parsed) ? cleanDangerSigns(parsed) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Empty means "not given"; otherwise a whole number of centimetres in range. */
+export function parseSnowDepth(value: string): number | null {
+  if (value === "") return null;
+  const cm = Number(value);
+  if (!Number.isInteger(cm) || cm < 0 || cm > MAX_SNOW_DEPTH_CM) {
+    throw new HttpError(400, `Snödjupet ska vara ett heltal mellan 0 och ${MAX_SNOW_DEPTH_CM} cm.`);
+  }
+  return cm;
 }
 
 function toObservation(row: ObservationRow): Observation {
@@ -62,6 +103,8 @@ function toObservation(row: ObservationRow): Observation {
     imagePath: row.image_key ? `/images/${row.image_key}` : null,
     hidden: row.hidden === 1,
     reportCount: row.report_count,
+    dangerSigns: storedDangerSigns(row.danger_signs),
+    snowDepthCm: row.snow_depth_cm,
   };
 }
 
@@ -73,6 +116,8 @@ export async function listObservations(request: Request, env: CommunityEnv) {
   const limit = Math.min(Math.max(Number(url.searchParams.get("limit")) || 50, 1), 200);
   const region = url.searchParams.get("region");
   const mine = url.searchParams.get("mine") === "1";
+  const type = url.searchParams.get("type");
+  const days = Number(url.searchParams.get("days"));
 
   const where: string[] = [];
   const binds: unknown[] = [];
@@ -86,6 +131,14 @@ export async function listObservations(request: Request, env: CommunityEnv) {
   if (region) {
     where.push("o.region_id = ?");
     binds.push(region);
+  }
+  if (type && (OBSERVATION_TYPES as readonly string[]).includes(type)) {
+    where.push("o.type = ?");
+    binds.push(type);
+  }
+  if (Number.isFinite(days) && days > 0) {
+    where.push("o.observed_at >= ?");
+    binds.push(new Date(Date.now() - Math.min(days, 365) * 24 * 3600 * 1000).toISOString());
   }
 
   const rows = await env.DB.prepare(
@@ -171,6 +224,9 @@ export async function createObservation(request: Request, env: CommunityEnv) {
     throw new HttpError(400, `Beskriv vad du såg (10–${MAX_DESCRIPTION} tecken).`);
   }
 
+  const dangerSigns = cleanDangerSigns(form.getAll("dangerSigns"));
+  const snowDepthCm = parseSnowDepth(field(form, "snowDepthCm"));
+
   const regionField = field(form, "regionId");
   const regionId = REGION_SOURCES.some((r) => r.id === regionField) ? regionField : null;
 
@@ -186,10 +242,23 @@ export async function createObservation(request: Request, env: CommunityEnv) {
   }
 
   const result = await env.DB.prepare(
-    `INSERT INTO observations (user_id, type, lat, lon, region_id, observed_at, created_at, description, image_key)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO observations
+       (user_id, type, lat, lon, region_id, observed_at, created_at, description, image_key, danger_signs, snow_depth_cm)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
-    .bind(user.id, type, lat, lon, regionId, observedAt.toISOString(), nowIso(), description, imageKey)
+    .bind(
+      user.id,
+      type,
+      lat,
+      lon,
+      regionId,
+      observedAt.toISOString(),
+      nowIso(),
+      description,
+      imageKey,
+      JSON.stringify(dangerSigns),
+      snowDepthCm
+    )
     .run();
 
   const row = await env.DB.prepare(`${SELECT} WHERE o.id = ?`)
