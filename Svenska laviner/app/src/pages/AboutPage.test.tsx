@@ -37,6 +37,10 @@ describe("AboutPage", () => {
     expect(screen.getByText(/visas aldrig för andra/)).toBeInTheDocument();
     expect(screen.getByText(/radera hela ditt/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Integritetsskyddsmyndigheten/ })).toHaveAttribute("href", "https://www.imy.se");
+    expect(screen.getByRole("link", { name: "fabian.n.sund@gmail.com" })).toHaveAttribute(
+      "href",
+      "mailto:fabian.n.sund@gmail.com"
+    );
   });
 
   it("links to the official avalanche forecast source", () => {

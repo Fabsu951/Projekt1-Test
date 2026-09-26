@@ -3,4 +3,4 @@
  * the About page. Must be set before the community features are opened to
  * the public.
  */
-export const PRIVACY_CONTACT_EMAIL = "";
+export const PRIVACY_CONTACT_EMAIL = "fabian.n.sund@gmail.com";
