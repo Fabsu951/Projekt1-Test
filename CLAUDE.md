@@ -138,12 +138,28 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   `topowebb` layer (id confirmed via GetCapabilities — NOT `topowebb-ccby`,
   that's only part of the URL path) via the Worker proxy, `TopoLayer.tsx`,
   falls back to OSM when `VITE_MAP_PROXY_URL` is unset.
-  **Possible end date:** a web search (2026-09-25) said Lantmäteriet will
-  discontinue "Topografisk webbkarta Visning, översiktlig" on
-  **2026-12-31**. Not yet verified (lantmateriet.se is blocked from cloud
-  sessions). Fabian should check the product page on Geotorget and find the
-  replacement product before the winter season. The licence **is** CC0;
-  "ccby" in the URL is just a leftover name.
+  **Confirmed end date 2026-12-31** (Lantmäteriet's own notice,
+  "Avveckling av produkten Topografisk webbkarta Visning, översiktlig").
+  The paid alternatives (Visning 83 000 kr/år, Visning cache) are out; the
+  CC0 replacement is **Topografisk webbkarta Nedladdning, raster**
+  (GeoPackage/PNG, EPSG:3857 zoom 0–17, updated quarterly). Built
+  2026-09-26: the app now loads `${VITE_MAP_PROXY_URL}/tiles/topowebb/{z}/{x}/{y}.png`
+  (`TopoLayer.tsx`, maxNativeZoom 15); the worker (`worker/src/tiles.ts`)
+  serves from R2 (`IMAGES` bucket, keys `maptiles/topowebb/z/x/y`), else
+  fetches from the old WMTS and writes the tile to R2 (read-through, so
+  viewed tiles survive the shutdown), else 302s to OpenStreetMap.
+  Bulk import: `worker/scripts/import-tiles.ts` (run with `npx tsx`,
+  uses `node:sqlite`, maps GeoPackage levels onto z/x/y via
+  `gpkgTiles.ts`, uploads 200-tile batches in `tileBatch.ts` format to
+  `POST /admin/tiles/topowebb`, authorised by a fresh random
+  `TILE_UPLOAD_TOKEN` secret it sets each run). Fabian's step-by-step
+  (order boxes in SWEREF 99 TM, ~270k tiles ≈ 7 GB) is in
+  `Svenska laviner/KARTBYTE.md`; waiting on Geotorget (HTTP 500 on
+  2026-09-26). The old `/topowebb` WMTS proxy route is kept for old app
+  builds. Offline maps (feature 5) become possible once tiles are ours.
+  Slope: "Markhöjdmodell Visning" is paid; "Markhöjdmodell Nedladdning,
+  grid 1+" is free (CC BY 4.0, STAC API, access must be applied for) but
+  needs our own slope rendering — a later project.
   **Min position (2026-09-26):** "Visa min position" on `/karta` turns on
   `MyPosition.tsx` (Capacitor `Geolocation.watchPosition`, blue dot +
   accuracy circle ≤ 2 km, jumps to zoom ≥ 13 on the first fix only, stops
@@ -307,5 +323,5 @@ the start, exact map point.
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
   (90 tests as of 2026-09-26, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 52 tests, including the
+  suite in `Svenska laviner/worker` (`npm test`, 59 tests, including the
   real-page fixtures).

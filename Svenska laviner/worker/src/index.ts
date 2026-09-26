@@ -2,6 +2,7 @@ import { REGION_SOURCES } from "./regions";
 import { parseForecastHtml, type ParsedForecast } from "./parse";
 import { findChanges, historyRow, readHistory, recordHistory, type HistoryRow } from "./history";
 import { getFavorites, saveFavorites } from "./favorites";
+import { parseTilePath, serveTile, uploadTiles, type TilesEnv } from "./tiles";
 import { notifyChanges, publicKey, subscribe, unsubscribe, type PushEnv } from "./push";
 import { stockholmDate } from "./model";
 import type { VapidEnv } from "./webpush";
@@ -28,7 +29,7 @@ import {
   serveImage,
 } from "./observations";
 
-export interface Env extends CommunityEnv, VapidEnv {
+export interface Env extends CommunityEnv, VapidEnv, TilesEnv {
   ALLOWED_ORIGIN?: string;
   LANTMATERIET_USER?: string;
   LANTMATERIET_PASSWORD?: string;
@@ -290,6 +291,12 @@ export default {
       });
       await cache.put(cacheKey, response.clone());
       return response;
+    }
+
+    const tile = request.method === "GET" ? parseTilePath(url.pathname) : null;
+    if (tile) return serveTile(request, env, ctx, origin, tile);
+    if (url.pathname === "/admin/tiles/topowebb" && request.method === "POST") {
+      return uploadTiles(request, env, origin);
     }
 
     if (url.pathname.startsWith("/push/")) {

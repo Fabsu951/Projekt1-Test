@@ -1,24 +1,24 @@
 import { TileLayer } from "react-leaflet";
 
-// Lantmäteriet's free "Topografisk webbkarta Visning, översiktlig" (CC0),
-// served through our Cloudflare Worker at /topowebb so the Basic Auth
-// credentials for our Geotorget account stay server-side. Falls back to
-// plain OpenStreetMap tiles when no proxy is configured (e.g. local dev
-// without a deployed worker).
+// Lantmäteriet's topographic map, served by our Cloudflare Worker at
+// /tiles/topowebb/{z}/{x}/{y}.png. The worker hosts the tiles in R2 (from
+// the CC0 "Topografisk webbkarta Nedladdning, raster"), fills gaps from the
+// old WMTS until it closes on 2026-12-31, and after that falls back to
+// OpenStreetMap outside what we host. Without a configured worker (local
+// dev) the map shows plain OpenStreetMap.
 const PROXY_BASE = import.meta.env.VITE_MAP_PROXY_URL as string | undefined;
 
-const TOPOWEBB_LAYER = "topowebb";
-const TOPOWEBB_TILEMATRIXSET = "3857";
-// GetCapabilities lists TileMatrix identifiers 0–15 for the 3857 matrix set.
-const TOPOWEBB_MAX_ZOOM = 15;
+// Highest zoom we host tiles for; Leaflet enlarges them beyond that.
+const TOPOWEBB_MAX_NATIVE_ZOOM = 15;
 
 const TOPOWEBB_URL = PROXY_BASE
-  ? `${PROXY_BASE.replace(/\/$/, "")}/topowebb?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=${TOPOWEBB_LAYER}&STYLE=default&TILEMATRIXSET=${TOPOWEBB_TILEMATRIXSET}&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png`
+  ? `${PROXY_BASE.replace(/\/$/, "")}/tiles/topowebb/{z}/{x}/{y}.png`
   : "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 
+const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsgivare';
 const TOPOWEBB_ATTRIBUTION = PROXY_BASE
-  ? '&copy; <a href="https://www.lantmateriet.se/">Lantmäteriet</a>, CC0'
-  : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsgivare';
+  ? `&copy; <a href="https://www.lantmateriet.se/">Lantmäteriet</a>, CC0 · utanför fjällen ${OSM_ATTRIBUTION}`
+  : OSM_ATTRIBUTION;
 
 export default function TopoLayer() {
   return (
@@ -26,7 +26,7 @@ export default function TopoLayer() {
       attribution={TOPOWEBB_ATTRIBUTION}
       url={TOPOWEBB_URL}
       maxZoom={19}
-      maxNativeZoom={PROXY_BASE ? TOPOWEBB_MAX_ZOOM : undefined}
+      maxNativeZoom={PROXY_BASE ? TOPOWEBB_MAX_NATIVE_ZOOM : undefined}
     />
   );
 }
