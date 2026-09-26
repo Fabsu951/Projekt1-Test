@@ -11,6 +11,9 @@ crons = ["20 6,7,16,17 * * *"]
 ALLOWED_ORIGIN = "*"
 # Public site URL, used in links in emails.
 APP_URL = "https://fjallkoll.pages.dev"
+# Contact given to browser push services with each notification (VAPID).
+# The keys themselves are secrets, created by: node scripts/setup-push.mjs
+VAPID_SUBJECT = "mailto:fabian.n.sund@gmail.com"
 # Sender for verification/reset emails; must be on a domain verified in
 # Resend. Emails are only sent once the RESEND_API_KEY secret is set too:
 #   npx wrangler secret put RESEND_API_KEY

@@ -1,5 +1,7 @@
 export interface RegionSource {
   id: string;
+  /** Display name, as in app/src/data/regions.ts (used in notifications). */
+  name: string;
   /** Candidate URL slugs, tried in order until one doesn't 404. */
   slugs: string[];
 }
@@ -11,10 +13,10 @@ export interface RegionSource {
  * src/fixtures/lavinprognoser).
  */
 export const REGION_SOURCES: RegionSource[] = [
-  { id: "kebnekaisefjallen", slugs: ["kebnekaisefjallen"] },
-  { id: "riksgransfjallen", slugs: ["abisko_riksgransfjallen"] },
-  { id: "vastra-vindelfjallen", slugs: ["vastra_vindelfjallen"] },
-  { id: "sodra-lapplandsfjallen", slugs: ["sodra_lapplandsfjallen"] },
-  { id: "sodra-jamtlandsfjallen", slugs: ["sodra_jamtlandsfjallen"] },
-  { id: "vastra-harjedalsfjallen", slugs: ["vastra_harjedalsfjallen"] },
+  { id: "kebnekaisefjallen", name: "Kebnekaisefjällen", slugs: ["kebnekaisefjallen"] },
+  { id: "riksgransfjallen", name: "Riksgränsfjällen", slugs: ["abisko_riksgransfjallen"] },
+  { id: "vastra-vindelfjallen", name: "Västra Vindelfjällen", slugs: ["vastra_vindelfjallen"] },
+  { id: "sodra-lapplandsfjallen", name: "Södra Lapplandsfjällen", slugs: ["sodra_lapplandsfjallen"] },
+  { id: "sodra-jamtlandsfjallen", name: "Södra Jämtlandsfjällen", slugs: ["sodra_jamtlandsfjallen"] },
+  { id: "vastra-harjedalsfjallen", name: "Västra Härjedalsfjällen", slugs: ["vastra_harjedalsfjallen"] },
 ];

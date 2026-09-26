@@ -1,4 +1,5 @@
 import { stockholmDate } from "./model";
+import type { DangerChange } from "./push";
 import type { ParsedForecast } from "./parse";
 
 export interface HistoryRow {
@@ -84,4 +85,33 @@ export async function readHistory(db: D1Database, regionId: string, now: Date, d
     return { regionId, date: r.date, danger: r.danger, problems };
   });
   return historyWindow(rows, today, days);
+}
+
+/** Older than this, a previous level belongs to an earlier spell (e.g. last season). */
+const CHANGE_LOOKBACK_DAYS = 3;
+
+/**
+ * Whether a newly fetched row changes the level compared with the latest
+ * one recorded before it (the same day's, if the forecast was updated).
+ */
+export function changeFrom(row: HistoryRow, previous: { date: string; danger: number } | null): DangerChange | null {
+  if (!previous || previous.danger === row.danger) return null;
+  if (previous.date < addDays(row.date, -CHANGE_LOOKBACK_DAYS)) return null;
+  return { regionId: row.regionId, date: row.date, from: previous.danger, to: row.danger };
+}
+
+/** Compares rows with what is stored; call before recordHistory overwrites them. */
+export async function findChanges(db: D1Database, rows: HistoryRow[]): Promise<DangerChange[]> {
+  const changes: DangerChange[] = [];
+  for (const row of rows) {
+    const previous = await db
+      .prepare(
+        "SELECT date, danger FROM forecast_history WHERE region_id = ? AND date <= ? ORDER BY date DESC LIMIT 1"
+      )
+      .bind(row.regionId, row.date)
+      .first<{ date: string; danger: number }>();
+    const change = changeFrom(row, previous ?? null);
+    if (change) changes.push(change);
+  }
+  return changes;
 }

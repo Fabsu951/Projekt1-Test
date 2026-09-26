@@ -1,6 +1,9 @@
 import { REGION_SOURCES } from "./regions";
 import { parseForecastHtml, type ParsedForecast } from "./parse";
-import { historyRow, readHistory, recordHistory, type HistoryRow } from "./history";
+import { findChanges, historyRow, readHistory, recordHistory, type HistoryRow } from "./history";
+import { notifyChanges, publicKey, subscribe, unsubscribe, type PushEnv } from "./push";
+import { stockholmDate } from "./model";
+import type { VapidEnv } from "./webpush";
 import { corsHeaders, error, HttpError, json } from "./http";
 import {
   type CommunityEnv,
@@ -24,7 +27,7 @@ import {
   serveImage,
 } from "./observations";
 
-export interface Env extends CommunityEnv {
+export interface Env extends CommunityEnv, VapidEnv {
   ALLOWED_ORIGIN?: string;
   LANTMATERIET_USER?: string;
   LANTMATERIET_PASSWORD?: string;
@@ -204,16 +207,22 @@ async function fetchAllRegions(): Promise<RegionForecastResponse[]> {
   return Promise.all(REGION_SOURCES.map((r) => fetchRegion(r.id, r.slugs)));
 }
 
-/** Saves today's published levels; never lets a database problem break forecasts. */
+/**
+ * Saves today's published levels and notifies subscribers of any change;
+ * never lets a database or push problem break forecasts.
+ */
 async function recordAll(env: Env, results: RegionForecastResponse[]): Promise<void> {
   if (!env.DB) return;
   const rows = results
     .map((r) => historyRow(r.regionId, r))
     .filter((r): r is HistoryRow => r !== null);
   try {
-    await recordHistory(env.DB, rows, new Date());
+    const now = new Date();
+    const changes = await findChanges(env.DB, rows);
+    await recordHistory(env.DB, rows, now);
+    await notifyChanges(env as PushEnv, changes, stockholmDate(now));
   } catch (err) {
-    console.error("Could not record forecast history", err);
+    console.error("Could not record forecast history or send notifications", err);
   }
 }
 
@@ -278,6 +287,20 @@ export default {
       });
       await cache.put(cacheKey, response.clone());
       return response;
+    }
+
+    if (url.pathname.startsWith("/push/")) {
+      try {
+        if (url.pathname === "/push/key" && request.method === "GET") return json(publicKey(env as PushEnv), origin);
+        if (url.pathname === "/push/subscribe" && request.method === "POST")
+          return json(await subscribe(request, env as PushEnv), origin);
+        if (url.pathname === "/push/unsubscribe" && request.method === "POST")
+          return json(await unsubscribe(request, env as PushEnv), origin);
+      } catch (err) {
+        if (err instanceof HttpError) return error(err.message, origin, err.status);
+        console.error(err);
+        return error("Något gick fel på servern. Försök igen.", origin, 500);
+      }
     }
 
     if (url.pathname === "/forecasts/history" && request.method === "GET") {
