@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
+import FavoritesProvider from "../favorites/FavoritesProvider";
 import { describe, expect, it, vi } from "vitest";
 import RegionDetail from "./RegionDetail";
 import type { WeatherPoint } from "../types/weather";
@@ -48,11 +49,13 @@ describe("RegionDetail forecast wind rose", () => {
     mockWeather.mockResolvedValue(series);
 
     render(
-      <MemoryRouter initialEntries={["/omrade/sodra-jamtlandsfjallen"]}>
-        <Routes>
-          <Route path="/omrade/:id" element={<RegionDetail />} />
-        </Routes>
-      </MemoryRouter>
+      <FavoritesProvider>
+        <MemoryRouter initialEntries={["/omrade/sodra-jamtlandsfjallen"]}>
+          <Routes>
+            <Route path="/omrade/:id" element={<RegionDetail />} />
+          </Routes>
+        </MemoryRouter>
+      </FavoritesProvider>
     );
 
     const heading = await screen.findByRole("heading", { name: "Prognos, kommande timmar" });

@@ -200,6 +200,15 @@ the start, exact map point.
 - **Admin:** Fabian's account (`fabian.n.sund@gmail.com`) has `is_admin = 1`
   (set 2026-09-26). The admin page is reached via "Anmälda inlägg" on
   `/profil`, not from the main nav.
+- **Favorites ("Mina områden", 2026-09-26):** star button
+  (`FavoriteButton.tsx`) on region cards and the region page title;
+  `favorites/` (FavoritesProvider + useFavorites) keeps starred region ids
+  on the device in Capacitor Preferences (`fjallkoll:favorites`), no
+  account needed. The region list shows "Mina områden" first, then
+  "Övriga områden". `RegionCard` is now a div with a link + the star
+  (a button can't sit inside a link). Push notifications for favorites
+  (the rest of feature 3) are not built yet — they need Firebase (Android)
+  and an Apple Developer account (iOS) set up by Fabian.
 - **Known gaps**: no login rate limiting beyond PBKDF2 cost; no
   Turnstile/captcha; not reviewed by a lawyer.
 
@@ -245,6 +254,6 @@ the start, exact map point.
 - No service worker / PWA caching in the app (checked — ruled out as a cause
   of stale-content confusion earlier).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (72 tests as of 2026-09-25, all passing). Worker has its own Vitest
+  (73 tests as of 2026-09-26, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 27 tests, including the
   real-page fixtures).

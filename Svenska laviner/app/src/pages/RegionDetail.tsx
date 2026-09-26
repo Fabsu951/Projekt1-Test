@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { getRegionById } from "../data/regions";
 import { fetchForecastHistory, loadForecasts, type HistoryDay } from "../services/avalancheService";
 import DangerHistory from "../components/DangerHistory";
+import FavoriteButton from "../components/FavoriteButton";
 import { fetchWeather } from "../services/weatherService";
 import type { AvalancheForecast } from "../types/avalanche";
 import type { WeatherPoint } from "../types/weather";
@@ -94,7 +95,10 @@ export default function RegionDetail() {
         ← Alla områden
       </Link>
       <header className="page__header">
-        <h1>{region.name}</h1>
+        <div className="page__title-row">
+          <h1>{region.name}</h1>
+          <FavoriteButton regionId={region.id} regionName={region.name} />
+        </div>
         <p className="page__lead">{region.subAreas.join(" · ")}</p>
         {forecast ? (
           <ForecastBadge forecast={forecast} size="large" />
