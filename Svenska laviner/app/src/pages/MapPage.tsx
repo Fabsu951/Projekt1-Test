@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MapContainer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
@@ -10,6 +10,7 @@ import { getDangerInfo } from "../data/dangerScale";
 import type { AvalancheForecast } from "../types/avalanche";
 import SlopeLayer from "../components/SlopeLayer";
 import TopoLayer from "../components/TopoLayer";
+import MyPosition from "../components/MyPosition";
 import { fetchObservations } from "../services/observationService";
 import { observationTypeLabel } from "../data/observationTypes";
 import type { Observation } from "../types/observation";
@@ -54,6 +55,9 @@ export default function MapPage() {
   const [showSlope, setShowSlope] = useState(false);
   const [showObservations, setShowObservations] = useState(true);
   const [observations, setObservations] = useState<Observation[]>([]);
+  const [showPosition, setShowPosition] = useState(false);
+  const [positionStatus, setPositionStatus] = useState<string | null>(null);
+  const onPositionStatus = useCallback((message: string | null) => setPositionStatus(message), []);
 
   useEffect(() => {
     if (!showObservations) return;
@@ -76,6 +80,18 @@ export default function MapPage() {
       </header>
 
       <div className="map-toolbar">
+        <button
+          type="button"
+          className={showPosition ? "button map-toolbar__locate map-toolbar__locate--on" : "button map-toolbar__locate"}
+          aria-pressed={showPosition}
+          onClick={() => {
+            setShowPosition((on) => !on);
+            setPositionStatus(null);
+          }}
+        >
+          <span className="my-position__legend" aria-hidden="true" />
+          {showPosition ? "Dölj min position" : "Visa min position"}
+        </button>
         <label className="map-toolbar__toggle">
           <input
             type="checkbox"
@@ -105,6 +121,12 @@ export default function MapPage() {
         )}
       </div>
 
+      {positionStatus && (
+        <p className="notice" role="status">
+          {positionStatus}
+        </p>
+      )}
+
       {showSlope && (
         <p className="notice notice--stale">
           Terränglutningen är beräknad från öppen höjddata med ~30 m upplösning
@@ -117,6 +139,7 @@ export default function MapPage() {
         <MapContainer center={SWEDEN_FJALL_CENTER} zoom={DEFAULT_ZOOM} scrollWheelZoom>
           <TopoLayer />
           <SlopeLayer enabled={showSlope} />
+          <MyPosition enabled={showPosition} onStatus={onPositionStatus} />
           {showObservations &&
             observations.map((o) => (
               <Marker key={`obs-${o.id}`} position={[o.lat, o.lon]} icon={OBSERVATION_ICON} zIndexOffset={1000}>

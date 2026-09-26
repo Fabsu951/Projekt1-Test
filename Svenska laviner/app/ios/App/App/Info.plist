@@ -25,7 +25,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Används för att visa vilket lavinprognosområde som ligger närmast dig.</string>
+	<string>Används för att visa var du är på kartan, vilket prognosområde som ligger närmast och var en observation gjordes.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

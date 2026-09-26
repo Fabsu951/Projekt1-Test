@@ -144,6 +144,13 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   sessions). Fabian should check the product page on Geotorget and find the
   replacement product before the winter season. The licence **is** CC0;
   "ccby" in the URL is just a leftover name.
+  **Min position (2026-09-26):** "Visa min position" on `/karta` turns on
+  `MyPosition.tsx` (Capacitor `Geolocation.watchPosition`, blue dot +
+  accuracy circle ≤ 2 km, jumps to zoom ≥ 13 on the first fix only, stops
+  watching when turned off). The Android manifest had **no location
+  permissions** until then (so geolocation never worked in the Android
+  app); ACCESS_COARSE/FINE_LOCATION are now declared, and the iOS
+  `NSLocationWhenInUseUsageDescription` covers map + observations.
 - **A** — design/layout (ski-focused visual identity): **done**.
   User asked for **"Äventyrlig/utomhus"** (Gaia GPS / onX spirit, not
   photorealistic) with simple SVG graphics, no photos. Implemented:
@@ -262,6 +269,6 @@ the start, exact map point.
 - No service worker / PWA caching in the app (checked — ruled out as a cause
   of stale-content confusion earlier).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (79 tests as of 2026-09-26, all passing). Worker has its own Vitest
+  (83 tests as of 2026-09-26, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 31 tests, including the
   real-page fixtures).

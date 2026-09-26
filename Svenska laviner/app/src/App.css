@@ -1296,3 +1296,34 @@
 .filter-row select {
   padding: 8px 10px;
 }
+
+/* "Min position" on the map */
+.my-position__dot {
+  fill: #2f8cff;
+  fill-opacity: 1;
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+.my-position__accuracy {
+  fill: #2f8cff;
+  fill-opacity: 0.12;
+  stroke: #2f8cff;
+  stroke-opacity: 0.5;
+  stroke-width: 1;
+}
+
+.my-position__legend {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #2f8cff;
+  box-shadow: 0 0 0 2px #fff;
+  margin-right: 8px;
+  vertical-align: -1px;
+}
+
+.map-toolbar__locate--on {
+  border-color: #2f8cff;
+}
