@@ -107,6 +107,12 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
     (`DangerHistory.tsx`), hidden until at least one day has a level. Needs
     `npx wrangler d1 migrations apply fjallkoll --remote` + `wrangler
     deploy` before it records anything; history only exists from then on.
+- **One-command deploy:** `Svenska laviner/deploy.ps1` (pull, worker npm
+  install + D1 migrations + deploy, app build + Pages deploy; stops at the
+  first failing step). Fabian runs it with
+  `powershell -ExecutionPolicy Bypass -File "C:\Users\fabia\Documents\fjallvarning-repo\Svenska laviner\deploy.ps1"`.
+  If `wrangler` OAuth login times out in the VS Code terminal, run
+  `npx wrangler login` from a plain PowerShell window instead (worked 2026-09-26).
 - Full rebuild+redeploy sequence when app code changes:
     ```powershell
     cd C:\Users\fabia\Documents\fjallvarning-repo
