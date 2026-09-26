@@ -1240,3 +1240,59 @@
   font-size: 0.85rem;
   margin: 10px 0 0;
 }
+
+/* Observation warning signs, snow depth and list filters */
+.sign-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 6px 12px;
+  margin-top: 6px;
+}
+
+.sign-picker__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400;
+}
+
+.form__input--short {
+  max-width: 8em;
+}
+
+.observation-card__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.observation-card__sign,
+.observation-card__depth {
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+}
+
+.observation-card__sign {
+  border-color: var(--signal);
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+}
+
+.filter-row .form__field--inline {
+  margin-bottom: 0;
+}
+
+.filter-row select {
+  padding: 8px 10px;
+}

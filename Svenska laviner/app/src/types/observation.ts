@@ -1,5 +1,13 @@
 export type ObservationType = "lavin" | "sprickor" | "kollaps" | "glidsprickor" | "snotacke" | "ovrigt";
 
+export type DangerSign =
+  | "farska_laviner"
+  | "skjutsprickor"
+  | "wumpf"
+  | "snodrev"
+  | "mycket_nysno"
+  | "snabb_uppvarmning";
+
 export interface Observation {
   id: number;
   userId: number;
@@ -14,6 +22,9 @@ export interface Observation {
   imagePath: string | null;
   hidden: boolean;
   reportCount: number;
+  /** Missing on observations served by workers from before migration 0004. */
+  dangerSigns?: DangerSign[];
+  snowDepthCm?: number | null;
 }
 
 export interface User {

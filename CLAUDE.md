@@ -209,6 +209,14 @@ the start, exact map point.
   (a button can't sit inside a link). Push notifications for favorites
   (the rest of feature 3) are not built yet — they need Firebase (Android)
   and an Apple Developer account (iOS) set up by Fabian.
+- **Richer observations (2026-09-26, Regobs-style):** migration `0004`
+  adds `danger_signs` (JSON array; ids in `DANGER_SIGNS` in
+  `worker/src/observations.ts` and `app/src/data/dangerSigns.ts`, which must
+  match: farska_laviner, skjutsprickor, wumpf, snodrev, mycket_nysno,
+  snabb_uppvarmning) and optional `snow_depth_cm` (0–1000). The form has
+  "Varningstecken" checkboxes + "Snödjup"; cards show them as chips;
+  `/observationer` filters by område, typ and tid (`?type=&days=`, default
+  30 days). Older rows default to no signs / no depth.
 - **Known gaps**: no login rate limiting beyond PBKDF2 cost; no
   Turnstile/captcha; not reviewed by a lawyer.
 
@@ -254,6 +262,6 @@ the start, exact map point.
 - No service worker / PWA caching in the app (checked — ruled out as a cause
   of stale-content confusion earlier).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (73 tests as of 2026-09-26, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 27 tests, including the
+  (79 tests as of 2026-09-26, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 31 tests, including the
   real-page fixtures).

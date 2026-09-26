@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../auth/useAuth";
 import { observationTypeLabel } from "../data/observationTypes";
+import { dangerSignLabel } from "../data/dangerSigns";
 import { getRegionById } from "../data/regions";
 import { imageUrl } from "../services/api";
 import { deleteObservation, reportObservation, restoreObservation } from "../services/observationService";
@@ -65,6 +66,19 @@ export default function ObservationCard({ observation: o, onChanged, showAdminAc
           {region ? ` · ${region.name}` : ""}
         </span>
       </header>
+      {((o.dangerSigns?.length ?? 0) > 0 || o.snowDepthCm != null) && (
+        <ul className="observation-card__details" aria-label="Varningstecken och snödjup">
+          {o.dangerSigns?.map((sign) => {
+            const label = dangerSignLabel(sign);
+            return label ? (
+              <li key={sign} className="observation-card__sign">
+                {label}
+              </li>
+            ) : null;
+          })}
+          {o.snowDepthCm != null && <li className="observation-card__depth">Snödjup {o.snowDepthCm} cm</li>}
+        </ul>
+      )}
       <p className="observation-card__text">{o.description}</p>
       {o.imagePath && (
         <a href={imageUrl(o.imagePath)} target="_blank" rel="noreferrer">

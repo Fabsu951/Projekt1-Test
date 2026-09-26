@@ -1,9 +1,20 @@
 import type { Observation } from "../types/observation";
 import { api } from "./api";
 
-export async function fetchObservations(opts: { region?: string; limit?: number } = {}): Promise<Observation[]> {
+export interface ObservationFilter {
+  region?: string;
+  /** One of the observation types; omitted means all. */
+  type?: string;
+  /** Only observations from the last this many days; omitted means all. */
+  days?: number;
+  limit?: number;
+}
+
+export async function fetchObservations(opts: ObservationFilter = {}): Promise<Observation[]> {
   const params = new URLSearchParams();
   if (opts.region) params.set("region", opts.region);
+  if (opts.type) params.set("type", opts.type);
+  if (opts.days) params.set("days", String(opts.days));
   if (opts.limit) params.set("limit", String(opts.limit));
   const qs = params.toString();
   return (await api<{ observations: Observation[] }>(`/observations${qs ? `?${qs}` : ""}`)).observations;
@@ -25,6 +36,9 @@ export interface NewObservation {
   observedAt: Date;
   description: string;
   image: Blob | null;
+  dangerSigns: string[];
+  /** Whole centimetres, or null when not given. */
+  snowDepthCm: number | null;
 }
 
 export async function createObservation(token: string, obs: NewObservation): Promise<Observation> {
@@ -36,6 +50,8 @@ export async function createObservation(token: string, obs: NewObservation): Pro
   form.set("observedAt", obs.observedAt.toISOString());
   form.set("description", obs.description);
   if (obs.image) form.set("image", obs.image, "bild.jpg");
+  for (const sign of obs.dangerSigns) form.append("dangerSigns", sign);
+  if (obs.snowDepthCm !== null) form.set("snowDepthCm", String(obs.snowDepthCm));
   return (await api<{ observation: Observation }>("/observations", { method: "POST", token, form })).observation;
 }
 

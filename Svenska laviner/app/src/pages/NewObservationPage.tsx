@@ -5,9 +5,10 @@ import LocationPicker, { type Point } from "../components/LocationPicker";
 import PageLoading from "../components/PageLoading";
 import VerifyEmailNotice from "../components/VerifyEmailNotice";
 import { OBSERVATION_TYPES } from "../data/observationTypes";
+import { DANGER_SIGNS } from "../data/dangerSigns";
 import { REGIONS } from "../data/regions";
 import { createObservation } from "../services/observationService";
-import type { ObservationType } from "../types/observation";
+import type { DangerSign, ObservationType } from "../types/observation";
 import { nearestRegionId } from "../utils/geo";
 import { prepareImage } from "../utils/image";
 
@@ -24,6 +25,8 @@ export default function NewObservationPage() {
   const [point, setPoint] = useState<Point | null>(null);
   const [when, setWhen] = useState(() => localInputValue(new Date()));
   const [description, setDescription] = useState("");
+  const [signs, setSigns] = useState<DangerSign[]>([]);
+  const [snowDepth, setSnowDepth] = useState("");
   const [image, setImage] = useState<Blob | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -71,6 +74,10 @@ export default function NewObservationPage() {
     if (!point) return setError("Markera platsen på kartan.");
     const observedAt = new Date(when);
     if (Number.isNaN(observedAt.getTime())) return setError("Ange när du gjorde observationen.");
+    const depth = snowDepth.trim() === "" ? null : Number(snowDepth);
+    if (depth !== null && (!Number.isInteger(depth) || depth < 0 || depth > 1000)) {
+      return setError("Snödjupet ska vara ett heltal mellan 0 och 1000 cm.");
+    }
 
     setBusy(true);
     try {
@@ -82,6 +89,8 @@ export default function NewObservationPage() {
         observedAt,
         description: description.trim(),
         image,
+        dangerSigns: signs,
+        snowDepthCm: depth,
       });
       navigate("/observationer", { replace: true });
     } catch (err) {
@@ -131,6 +140,42 @@ export default function NewObservationPage() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="T.ex. Skjutsprickor ca 10 m långa på nordostvänd sluttning, 1100 m ö.h., ca 35°."
+          />
+        </label>
+
+        <fieldset className="form__field">
+          <legend>
+            Varningstecken <span className="form__hint">(valfritt, kryssa i allt du såg)</span>
+          </legend>
+          <div className="sign-picker">
+            {DANGER_SIGNS.map((s) => (
+              <label key={s.sign} className="sign-picker__option">
+                <input
+                  type="checkbox"
+                  checked={signs.includes(s.sign)}
+                  onChange={(e) =>
+                    setSigns((current) =>
+                      e.target.checked ? [...current, s.sign] : current.filter((x) => x !== s.sign)
+                    )
+                  }
+                />
+                {s.label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <label className="form__field">
+          Snödjup <span className="form__hint">(valfritt, i cm)</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={1000}
+            step={1}
+            value={snowDepth}
+            onChange={(e) => setSnowDepth(e.target.value)}
+            className="form__input--short"
           />
         </label>
 
