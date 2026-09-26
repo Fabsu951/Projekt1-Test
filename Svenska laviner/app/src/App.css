@@ -1327,3 +1327,7 @@
 .map-toolbar__locate--on {
   border-color: #2f8cff;
 }
+
+.turnstile {
+  min-height: 65px;
+}

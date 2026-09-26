@@ -65,8 +65,13 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       async login(email, password) {
         await start(await api("/auth/login", { method: "POST", json: { email, password } }));
       },
-      async register(email, password, displayName) {
-        await start(await api("/auth/register", { method: "POST", json: { email, password, displayName } }));
+      async register(email, password, displayName, turnstileToken) {
+        await start(
+          await api("/auth/register", {
+            method: "POST",
+            json: { email, password, displayName, turnstileToken: turnstileToken ?? undefined },
+          })
+        );
       },
       async logout() {
         try {

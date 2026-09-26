@@ -1,8 +1,9 @@
 import { HttpError, readJson, nowIso } from "./http";
 import { clear, clientIp, d1Store, enforce, LOGIN_EMAIL_LIMIT, LOGIN_IP_LIMIT, record, REGISTER_IP_LIMIT } from "./rateLimit";
+import { verifyTurnstile, type TurnstileEnv } from "./turnstile";
 import { appUrl, emailConfigured, type EmailEnv, resetEmail, sendEmail, verificationEmail } from "./email";
 
-export interface CommunityEnv extends EmailEnv {
+export interface CommunityEnv extends EmailEnv, TurnstileEnv {
   DB: D1Database;
   IMAGES: R2Bucket;
 }
@@ -265,6 +266,7 @@ interface RegisterBody {
   email?: string;
   password?: string;
   displayName?: string;
+  turnstileToken?: string;
 }
 
 export async function register(request: Request, env: CommunityEnv) {
@@ -286,6 +288,7 @@ export async function register(request: Request, env: CommunityEnv) {
     [{ key: registerKey, ...REGISTER_IP_LIMIT }],
     "Många konton har skapats härifrån den senaste timmen. Försök igen senare."
   );
+  await verifyTurnstile(env, body.turnstileToken, clientIp(request));
 
   const taken = await env.DB.prepare("SELECT email, display_name FROM users WHERE email = ? OR display_name = ?")
     .bind(email, displayName)

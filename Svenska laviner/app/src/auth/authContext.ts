@@ -7,7 +7,8 @@ export interface AuthState {
   /** True until the saved session has been checked on startup. */
   loading: boolean;
   login(email: string, password: string): Promise<void>;
-  register(email: string, password: string, displayName: string): Promise<void>;
+  /** `turnstileToken` is required once the server has Turnstile turned on. */
+  register(email: string, password: string, displayName: string, turnstileToken?: string | null): Promise<void>;
   logout(): Promise<void>;
   deleteAccount(): Promise<void>;
   /** Re-reads the user from the server, e.g. after verifying the email. */

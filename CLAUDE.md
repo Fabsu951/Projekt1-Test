@@ -224,8 +224,23 @@ the start, exact map point.
   "Varningstecken" checkboxes + "Snödjup"; cards show them as chips;
   `/observationer` filters by område, typ and tid (`?type=&days=`, default
   30 days). Older rows default to no signs / no depth.
-- **Known gaps**: no login rate limiting beyond PBKDF2 cost; no
-  Turnstile/captcha; not reviewed by a lawyer.
+- **Rate limits (2026-09-26):** migration `0005` `rate_limit_events`
+  (SHA-256 of keys like `login-email:<email>` / `login-ip:<ip>` /
+  `register-ip:<ip>`, pruned after 24 h; see `worker/src/rateLimit.ts`).
+  Login: 5 failures per email + 20 per IP per 15 min (success clears the
+  email counter). Signup: 5 accounts per IP per hour. Mentioned in the
+  privacy policy.
+- **Turnstile (built, OFF until configured):** `worker/src/turnstile.ts`
+  verifies `turnstileToken` on signup only when the worker secret
+  `TURNSTILE_SECRET_KEY` is set; the app shows the widget
+  (`TurnstileWidget.tsx`) only when `VITE_TURNSTILE_SITE_KEY` in
+  `app/.env.production` is non-empty. To turn on: create a Turnstile widget
+  in the Cloudflare dashboard (hostnames `fjallkoll.pages.dev` + `localhost`
+  for the Capacitor apps), put the site key in `.env.production`,
+  `npx wrangler secret put TURNSTILE_SECRET_KEY`, deploy. Set both or
+  neither — secret without site key blocks all signups.
+- **Known gaps**: no email verification until a domain + Resend are set
+  up; not reviewed by a lawyer.
 
  (context for why some code looks the way it does)
 
