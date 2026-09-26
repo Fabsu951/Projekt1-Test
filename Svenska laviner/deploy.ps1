@@ -25,6 +25,7 @@ Step "Hämtar senaste koden" { git -C $repo pull }
 Step "Installerar workerns paket" { Set-Location $worker; npm install }
 Step "Uppdaterar databasen" { Set-Location $worker; npx wrangler d1 migrations apply fjallkoll --remote }
 Step "Publicerar workern" { Set-Location $worker; npx wrangler deploy }
+Step "Aktiverar notiser (bara första gången)" { Set-Location $worker; node scripts/setup-push.mjs }
 Step "Installerar appens paket" { Set-Location $app; npm install }
 Step "Bygger sajten" {
   Set-Location $app
