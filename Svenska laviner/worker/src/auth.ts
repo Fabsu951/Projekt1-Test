@@ -1,4 +1,5 @@
 import { HttpError, readJson, nowIso } from "./http";
+import { clear, clientIp, d1Store, enforce, LOGIN_EMAIL_LIMIT, LOGIN_IP_LIMIT, record, REGISTER_IP_LIMIT } from "./rateLimit";
 import { appUrl, emailConfigured, type EmailEnv, resetEmail, sendEmail, verificationEmail } from "./email";
 
 export interface CommunityEnv extends EmailEnv {
@@ -278,6 +279,14 @@ export async function register(request: Request, env: CommunityEnv) {
   if (password.length < MIN_PASSWORD_LENGTH || password.length > 200)
     throw new HttpError(400, `Lösenordet måste vara minst ${MIN_PASSWORD_LENGTH} tecken.`);
 
+  const store = d1Store(env.DB);
+  const registerKey = `register-ip:${clientIp(request)}`;
+  await enforce(
+    store,
+    [{ key: registerKey, ...REGISTER_IP_LIMIT }],
+    "Många konton har skapats härifrån den senaste timmen. Försök igen senare."
+  );
+
   const taken = await env.DB.prepare("SELECT email, display_name FROM users WHERE email = ? OR display_name = ?")
     .bind(email, displayName)
     .first<{ email: string; display_name: string }>();
@@ -294,6 +303,7 @@ export async function register(request: Request, env: CommunityEnv) {
     .bind(email, displayName, await hashPassword(password), nowIso())
     .run();
   const userId = Number(result.meta.last_row_id);
+  await record(store, [registerKey]);
   const token = await createSession(env, userId);
   try {
     await sendVerification(env, { id: userId, email, displayName });
@@ -317,13 +327,27 @@ export async function register(request: Request, env: CommunityEnv) {
 export async function login(request: Request, env: CommunityEnv) {
   const body = await readJson<{ email?: string; password?: string }>(request);
   const email = (body.email ?? "").trim().toLowerCase();
+  const store = d1Store(env.DB);
+  const emailKey = `login-email:${email}`;
+  const ipKey = `login-ip:${clientIp(request)}`;
+  await enforce(
+    store,
+    [
+      { key: emailKey, ...LOGIN_EMAIL_LIMIT },
+      { key: ipKey, ...LOGIN_IP_LIMIT },
+    ],
+    "För många misslyckade inloggningsförsök. Vänta en kvart och försök igen, eller återställ lösenordet."
+  );
+
   const row = await env.DB.prepare(`SELECT ${USER_COLUMNS} FROM users u WHERE u.email = ?`)
     .bind(email)
     .first<UserRow>();
   // Same message either way, so the endpoint doesn't reveal which emails have accounts.
   if (!row || !(await verifyPassword(body.password ?? "", row.password_hash))) {
+    await record(store, [emailKey, ipKey]);
     throw new HttpError(401, "Fel e-postadress eller lösenord.");
   }
+  await clear(store, emailKey);
   return { token: await createSession(env, row.id), user: toUser(row, env) };
 }
 

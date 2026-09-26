@@ -123,6 +123,9 @@ export default function AboutPage() {
           <li>
             <strong>Inloggning och säkerhet:</strong> inloggningssessioner, tillfälliga länkar för att
             bekräfta e-post och återställa lösenord, samt anmälningar av inlägg (vem som anmälde vad).
+            För att stoppa lösenordsgissning och skräpkonton räknar vi misslyckade inloggningar och nya
+            konton per e-postadress och IP-adress. Det sparas bara i krypterad (hashad) form och raderas
+            efter ett dygn.
           </li>
           <li>
             <strong>På din enhet:</strong> appen sparar din inloggning och senast hämtade prognoser och
