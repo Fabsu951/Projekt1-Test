@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 import ObservationsPage from "./pages/ObservationsPage";
+import ToursPage from "./pages/ToursPage";
 import AdminPage from "./pages/AdminPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
@@ -21,6 +22,9 @@ import "./App.css";
 const MapPage = lazy(() => import("./pages/MapPage"));
 // Also Leaflet-heavy (location picker).
 const NewObservationPage = lazy(() => import("./pages/NewObservationPage"));
+// Leaflet (track map) and, for FIT files, Garmin's FIT SDK.
+const NewTourPage = lazy(() => import("./pages/NewTourPage"));
+const TourPage = lazy(() => import("./pages/TourPage"));
 
 function App() {
   return (
@@ -44,6 +48,23 @@ function App() {
           element={
             <Suspense fallback={<PageLoading />}>
               <NewObservationPage />
+            </Suspense>
+          }
+        />
+        <Route path="/turer" element={<ToursPage />} />
+        <Route
+          path="/turer/ny"
+          element={
+            <Suspense fallback={<PageLoading />}>
+              <NewTourPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/turer/:id"
+          element={
+            <Suspense fallback={<PageLoading />}>
+              <TourPage />
             </Suspense>
           }
         />

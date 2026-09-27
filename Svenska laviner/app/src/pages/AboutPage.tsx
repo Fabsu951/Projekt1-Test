@@ -104,7 +104,7 @@ export default function AboutPage() {
         <h2>Integritetspolicy</h2>
         <p>
           Den här delen beskriver vilka personuppgifter Fjällkoll behandlar när du skapar ett
-          konto och delar observationer, och vilka rättigheter du har enligt dataskyddsförordningen
+          konto och delar observationer och turer, och vilka rättigheter du har enligt dataskyddsförordningen
           (GDPR). Du kan använda prognoser, väder, karta och säkerhetsguide utan konto. Då sparar vi
           inga personuppgifter om dig.
         </p>
@@ -120,6 +120,13 @@ export default function AboutPage() {
             <strong>Observationer:</strong> det du själv publicerar, alltså typ, plats på kartan, tidpunkt,
             beskrivning och eventuell bild. Innan bilden laddas upp tar appen bort den inbäddade
             informationen, till exempel GPS-position och kameramodell.
+          </li>
+          <li>
+            <strong>Turer:</strong> GPS-spår du laddar upp (positioner, höjd och tidpunkter), med den
+            titel och beskrivning du skriver. Turer är delade med andra som standard, men du kan göra
+            en tur privat. För delade turer döljer vi som standard de första och sista 500 metrarna för
+            andra, så att det inte syns var du bor eller parkerade. Du väljer själv avståndet, eller
+            stänger av det.
           </li>
           <li>
             <strong>Inloggning och säkerhet:</strong> inloggningssessioner, tillfälliga länkar för att
@@ -156,14 +163,14 @@ export default function AboutPage() {
 
         <h3>Vem som ser vad</h3>
         <p>
-          Dina observationer och ditt användarnamn är <strong>offentliga</strong> för alla som använder
-          appen. Din e-postadress visas aldrig för andra. Vi delar inte dina uppgifter med någon
+          Dina observationer, dina delade turer och ditt användarnamn är <strong>offentliga</strong> för
+          alla som använder appen. Privata turer ser bara du. Din e-postadress visas aldrig för andra. Vi delar inte dina uppgifter med någon
           annan än de tjänsteleverantörer som driver appen åt oss:
         </p>
         <ul>
           <li>
-            <strong>Cloudflare</strong>: webbhotell, databas och bildlagring. Databasen och
-            bilderna lagras inom EU.
+            <strong>Cloudflare</strong>: webbhotell, databas och lagring av bilder och GPS-spår. Databasen,
+            bilderna och spåren lagras inom EU.
           </li>
           <li>
             <strong>Resend</strong>: utskick av e-post för bekräftelse och lösenordsåterställning.
@@ -176,14 +183,14 @@ export default function AboutPage() {
 
         <h3>Hur länge</h3>
         <p>
-          Kontot och dina observationer sparas tills du raderar dem. Inloggningar går ut efter 90 dagar,
+          Kontot, dina observationer och dina turer sparas tills du raderar dem. Inloggningar går ut efter 90 dagar,
           länkar för att bekräfta e-post efter 24 timmar och länkar för lösenordsåterställning efter en timme.
         </p>
 
         <h3>Dina rättigheter</h3>
         <p>
           Du har rätt att få veta vilka uppgifter vi har om dig, få dem rättade eller raderade, och
-          invända mot behandlingen. Du kan själv ta bort enskilda observationer, och radera hela ditt
+          invända mot behandlingen. Du kan själv ta bort enskilda observationer och turer, och radera hela ditt
           konto, med allt du publicerat, från din profilsida. Raderingen sker direkt.
           {PRIVACY_CONTACT_EMAIL && (
             <>

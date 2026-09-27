@@ -5,12 +5,16 @@ import ObservationCard from "../components/ObservationCard";
 import PageLoading from "../components/PageLoading";
 import VerifyEmailNotice from "../components/VerifyEmailNotice";
 import { fetchMyObservations } from "../services/observationService";
+import { fetchMyTours } from "../services/tourService";
+import TourCard from "../components/TourCard";
+import type { Tour } from "../types/tour";
 import type { Observation } from "../types/observation";
 
 export default function ProfilePage() {
   const { user, token, loading, logout, deleteAccount } = useAuth();
   const navigate = useNavigate();
   const [mine, setMine] = useState<Observation[] | null>(null);
+  const [tours, setTours] = useState<Tour[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(() => {
@@ -18,6 +22,9 @@ export default function ProfilePage() {
     fetchMyObservations(token)
       .then(setMine)
       .catch((err: Error) => setError(err.message));
+    fetchMyTours(token)
+      .then(setTours)
+      .catch(() => setTours([]));
   }, [token]);
 
   useEffect(load, [load]);
@@ -28,7 +35,7 @@ export default function ProfilePage() {
   async function onDeleteAccount() {
     if (
       !window.confirm(
-        "Radera ditt konto? Alla dina observationer och bilder tas bort permanent. Det går inte att ångra."
+        "Radera ditt konto? Alla dina observationer, bilder och turer tas bort permanent. Det går inte att ångra."
       )
     )
       return;
@@ -48,6 +55,9 @@ export default function ProfilePage() {
         <div className="button-row">
           <Link to="/observationer/ny" className="button button--primary">
             + Ny observation
+          </Link>
+          <Link to="/turer/ny" className="button">
+            + Ny tur
           </Link>
           {user.isAdmin && (
             <Link to="/admin" className="button">
@@ -73,9 +83,20 @@ export default function ProfilePage() {
       </section>
 
       <section className="section">
+        <h2>Mina turer</h2>
+        {!tours && <PageLoading label="Laddar…" />}
+        {tours && tours.length === 0 && (
+          <p className="section__intro">
+            Inga turer än. <Link to="/turer/ny">Lägg till en från klockan</Link>.
+          </p>
+        )}
+        <div className="tour-list">{tours?.map((t) => <TourCard key={t.id} tour={t} />)}</div>
+      </section>
+
+      <section className="section">
         <h2>Konto</h2>
         <p className="section__intro">
-          Raderar du kontot tas din e-post, ditt användarnamn och alla dina observationer och bilder bort.
+          Raderar du kontot tas din e-post, ditt användarnamn och alla dina observationer, bilder och turer bort.
         </p>
         <button type="button" className="button button--danger" onClick={() => void onDeleteAccount()}>
           Radera mitt konto

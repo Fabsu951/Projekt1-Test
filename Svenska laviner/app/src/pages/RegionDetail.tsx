@@ -5,6 +5,9 @@ import { fetchForecastHistory, loadForecasts, type HistoryDay } from "../service
 import DangerHistory from "../components/DangerHistory";
 import FavoriteButton from "../components/FavoriteButton";
 import OfflineMapCard from "../components/OfflineMapCard";
+import TourCard from "../components/TourCard";
+import { fetchTours } from "../services/tourService";
+import type { Tour } from "../types/tour";
 import { fetchWeather } from "../services/weatherService";
 import type { AvalancheForecast } from "../types/avalanche";
 import type { WeatherPoint } from "../types/weather";
@@ -36,6 +39,7 @@ export default function RegionDetail() {
   const [forecast, setForecast] = useState<AvalancheForecast | null>(null);
   const [forecastStale, setForecastStale] = useState(false);
   const [history, setHistory] = useState<HistoryDay[]>([]);
+  const [tours, setTours] = useState<Tour[] | null>(null);
   const [observations, setObservations] = useState<Observation[] | null>(null);
   const [weather, setWeather] = useState<WeatherPoint[] | null>(null);
   const [weatherError, setWeatherError] = useState<string | null>(null);
@@ -51,6 +55,10 @@ export default function RegionDetail() {
     fetchObservations({ region: region.id, limit: 5 })
       .then(setObservations)
       .catch(() => setObservations([]));
+
+    fetchTours({ region: region.id, limit: 5 })
+      .then(setTours)
+      .catch(() => setTours([]));
 
     withCache(`forecast-history:${region.id}`, () => fetchForecastHistory(region.id))
       .then((result) => setHistory(result.data))
@@ -231,6 +239,22 @@ export default function RegionDetail() {
           )}
         </section>
       )}
+
+      <section className="section">
+        <h2>Turer i området</h2>
+        <p className="section__intro">Turer som andra åkare delat härifrån, senaste först.</p>
+        {!tours && <PageLoading label="Laddar turer…" />}
+        {tours && tours.length === 0 && <p className="section__intro">Inga delade turer från området än.</p>}
+        <div className="tour-list">{tours?.map((t) => <TourCard key={t.id} tour={t} />)}</div>
+        <p>
+          <Link to="/turer" className="back-link">
+            Alla turer →
+          </Link>{" "}
+          <Link to="/turer/ny" className="back-link">
+            + Lägg till en tur
+          </Link>
+        </p>
+      </section>
 
       <section className="section">
         <h2>Observationer i området</h2>

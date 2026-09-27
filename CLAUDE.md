@@ -288,6 +288,22 @@ the start, exact map point.
   casually — every subscription is bound to the public key. iPhones only
   get web push after "Lägg till på hemskärmen". Native app push (Firebase
   + APNs) is still not built.
+- **Turdagbok (tour diary, 2026-09-27, idea from Fabian's parents):**
+  users upload GPX/FIT files from their watch (`app/src/utils/trackImport.ts`,
+  FIT via `@garmin/fitsdk`, loaded lazily; simplified to ≥ 10 m spacing,
+  max 5000 points `[lat, lon, ele|null, timeMs|null]`). Worker:
+  `track.ts` (clean, stats with 5 m ascent hysteresis, `trimEnds`),
+  `tours.ts`, migration `0008` `tours`; full track in R2 at
+  `tracks/<uuid>.json`. Fabian's choices: **shared by default**, and each
+  tour picks how much of the start/end to hide from others (0/200/500/1000 m,
+  default 500) — trimmed server-side, the owner always gets the full track.
+  Routes `GET/POST /tours` (`?region=&months=12,1,2&mine=1`),
+  `GET/POST/DELETE /tours/:id`; 20 uploads/h/user; deleted with the account.
+  App: `/turer` (region + season chips from `data/tourSeasons.ts`),
+  `/turer/ny`, `/turer/:id` (owner settings, admin delete), "Mina turer" on
+  `/profil`, "Turer i området" on region pages, "Turer" toggle on `/karta`.
+  Planned next: Strava-like heatmap of shared tours; later (native only,
+  needs plugins/Apple account) Health Connect / Apple Health import.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -334,6 +350,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (95 tests as of 2026-09-27, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 60 tests, including the
+  (103 tests as of 2026-09-27, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 71 tests, including the
   real-page fixtures).

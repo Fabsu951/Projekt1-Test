@@ -14,6 +14,17 @@ import MyPosition from "../components/MyPosition";
 import { fetchObservations } from "../services/observationService";
 import { observationTypeLabel } from "../data/observationTypes";
 import type { Observation } from "../types/observation";
+import { fetchTours } from "../services/tourService";
+import type { Tour } from "../types/tour";
+import { formatDistance } from "../utils/tourFormat";
+
+const TOUR_ICON = L.divIcon({
+  className: "tour-pin",
+  html: "<span></span>",
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+  popupAnchor: [0, -8],
+});
 
 const OBSERVATION_ICON = L.divIcon({
   className: "observation-pin",
@@ -54,6 +65,15 @@ export default function MapPage() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
   const [showSlope, setShowSlope] = useState(false);
   const [showObservations, setShowObservations] = useState(true);
+  const [showTours, setShowTours] = useState(false);
+  const [tours, setTours] = useState<Tour[]>([]);
+
+  useEffect(() => {
+    if (!showTours) return;
+    fetchTours({ limit: 200 })
+      .then(setTours)
+      .catch(() => setTours([]));
+  }, [showTours]);
   const [observations, setObservations] = useState<Observation[]>([]);
   const [showPosition, setShowPosition] = useState(false);
   const [positionStatus, setPositionStatus] = useState<string | null>(null);
@@ -100,6 +120,13 @@ export default function MapPage() {
           />
           <span className="observation-pin observation-pin--legend"><span /></span>
           Observationer
+        </label>
+        <label className="map-toolbar__toggle">
+          <input type="checkbox" checked={showTours} onChange={(e) => setShowTours(e.target.checked)} />
+          <span className="tour-pin tour-pin--legend">
+            <span />
+          </span>
+          Turer
         </label>
         <label className="map-toolbar__toggle">
           <input
@@ -155,6 +182,21 @@ export default function MapPage() {
                 </Popup>
               </Marker>
             ))}
+          {showTours &&
+            tours
+              .filter((t) => t.pin)
+              .map((t) => (
+                <Marker key={`tour-${t.id}`} position={t.pin!} icon={TOUR_ICON} zIndexOffset={900}>
+                  <Popup>
+                    <strong>{t.title}</strong>
+                    <br />
+                    {new Date(t.startedAt).toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}{" "}
+                    · {formatDistance(t.distanceM)} · ↑ {t.ascentM} m
+                    <br />
+                    <Link to={`/turer/${t.id}`}>Visa turen →</Link>
+                  </Popup>
+                </Marker>
+              ))}
           {REGIONS.map((region) => (
             <Marker
               key={region.id}
