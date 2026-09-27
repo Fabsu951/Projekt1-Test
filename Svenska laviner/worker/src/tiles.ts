@@ -19,6 +19,40 @@ export interface TilesEnv {
 
 const WMTS = "https://maps.lantmateriet.se/open/topowebb-ccby/v1/wmts";
 const TILE_TTL_SECONDS = 60 * 60 * 24 * 7;
+
+/**
+ * Tiles fetched from Lantmäteriet on demand (and kept in R2) are limited to
+ * what the app actually requests: zoom ≤ 15 (the app enlarges beyond that)
+ * inside a box around Sweden. Otherwise anyone could make us crawl the old
+ * service with our credentials and fill the bucket.
+ */
+const FETCH_MAX_ZOOM = 15;
+const FETCH_BOUNDS = { minLon: 10, maxLon: 25, minLat: 55, maxLat: 70 };
+
+function tileLon(x: number, z: number): number {
+  return (x / 2 ** z) * 360 - 180;
+}
+
+function tileLat(y: number, z: number): number {
+  const n = Math.PI - (2 * Math.PI * y) / 2 ** z;
+  return (180 / Math.PI) * Math.atan(Math.sinh(n));
+}
+
+/** Whether a tile may be fetched from Lantmäteriet and stored: low zooms always, else overlapping Sweden. */
+export function fetchable(z: number, x: number, y: number): boolean {
+  if (z > FETCH_MAX_ZOOM) return false;
+  if (z <= 5) return true;
+  const west = tileLon(x, z);
+  const east = tileLon(x + 1, z);
+  const north = tileLat(y, z);
+  const south = tileLat(y + 1, z);
+  return (
+    east >= FETCH_BOUNDS.minLon &&
+    west <= FETCH_BOUNDS.maxLon &&
+    north >= FETCH_BOUNDS.minLat &&
+    south <= FETCH_BOUNDS.maxLat
+  );
+}
 const MAX_BATCH_TILES = 1000;
 
 export const tileKey = (z: number, x: number, y: number) => `maptiles/topowebb/${z}/${x}/${y}`;
@@ -76,7 +110,8 @@ export async function serveTile(
 ): Promise<Response> {
   const { z, x, y } = tile;
   const cache = caches.default;
-  const cacheKey = new Request(new URL(request.url).toString());
+  // Keyed on the tile alone, so query strings can't multiply cache entries.
+  const cacheKey = new Request(new URL(`/tiles/topowebb/${z}/${x}/${y}.png`, request.url).toString());
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
@@ -85,7 +120,7 @@ export async function serveTile(
   if (stored) {
     response = tileResponse(stored.body, stored.httpMetadata?.contentType ?? "image/png", origin);
   } else {
-    const data = await fromLantmateriet(env, z, x, y);
+    const data = fetchable(z, x, y) ? await fromLantmateriet(env, z, x, y) : null;
     if (data) {
       const type = imageType(data)!;
       ctx.waitUntil(env.IMAGES.put(tileKey(z, x, y), data, { httpMetadata: { contentType: type } }));

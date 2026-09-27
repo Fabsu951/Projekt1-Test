@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { decodeTiles, encodeTiles, imageType, validTile } from "./tileBatch";
 import { HALF_WORLD, mapLevel } from "./gpkgTiles";
-import { parseTilePath } from "./tiles";
+import { fetchable, parseTilePath } from "./tiles";
 
 const png = (n: number) => new Uint8Array([0x89, 0x50, 0x4e, 0x47, n]);
 
@@ -71,5 +71,15 @@ describe("mapLevel", () => {
     expect(() => mapLevel({ ...world, srs: 3006 }, matrix)).toThrow(/3857/);
     expect(() => mapLevel({ ...world, minX: -HALF_WORLD + 1234 }, matrix)).toThrow();
     expect(() => mapLevel(world, { ...matrix, pixelXSize: pixel * 1.5, pixelYSize: pixel * 1.5 })).toThrow();
+  });
+});
+
+describe("fetchable", () => {
+  it("fetches tiles over Sweden up to zoom 15, and the whole world at low zoom", () => {
+    expect(fetchable(15, 18072, 7520)).toBe(true); // Kebnekaise area
+    expect(fetchable(3, 0, 0)).toBe(true);
+    expect(fetchable(16, 35742, 15040)).toBe(false); // too deep
+    expect(fetchable(12, 0, 0)).toBe(false); // far outside Sweden
+    expect(fetchable(10, 300, 300)).toBe(false); // Africa-ish
   });
 });
