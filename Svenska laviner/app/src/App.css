@@ -1350,3 +1350,17 @@
   font-size: 0.85rem;
   margin: 4px 0 0;
 }
+
+/* Offline map area (RegionDetail) */
+.offline-map p {
+  margin: 0 0 10px;
+}
+
+.offline-map progress {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: 10px;
+  margin-bottom: 10px;
+  accent-color: var(--accent);
+}

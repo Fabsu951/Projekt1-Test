@@ -4,6 +4,7 @@ import { getRegionById } from "../data/regions";
 import { fetchForecastHistory, loadForecasts, type HistoryDay } from "../services/avalancheService";
 import DangerHistory from "../components/DangerHistory";
 import FavoriteButton from "../components/FavoriteButton";
+import OfflineMapCard from "../components/OfflineMapCard";
 import { fetchWeather } from "../services/weatherService";
 import type { AvalancheForecast } from "../types/avalanche";
 import type { WeatherPoint } from "../types/weather";
@@ -134,6 +135,11 @@ export default function RegionDetail() {
         <h2>Om området</h2>
         <p>{region.description}</p>
         <SourceList sources={region.sources} />
+      </section>
+
+      <section className="section">
+        <h2>Karta offline</h2>
+        <OfflineMapCard region={region} />
       </section>
 
       <section className="section">

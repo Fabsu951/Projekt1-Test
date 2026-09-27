@@ -156,7 +156,19 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   (order boxes in SWEREF 99 TM, ~270k tiles ≈ 7 GB) is in
   `Svenska laviner/KARTBYTE.md`; waiting on Geotorget (HTTP 500 on
   2026-09-26). The old `/topowebb` WMTS proxy route is kept for old app
-  builds. Offline maps (feature 5) become possible once tiles are ours.
+  builds. Worker only fetches/stores on demand for z ≤ 15 inside a box
+  around Sweden (`fetchable()`), so it can't be used to crawl.
+  **Offline maps (feature 5, 2026-09-27):** "Karta offline" section on
+  region pages (`OfflineMapCard.tsx`, `services/offlineMap.ts`): saves a
+  ~60×60 km square around the region at z8–13 ("Översikt", ~30–40 MB) or
+  z8–14 ("Detaljerad", ~110–150 MB) into Cache Storage, one cache per
+  region (`fjallkoll-tiles-<id>`), metadata in Preferences
+  (`fjallkoll:offline-maps`). `TopoLayer` uses `OfflineTileLayer`
+  (`offlineTileLayer.ts`), which shows a saved tile before hitting the
+  network. Tile URLs live in `services/mapTiles.ts` and must match exactly
+  between download and display. Hidden where Cache Storage is missing
+  (possibly iOS Capacitor's `capacitor://` scheme — untested) or without a
+  worker URL.
   Slope: "Markhöjdmodell Visning" is paid; "Markhöjdmodell Nedladdning,
   grid 1+" is free (CC BY 4.0, STAC API, access must be applied for) but
   needs our own slope rendering — a later project.
@@ -322,6 +334,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (90 tests as of 2026-09-26, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 59 tests, including the
+  (95 tests as of 2026-09-27, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 60 tests, including the
   real-page fixtures).
