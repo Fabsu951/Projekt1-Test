@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { MapContainer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -14,8 +14,11 @@ import MyPosition from "../components/MyPosition";
 import { fetchObservations } from "../services/observationService";
 import { observationTypeLabel } from "../data/observationTypes";
 import type { Observation } from "../types/observation";
-import { fetchTours } from "../services/tourService";
-import type { Tour } from "../types/tour";
+import SeasonFilter from "../components/SeasonFilter";
+import TourHeatmap from "../components/TourHeatmap";
+import { seasonMonths } from "../data/tourSeasons";
+import { fetchTourLines, fetchTours } from "../services/tourService";
+import type { Tour, TourLine } from "../types/tour";
 import { formatDistance } from "../utils/tourFormat";
 
 const TOUR_ICON = L.divIcon({
@@ -65,8 +68,23 @@ export default function MapPage() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
   const [showSlope, setShowSlope] = useState(false);
   const [showObservations, setShowObservations] = useState(true);
+  const [searchParams] = useSearchParams();
   const [showTours, setShowTours] = useState(false);
   const [tours, setTours] = useState<Tour[]>([]);
+  const [showHeatmap, setShowHeatmap] = useState(searchParams.get("turer") === "varmekarta");
+  const [heatSeasons, setHeatSeasons] = useState<string[]>([]);
+  const [heatLines, setHeatLines] = useState<TourLine[]>([]);
+
+  useEffect(() => {
+    if (!showHeatmap) return;
+    let cancelled = false;
+    fetchTourLines({ months: seasonMonths(heatSeasons) })
+      .then((lines) => !cancelled && setHeatLines(lines))
+      .catch(() => !cancelled && setHeatLines([]));
+    return () => {
+      cancelled = true;
+    };
+  }, [showHeatmap, heatSeasons]);
 
   useEffect(() => {
     if (!showTours) return;
@@ -129,6 +147,12 @@ export default function MapPage() {
           Turer
         </label>
         <label className="map-toolbar__toggle">
+          <input type="checkbox" checked={showHeatmap} onChange={(e) => setShowHeatmap(e.target.checked)} />
+          <span className="heat-legend" aria-hidden="true" />
+          Värmekarta över turer
+        </label>
+        {showHeatmap && <SeasonFilter selected={heatSeasons} onChange={setHeatSeasons} />}
+        <label className="map-toolbar__toggle">
           <input
             type="checkbox"
             checked={showSlope}
@@ -154,6 +178,14 @@ export default function MapPage() {
         </p>
       )}
 
+      {showHeatmap && (
+        <p className="notice">
+          Värmekartan visar turer som användare delat: ju ljusare, desto fler har åkt där. Början och slutet av
+          turerna är dolda. Den säger inget om förhållandena i dag – kolla alltid lavinprognosen.
+          {heatLines.length === 0 && " Inga delade turer för det valda urvalet än."}
+        </p>
+      )}
+
       {showSlope && (
         <p className="notice notice--stale">
           Terränglutningen är beräknad från öppen höjddata med ~30 m upplösning
@@ -167,6 +199,7 @@ export default function MapPage() {
           <TopoLayer />
           <SlopeLayer enabled={showSlope} />
           <MyPosition enabled={showPosition} onStatus={onPositionStatus} />
+          {showHeatmap && <TourHeatmap lines={heatLines} />}
           {showObservations &&
             observations.map((o) => (
               <Marker key={`obs-${o.id}`} position={[o.lat, o.lon]} icon={OBSERVATION_ICON} zIndexOffset={1000}>

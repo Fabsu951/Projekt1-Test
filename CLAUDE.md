@@ -302,8 +302,14 @@ the start, exact map point.
   App: `/turer` (region + season chips from `data/tourSeasons.ts`),
   `/turer/ny`, `/turer/:id` (owner settings, admin delete), "Mina turer" on
   `/profil`, "Turer i området" on region pages, "Turer" toggle on `/karta`.
-  Planned next: Strava-like heatmap of shared tours; later (native only,
-  needs plugins/Apple account) Health Connect / Apple Health import.
+  **Heatmap:** migration `0009` adds `tours.preview` (public line, hidden
+  ends removed, ≤ 150 points, `previewLine()` in `track.ts`, recomputed
+  when hide-ends changes); `GET /tours/lines?months=&region=` returns up to
+  500 newest shared lines; `/karta` "Värmekarta över turer" draws them as
+  see-through lines on one canvas (`TourHeatmap.tsx`) with season chips
+  (`SeasonFilter.tsx`); `/karta?turer=varmekarta` opens it directly.
+  Later (native only, needs plugins/Apple account): Health Connect /
+  Apple Health import.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -350,6 +356,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (103 tests as of 2026-09-27, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 71 tests, including the
+  (105 tests as of 2026-09-27, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 73 tests, including the
   real-page fixtures).

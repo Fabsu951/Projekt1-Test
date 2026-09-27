@@ -1,5 +1,5 @@
 import { api } from "./api";
-import type { Tour, TourWithTrack } from "../types/tour";
+import type { Tour, TourLine, TourWithTrack } from "../types/tour";
 import type { TrackPoint } from "../utils/trackImport";
 
 export interface TourFilter {
@@ -14,6 +14,14 @@ export async function fetchTours(filter: TourFilter = {}): Promise<Tour[]> {
   if (filter.months?.length) params.set("months", filter.months.join(","));
   params.set("limit", String(filter.limit ?? 100));
   return (await api<{ tours: Tour[] }>(`/tours?${params}`)).tours;
+}
+
+/** Public lines of shared tours, for the heatmap. */
+export async function fetchTourLines(filter: Omit<TourFilter, "limit"> = {}): Promise<TourLine[]> {
+  const params = new URLSearchParams();
+  if (filter.region) params.set("region", filter.region);
+  if (filter.months?.length) params.set("months", filter.months.join(","));
+  return (await api<{ lines: TourLine[] }>(`/tours/lines?${params}`)).lines;
 }
 
 export async function fetchMyTours(token: string): Promise<Tour[]> {

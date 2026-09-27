@@ -114,3 +114,22 @@ export function bounds(points: TrackPoint[]): Bounds {
     maxLon: Math.max(...points.map((p) => p[1])),
   };
 }
+
+/** Most points kept in a tour's heatmap line. */
+export const PREVIEW_POINTS = 150;
+
+/**
+ * A coarse [lat, lon] line for the heatmap: the public part of the track
+ * (hidden ends removed), thinned to at most PREVIEW_POINTS points and
+ * rounded to ~1 m. Null when nothing of the track is public.
+ */
+export function previewLine(points: TrackPoint[], hideEndsM: number): Array<[number, number]> | null {
+  const visible = trimEnds(points, hideEndsM);
+  if (visible.length < 2) return null;
+  const step = Math.max(1, Math.ceil((visible.length - 1) / (PREVIEW_POINTS - 1)));
+  const kept: TrackPoint[] = [];
+  for (let i = 0; i < visible.length; i += step) kept.push(visible[i]);
+  if (kept[kept.length - 1] !== visible[visible.length - 1]) kept.push(visible[visible.length - 1]);
+  const round = (v: number) => Math.round(v * 1e5) / 1e5;
+  return kept.map((p) => [round(p[0]), round(p[1])]);
+}

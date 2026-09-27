@@ -2,7 +2,7 @@ import { currentUser, requirePoster, requireUser, type CommunityEnv, type User }
 import { HttpError, nowIso, readJson } from "./http";
 import { d1Store, enforce, record } from "./rateLimit";
 import { REGION_SOURCES } from "./regions";
-import { cleanPoints, distanceM, trackStats, trimEnds, type TrackPoint } from "./track";
+import { cleanPoints, distanceM, previewLine, trackStats, trimEnds, type TrackPoint } from "./track";
 
 export const HIDE_ENDS_OPTIONS = [0, 200, 500, 1000] as const;
 const MAX_TITLE = 100;
@@ -29,6 +29,7 @@ interface TourRow {
   pin_lat: number | null;
   pin_lon: number | null;
   track_key: string;
+  preview: string | null;
   created_at: string;
 }
 
@@ -135,13 +136,14 @@ export async function createTour(request: Request, env: CommunityEnv) {
   const shared = body.shared === undefined ? true : body.shared === true;
   const hide = hideEnds(body.hideEndsM);
   const pin = publicPin(points, hide);
+  const preview = previewLine(points, hide);
   const trackKey = `tracks/${crypto.randomUUID()}.json`;
   await env.IMAGES.put(trackKey, JSON.stringify(points), { httpMetadata: { contentType: "application/json" } });
 
   const result = await env.DB.prepare(
     `INSERT INTO tours (user_id, title, description, started_at, duration_s, distance_m, ascent_m, descent_m,
-       max_elevation_m, region_id, shared, hide_ends_m, pin_lat, pin_lon, track_key, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       max_elevation_m, region_id, shared, hide_ends_m, pin_lat, pin_lon, track_key, preview, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       user.id,
@@ -159,6 +161,7 @@ export async function createTour(request: Request, env: CommunityEnv) {
       pin?.[0] ?? null,
       pin?.[1] ?? null,
       trackKey,
+      preview ? JSON.stringify(preview) : null,
       nowIso()
     )
     .run();
@@ -176,6 +179,20 @@ export function parseMonths(value: string | null): string[] {
   return [...new Set(months)].map((m) => String(m).padStart(2, "0"));
 }
 
+/** Region and season filters shared by the list and the heatmap. */
+function addFilters(url: URL, where: string[], binds: unknown[]) {
+  const region = url.searchParams.get("region");
+  if (region) {
+    where.push("t.region_id = ?");
+    binds.push(region);
+  }
+  const months = parseMonths(url.searchParams.get("months"));
+  if (months.length) {
+    where.push(`strftime('%m', t.started_at) IN (${months.map(() => "?").join(", ")})`);
+    binds.push(...months);
+  }
+}
+
 export async function listTours(request: Request, env: CommunityEnv) {
   const url = new URL(request.url);
   const limit = Math.min(Math.max(Number(url.searchParams.get("limit")) || 50, 1), 200);
@@ -189,21 +206,29 @@ export async function listTours(request: Request, env: CommunityEnv) {
   } else {
     where.push("t.shared = 1");
   }
-  const region = url.searchParams.get("region");
-  if (region) {
-    where.push("t.region_id = ?");
-    binds.push(region);
-  }
-  const months = parseMonths(url.searchParams.get("months"));
-  if (months.length) {
-    where.push(`strftime('%m', t.started_at) IN (${months.map(() => "?").join(", ")})`);
-    binds.push(...months);
-  }
+  addFilters(url, where, binds);
 
   const rows = await env.DB.prepare(`${SELECT} WHERE ${where.join(" AND ")} ORDER BY t.started_at DESC LIMIT ?`)
     .bind(...binds, limit)
     .all<TourRow>();
   return { tours: rows.results.map(toTour) };
+}
+
+/** Most tours drawn on the heatmap at once (newest first). */
+const HEATMAP_LIMIT = 500;
+
+/** Public lines of shared tours for the heatmap, never the hidden ends. */
+export async function tourLines(request: Request, env: CommunityEnv) {
+  const url = new URL(request.url);
+  const where = ["t.shared = 1", "t.preview IS NOT NULL"];
+  const binds: unknown[] = [];
+  addFilters(url, where, binds);
+  const rows = await env.DB.prepare(
+    `SELECT t.id, t.preview FROM tours t WHERE ${where.join(" AND ")} ORDER BY t.started_at DESC LIMIT ?`
+  )
+    .bind(...binds, HEATMAP_LIMIT)
+    .all<{ id: number; preview: string }>();
+  return { lines: rows.results.map((r) => ({ id: r.id, points: JSON.parse(r.preview) as Array<[number, number]> })) };
 }
 
 async function getRow(env: CommunityEnv, id: number): Promise<TourRow> {
@@ -238,14 +263,18 @@ export async function updateTour(request: Request, env: CommunityEnv, id: number
   const hide = body.hideEndsM === undefined ? row.hide_ends_m : hideEnds(body.hideEndsM);
 
   let pin: [number, number] | null = row.pin_lat !== null && row.pin_lon !== null ? [row.pin_lat, row.pin_lon] : null;
+  let preview = row.preview;
   if (hide !== row.hide_ends_m) {
     const object = await env.IMAGES.get(row.track_key);
-    pin = object ? publicPin((await object.json()) as TrackPoint[], hide) : null;
+    const points = object ? ((await object.json()) as TrackPoint[]) : [];
+    pin = publicPin(points, hide);
+    const line = previewLine(points, hide);
+    preview = line ? JSON.stringify(line) : null;
   }
   await env.DB.prepare(
-    "UPDATE tours SET title = ?, description = ?, shared = ?, hide_ends_m = ?, pin_lat = ?, pin_lon = ? WHERE id = ?"
+    "UPDATE tours SET title = ?, description = ?, shared = ?, hide_ends_m = ?, pin_lat = ?, pin_lon = ?, preview = ? WHERE id = ?"
   )
-    .bind(title, description, shared ? 1 : 0, hide, pin?.[0] ?? null, pin?.[1] ?? null, id)
+    .bind(title, description, shared ? 1 : 0, hide, pin?.[0] ?? null, pin?.[1] ?? null, preview, id)
     .run();
   return { tour: toTour(await getRow(env, id)) };
 }

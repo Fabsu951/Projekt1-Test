@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bounds, cleanPoints, distanceM, trackStats, trimEnds, type TrackPoint } from "./track";
+import { bounds, cleanPoints, distanceM, PREVIEW_POINTS, previewLine, trackStats, trimEnds, type TrackPoint } from "./track";
 
 /** A straight line north from Kebnekaise fjällstation, one point every ~111 m. */
 function line(n: number, ele: (i: number) => number | null = () => 700, t0 = Date.UTC(2027, 2, 10, 8)): TrackPoint[] {
@@ -70,5 +70,21 @@ describe("bounds", () => {
     expect(b.minLat).toBeCloseTo(67.85, 9);
     expect(b.maxLat).toBeCloseTo(67.852, 9);
     expect([b.minLon, b.maxLon]).toEqual([18.6, 18.6]);
+  });
+});
+
+describe("previewLine", () => {
+  it("thins a long track, keeps both public ends and never the hidden ones", () => {
+    const points = line(2000);
+    const preview = previewLine(points, 500)!;
+    const visible = trimEnds(points, 500);
+    expect(preview.length).toBeLessThanOrEqual(PREVIEW_POINTS);
+    expect(preview[0][0]).toBeCloseTo(visible[0][0], 5);
+    expect(preview.at(-1)![0]).toBeCloseTo(visible.at(-1)![0], 5);
+    expect(distanceM(points[0], [...preview[0], null, null])).toBeGreaterThanOrEqual(499);
+  });
+
+  it("is null when nothing of the track is public", () => {
+    expect(previewLine(line(5), 500)).toBeNull();
   });
 });

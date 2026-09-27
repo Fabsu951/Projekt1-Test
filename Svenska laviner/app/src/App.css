@@ -1507,3 +1507,16 @@
   display: inline-block;
   vertical-align: middle;
 }
+
+.heat-legend {
+  display: inline-block;
+  width: 22px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgba(255, 90, 31, 0.3), rgba(255, 90, 31, 1));
+}
+
+.map-toolbar .season-filter {
+  flex-basis: 100%;
+  margin-bottom: 0;
+}

@@ -25,3 +25,9 @@ export interface TourWithTrack {
   tour: Tour;
   track: TrackPoint[];
 }
+
+/** A shared tour's public line (hidden ends removed, thinned) for the heatmap. */
+export interface TourLine {
+  id: number;
+  points: Array<[number, number]>;
+}

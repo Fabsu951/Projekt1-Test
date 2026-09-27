@@ -4,7 +4,8 @@ import { useAuth } from "../auth/useAuth";
 import PageLoading from "../components/PageLoading";
 import TourCard from "../components/TourCard";
 import { REGIONS } from "../data/regions";
-import { TOUR_SEASONS } from "../data/tourSeasons";
+import SeasonFilter from "../components/SeasonFilter";
+import { seasonMonths } from "../data/tourSeasons";
 import { fetchTours } from "../services/tourService";
 import type { Tour } from "../types/tour";
 
@@ -17,7 +18,7 @@ export default function ToursPage() {
 
   useEffect(() => {
     let cancelled = false;
-    const months = TOUR_SEASONS.filter((s) => seasons.includes(s.id)).flatMap((s) => s.months);
+    const months = seasonMonths(seasons);
     fetchTours({ region: region || undefined, months })
       .then((list) => {
         if (cancelled) return;
@@ -39,6 +40,9 @@ export default function ToursPage() {
           nästa tur.
         </p>
         <div className="button-row">
+          <Link to="/karta?turer=varmekarta" className="button">
+            Visa värmekarta
+          </Link>
           <Link to={user ? "/turer/ny" : "/logga-in?next=/turer/ny"} className="button button--primary">
             + Lägg till tur från klockan
           </Link>
@@ -63,21 +67,7 @@ export default function ToursPage() {
           </select>
         </label>
       </div>
-      <fieldset className="season-filter">
-        <legend>När på säsongen</legend>
-        {TOUR_SEASONS.map((s) => (
-          <label key={s.id} className={seasons.includes(s.id) ? "chip chip--on" : "chip"}>
-            <input
-              type="checkbox"
-              checked={seasons.includes(s.id)}
-              onChange={(e) =>
-                setSeasons((cur) => (e.target.checked ? [...cur, s.id] : cur.filter((x) => x !== s.id)))
-              }
-            />
-            {s.label}
-          </label>
-        ))}
-      </fieldset>
+      <SeasonFilter selected={seasons} onChange={setSeasons} />
 
       {error && <p className="error">{error}</p>}
       {!tours && !error && <PageLoading label="Laddar turer…" />}
