@@ -1,6 +1,7 @@
 import { HttpError, readJson, nowIso } from "./http";
 import { clear, clientIp, d1Store, enforce, LOGIN_EMAIL_LIMIT, LOGIN_IP_LIMIT, record, REGISTER_IP_LIMIT } from "./rateLimit";
 import { verifyTurnstile, type TurnstileEnv } from "./turnstile";
+import { trackKeysOf } from "./tours";
 import { appUrl, emailConfigured, type EmailEnv, resetEmail, sendEmail, verificationEmail } from "./email";
 
 export interface CommunityEnv extends EmailEnv, TurnstileEnv {
@@ -366,11 +367,12 @@ export async function deleteAccount(request: Request, env: CommunityEnv) {
   const images = await env.DB.prepare("SELECT image_key FROM observations WHERE user_id = ? AND image_key IS NOT NULL")
     .bind(user.id)
     .all<{ image_key: string }>();
-  const keys = images.results.map((r) => r.image_key);
+  const keys = [...images.results.map((r) => r.image_key), ...(await trackKeysOf(env, user.id))];
   if (keys.length > 0) await env.IMAGES.delete(keys);
   await env.DB.batch([
     env.DB.prepare("DELETE FROM reports WHERE user_id = ? OR observation_id IN (SELECT id FROM observations WHERE user_id = ?)").bind(user.id, user.id),
     env.DB.prepare("DELETE FROM observations WHERE user_id = ?").bind(user.id),
+    env.DB.prepare("DELETE FROM tours WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM email_tokens WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM users WHERE id = ?").bind(user.id),

@@ -2,6 +2,7 @@ import { REGION_SOURCES } from "./regions";
 import { parseForecastHtml, type ParsedForecast } from "./parse";
 import { findChanges, historyRow, readHistory, recordHistory, type HistoryRow } from "./history";
 import { getFavorites, saveFavorites } from "./favorites";
+import { createTour, deleteTour, getTour, listTours, updateTour } from "./tours";
 import { parseTilePath, serveTile, uploadTiles, type TilesEnv } from "./tiles";
 import { notifyChanges, publicKey, subscribe, unsubscribe, type PushEnv } from "./push";
 import { stockholmDate } from "./model";
@@ -194,6 +195,16 @@ async function handleCommunity(request: Request, env: Env, origin: string): Prom
       if (obsMatch[2] === "/restore" && method === "POST")
         return json(await restoreObservation(request, env, id), origin);
       if (!obsMatch[2] && method === "DELETE") return json(await deleteObservation(request, env, id), origin);
+    }
+
+    if (pathname === "/tours" && method === "GET") return json(await listTours(request, env), origin);
+    if (pathname === "/tours" && method === "POST") return json(await createTour(request, env), origin, 201);
+    const tourMatch = pathname.match(/^\/tours\/(\d+)$/);
+    if (tourMatch) {
+      const id = Number(tourMatch[1]);
+      if (method === "GET") return json(await getTour(request, env, id), origin);
+      if (method === "POST") return json(await updateTour(request, env, id), origin);
+      if (method === "DELETE") return json(await deleteTour(request, env, id), origin);
     }
 
     if (pathname.startsWith("/images/") && method === "GET") {
