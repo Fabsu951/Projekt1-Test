@@ -380,6 +380,19 @@ the start, exact map point.
   `/profil`, author names link to `/person/:id`. Route "Dela" now also
   puts the route in followers' feeds. No notifications for new comments
   yet; comments can't be reported (owners/authors/admins delete instead).
+- **Profile pictures + experience frames (2026-10-05, "lite som
+  Overwatch"):** migration `0012` `users.avatar_key` (R2 `avatar/<uuid>`,
+  served by `/images/` like observation photos). `worker/src/profile.ts`:
+  `POST/DELETE /auth/avatar`, admin `DELETE /people/:id/avatar`;
+  `experienceOf` = 20/tour + 1 per 100 hm (≤ 3000 hm per tour) + 30 per
+  non-hidden observation — **deliberately never steepness/risk**. Person,
+  search, follow lists include `avatarPath` + `xp`; `/feed` and
+  `/comments` return a `people` map of badges. App: `data/levels.ts`
+  (Nykomling 0, Spårare 100, Turåkare 300, Fjällvan 700, Fjällkunnig 1500,
+  Fjällveteran 3000 — XP_RULES must match the worker), `Avatar.tsx`
+  (original SVG frames: ring → notches → mountain crest → stars → double
+  ring + snowflakes; initials fallback), `LevelCard.tsx` (progress bar),
+  `prepareAvatar` (square crop 512 px JPEG, strips EXIF) on `/profil`.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -426,6 +439,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (138 tests as of 2026-10-05, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 81 tests, including the
+  (141 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 85 tests, including the
   real-page fixtures).

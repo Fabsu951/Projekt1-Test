@@ -1,7 +1,10 @@
 import { api } from "./api";
-import type { CommentThread, FeedItem, ItemType, Person, PersonSummary } from "../types/social";
+import type { Badge, CommentThread, FeedItem, ItemType, Person, PersonSummary } from "../types/social";
 
-export async function fetchFeed(token: string, before?: string | null): Promise<{ items: FeedItem[]; nextBefore: string | null }> {
+export async function fetchFeed(
+  token: string,
+  before?: string | null
+): Promise<{ items: FeedItem[]; people?: Record<number, Badge>; nextBefore: string | null }> {
   const q = before ? `?before=${encodeURIComponent(before)}` : "";
   return api(`/feed${q}`, { token });
 }
@@ -41,4 +44,14 @@ export async function setLiked(
   liked: boolean
 ): Promise<{ likes: number; likedByMe: boolean }> {
   return api("/likes", { method: "POST", token, json: { type, id, liked } });
+}
+
+export async function uploadAvatar(token: string, image: Blob): Promise<string> {
+  const form = new FormData();
+  form.set("image", image, "avatar.jpg");
+  return (await api<{ avatarPath: string }>("/auth/avatar", { method: "POST", token, form })).avatarPath;
+}
+
+export async function removeAvatar(token: string, personId?: number): Promise<void> {
+  await api(personId ? `/people/${personId}/avatar` : "/auth/avatar", { method: "DELETE", token });
 }

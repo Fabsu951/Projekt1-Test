@@ -14,8 +14,11 @@ import { deleteRoute, fetchMyRoutes } from "../services/routeService";
 import type { PlannedRoute } from "../types/route";
 import { formatDistance } from "../utils/tourFormat";
 import FollowButton from "../components/FollowButton";
-import { fetchMyFollows } from "../services/socialService";
-import type { PersonSummary } from "../types/social";
+import Avatar from "../components/Avatar";
+import { fetchMyFollows, fetchPerson, removeAvatar, uploadAvatar } from "../services/socialService";
+import LevelCard, { XpExplainer } from "../components/LevelCard";
+import { prepareAvatar } from "../utils/image";
+import type { Person, PersonSummary } from "../types/social";
 
 export default function ProfilePage() {
   const { user, token, loading, logout, deleteAccount } = useAuth();
@@ -23,6 +26,9 @@ export default function ProfilePage() {
   const [mine, setMine] = useState<Observation[] | null>(null);
   const [tours, setTours] = useState<Tour[] | null>(null);
   const [routes, setRoutes] = useState<PlannedRoute[] | null>(null);
+  const [me, setMe] = useState<Person | null>(null);
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const [follows, setFollows] = useState<{ following: PersonSummary[]; followers: PersonSummary[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,12 +43,42 @@ export default function ProfilePage() {
     fetchMyRoutes(token)
       .then(setRoutes)
       .catch(() => setRoutes([]));
+    if (user) {
+      fetchPerson(user.id, token)
+        .then(setMe)
+        .catch(() => setMe(null));
+    }
     fetchMyFollows(token)
       .then(setFollows)
       .catch(() => setFollows({ following: [], followers: [] }));
-  }, [token]);
+  }, [token, user]);
 
   useEffect(load, [load]);
+
+  async function changeAvatar(file: File | undefined) {
+    if (!file || !token || !me) return;
+    setAvatarBusy(true);
+    setAvatarError(null);
+    try {
+      const avatarPath = await uploadAvatar(token, await prepareAvatar(file));
+      setMe({ ...me, avatarPath });
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : "Kunde inte spara bilden.");
+    } finally {
+      setAvatarBusy(false);
+    }
+  }
+
+  async function dropAvatar() {
+    if (!token || !me) return;
+    setAvatarBusy(true);
+    try {
+      await removeAvatar(token);
+      setMe({ ...me, avatarPath: null });
+    } finally {
+      setAvatarBusy(false);
+    }
+  }
 
   if (loading) return <PageLoading />;
   if (!user) return <Navigate to="/logga-in?next=/profil" replace />;
@@ -86,6 +122,35 @@ export default function ProfilePage() {
       </header>
 
       <VerifyEmailNotice />
+
+      {me && (
+        <section className="section">
+          <LevelCard
+            person={me}
+            actions={
+              <div className="button-row">
+                <label className={avatarBusy ? "button button--disabled" : "button"}>
+                  {me.avatarPath ? "Byt profilbild" : "Lägg till profilbild"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="file-input--hidden"
+                    disabled={avatarBusy}
+                    onChange={(e) => void changeAvatar(e.target.files?.[0])}
+                  />
+                </label>
+                {me.avatarPath && (
+                  <button type="button" className="button" disabled={avatarBusy} onClick={() => void dropAvatar()}>
+                    Ta bort bild
+                  </button>
+                )}
+              </div>
+            }
+          />
+          {avatarError && <p className="error">{avatarError}</p>}
+          <XpExplainer />
+        </section>
+      )}
 
       <CollapsibleSection id="profile-following" title="Följer" count={follows?.following.length}>
         <PeopleList
@@ -206,7 +271,10 @@ function PeopleList({ people, empty }: { people: PersonSummary[] | null; empty: 
         <ul className="people-list">
           {visible.map((p) => (
             <li key={p.id}>
-              <Link to={`/person/${p.id}`}>{p.displayName}</Link>
+              <Link to={`/person/${p.id}`} className="people-list__name">
+                <Avatar name={p.displayName} avatarPath={p.avatarPath} xp={p.xp} size={36} />
+                {p.displayName}
+              </Link>
               <FollowButton personId={p.id} following={p.iFollow} />
             </li>
           ))}

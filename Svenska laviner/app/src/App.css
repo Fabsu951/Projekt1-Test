@@ -2324,3 +2324,110 @@
     height: 140px;
   }
 }
+
+/* Profile pictures with experience frames */
+.avatar {
+  display: block;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.avatar__initials {
+  fill: #fff;
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+}
+
+.level-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.level-card__info {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.level-card__level {
+  margin: 0;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.level-card__xp {
+  margin-left: 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+}
+
+.level-card__bar {
+  height: 8px;
+  margin: 6px 0 4px;
+  max-width: 320px;
+  border-radius: 999px;
+  background: var(--bg-raised);
+  overflow: hidden;
+}
+
+.level-card__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--signal);
+}
+
+.level-card__next,
+.level-card__stats {
+  margin: 0 0 4px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.level-card__rules {
+  margin-top: 10px;
+}
+
+.file-input--hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.button--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.feed-card__who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.feed-card__who p {
+  margin: 0;
+}
+
+.comment {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.people-list__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}

@@ -5,13 +5,15 @@ import FeedCard from "../components/FeedCard";
 import FollowButton from "../components/FollowButton";
 import PageLoading from "../components/PageLoading";
 import { fetchFeed, searchPeople } from "../services/socialService";
-import type { FeedItem, PersonSummary } from "../types/social";
+import type { Badge, FeedItem, PersonSummary } from "../types/social";
+import Avatar from "../components/Avatar";
 
 /** What the people you follow have shared, plus finding people to follow. */
 export default function FeedPage() {
   const { user, token, loading } = useAuth();
   const [items, setItems] = useState<FeedItem[] | null>(null);
   const [nextBefore, setNextBefore] = useState<string | null>(null);
+  const [people, setPeople] = useState<Record<number, Badge>>({});
   const [error, setError] = useState<string | null>(null);
   const [more, setMore] = useState(false);
 
@@ -22,6 +24,7 @@ export default function FeedPage() {
       .then((page) => {
         if (cancelled) return;
         setItems(page.items);
+        setPeople(page.people ?? {});
         setNextBefore(page.nextBefore);
       })
       .catch((err: Error) => !cancelled && setError(err.message));
@@ -36,6 +39,7 @@ export default function FeedPage() {
     try {
       const page = await fetchFeed(token, nextBefore);
       setItems((list) => [...(list ?? []), ...page.items]);
+      setPeople((known) => ({ ...known, ...page.people }));
       setNextBefore(page.nextBefore);
     } finally {
       setMore(false);
@@ -69,7 +73,7 @@ export default function FeedPage() {
               <Link to="/turer/ny">lägg upp en tur</Link> själv.
             </p>
           )}
-          <div className="feed">{items?.map((item) => <FeedCard key={`${item.type}-${item.id}`} item={item} />)}</div>
+          <div className="feed">{items?.map((item) => <FeedCard key={`${item.type}-${item.id}`} item={item} badge={people[authorId(item)]} />)}</div>
           {nextBefore && (
             <button type="button" className="button feed__more" disabled={more} onClick={() => void loadMore()}>
               {more ? "Laddar…" : "Visa äldre"}
@@ -112,7 +116,10 @@ function PeopleSearch({ token }: { token: string }) {
           {people.length === 0 && <li className="people-list__empty">Ingen hittades.</li>}
           {people.map((p) => (
             <li key={p.id}>
-              <Link to={`/person/${p.id}`}>{p.displayName}</Link>
+              <Link to={`/person/${p.id}`} className="people-list__name">
+                <Avatar name={p.displayName} avatarPath={p.avatarPath} xp={p.xp} size={36} />
+                {p.displayName}
+              </Link>
               <FollowButton personId={p.id} following={p.iFollow} />
             </li>
           ))}
@@ -120,4 +127,8 @@ function PeopleSearch({ token }: { token: string }) {
       )}
     </section>
   );
+}
+
+function authorId(item: FeedItem): number {
+  return item.type === "tour" ? item.tour.userId : item.type === "observation" ? item.observation.userId : item.author.id;
 }

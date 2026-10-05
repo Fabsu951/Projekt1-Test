@@ -140,6 +140,12 @@ export default function AboutPage() {
             bara för dina följare och finns inte med i värmekartan.
           </li>
           <li>
+            <strong>Profilbild och erfarenhet:</strong> om du lägger till en profilbild beskärs och komprimeras den
+            i appen innan den laddas upp, vilket också tar bort inbäddad information som GPS-position. Bilden och din
+            erfarenhetsnivå syns för alla. Nivån räknas fram ur antalet turer, höjdmeter och observationer du har –
+            vi sparar inget extra för den.
+          </li>
+          <li>
             <strong>Inloggning och säkerhet:</strong> inloggningssessioner, tillfälliga länkar för att
             bekräfta e-post och återställa lösenord, samt anmälningar av inlägg (vem som anmälde vad).
             För att stoppa lösenordsgissning och skräpkonton räknar vi misslyckade inloggningar och nya

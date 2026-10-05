@@ -4,13 +4,22 @@ import type { Tour } from "./tour";
 
 export type ItemType = "tour" | "observation" | "route";
 
-export interface PersonSummary {
+/** Profile picture and experience points. */
+export interface Badge {
+  avatarPath: string | null;
+  xp: number;
+}
+
+export interface PersonSummary extends Badge {
   id: number;
   displayName: string;
   iFollow: boolean;
 }
 
 export interface Person extends PersonSummary {
+  tours: number;
+  ascentM: number;
+  observations: number;
   followers: number;
   following: number;
   followsMe: boolean;
@@ -44,6 +53,8 @@ export interface Comment {
 }
 
 export interface CommentThread {
+  /** Picture and points of the commenters, by user id. */
+  people?: Record<number, Badge>;
   comments: Comment[];
   likes: number;
   likedByMe: boolean;

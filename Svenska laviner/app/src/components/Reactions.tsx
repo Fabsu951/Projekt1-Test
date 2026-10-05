@@ -2,10 +2,16 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { addComment, deleteComment, fetchComments, setLiked } from "../services/socialService";
-import type { Comment, ItemType } from "../types/social";
+import type { Badge, Comment, ItemType } from "../types/social";
+import Avatar from "./Avatar";
 
 const when = (iso: string) =>
-  new Date(iso).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  new Date(iso).toLocaleString("sv-SE", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
 /**
  * Like button and comment thread under a tour, observation or route. The
@@ -32,6 +38,7 @@ export default function Reactions({
   const [count, setCount] = useState(initialCount);
   const [open, setOpen] = useState(startOpen);
   const [thread, setThread] = useState<Comment[] | null>(null);
+  const [people, setPeople] = useState<Record<number, Badge>>({});
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +50,7 @@ export default function Reactions({
       .then((t) => {
         if (cancelled) return;
         setThread(t.comments);
+        setPeople(t.people ?? {});
         setCount(t.comments.length);
         setLikes(t.likes);
         setLikedState(t.likedByMe);
@@ -76,6 +84,7 @@ export default function Reactions({
     try {
       const t = await addComment(token, type, id, draft);
       setThread(t.comments);
+      setPeople(t.people ?? {});
       setCount(t.comments.length);
       setDraft("");
     } catch (err) {
@@ -102,7 +111,8 @@ export default function Reactions({
             aria-pressed={liked}
             onClick={() => void toggleLike()}
           >
-            <span aria-hidden="true">{liked ? "♥" : "♡"}</span> Gilla{likes > 0 && ` · ${likes}`}
+            <span aria-hidden="true">{liked ? "♥" : "♡"}</span> Gilla
+            {likes > 0 && ` · ${likes}`}
           </button>
         ) : (
           likes > 0 && <span className="reactions__count">♥ {likes}</span>
@@ -117,15 +127,18 @@ export default function Reactions({
           {!thread && !error && <p className="reactions__hint">Laddar…</p>}
           {thread?.map((c) => (
             <div key={c.id} className="comment">
-              <p className="comment__meta">
-                <Link to={`/person/${c.userId}`}>{c.author}</Link> · {when(c.createdAt)}
-                {c.canDelete && (
-                  <button type="button" className="comment__delete" onClick={() => void remove(c)}>
-                    Ta bort
-                  </button>
-                )}
-              </p>
-              <p className="comment__body">{c.body}</p>
+              <Avatar name={c.author} avatarPath={people[c.userId]?.avatarPath} xp={people[c.userId]?.xp} size={30} />
+              <div>
+                <p className="comment__meta">
+                  <Link to={`/person/${c.userId}`}>{c.author}</Link> · {when(c.createdAt)}
+                  {c.canDelete && (
+                    <button type="button" className="comment__delete" onClick={() => void remove(c)}>
+                      Ta bort
+                    </button>
+                  )}
+                </p>
+                <p className="comment__body">{c.body}</p>
+              </div>
             </div>
           ))}
           {user ? (

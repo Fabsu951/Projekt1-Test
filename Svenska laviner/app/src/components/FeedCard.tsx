@@ -1,17 +1,18 @@
 import { Link } from "react-router-dom";
+import Avatar from "./Avatar";
 import Reactions from "./Reactions";
 import TrackSketch from "./TrackSketch";
 import { getRegionById } from "../data/regions";
 import { observationTypeLabel } from "../data/observationTypes";
 import { imageUrl } from "../services/api";
-import type { FeedItem } from "../types/social";
+import type { Badge, FeedItem } from "../types/social";
 import { formatDistance, formatDuration, formatTourDate } from "../utils/tourFormat";
 
 const ago = (iso: string) =>
   new Date(iso).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
 /** One tour, observation or shared route in the feed, with likes and comments. */
-export default function FeedCard({ item }: { item: FeedItem }) {
+export default function FeedCard({ item, badge }: { item: FeedItem; badge?: Badge }) {
   const author =
     item.type === "tour"
       ? { id: item.tour.userId, name: item.tour.author }
@@ -22,12 +23,17 @@ export default function FeedCard({ item }: { item: FeedItem }) {
 
   return (
     <article className={`feed-card feed-card--${item.type}`}>
-      <p className="feed-card__who">
-        <Link to={`/person/${author.id}`} className="feed-card__author">
-          {author.name}
-        </Link>{" "}
-        {what} · <time dateTime={item.createdAt}>{ago(item.createdAt)}</time>
-      </p>
+      <div className="feed-card__who">
+        <Link to={`/person/${author.id}`} aria-hidden="true" tabIndex={-1}>
+          <Avatar name={author.name} avatarPath={badge?.avatarPath} xp={badge?.xp} size={40} />
+        </Link>
+        <p>
+          <Link to={`/person/${author.id}`} className="feed-card__author">
+            {author.name}
+          </Link>{" "}
+          {what} · <time dateTime={item.createdAt}>{ago(item.createdAt)}</time>
+        </p>
+      </div>
 
       {item.type === "tour" && <TourBody item={item} />}
       {item.type === "observation" && <ObservationBody item={item} />}
