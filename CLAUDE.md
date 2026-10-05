@@ -508,6 +508,17 @@ the start, exact map point.
   off-season box. Two columns ≥ 900 px (`page--wide`, 1100 px). Helpers in
   `utils/today.ts` (Swedish dates, `recentDays` drops tomorrow,
   `trendSinceYesterday`). Never shows a level that isn't published.
+- **Map performance (2026-10-05, "kartan laggar"):** panning blocked the
+  page ~1.5 s per move: `OfflineViewBox` ran `viewPlan` on every `moveend`,
+  which built tile arrays for z15…10 of the visible area (millions at
+  country zoom). Now `tileCount()` counts arithmetically. Also: pins live
+  in memoised `components/MapMarkers.tsx` (one cached icon per danger
+  level, so MapPage re-renders on pan/profile hover don't touch them);
+  `cachedTile` only searches `fjallkoll-tiles-*` caches, remembered until
+  `forgetTileCaches()` (called on every save/remove), and
+  `OfflineTileLayer` loads straight from the network once it knows
+  nothing is saved; `TopoLayer` `keepBuffer 4`, `updateWhenZooming false`.
+  Measured with Playwright (200 pins, 12 drags): long tasks ~17 s → 0.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -561,6 +572,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (166 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  (167 tests as of 2026-10-05, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 89 tests, including the
   real-page fixtures).

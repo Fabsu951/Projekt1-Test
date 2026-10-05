@@ -62,6 +62,17 @@ export function tilesFor(bounds: Bounds, maxZoom: number): Array<[number, number
   return tiles;
 }
 
+/** How many tiles tilesFor would return, without building the list (cheap for any area). */
+export function tileCount(bounds: Bounds, maxZoom: number): number {
+  let count = 0;
+  for (let z = MIN_ZOOM; z <= maxZoom; z++) {
+    const xs = tileX(bounds.east, z) - tileX(bounds.west, z) + 1;
+    const ys = tileY(bounds.south, z) - tileY(bounds.north, z) + 1;
+    count += Math.max(0, xs) * Math.max(0, ys);
+  }
+  return count;
+}
+
 export function estimateBytes(tileCount: number): number {
   return tileCount * AVERAGE_TILE_BYTES;
 }
@@ -74,7 +85,8 @@ export function offlineSupported(): boolean {
   return typeof window !== "undefined" && "caches" in window;
 }
 
-const cacheName = (regionId: string) => `fjallkoll-tiles-${regionId}`;
+export const TILE_CACHE_PREFIX = "fjallkoll-tiles-";
+const cacheName = (regionId: string) => `${TILE_CACHE_PREFIX}${regionId}`;
 
 async function readMeta(): Promise<Record<string, SavedArea>> {
   try {
@@ -157,6 +169,7 @@ export async function downloadTiles(
   onProgress: (p: DownloadProgress) => void,
   signal?: AbortSignal
 ): Promise<{ tiles: number; bytes: number }> {
+  forgetTileCaches();
   const cache = await caches.open(cacheKey);
   let done = 0;
   let failed = 0;
@@ -214,19 +227,52 @@ export async function downloadArea(
 
 export async function removeArea(regionId: string): Promise<void> {
   await caches.delete(cacheName(regionId));
+  forgetTileCaches();
   const meta = await readMeta();
   delete meta[regionId];
   await writeMeta(meta);
 }
 
-/** A saved tile for this URL from any region's cache, if there is one. */
+// The names of the caches holding saved tiles, looked up once and kept, so
+// that showing the map doesn't search every cache for every tile.
+let tileCaches: Promise<string[]> | null = null;
+let noSavedTiles = false;
+
+function savedTileCaches(): Promise<string[]> {
+  tileCaches ??= caches
+    .keys()
+    .then((names) => names.filter((n) => n.startsWith(TILE_CACHE_PREFIX)))
+    .catch(() => [])
+    .then((names) => {
+      noSavedTiles = names.length === 0;
+      return names;
+    });
+  return tileCaches;
+}
+
+/** Call after adding or removing a tile cache. */
+export function forgetTileCaches(): void {
+  tileCaches = null;
+  noSavedTiles = false;
+}
+
+/** True once we know nothing is saved for offline use: tiles can go straight to the network. */
+export function knownNoSavedTiles(): boolean {
+  return noSavedTiles;
+}
+
+/** A saved tile for this URL from any saved area, view or route, if there is one. */
 export async function cachedTile(url: string): Promise<Response | undefined> {
   if (!offlineSupported()) return undefined;
   try {
-    return await caches.match(url);
+    for (const name of await savedTileCaches()) {
+      const hit = await (await caches.open(name)).match(url);
+      if (hit) return hit;
+    }
   } catch {
-    return undefined;
+    // Fall through to the network.
   }
+  return undefined;
 }
 
 // Areas saved straight from the map ("spara det jag ser"), besides the fixed
@@ -249,7 +295,7 @@ export interface SavedView {
 /** The most detailed zoom (≤ 15) at which the area stays within the size limit, or null if even zoom 10 is too much. */
 export function viewPlan(bounds: Bounds): { maxZoom: number; tiles: number } | null {
   for (let z = MAX_VIEW_ZOOM; z >= 10; z--) {
-    const count = tilesFor(bounds, z).length;
+    const count = tileCount(bounds, z);
     if (count <= MAX_VIEW_TILES) return { maxZoom: z, tiles: count };
   }
   return null;
@@ -287,5 +333,6 @@ export async function saveView(
 
 export async function removeView(key: string): Promise<void> {
   await caches.delete(cacheName(key));
+  forgetTileCaches();
   await Preferences.set({ key: VIEWS_KEY, value: JSON.stringify((await readViews()).filter((v) => v.key !== key)) });
 }

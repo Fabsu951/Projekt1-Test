@@ -1,5 +1,5 @@
 import { Preferences } from "@capacitor/preferences";
-import { corridorTiles, downloadTiles, estimateBytes, offlineSupported, type DownloadProgress } from "./offlineMap";
+import { corridorTiles, downloadTiles, estimateBytes, forgetTileCaches, offlineSupported, TILE_CACHE_PREFIX, type DownloadProgress } from "./offlineMap";
 import type { LatLon, RouteAnalysis, RouteSample } from "../utils/routePlan";
 
 // Planned routes kept on the device for use without coverage: the points,
@@ -25,7 +25,7 @@ export interface OfflineRoute {
   savedAt: string;
 }
 
-const cacheName = (key: string) => `fjallkoll-tiles-${key}`;
+const cacheName = (key: string) => `${TILE_CACHE_PREFIX}${key}`;
 
 export function routeTiles(waypoints: LatLon[]) {
   return corridorTiles(waypoints, CORRIDOR_KM, MIN_ZOOM, MAX_ZOOM);
@@ -96,6 +96,7 @@ export async function saveRouteOffline(
   const key = route.key ?? (route.routeId !== null ? `route-${route.routeId}` : `local-${Date.now()}`);
   // A changed route may cover other tiles: start its cache afresh.
   await caches.delete(cacheName(key));
+  forgetTileCaches();
   const result = await downloadTiles(cacheName(key), routeTiles(route.waypoints), tileUrl, onProgress, signal);
   const saved: OfflineRoute = {
     key,
@@ -115,6 +116,7 @@ export async function saveRouteOffline(
 
 export async function removeOfflineRoute(key: string): Promise<void> {
   if (offlineSupported()) await caches.delete(cacheName(key));
+  forgetTileCaches();
   const all = await readAll();
   delete all[key];
   await writeAll(all);

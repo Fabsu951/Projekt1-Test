@@ -1,5 +1,5 @@
 import L from "leaflet";
-import { cachedTile } from "../services/offlineMap";
+import { cachedTile, knownNoSavedTiles } from "../services/offlineMap";
 
 type TileDone = (error: Error | undefined, tile: HTMLElement) => void;
 interface TileHandlers {
@@ -21,6 +21,11 @@ export class OfflineTileLayer extends L.TileLayer {
     tile.setAttribute("role", "presentation");
 
     const url = this.getTileUrl(coords);
+    // Nothing saved on this device: load straight away, no lookup.
+    if (knownNoSavedTiles()) {
+      tile.src = url;
+      return tile;
+    }
     void cachedTile(url).then(async (saved) => {
       if (!saved) {
         tile.src = url;

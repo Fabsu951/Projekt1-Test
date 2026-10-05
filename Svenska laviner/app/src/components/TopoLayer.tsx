@@ -26,6 +26,10 @@ export default function TopoLayer() {
       url={TOPOWEBB_URL}
       maxZoom={19}
       maxNativeZoom={TOPOWEBB_MAX_NATIVE_ZOOM}
+      // Keep more tiles around the view so panning back doesn't flash empty,
+      // and don't fetch new tiles mid-zoom (they're thrown away at the end).
+      keepBuffer={4}
+      updateWhenZooming={false}
     />
   );
 }

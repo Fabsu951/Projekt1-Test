@@ -83,3 +83,17 @@ describe("downloadArea", () => {
     expect(await savedArea(KEBNEKAISE.id)).toBeNull();
   });
 });
+
+describe("tileCount", () => {
+  it("matches the length of the tile list without building it", async () => {
+    const { tileCount, tilesFor, offlineBounds, viewPlan } = await import("./offlineMap");
+    const bounds = offlineBounds({ lat: 67.9, lon: 18.55 });
+    expect(tileCount(bounds, 14)).toBe(tilesFor(bounds, 14).length);
+    // The whole fjällen at once: millions of tiles at zoom 15, counted instantly;
+    // saving that view drops to the most detailed zoom that stays small enough.
+    const fjallen = { north: 69.5, south: 61, west: 11, east: 24 };
+    expect(tileCount(fjallen, 15)).toBeGreaterThan(1_000_000);
+    expect(viewPlan(fjallen)?.maxZoom).toBe(10);
+    expect(viewPlan({ north: 75, south: 50, west: 0, east: 40 })).toBeNull();
+  });
+});

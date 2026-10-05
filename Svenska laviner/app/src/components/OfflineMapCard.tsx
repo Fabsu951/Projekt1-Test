@@ -9,7 +9,7 @@ import {
   offlineSupported,
   removeArea,
   savedArea,
-  tilesFor,
+  tileCount,
   type DownloadProgress,
   type OfflineLevel,
   type SavedArea,
@@ -41,7 +41,7 @@ export default function OfflineMapCard({ region }: Props) {
   if (!offlineMapsAvailable || !offlineSupported() || saved === undefined) return null;
 
   const sizes = (Object.keys(OFFLINE_LEVELS) as OfflineLevel[]).map((level) => {
-    const tiles = tilesFor(offlineBounds(region), OFFLINE_LEVELS[level].maxZoom).length;
+    const tiles = tileCount(offlineBounds(region), OFFLINE_LEVELS[level].maxZoom);
     return { level, label: OFFLINE_LEVELS[level].label, size: formatMegabytes(estimateBytes(tiles)) };
   });
 

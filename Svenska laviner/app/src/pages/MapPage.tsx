@@ -1,27 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { saveTextFile } from "../services/native";
-import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { REGIONS } from "../data/regions";
 import { loadForecasts } from "../services/avalancheService";
-import { forecastLabel } from "../utils/forecastLabel";
-import { getDangerInfo } from "../data/dangerScale";
 import type { AvalancheForecast } from "../types/avalanche";
 import SlopeLayer from "../components/SlopeLayer";
 import TopoLayer from "../components/TopoLayer";
 import MyPosition from "../components/MyPosition";
 import { fetchObservations } from "../services/observationService";
-import { observationTypeLabel } from "../data/observationTypes";
 import type { Observation } from "../types/observation";
 import SeasonFilter from "../components/SeasonFilter";
 import TourHeatmap, { HeatLegend } from "../components/TourHeatmap";
 import { seasonMonths } from "../data/tourSeasons";
 import { fetchTourLines, fetchTours } from "../services/tourService";
 import type { Tour, TourLine } from "../types/tour";
-import { formatDistance } from "../utils/tourFormat";
 import RoutePlanner from "../components/RoutePlanner";
 import RoutePanel from "../components/RoutePanel";
 import RouteSaveBox from "../components/RouteSaveBox";
@@ -35,23 +31,7 @@ import { useRouteDraft } from "../hooks/useRouteDraft";
 import { fetchRoute } from "../services/routeService";
 import { ElevationSampler } from "../utils/elevation";
 import { analyseRoute, routeToGpx, type RouteAnalysis } from "../utils/routePlan";
-import AdminBadge from "../components/AdminBadge";
-
-const TOUR_ICON = L.divIcon({
-  className: "tour-pin",
-  html: "<span></span>",
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
-  popupAnchor: [0, -8],
-});
-
-const OBSERVATION_ICON = L.divIcon({
-  className: "observation-pin",
-  html: "<span></span>",
-  iconSize: [18, 18],
-  iconAnchor: [9, 9],
-  popupAnchor: [0, -9],
-});
+import { ObservationMarkers, RegionMarkers, TourMarkers } from "../components/MapMarkers";
 
 const SLOPE_LEGEND: Array<[string, string]> = [
   ["< 28°", "#325a82"],
@@ -65,20 +45,6 @@ const SLOPE_LEGEND: Array<[string, string]> = [
 // Härjedalen in the south) without needing a tile provider account.
 const SWEDEN_FJALL_CENTER: [number, number] = [65.6, 15.2];
 const DEFAULT_ZOOM = 5;
-
-function dangerIcon(dangerLevel: number | null | undefined): L.DivIcon {
-  const color = dangerLevel ? getDangerInfo(dangerLevel).color : "#5c6b7a";
-  const isDark = !!dangerLevel && dangerLevel >= 5;
-  return L.divIcon({
-    className: "region-marker",
-    html: `<span style="background:${color}; color:${isDark ? "#fff" : "#1a1a1a"}">${
-      dangerLevel ?? "?"
-    }</span>`,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
-    popupAnchor: [0, -15],
-  });
-}
 
 /** Reports what part of the map is on screen. */
 function ViewTracker({ onChange }: { onChange: (b: Bounds) => void }) {
@@ -431,58 +397,9 @@ export default function MapPage() {
           <SlopeLayer enabled={showSlope} />
           <MyPosition enabled={showPosition} onStatus={onPositionStatus} />
           {showHeatmap && <TourHeatmap lines={heatLines} />}
-          {showObservations &&
-            observations.map((o) => (
-              <Marker key={`obs-${o.id}`} position={[o.lat, o.lon]} icon={OBSERVATION_ICON} zIndexOffset={1000}>
-                <Popup>
-                  <strong>{observationTypeLabel(o.type)}</strong>
-                  <br />
-                  {new Date(o.observedAt).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}{" "}
-                  · {o.author}
-                  <AdminBadge show={o.authorIsAdmin} />
-                  <br />
-                  {o.description.length > 140 ? `${o.description.slice(0, 140)}…` : o.description}
-                  <br />
-                  <Link to="/observationer">Alla observationer →</Link>
-                </Popup>
-              </Marker>
-            ))}
-          {showTours &&
-            tours
-              .filter((t) => t.pin)
-              .map((t) => (
-                <Marker key={`tour-${t.id}`} position={t.pin!} icon={TOUR_ICON} zIndexOffset={900}>
-                  <Popup>
-                    <strong>{t.title}</strong>
-                    <br />
-                    {new Date(t.startedAt).toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}{" "}
-                    · {formatDistance(t.distanceM)} · ↑ {t.ascentM} m
-                    <br />
-                    <Link to={`/turer/${t.id}`}>Visa turen →</Link>
-                  </Popup>
-                </Marker>
-              ))}
-          {REGIONS.map((region) => (
-            <Marker
-              key={region.id}
-              position={[region.lat, region.lon]}
-              icon={dangerIcon(forecasts[region.id]?.dangerLevel)}
-            >
-              <Popup>
-                <strong>{region.name}</strong>
-                <br />
-                {region.subAreas.join(" · ")}
-                {forecasts[region.id] && (
-                  <>
-                    <br />
-                    {forecastLabel(forecasts[region.id])}
-                  </>
-                )}
-                <br />
-                <Link to={`/omrade/${region.id}`}>Visa detaljer →</Link>
-              </Popup>
-            </Marker>
-          ))}
+          {showObservations && <ObservationMarkers observations={observations} />}
+          {showTours && <TourMarkers tours={tours} />}
+          <RegionMarkers forecasts={forecasts} />
         </MapContainer>
         {showHeatmap && heatLines.length > 0 && <HeatLegend />}
       </div>
