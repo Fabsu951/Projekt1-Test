@@ -1,7 +1,7 @@
 {
-  "name": "Snöläge",
+  "name": "Snöläge – lavinprognos och turer",
   "short_name": "Snöläge",
-  "description": "Lavinprognos, väder och säkerhetsguide för svenska fjällen.",
+  "description": "Lavinprognos, väder, karta och turer för skidåkning i svenska fjällen.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#10161d",

@@ -43,5 +43,5 @@ export function defaultTitle(pathname: string): string | null {
 }
 
 export function fullTitle(title: string | null): string {
-  return title ? `${title} – Snöläge` : "Snöläge";
+  return title ? `${title} – Snöläge` : "Snöläge – lavinprognos och turer";
 }
