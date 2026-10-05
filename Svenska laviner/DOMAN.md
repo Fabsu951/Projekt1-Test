@@ -23,6 +23,11 @@ runt 100–200 kr första året.
 - Välj **bara domänen**. Du behöver inget webbhotell eller någon e-post hos
   dem.
 - Slå på förnyelse automatiskt, så att du inte tappar domänen.
+- Säg nej till tillägg som webbhotell, e-post, "SEO-paket" och "domänskydd".
+- Slå på tvåstegsverifiering på kontot hos återförsäljaren. Den som kommer
+  åt kontot kan ta över domänen.
+- Internetstiftelsen kan mejla dig för att bekräfta dina uppgifter. Svara på
+  det mejlet, annars kan domänen stängas av.
 - Vill du skydda namnet mer kan du även ta `snolage.com` eller
   `snolage.app`. Det behövs inte för att komma igång.
 
@@ -32,9 +37,13 @@ runt 100–200 kr första året.
    domain** och skriv `snolage.se`. Välj gratisplanen (**Free**).
 2. Cloudflare visar två namnservrar, till exempel `ada.ns.cloudflare.com`
    och `bob.ns.cloudflare.com`.
-3. Logga in hos återförsäljaren där du köpte domänen. Under domänens
-   **namnservrar/DNS-servrar**, byt deras namnservrar mot Cloudflares två.
-4. Vänta tills Cloudflare mejlar att domänen är aktiv. Det tar oftast under
+3. Logga in hos återförsäljaren där du köpte domänen. Om **DNSSEC** är
+   påslaget för domänen: stäng av det först, annars slutar domänen fungera
+   när namnservrarna byts. Det kan slås på igen senare via Cloudflare.
+4. Under domänens **namnservrar/DNS-servrar**: välj egna eller externa
+   namnservrar och byt deras namnservrar mot Cloudflares två. Ta bort alla
+   gamla.
+5. Vänta tills Cloudflare mejlar att domänen är aktiv. Det tar oftast under
    en timme men kan ta upp till ett dygn.
 
 ## 4. Koppla domänen till sajten
