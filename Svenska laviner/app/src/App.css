@@ -1654,3 +1654,49 @@
     font-size: 0.85rem;
   }
 }
+
+/* Heatmap legend, floating in the map's lower left corner */
+.heat-legend-box {
+  position: absolute;
+  left: 10px;
+  bottom: 24px;
+  z-index: 800;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  max-width: calc(100% - 20px);
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  font-size: 0.8rem;
+  color: var(--text);
+  pointer-events: none;
+}
+
+.heat-legend-box__title {
+  font-weight: 600;
+}
+
+.heat-legend-box__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.heat-legend-box__swatch {
+  display: inline-block;
+  width: 22px;
+  border-radius: 3px;
+}
+
+.heat-popup__list {
+  margin: 6px 0 4px;
+  padding-left: 18px;
+}
+
+.heat-popup__date {
+  color: #555;
+}

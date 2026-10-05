@@ -224,11 +224,18 @@ export async function tourLines(request: Request, env: CommunityEnv) {
   const binds: unknown[] = [];
   addFilters(url, where, binds);
   const rows = await env.DB.prepare(
-    `SELECT t.id, t.preview FROM tours t WHERE ${where.join(" AND ")} ORDER BY t.started_at DESC LIMIT ?`
+    `SELECT t.id, t.title, t.started_at, t.preview FROM tours t WHERE ${where.join(" AND ")} ORDER BY t.started_at DESC LIMIT ?`
   )
     .bind(...binds, HEATMAP_LIMIT)
-    .all<{ id: number; preview: string }>();
-  return { lines: rows.results.map((r) => ({ id: r.id, points: JSON.parse(r.preview) as Array<[number, number]> })) };
+    .all<{ id: number; title: string; started_at: string; preview: string }>();
+  return {
+    lines: rows.results.map((r) => ({
+      id: r.id,
+      title: r.title,
+      startedAt: r.started_at,
+      points: JSON.parse(r.preview) as Array<[number, number]>,
+    })),
+  };
 }
 
 async function getRow(env: CommunityEnv, id: number): Promise<TourRow> {

@@ -15,7 +15,7 @@ import { fetchObservations } from "../services/observationService";
 import { observationTypeLabel } from "../data/observationTypes";
 import type { Observation } from "../types/observation";
 import SeasonFilter from "../components/SeasonFilter";
-import TourHeatmap from "../components/TourHeatmap";
+import TourHeatmap, { HeatLegend } from "../components/TourHeatmap";
 import { seasonMonths } from "../data/tourSeasons";
 import { fetchTourLines, fetchTours } from "../services/tourService";
 import type { Tour, TourLine } from "../types/tour";
@@ -247,7 +247,8 @@ export default function MapPage() {
           )}
           {showHeatmap && (
             <p className="notice map-layers__note">
-              Värmekartan visar turer som användare delat: ju ljusare, desto fler har åkt där. Början och slutet av
+              Värmekartan visar turer som användare delat. Färgen och tjockleken visar hur många olika turer som gått
+              samma väg – tryck på en linje för att se vilka. Början och slutet av
               turerna är dolda. Den säger inget om förhållandena i dag – kolla alltid lavinprognosen.
               {heatLines.length === 0 && " Inga delade turer för det valda urvalet än."}
             </p>
@@ -328,6 +329,7 @@ export default function MapPage() {
             </Marker>
           ))}
         </MapContainer>
+        {showHeatmap && heatLines.length > 0 && <HeatLegend />}
       </div>
     </div>
   );
