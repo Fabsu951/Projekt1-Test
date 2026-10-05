@@ -64,6 +64,25 @@ function dangerIcon(dangerLevel: number | null | undefined): L.DivIcon {
   });
 }
 
+const LAYERS_OPEN_KEY = "fjallkoll:map-layers-open";
+
+/** Whether the layer menu was left open last time (open on first visit). */
+function readLayersOpen(): boolean {
+  try {
+    return localStorage.getItem(LAYERS_OPEN_KEY) !== "0";
+  } catch {
+    return true;
+  }
+}
+
+function saveLayersOpen(open: boolean) {
+  try {
+    localStorage.setItem(LAYERS_OPEN_KEY, open ? "1" : "0");
+  } catch {
+    // Not remembered, e.g. in a private window; the menu still works.
+  }
+}
+
 export default function MapPage() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
   const [showSlope, setShowSlope] = useState(false);
@@ -94,6 +113,13 @@ export default function MapPage() {
   }, [showTours]);
   const [observations, setObservations] = useState<Observation[]>([]);
   const [showPosition, setShowPosition] = useState(false);
+  const [layersOpen, setLayersOpen] = useState(readLayersOpen);
+  const toggleLayers = () =>
+    setLayersOpen((open) => {
+      saveLayersOpen(!open);
+      return !open;
+    });
+  const activeLayers = [showObservations, showTours, showHeatmap, showSlope].filter(Boolean).length;
   const [positionStatus, setPositionStatus] = useState<string | null>(null);
   const onPositionStatus = useCallback((message: string | null) => setPositionStatus(message), []);
 
@@ -130,6 +156,19 @@ export default function MapPage() {
           <span className="my-position__legend" aria-hidden="true" />
           {showPosition ? "Dölj min position" : "Visa min position"}
         </button>
+        <button
+          type="button"
+          className="button map-toolbar__layers"
+          aria-expanded={layersOpen}
+          aria-controls="map-layers"
+          onClick={toggleLayers}
+        >
+          Kartlager{activeLayers > 0 && ` (${activeLayers} på)`}
+          <span className={layersOpen ? "map-toolbar__chevron map-toolbar__chevron--open" : "map-toolbar__chevron"} aria-hidden="true" />
+        </button>
+      </div>
+
+      <div id="map-layers" className="map-toolbar map-layers" hidden={!layersOpen}>
         <label className="map-toolbar__toggle">
           <input
             type="checkbox"
@@ -170,19 +209,18 @@ export default function MapPage() {
             ))}
           </div>
         )}
+        {showHeatmap && (
+          <p className="notice map-layers__note">
+            Värmekartan visar turer som användare delat: ju ljusare, desto fler har åkt där. Början och slutet av
+            turerna är dolda. Den säger inget om förhållandena i dag – kolla alltid lavinprognosen.
+            {heatLines.length === 0 && " Inga delade turer för det valda urvalet än."}
+          </p>
+        )}
       </div>
 
       {positionStatus && (
         <p className="notice" role="status">
           {positionStatus}
-        </p>
-      )}
-
-      {showHeatmap && (
-        <p className="notice">
-          Värmekartan visar turer som användare delat: ju ljusare, desto fler har åkt där. Början och slutet av
-          turerna är dolda. Den säger inget om förhållandena i dag – kolla alltid lavinprognosen.
-          {heatLines.length === 0 && " Inga delade turer för det valda urvalet än."}
         </p>
       )}
 

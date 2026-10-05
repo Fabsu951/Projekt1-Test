@@ -1520,3 +1520,39 @@
   flex-basis: 100%;
   margin-bottom: 0;
 }
+
+/* Collapsible layer menu on /karta */
+.map-layers[hidden] {
+  display: none;
+}
+
+.map-layers {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+}
+
+.map-layers__note {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.map-toolbar__layers {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.map-toolbar__chevron {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.15s;
+}
+
+.map-toolbar__chevron--open {
+  transform: translateY(2px) rotate(-135deg);
+}
