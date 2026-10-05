@@ -22,7 +22,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error("Turkoll: unhandled error in page render", error, info.componentStack);
+    console.error("Snöläge: unhandled error in page render", error, info.componentStack);
   }
 
   render() {

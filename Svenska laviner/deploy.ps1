@@ -1,4 +1,4 @@
-﻿# Publishes the latest Turkoll: pulls from GitHub, updates the worker
+﻿# Publishes the latest Snöläge: pulls from GitHub, updates the worker
 # (database migrations + code) and the website. Run from anywhere:
 #
 #   powershell -ExecutionPolicy Bypass -File "C:\Users\fabia\Documents\fjallvarning-repo\Svenska laviner\deploy.ps1"

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Turkoll</string>
-    <string name="title_activity_main">Turkoll</string>
-    <string name="package_name">se.turkoll.app</string>
-    <string name="custom_url_scheme">se.turkoll.app</string>
+    <string name="app_name">Snöläge</string>
+    <string name="title_activity_main">Snöläge</string>
+    <string name="package_name">se.snolage.app</string>
+    <string name="custom_url_scheme">se.snolage.app</string>
 </resources>

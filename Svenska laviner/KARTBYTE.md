@@ -1,7 +1,7 @@
 # Kartbyte före 31 december 2026
 
 Lantmäteriet stänger "Topografisk webbkarta Visning, översiktlig" (kartan
-Turkoll använt hittills) den **31 december 2026**. Ersättaren är den
+Snöläge använt hittills) den **31 december 2026**. Ersättaren är den
 kostnadsfria (CC0) produkten **Topografisk webbkarta Nedladdning, raster**,
 som vi laddar ner en gång och lagrar själva i Cloudflare R2.
 

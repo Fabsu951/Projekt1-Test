@@ -1,10 +1,14 @@
-# Turkoll (formerly Toppkoll / Fjällkoll) — project state
+# Snöläge (formerly Turkoll / Toppkoll / Fjällkoll) — project state
 
-> **Renamed again 2026-10-05 from "Toppkoll" to "Turkoll"** the same day:
-> `toppkoll.se` was already registered. Same rules as below (branding only;
-> Cloudflare names and `fjallkoll:*` keys unchanged). appId
-> **`se.turkoll.app`**, SW app cache `turkoll-app-<version>` (old
-> `toppkoll-app-`/`fjallkoll-app-` caches are deleted on activate).
+> **Current name: "Snöläge"** (Fabian's choice 2026-10-05, after
+> `toppkoll.se` turned out to be taken; "Turkoll" lasted one commit).
+> Branding only, same rules as below (Cloudflare names and `fjallkoll:*`
+> keys unchanged). appId **`se.snolage.app`** (Android package dir
+> `java/se/snolage/app/`), SW app cache `snolage-app-<version>` (older
+> `turkoll-app-`/`toppkoll-app-`/`fjallkoll-app-` caches deleted on
+> activate). Domain to register: `snolage.se` (+ `snöläge.se` as an alias
+> if free) — `Svenska laviner/DOMAN.md`. ASCII `snolage` in ids/domains,
+> "Snöläge" (possessive "Snöläges") in text.
 
 > **Renamed 2026-10-05 from "Fjällkoll" to "Toppkoll"** (user's choice after
 > a name check; Fjällklar AB is a nearby competitor name). Only user-visible
@@ -14,7 +18,7 @@
 > `fjallkoll-worker`, `fjallkoll-images`), the URL `fjallkoll.pages.dev`,
 > and all internal storage keys/caches (`fjallkoll:*` localStorage and
 > Preferences, `fjallkoll-tiles-*` caches) so nobody loses saved data.
-> Optional later: a new Pages project `turkoll` and domain `turkoll.se`.
+> Optional later: a new Pages project `snolage` and domain `snolage.se`.
 
 > **Renamed 2026-09-23 from "Fjällvarning" to "Fjällkoll"** (user's
 > choice). All branding and Cloudflare resource names in the repo now use
@@ -32,15 +36,15 @@
 > `fjallkoll` created with production branch `production` and first
 > deployed from `claude/bold-lamport-juktha`. Not renamed on purpose:
 > the local folder `fjallvarning-repo` and branch `svenska-laviner`.
-> Capacitor appId is **`se.turkoll.app`** since 2026-10-05 (was
-> `com.fabsu951.projekt1`, briefly `se.toppkoll.app`; changed before any store
-> upload — never change it once published). Domain: Fabian is to register
-> `turkoll.se` (`toppkoll.se` was taken) — steps in `Svenska laviner/DOMAN.md`
+> Capacitor appId is **`se.snolage.app`** since 2026-10-05 (was
+> `com.fabsu951.projekt1`, briefly `se.toppkoll.app`/`se.turkoll.app`; changed
+> before any store upload — never change it once published). Domain: Fabian
+> is to register `snolage.se` — steps in `Svenska laviner/DOMAN.md`
 > (buy at a Swedish registrar, DNS to Cloudflare, Pages custom domain); not
 > confirmed bought yet. When done: update `APP_URL`, `VITE_PUBLIC_SITE_URL`,
 > store URLs.
 
-Swedish avalanche forecast/safety app ("Turkoll") for backcountry skiers,
+Swedish avalanche forecast/safety app ("Snöläge") for backcountry skiers,
 inspired by Varsom, Rusk, and Skiguide. TypeScript, packaged as both a website
 and native iOS/Android apps (Capacitor) from one codebase.
 
@@ -459,8 +463,8 @@ the start, exact map point.
   permission, iOS camera/photo usage strings + `ITSAppUsesNonExemptEncryption`;
   `VITE_MAP_PROXY_URL` now also in `.env.production`; npm scripts
   `app:sync`, `app:android`, `app:ios`; `/om-appen#radera-konto` for the
-  stores. appId `se.turkoll.app` (Android package
-  `se.turkoll.app`, `MainActivity` under `java/se/turkoll/app/`, iOS bundle id
+  stores. appId `se.snolage.app` (Android package
+  `se.snolage.app`, `MainActivity` under `java/se/snolage/app/`, iOS bundle id
   the same). No Android SDK in cloud sessions, so APKs
   are built on Fabian's PC.
 - **Offline (2026-10-05):** "Utan täckning" page `/offline`
@@ -528,7 +532,7 @@ the start, exact map point.
   2026-10-05** — replaces the old "push only, no caching" rule): the
   `offlineAppShell()` plugin in `vite.config.ts` writes a content-hash
   VERSION and the list of built files into `dist/sw.js`; install precaches
-  them in `turkoll-app-<version>`, activate deletes older app caches
+  them in `snolage-app-<version>`, activate deletes older app caches
   (never tile caches). Navigations are **network-first** (offline → saved
   `/`), so a new deploy always shows when online — that is what keeps the
   old stale-content confusion away; `/assets/` (hashed) cache-first.

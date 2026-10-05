@@ -131,7 +131,7 @@ export default function RegionDetail() {
             days={history}
             today={new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm" }).format(new Date())}
           />
-          <p className="danger-history__note">Farograd enligt lavinprognoser.se, som Turkoll sparat dag för dag.</p>
+          <p className="danger-history__note">Farograd enligt lavinprognoser.se, som Snöläge sparat dag för dag.</p>
         </section>
       )}
 

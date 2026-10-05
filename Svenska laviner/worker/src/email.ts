@@ -51,7 +51,7 @@ function escapeHtml(s: string): string {
 function layout(heading: string, intro: string, buttonText: string, link: string, footer: string): Email["html"] {
   return `<!doctype html><html lang="sv"><body style="margin:0;background:#10161d;font-family:system-ui,sans-serif;color:#eef3f7">
 <div style="max-width:480px;margin:0 auto;padding:32px 20px">
-<p style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7cc7ec">Turkoll</p>
+<p style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7cc7ec">Snöläge</p>
 <h1 style="font-size:22px;margin:0 0 12px">${escapeHtml(heading)}</h1>
 <p style="line-height:1.5">${escapeHtml(intro)}</p>
 <p style="margin:24px 0"><a href="${escapeHtml(link)}" style="background:#ff9f43;color:#1a1a1a;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:700">${escapeHtml(buttonText)}</a></p>
@@ -60,11 +60,11 @@ function layout(heading: string, intro: string, buttonText: string, link: string
 }
 
 export function verificationEmail(to: string, displayName: string, link: string): Email {
-  const intro = `Hej ${displayName}! Bekräfta din e-postadress för att kunna dela observationer på Turkoll.`;
+  const intro = `Hej ${displayName}! Bekräfta din e-postadress för att kunna dela observationer på Snöläge.`;
   const footer = "Länken gäller i 24 timmar. Har du inte skapat något konto kan du bortse från det här mejlet.";
   return {
     to,
-    subject: "Bekräfta din e-postadress – Turkoll",
+    subject: "Bekräfta din e-postadress – Snöläge",
     text: `${intro}\n\n${link}\n\n${footer}`,
     html: layout("Bekräfta din e-post", intro, "Bekräfta e-postadress", link, footer),
   };
@@ -75,7 +75,7 @@ export function resetEmail(to: string, displayName: string, link: string): Email
   const footer = "Länken gäller i 1 timme. Har du inte bett om detta kan du bortse från mejlet — ditt lösenord ändras inte.";
   return {
     to,
-    subject: "Återställ ditt lösenord – Turkoll",
+    subject: "Återställ ditt lösenord – Snöläge",
     text: `${intro}\n\n${link}\n\n${footer}`,
     html: layout("Återställ lösenord", intro, "Välj nytt lösenord", link, footer),
   };

@@ -1,4 +1,4 @@
-// Turkoll's service worker: keeps the app itself for use without coverage,
+// Snöläge's service worker: keeps the app itself for use without coverage,
 // and shows push notifications.
 //
 // Offline without stale versions: page loads always try the network first
@@ -11,8 +11,8 @@
 
 const VERSION = "__APP_VERSION__";
 const FILES = ["__APP_FILES__"];
-const APP_CACHE = `turkoll-app-${VERSION}`;
-const APP_PREFIXES = ["turkoll-app-", "toppkoll-app-", "fjallkoll-app-"];
+const APP_CACHE = `snolage-app-${VERSION}`;
+const APP_PREFIXES = ["snolage-app-", "turkoll-app-", "toppkoll-app-", "fjallkoll-app-"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -77,7 +77,7 @@ self.addEventListener("push", (event) => {
   } catch {
     data = {};
   }
-  const title = data.title || "Turkoll";
+  const title = data.title || "Snöläge";
   event.waitUntil(
     self.registration.showNotification(title, {
       body: data.body || "Farograden har ändrats i ett av dina områden.",

@@ -2,8 +2,8 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 // The appId is permanent once the app is in Google Play / App Store.
 const config: CapacitorConfig = {
-  appId: 'se.turkoll.app',
-  appName: 'Turkoll',
+  appId: 'se.snolage.app',
+  appName: 'Snöläge',
   webDir: 'dist',
   // Dark like the app, so there's no white flash while it starts.
   backgroundColor: '#10161d',

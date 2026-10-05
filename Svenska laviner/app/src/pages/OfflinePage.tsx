@@ -8,7 +8,7 @@ import { listOfflineRoutes } from "../services/offlineRoutes";
 import { offlineMapsAvailable } from "../services/mapTiles";
 import { useAuth } from "../auth/useAuth";
 
-// "Utan täckning": what Turkoll can do without a connection, and what this
+// "Utan täckning": what Snöläge can do without a connection, and what this
 // particular device has saved right now.
 
 const WORKS: Array<[string, string]> = [
@@ -107,7 +107,7 @@ export default function OfflinePage() {
       <header className="page__header">
         <h1>Utan täckning</h1>
         <p className="page__lead">
-          Turkoll fungerar till stor del utan mobilnät, men bara med det som redan finns sparat på telefonen.
+          Snöläge fungerar till stor del utan mobilnät, men bara med det som redan finns sparat på telefonen.
           Förbered dig medan du har täckning.
         </p>
       </header>
@@ -206,7 +206,7 @@ export default function OfflinePage() {
           <li>Ladda telefonen och ta med powerbank. Kyla tömmer batteriet fort.</li>
         </ol>
         <p className="muted">
-          Det sparade uppdateras inte av sig självt utan täckning. Läs alltid tiden för när prognosen hämtades. Turkoll
+          Det sparade uppdateras inte av sig självt utan täckning. Läs alltid tiden för när prognosen hämtades. Snöläge
           ersätter inte den officiella prognosen eller ditt eget omdöme i fält.
         </p>
       </section>

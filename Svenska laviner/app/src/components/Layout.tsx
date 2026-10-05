@@ -14,7 +14,7 @@ const NAV_ITEMS = [
   { to: "/flode", label: "Flöde", end: false },
   { to: "/turer", label: "Turer", end: false },
   { to: "/sakerhetsguide", label: "Säkerhetsguide", end: false },
-  { to: "/om-appen", label: "Om Turkoll", end: false },
+  { to: "/om-appen", label: "Om Snöläge", end: false },
 ];
 
 function BrandMark() {
@@ -66,7 +66,7 @@ export default function Layout() {
       <header className="app-shell__header">
         <NavLink to="/" className="app-shell__brand">
           <BrandMark />
-          Turkoll
+          Snöläge
         </NavLink>
         <button
           type="button"

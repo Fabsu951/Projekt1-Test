@@ -1,4 +1,4 @@
-package se.turkoll.app;
+package se.snolage.app;
 
 import com.getcapacitor.BridgeActivity;
 

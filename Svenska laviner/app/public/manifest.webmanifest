@@ -1,6 +1,6 @@
 {
-  "name": "Turkoll",
-  "short_name": "Turkoll",
+  "name": "Snöläge",
+  "short_name": "Snöläge",
   "description": "Lavinprognos, väder och säkerhetsguide för svenska fjällen.",
   "start_url": "/",
   "display": "standalone",
