@@ -26,12 +26,13 @@ din egen telefon och lägger ut dem i Google Play och App Store.
 **Fungerar inte i apparna än:** push-notiser. De kräver Firebase för Android
 och ett Apple-konto för iPhone. Klockan med notiser i appen fungerar.
 
-## Viktigt beslut före första publiceringen: app-id
+## App-id
 
-Appens id är i dag `com.fabsu951.projekt1`. Det går **aldrig** att ändra
-efter att appen finns i Google Play eller App Store. Vill du ha ett snyggare
-id, till exempel `se.toppkoll.app`, är det nu det ska bytas. Säg till, så gör
-jag det. Det är bara du som ser id:t, inte användarna.
+Appens id är `se.toppkoll.app` (bytt 2026-10-05, före första publiceringen).
+Det går **aldrig** att ändra efter att appen finns i Google Play eller App
+Store, så låt det vara som det är. Har du redan en testversion med det gamla
+id:t (`com.fabsu951.projekt1`) på telefonen blir den nya en separat app:
+avinstallera den gamla.
 
 ## 1. Testa på din Android-telefon
 

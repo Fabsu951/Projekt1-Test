@@ -1,4 +1,4 @@
-package com.fabsu951.projekt1;
+package se.toppkoll.app;
 
 import com.getcapacitor.BridgeActivity;
 

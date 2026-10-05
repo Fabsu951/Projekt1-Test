@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 // The appId is permanent once the app is in Google Play / App Store.
 const config: CapacitorConfig = {
-  appId: 'com.fabsu951.projekt1',
+  appId: 'se.toppkoll.app',
   appName: 'Toppkoll',
   webDir: 'dist',
   // Dark like the app, so there's no white flash while it starts.

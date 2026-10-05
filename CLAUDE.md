@@ -25,8 +25,14 @@
 > secrets (`/topowebb` GetCapabilities verified). Pages project
 > `fjallkoll` created with production branch `production` and first
 > deployed from `claude/bold-lamport-juktha`. Not renamed on purpose:
-> the local folder `fjallvarning-repo`, branch `svenska-laviner`, and the
-> Capacitor appId `com.fabsu951.projekt1`. No domain bought yet.
+> the local folder `fjallvarning-repo` and branch `svenska-laviner`.
+> Capacitor appId is **`se.toppkoll.app`** since 2026-10-05 (was
+> `com.fabsu951.projekt1`; changed before any store upload — never change it
+> again once published). Domain: Fabian was guided 2026-10-05 to register
+> `toppkoll.se` (+ optionally `toppkoll.app`) — steps in `Svenska laviner/DOMAN.md`
+> (buy at a Swedish registrar, DNS to Cloudflare, Pages custom domain); not
+> confirmed bought yet. When done: update `APP_URL`, `VITE_PUBLIC_SITE_URL`,
+> store URLs.
 
 Swedish avalanche forecast/safety app ("Fjällkoll") for backcountry skiers,
 inspired by Varsom, Rusk, and Skiguide. TypeScript, packaged as both a website
@@ -447,8 +453,9 @@ the start, exact map point.
   permission, iOS camera/photo usage strings + `ITSAppUsesNonExemptEncryption`;
   `VITE_MAP_PROXY_URL` now also in `.env.production`; npm scripts
   `app:sync`, `app:android`, `app:ios`; `/om-appen#radera-konto` for the
-  stores. Open decision: appId is still `com.fabsu951.projekt1` and becomes
-  permanent at first store upload. No Android SDK in cloud sessions, so APKs
+  stores. appId `se.toppkoll.app` (Android package
+  `se.toppkoll.app`, `MainActivity` under `java/se/toppkoll/app/`, iOS bundle id
+  the same). No Android SDK in cloud sessions, so APKs
   are built on Fabian's PC.
 - **Offline (2026-10-05):** "Utan täckning" page `/offline`
   (`OfflinePage.tsx`: what works / needs a connection + what this device has

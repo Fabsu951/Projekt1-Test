@@ -7,7 +7,7 @@ TypeScript-webbapp (React + Vite) paketerad med [Capacitor](https://capacitorjs.
 - `src/` – appens källkod (React + TypeScript)
 - `android/` – genererat native Android-projekt (öppnas i Android Studio)
 - `ios/` – genererat native iOS-projekt (öppnas i Xcode, kräver macOS)
-- `capacitor.config.ts` – Capacitor-konfiguration (app-id: `com.fabsu951.projekt1`)
+- `capacitor.config.ts` – Capacitor-konfiguration (app-id: `se.toppkoll.app`)
 
 ## Utveckling
 

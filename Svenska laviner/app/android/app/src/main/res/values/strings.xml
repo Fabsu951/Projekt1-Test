@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Toppkoll</string>
     <string name="title_activity_main">Toppkoll</string>
-    <string name="package_name">com.fabsu951.projekt1</string>
-    <string name="custom_url_scheme">com.fabsu951.projekt1</string>
+    <string name="package_name">se.toppkoll.app</string>
+    <string name="custom_url_scheme">se.toppkoll.app</string>
 </resources>
