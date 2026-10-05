@@ -2073,3 +2073,35 @@
 .elevation-profile__flag {
   fill: rgba(255, 255, 255, 0.14);
 }
+
+/* Foldable page sections (profile lists) */
+.collapsible__heading {
+  margin: 0 0 10px;
+}
+
+.collapsible__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.collapsible__count {
+  min-width: 1.6em;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.collapsible__more {
+  margin-top: 10px;
+}

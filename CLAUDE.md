@@ -353,6 +353,11 @@ the start, exact map point.
   sectors and bands hit; matches are white dashes on the map
   (`RoutePlanner` `flagged`) and shaded in the profile. Wording never says
   "safe"; without a published forecast it compares nothing and says so.
+- **Profile lists fold (2026-10-05):** "Mina observationer/turer/rutter"
+  on `/profil` are `CollapsibleSection`s (folded by default, count beside
+  the heading, open/closed remembered in localStorage
+  `fjallkoll:section-open:<id>`); open lists show 5 items + "Visa alla"
+  (`ShowMore`).
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -399,6 +404,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (133 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  (135 tests as of 2026-10-05, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 75 tests, including the
   real-page fixtures).

@@ -7,6 +7,7 @@ import VerifyEmailNotice from "../components/VerifyEmailNotice";
 import { fetchMyObservations } from "../services/observationService";
 import { fetchMyTours } from "../services/tourService";
 import TourCard from "../components/TourCard";
+import CollapsibleSection, { ShowMore } from "../components/CollapsibleSection";
 import type { Tour } from "../types/tour";
 import type { Observation } from "../types/observation";
 import { deleteRoute, fetchMyRoutes } from "../services/routeService";
@@ -79,69 +80,85 @@ export default function ProfilePage() {
 
       <VerifyEmailNotice />
 
-      <section className="section">
-        <h2>Mina observationer</h2>
+      <CollapsibleSection id="profile-observations" title="Mina observationer" count={mine?.length}>
         {error && <p className="error">{error}</p>}
         {!mine && !error && <PageLoading label="Laddar…" />}
         {mine && mine.length === 0 && <p className="section__intro">Du har inte delat några observationer än.</p>}
-        <div className="observation-list">
-          {mine?.map((o) => <ObservationCard key={o.id} observation={o} onChanged={load} />)}
-        </div>
-      </section>
+        {mine && (
+          <ShowMore
+            items={mine}
+            render={(visible) => (
+              <div className="observation-list">
+                {visible.map((o) => <ObservationCard key={o.id} observation={o} onChanged={load} />)}
+              </div>
+            )}
+          />
+        )}
+      </CollapsibleSection>
 
-      <section className="section">
-        <h2>Mina turer</h2>
+      <CollapsibleSection id="profile-tours" title="Mina turer" count={tours?.length}>
         {!tours && <PageLoading label="Laddar…" />}
         {tours && tours.length === 0 && (
           <p className="section__intro">
             Inga turer än. <Link to="/turer/ny">Lägg till en från klockan</Link>.
           </p>
         )}
-        <div className="tour-list">{tours?.map((t) => <TourCard key={t.id} tour={t} />)}</div>
-      </section>
+        {tours && (
+          <ShowMore
+            items={tours}
+            render={(visible) => <div className="tour-list">{visible.map((t) => <TourCard key={t.id} tour={t} />)}</div>}
+          />
+        )}
+      </CollapsibleSection>
 
-      <section className="section">
-        <h2>Mina rutter</h2>
+      <CollapsibleSection id="profile-routes" title="Mina rutter" count={routes?.length}>
         {!routes && <PageLoading label="Laddar…" />}
         {routes && routes.length === 0 && (
           <p className="section__intro">
             Inga sparade rutter än. <Link to="/karta">Planera en på kartan</Link> och tryck "Spara i mitt konto".
           </p>
         )}
-        <ul className="route-list">
-          {routes?.map((r) => (
-            <li key={r.id} className="route-card">
-              <div>
-                <Link to={`/karta?rutt=${r.id}`} className="route-card__title">
-                  {r.title}
-                </Link>
-                <span className="route-card__meta">
-                  {formatDistance(r.distanceM)}
-                  {r.ascentM !== null && ` · ↑ ${r.ascentM} m`} ·{" "}
-                  {new Date(r.updatedAt).toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
-                  {r.shared && " · delad via länk"}
-                </span>
-              </div>
-              <div className="route-card__actions">
-                <Link to={`/karta?rutt=${r.id}`} className="button">
-                  Öppna i kartan
-                </Link>
-                <button
-                  type="button"
-                  className="button button--danger"
-                  onClick={async () => {
-                    if (!token || !window.confirm(`Ta bort rutten "${r.title}"?`)) return;
-                    await deleteRoute(token, r.id);
-                    setRoutes((list) => list?.filter((x) => x.id !== r.id) ?? null);
-                  }}
-                >
-                  Ta bort
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+        {routes && (
+          <ShowMore
+            items={routes}
+            render={(visible) => (
+              <ul className="route-list">
+                {visible.map((r) => (
+                  <li key={r.id} className="route-card">
+                    <div>
+                      <Link to={`/karta?rutt=${r.id}`} className="route-card__title">
+                        {r.title}
+                      </Link>
+                      <span className="route-card__meta">
+                        {formatDistance(r.distanceM)}
+                        {r.ascentM !== null && ` · ↑ ${r.ascentM} m`} ·{" "}
+                        {new Date(r.updatedAt).toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
+                        {r.shared && " · delad via länk"}
+                      </span>
+                    </div>
+                    <div className="route-card__actions">
+                      <Link to={`/karta?rutt=${r.id}`} className="button">
+                        Öppna i kartan
+                      </Link>
+                      <button
+                        type="button"
+                        className="button button--danger"
+                        onClick={async () => {
+                          if (!token || !window.confirm(`Ta bort rutten "${r.title}"?`)) return;
+                          await deleteRoute(token, r.id);
+                          setRoutes((list) => list?.filter((x) => x.id !== r.id) ?? null);
+                        }}
+                      >
+                        Ta bort
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          />
+        )}
+      </CollapsibleSection>
 
       <section className="section">
         <h2>Konto</h2>
