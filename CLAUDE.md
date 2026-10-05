@@ -307,7 +307,7 @@ the start, exact map point.
   when hide-ends changes); `GET /tours/lines?months=&region=` returns up to
   500 newest shared lines; `/karta` "Värmekarta över turer" draws them as
   see-through lines on one canvas (`TourHeatmap.tsx`) with season chips
-  (`SeasonFilter.tsx`); `/karta?turer=varmekarta` opens it directly. The layer toggles on `/karta` sit in a foldable "Kartlager (n på)" panel (open/closed remembered in localStorage `fjallkoll:map-layers-open`); the slope disclaimer stays outside it on purpose.
+  (`SeasonFilter.tsx`); `/karta?turer=varmekarta` opens it directly. The layer toggles on `/karta` sit in a foldable "Kartlager (n på)" panel (open/closed remembered in localStorage `fjallkoll:map-layers-open`); the slope disclaimer stays outside it on purpose. "Helskärm" makes the map cover the whole window (fixed, above the site header; Esc or "Stäng helskärm" leaves) with the buttons, layer panel and notices floating on top; icon-only buttons under 600 px; `FitToContainer` calls `invalidateSize()` on the switch.
   Later (native only, needs plugins/Apple account): Health Connect /
   Apple Health import.
 - **Known gaps**: no email verification until a domain + Resend are set
@@ -356,6 +356,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (106 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  (107 tests as of 2026-10-05, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 73 tests, including the
   real-page fixtures).

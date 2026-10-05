@@ -383,8 +383,8 @@
 }
 
 .page--map .page__header,
-.page--map > .map-toolbar,
-.page--map > .notice {
+.page--map .map-toolbar,
+.page--map .map-controls > .notice {
   margin-left: 16px;
   margin-right: 16px;
 }
@@ -1555,4 +1555,102 @@
 
 .map-toolbar__chevron--open {
   transform: translateY(2px) rotate(-135deg);
+}
+
+.map-toolbar__fullscreen {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Four corner marks; turned inwards when leaving full screen. */
+.fullscreen-icon {
+  width: 14px;
+  height: 14px;
+  background:
+    linear-gradient(currentColor, currentColor) top left / 5px 2px,
+    linear-gradient(currentColor, currentColor) top left / 2px 5px,
+    linear-gradient(currentColor, currentColor) top right / 5px 2px,
+    linear-gradient(currentColor, currentColor) top right / 2px 5px,
+    linear-gradient(currentColor, currentColor) bottom left / 5px 2px,
+    linear-gradient(currentColor, currentColor) bottom left / 2px 5px,
+    linear-gradient(currentColor, currentColor) bottom right / 5px 2px,
+    linear-gradient(currentColor, currentColor) bottom right / 2px 5px;
+  background-repeat: no-repeat;
+}
+
+.fullscreen-icon--exit {
+  transform: rotate(180deg) scale(0.8);
+}
+
+/* Full screen: the map covers the whole window (header included) and the
+   controls float over it. Gaps between the controls let the map be dragged. */
+.page--map-full .map-container {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  height: auto;
+  min-height: 0;
+  border: none;
+}
+
+.page--map-full .map-controls {
+  position: fixed;
+  z-index: 60;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  left: 56px;
+  right: 10px;
+  max-height: calc(100% - 20px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.page--map-full .map-controls > * {
+  pointer-events: auto;
+  margin: 0;
+}
+
+.page--map-full .map-toolbar {
+  gap: 8px;
+  margin: 0;
+}
+
+.page--map-full .map-toolbar .button {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.page--map-full .map-layers {
+  max-width: 560px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.page--map-full .map-controls > .notice {
+  max-width: 560px;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 600px) {
+  /* Icons only, so all three buttons fit on one row above the map. */
+  .page--map-full .map-toolbar__label {
+    display: none;
+  }
+
+  .page--map-full .map-toolbar:not(.map-layers) {
+    flex-wrap: nowrap;
+  }
+
+  .page--map-full .map-layers {
+    max-width: 100%;
+  }
+
+  .page--map-full .map-toolbar__fullscreen,
+  .page--map-full .map-toolbar__layers,
+  .page--map-full .map-toolbar__locate {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
 }

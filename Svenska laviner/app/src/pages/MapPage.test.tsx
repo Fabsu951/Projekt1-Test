@@ -16,6 +16,7 @@ vi.mock("react-leaflet", () => ({
   Marker: () => null,
   Popup: () => null,
   Polyline: () => null,
+  useMap: () => ({ invalidateSize: () => {} }),
 }));
 vi.mock("../components/TopoLayer", () => ({ default: () => null }));
 vi.mock("../components/SlopeLayer", () => ({ default: () => null }));
@@ -40,5 +41,18 @@ describe("MapPage layer menu", () => {
 
     render(<MemoryRouter><MapPage /></MemoryRouter>);
     expect(screen.getByRole("button", { name: /Kartlager/ })).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("opens the map in full screen and leaves it with Escape", () => {
+    render(<MemoryRouter><MapPage /></MemoryRouter>);
+    fireEvent.click(screen.getByRole("button", { name: "Helskärm" }));
+    expect(document.querySelector(".page--map-full")).not.toBeNull();
+    expect(screen.queryByRole("heading", { name: "Karta" })).toBeNull();
+    expect(document.body.style.overflow).toBe("hidden");
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(document.querySelector(".page--map-full")).toBeNull();
+    expect(screen.getByRole("heading", { name: "Karta" })).toBeInTheDocument();
+    expect(document.body.style.overflow).toBe("");
   });
 });

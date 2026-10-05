@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { MapContainer, Marker, Popup } from "react-leaflet";
+import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { REGIONS } from "../data/regions";
@@ -64,6 +64,15 @@ function dangerIcon(dangerLevel: number | null | undefined): L.DivIcon {
   });
 }
 
+/** Leaflet only measures its box once; tell it when full screen changes the size. */
+function FitToContainer({ fullscreen }: { fullscreen: boolean }) {
+  const map = useMap();
+  useEffect(() => {
+    map.invalidateSize();
+  }, [map, fullscreen]);
+  return null;
+}
+
 const LAYERS_OPEN_KEY = "fjallkoll:map-layers-open";
 
 /** Whether the layer menu was left open last time (open on first visit). */
@@ -119,6 +128,19 @@ export default function MapPage() {
       saveLayersOpen(!open);
       return !open;
     });
+  const [fullscreen, setFullscreen] = useState(false);
+
+  useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setFullscreen(false);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [fullscreen]);
   const activeLayers = [showObservations, showTours, showHeatmap, showSlope].filter(Boolean).length;
   const [positionStatus, setPositionStatus] = useState<string | null>(null);
   const onPositionStatus = useCallback((message: string | null) => setPositionStatus(message), []);
@@ -135,105 +157,121 @@ export default function MapPage() {
   }, []);
 
   return (
-    <div className="page page--map">
-      <header className="page__header">
-        <h1>Karta</h1>
-        <p className="page__lead">
-          Lavinprognosområdenas ungefärliga läge, färgkodade efter farograd.
-        </p>
-      </header>
+    <div className={fullscreen ? "page page--map page--map-full" : "page page--map"}>
+      {!fullscreen && (
+        <header className="page__header">
+          <h1>Karta</h1>
+          <p className="page__lead">
+            Lavinprognosområdenas ungefärliga läge, färgkodade efter farograd.
+          </p>
+        </header>
+      )}
 
-      <div className="map-toolbar">
-        <button
-          type="button"
-          className={showPosition ? "button map-toolbar__locate map-toolbar__locate--on" : "button map-toolbar__locate"}
-          aria-pressed={showPosition}
-          onClick={() => {
-            setShowPosition((on) => !on);
-            setPositionStatus(null);
-          }}
-        >
-          <span className="my-position__legend" aria-hidden="true" />
-          {showPosition ? "Dölj min position" : "Visa min position"}
-        </button>
-        <button
-          type="button"
-          className="button map-toolbar__layers"
-          aria-expanded={layersOpen}
-          aria-controls="map-layers"
-          onClick={toggleLayers}
-        >
-          Kartlager{activeLayers > 0 && ` (${activeLayers} på)`}
-          <span className={layersOpen ? "map-toolbar__chevron map-toolbar__chevron--open" : "map-toolbar__chevron"} aria-hidden="true" />
-        </button>
-      </div>
+      <div className="map-controls">
+        <div className="map-toolbar">
+          <button
+            type="button"
+            className={showPosition ? "button map-toolbar__locate map-toolbar__locate--on" : "button map-toolbar__locate"}
+            aria-pressed={showPosition}
+            aria-label={showPosition ? "Dölj min position" : "Visa min position"}
+            onClick={() => {
+              setShowPosition((on) => !on);
+              setPositionStatus(null);
+            }}
+          >
+            <span className="my-position__legend" aria-hidden="true" />
+            <span className="map-toolbar__label">{showPosition ? "Dölj min position" : "Visa min position"}</span>
+          </button>
+          <button
+            type="button"
+            className="button map-toolbar__layers"
+            aria-expanded={layersOpen}
+            aria-controls="map-layers"
+            onClick={toggleLayers}
+          >
+            Kartlager{activeLayers > 0 && ` (${activeLayers} på)`}
+            <span className={layersOpen ? "map-toolbar__chevron map-toolbar__chevron--open" : "map-toolbar__chevron"} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="button map-toolbar__fullscreen"
+            aria-pressed={fullscreen}
+            aria-label={fullscreen ? "Stäng helskärm" : "Helskärm"}
+            onClick={() => setFullscreen((on) => !on)}
+          >
+            <span className={fullscreen ? "fullscreen-icon fullscreen-icon--exit" : "fullscreen-icon"} aria-hidden="true" />
+            <span className="map-toolbar__label">{fullscreen ? "Stäng helskärm" : "Helskärm"}</span>
+          </button>
+        </div>
 
-      <div id="map-layers" className="map-toolbar map-layers" hidden={!layersOpen}>
-        <label className="map-toolbar__toggle">
-          <input
-            type="checkbox"
-            checked={showObservations}
-            onChange={(e) => setShowObservations(e.target.checked)}
-          />
-          <span className="observation-pin observation-pin--legend"><span /></span>
-          Observationer
-        </label>
-        <label className="map-toolbar__toggle">
-          <input type="checkbox" checked={showTours} onChange={(e) => setShowTours(e.target.checked)} />
-          <span className="tour-pin tour-pin--legend">
-            <span />
-          </span>
-          Turer
-        </label>
-        <label className="map-toolbar__toggle">
-          <input type="checkbox" checked={showHeatmap} onChange={(e) => setShowHeatmap(e.target.checked)} />
-          <span className="heat-legend" aria-hidden="true" />
-          Värmekarta över turer
-        </label>
-        {showHeatmap && <SeasonFilter selected={heatSeasons} onChange={setHeatSeasons} />}
-        <label className="map-toolbar__toggle">
-          <input
-            type="checkbox"
-            checked={showSlope}
-            onChange={(e) => setShowSlope(e.target.checked)}
-          />
-          Terränglutning (zooma in för att se den)
-        </label>
-        {showSlope && (
-          <div className="slope-legend">
-            {SLOPE_LEGEND.map(([label, color]) => (
-              <span key={label} className="slope-legend__item">
-                <span className="slope-legend__swatch" style={{ backgroundColor: color }} />
-                {label}
-              </span>
-            ))}
-          </div>
+        <div id="map-layers" className="map-toolbar map-layers" hidden={!layersOpen}>
+          <label className="map-toolbar__toggle">
+            <input
+              type="checkbox"
+              checked={showObservations}
+              onChange={(e) => setShowObservations(e.target.checked)}
+            />
+            <span className="observation-pin observation-pin--legend"><span /></span>
+            Observationer
+          </label>
+          <label className="map-toolbar__toggle">
+            <input type="checkbox" checked={showTours} onChange={(e) => setShowTours(e.target.checked)} />
+            <span className="tour-pin tour-pin--legend">
+              <span />
+            </span>
+            Turer
+          </label>
+          <label className="map-toolbar__toggle">
+            <input type="checkbox" checked={showHeatmap} onChange={(e) => setShowHeatmap(e.target.checked)} />
+            <span className="heat-legend" aria-hidden="true" />
+            Värmekarta över turer
+          </label>
+          {showHeatmap && <SeasonFilter selected={heatSeasons} onChange={setHeatSeasons} />}
+          <label className="map-toolbar__toggle">
+            <input
+              type="checkbox"
+              checked={showSlope}
+              onChange={(e) => setShowSlope(e.target.checked)}
+            />
+            Terränglutning (zooma in för att se den)
+          </label>
+          {showSlope && (
+            <div className="slope-legend">
+              {SLOPE_LEGEND.map(([label, color]) => (
+                <span key={label} className="slope-legend__item">
+                  <span className="slope-legend__swatch" style={{ backgroundColor: color }} />
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
+          {showHeatmap && (
+            <p className="notice map-layers__note">
+              Värmekartan visar turer som användare delat: ju ljusare, desto fler har åkt där. Början och slutet av
+              turerna är dolda. Den säger inget om förhållandena i dag – kolla alltid lavinprognosen.
+              {heatLines.length === 0 && " Inga delade turer för det valda urvalet än."}
+            </p>
+          )}
+        </div>
+
+        {positionStatus && (
+          <p className="notice" role="status">
+            {positionStatus}
+          </p>
         )}
-        {showHeatmap && (
-          <p className="notice map-layers__note">
-            Värmekartan visar turer som användare delat: ju ljusare, desto fler har åkt där. Början och slutet av
-            turerna är dolda. Den säger inget om förhållandena i dag – kolla alltid lavinprognosen.
-            {heatLines.length === 0 && " Inga delade turer för det valda urvalet än."}
+
+        {showSlope && (
+          <p className="notice notice--stale">
+            Terränglutningen är beräknad från öppen höjddata med ~30 m upplösning
+            (SRTM/NASADEM) och är en grov approximation — inte tillräckligt exakt
+            för att ensam avgöra om en specifik sluttning är säker.
           </p>
         )}
       </div>
 
-      {positionStatus && (
-        <p className="notice" role="status">
-          {positionStatus}
-        </p>
-      )}
-
-      {showSlope && (
-        <p className="notice notice--stale">
-          Terränglutningen är beräknad från öppen höjddata med ~30 m upplösning
-          (SRTM/NASADEM) och är en grov approximation — inte tillräckligt exakt
-          för att ensam avgöra om en specifik sluttning är säker.
-        </p>
-      )}
-
       <div className="map-container">
         <MapContainer center={SWEDEN_FJALL_CENTER} zoom={DEFAULT_ZOOM} scrollWheelZoom>
+          <FitToContainer fullscreen={fullscreen} />
           <TopoLayer />
           <SlopeLayer enabled={showSlope} />
           <MyPosition enabled={showPosition} onStatus={onPositionStatus} />
