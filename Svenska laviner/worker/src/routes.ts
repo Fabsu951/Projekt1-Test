@@ -3,6 +3,7 @@ import { HttpError, nowIso, readJson } from "./http";
 import { d1Store, enforce, record } from "./rateLimit";
 import { distanceM } from "./track";
 import { nearestRegion } from "./tours";
+import { socialCleanup } from "./socialCleanup";
 
 // Planned routes: saved on the account, private unless shared by link.
 // There is deliberately no public list of other people's routes.
@@ -14,7 +15,7 @@ const SAVE_LIMIT = { max: 120, windowMs: 60 * 60 * 1000 };
 
 type LatLon = [number, number];
 
-interface RouteRow {
+export interface RouteRow {
   id: number;
   user_id: number;
   title: string;
@@ -43,7 +44,7 @@ export interface PlannedRoute {
   updatedAt: string;
 }
 
-function toRoute(row: RouteRow, viewerId: number | null): PlannedRoute {
+export function toRoute(row: RouteRow, viewerId: number | null): PlannedRoute {
   return {
     id: row.id,
     title: row.title,
@@ -187,6 +188,6 @@ export async function deleteRoute(request: Request, env: CommunityEnv, id: numbe
   const user = await requireUser(request, env);
   const row = await getRow(env, id);
   if (row.user_id !== user.id) throw new HttpError(403, "Du kan bara ta bort dina egna rutter.");
-  await env.DB.prepare("DELETE FROM routes WHERE id = ?").bind(id).run();
+  await env.DB.batch([env.DB.prepare("DELETE FROM routes WHERE id = ?").bind(id), ...socialCleanup(env, "route", id)]);
   return { ok: true };
 }

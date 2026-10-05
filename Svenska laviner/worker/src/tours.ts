@@ -1,5 +1,6 @@
 import { currentUser, requirePoster, requireUser, type CommunityEnv, type User } from "./auth";
 import { HttpError, nowIso, readJson } from "./http";
+import { socialCleanup } from "./socialCleanup";
 import { d1Store, enforce, record } from "./rateLimit";
 import { REGION_SOURCES } from "./regions";
 import { cleanPoints, distanceM, previewLine, trackStats, trimEnds, type TrackPoint } from "./track";
@@ -11,7 +12,7 @@ const MAX_DESCRIPTION = 4000;
 const REGION_RADIUS_M = 80_000;
 const UPLOAD_LIMIT = { max: 20, windowMs: 60 * 60 * 1000 };
 
-interface TourRow {
+export interface TourRow {
   id: number;
   user_id: number;
   display_name: string;
@@ -26,6 +27,7 @@ interface TourRow {
   region_id: string | null;
   shared: number;
   hide_ends_m: number;
+  followers_only: number;
   pin_lat: number | null;
   pin_lon: number | null;
   track_key: string;
@@ -47,13 +49,42 @@ export interface Tour {
   maxElevationM: number | null;
   regionId: string | null;
   shared: boolean;
+  /** Who sees it: everyone, the owner's followers, or only the owner. */
+  visibility: Visibility;
   hideEndsM: number;
   /** Where to put the tour on a map (after the hidden start), or null if nothing is shown. */
   pin: [number, number] | null;
   createdAt: string;
 }
 
-function toTour(row: TourRow): Tour {
+export type Visibility = "public" | "followers" | "private";
+
+function visibilityOf(row: Pick<TourRow, "shared" | "followers_only">): Visibility {
+  return row.shared !== 1 ? "private" : row.followers_only === 1 ? "followers" : "public";
+}
+
+/** The request's choice as stored flags; falls back to the older `shared` boolean. */
+function readVisibility(body: { visibility?: unknown; shared?: unknown }, fallback: Visibility): Visibility {
+  if (body.visibility === "public" || body.visibility === "followers" || body.visibility === "private") return body.visibility;
+  if (body.shared === true) return "public";
+  if (body.shared === false) return "private";
+  return fallback;
+}
+
+/**
+ * SQL that keeps only tours the viewer may see besides their own: public
+ * ones, and followers-only ones from people the viewer follows.
+ */
+export function visibleTourSql(alias: string, viewerId: number | null): { sql: string; binds: unknown[] } {
+  const viewer = viewerId ?? -1;
+  return {
+    sql: `(${alias}.user_id = ? OR (${alias}.shared = 1 AND (${alias}.followers_only = 0 OR EXISTS (
+      SELECT 1 FROM follows f WHERE f.follower_id = ? AND f.followee_id = ${alias}.user_id))))`,
+    binds: [viewer, viewer],
+  };
+}
+
+export function toTour(row: TourRow): Tour {
   return {
     id: row.id,
     userId: row.user_id,
@@ -68,13 +99,15 @@ function toTour(row: TourRow): Tour {
     maxElevationM: row.max_elevation_m,
     regionId: row.region_id,
     shared: row.shared === 1,
+    visibility: visibilityOf(row),
     hideEndsM: row.hide_ends_m,
     pin: row.pin_lat !== null && row.pin_lon !== null ? [row.pin_lat, row.pin_lon] : null,
     createdAt: row.created_at,
   };
 }
 
-const SELECT = "SELECT t.*, u.display_name FROM tours t JOIN users u ON u.id = t.user_id";
+export const SELECT_TOURS = "SELECT t.*, u.display_name FROM tours t JOIN users u ON u.id = t.user_id";
+const SELECT = SELECT_TOURS;
 
 export function nearestRegion(point: TrackPoint): string | null {
   let best: { id: string; d: number } | null = null;
@@ -106,6 +139,8 @@ interface CreateBody {
   title?: unknown;
   description?: unknown;
   shared?: unknown;
+  /** "public" | "followers" | "private"; replaces `shared`. */
+  visibility?: unknown;
   hideEndsM?: unknown;
   /** Used when the track itself has no timestamps, as YYYY-MM-DD. */
   date?: unknown;
@@ -133,7 +168,7 @@ export async function createTour(request: Request, env: CommunityEnv) {
   if (!startedAt) throw new HttpError(400, "Spåret saknar tider. Ange vilket datum turen gjordes.");
   if (new Date(startedAt).getTime() > Date.now() + 24 * 3600 * 1000) throw new HttpError(400, "Turen kan inte ligga i framtiden.");
 
-  const shared = body.shared === undefined ? true : body.shared === true;
+  const visibility = readVisibility(body, "public");
   const hide = hideEnds(body.hideEndsM);
   const pin = publicPin(points, hide);
   const preview = previewLine(points, hide);
@@ -142,8 +177,8 @@ export async function createTour(request: Request, env: CommunityEnv) {
 
   const result = await env.DB.prepare(
     `INSERT INTO tours (user_id, title, description, started_at, duration_s, distance_m, ascent_m, descent_m,
-       max_elevation_m, region_id, shared, hide_ends_m, pin_lat, pin_lon, track_key, preview, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       max_elevation_m, region_id, shared, followers_only, hide_ends_m, pin_lat, pin_lon, track_key, preview, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       user.id,
@@ -156,7 +191,8 @@ export async function createTour(request: Request, env: CommunityEnv) {
       stats.descentM,
       stats.maxElevationM,
       nearestRegion(points[0]),
-      shared ? 1 : 0,
+      visibility === "private" ? 0 : 1,
+      visibility === "followers" ? 1 : 0,
       hide,
       pin?.[0] ?? null,
       pin?.[1] ?? null,
@@ -204,7 +240,16 @@ export async function listTours(request: Request, env: CommunityEnv) {
     where.push("t.user_id = ?");
     binds.push(user.id);
   } else {
-    where.push("t.shared = 1");
+    const viewer = await currentUser(request, env);
+    const visible = visibleTourSql("t", viewer?.id ?? null);
+    // Lists of others' tours never include private ones, not even your own.
+    where.push("t.shared = 1", visible.sql);
+    binds.push(...visible.binds);
+    const author = Number(url.searchParams.get("user"));
+    if (Number.isInteger(author) && author > 0) {
+      where.push("t.user_id = ?");
+      binds.push(author);
+    }
   }
   addFilters(url, where, binds);
 
@@ -220,7 +265,8 @@ const HEATMAP_LIMIT = 500;
 /** Public lines of shared tours for the heatmap, never the hidden ends. */
 export async function tourLines(request: Request, env: CommunityEnv) {
   const url = new URL(request.url);
-  const where = ["t.shared = 1", "t.preview IS NOT NULL"];
+  // Followers-only tours stay out of the public heatmap.
+  const where = ["t.shared = 1", "t.followers_only = 0", "t.preview IS NOT NULL"];
   const binds: unknown[] = [];
   addFilters(url, where, binds);
   const rows = await env.DB.prepare(
@@ -244,6 +290,22 @@ async function getRow(env: CommunityEnv, id: number): Promise<TourRow> {
   return row;
 }
 
+/** The owner always; others when it's public, or followers-only and they follow the owner. */
+export async function canSeeTour(
+  env: CommunityEnv,
+  row: Pick<TourRow, "user_id" | "shared" | "followers_only">,
+  viewerId: number | null
+): Promise<boolean> {
+  if (viewerId === row.user_id) return true;
+  if (row.shared !== 1) return false;
+  if (row.followers_only !== 1) return true;
+  if (viewerId === null) return false;
+  const f = await env.DB.prepare("SELECT 1 AS x FROM follows WHERE follower_id = ? AND followee_id = ?")
+    .bind(viewerId, row.user_id)
+    .first();
+  return f !== null;
+}
+
 const canModify = (user: User, row: TourRow) => user.isAdmin || user.id === row.user_id;
 
 /** The tour and its track: whole for the owner, with hidden ends for everyone else. */
@@ -251,7 +313,7 @@ export async function getTour(request: Request, env: CommunityEnv, id: number) {
   const row = await getRow(env, id);
   const viewer = await currentUser(request, env);
   const isOwner = viewer?.id === row.user_id;
-  if (!row.shared && !isOwner) throw new HttpError(404, "Turen finns inte.");
+  if (!(await canSeeTour(env, row, viewer?.id ?? null))) throw new HttpError(404, "Turen finns inte.");
 
   const object = await env.IMAGES.get(row.track_key);
   const points = object ? ((await object.json()) as TrackPoint[]) : [];
@@ -266,7 +328,7 @@ export async function updateTour(request: Request, env: CommunityEnv, id: number
 
   const title = body.title === undefined ? row.title : text(body.title, MAX_TITLE, "en titel", true);
   const description = body.description === undefined ? row.description : text(body.description, MAX_DESCRIPTION, "beskrivningen");
-  const shared = body.shared === undefined ? row.shared === 1 : body.shared === true;
+  const visibility = readVisibility(body, visibilityOf(row));
   const hide = body.hideEndsM === undefined ? row.hide_ends_m : hideEnds(body.hideEndsM);
 
   let pin: [number, number] | null = row.pin_lat !== null && row.pin_lon !== null ? [row.pin_lat, row.pin_lon] : null;
@@ -279,9 +341,9 @@ export async function updateTour(request: Request, env: CommunityEnv, id: number
     preview = line ? JSON.stringify(line) : null;
   }
   await env.DB.prepare(
-    "UPDATE tours SET title = ?, description = ?, shared = ?, hide_ends_m = ?, pin_lat = ?, pin_lon = ?, preview = ? WHERE id = ?"
+    "UPDATE tours SET title = ?, description = ?, shared = ?, followers_only = ?, hide_ends_m = ?, pin_lat = ?, pin_lon = ?, preview = ? WHERE id = ?"
   )
-    .bind(title, description, shared ? 1 : 0, hide, pin?.[0] ?? null, pin?.[1] ?? null, preview, id)
+    .bind(title, description, visibility === "private" ? 0 : 1, visibility === "followers" ? 1 : 0, hide, pin?.[0] ?? null, pin?.[1] ?? null, preview, id)
     .run();
   return { tour: toTour(await getRow(env, id)) };
 }
@@ -291,7 +353,7 @@ export async function deleteTour(request: Request, env: CommunityEnv, id: number
   const row = await getRow(env, id);
   if (!canModify(user, row)) throw new HttpError(403, "Du kan bara ta bort dina egna turer.");
   await env.IMAGES.delete(row.track_key);
-  await env.DB.prepare("DELETE FROM tours WHERE id = ?").bind(id).run();
+  await env.DB.batch([env.DB.prepare("DELETE FROM tours WHERE id = ?").bind(id), ...socialCleanup(env, "tour", id)]);
   return { ok: true };
 }
 

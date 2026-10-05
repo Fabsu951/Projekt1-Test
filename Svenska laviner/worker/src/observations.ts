@@ -1,5 +1,6 @@
 import { type CommunityEnv, type User, requirePoster, requireUser } from "./auth";
 import { HttpError, nowIso } from "./http";
+import { socialCleanup } from "./socialCleanup";
 import { REGION_SOURCES } from "./regions";
 
 export const OBSERVATION_TYPES = ["lavin", "sprickor", "kollaps", "glidsprickor", "snotacke", "ovrigt"] as const;
@@ -27,7 +28,7 @@ const MAX_AGE_DAYS = 30;
 // Generous box around the Swedish mountains (and a bit of Norway).
 const BOUNDS = { minLat: 55, maxLat: 70, minLon: 10, maxLon: 25 };
 
-interface ObservationRow {
+export interface ObservationRow {
   id: number;
   user_id: number;
   display_name: string;
@@ -88,7 +89,7 @@ export function parseSnowDepth(value: string): number | null {
   return cm;
 }
 
-function toObservation(row: ObservationRow): Observation {
+export function toObservation(row: ObservationRow): Observation {
   return {
     id: row.id,
     userId: row.user_id,
@@ -108,7 +109,8 @@ function toObservation(row: ObservationRow): Observation {
   };
 }
 
-const SELECT = `SELECT o.*, u.display_name FROM observations o JOIN users u ON u.id = o.user_id`;
+export const SELECT_OBSERVATIONS = `SELECT o.*, u.display_name FROM observations o JOIN users u ON u.id = o.user_id`;
+const SELECT = SELECT_OBSERVATIONS;
 
 /** Public feed: newest first, hidden (reported) ones excluded. */
 export async function listObservations(request: Request, env: CommunityEnv) {
@@ -315,6 +317,7 @@ export async function deleteObservation(request: Request, env: CommunityEnv, id:
   await env.DB.batch([
     env.DB.prepare("DELETE FROM reports WHERE observation_id = ?").bind(id),
     env.DB.prepare("DELETE FROM observations WHERE id = ?").bind(id),
+    ...socialCleanup(env, "observation", id),
   ]);
   return { ok: true };
 }

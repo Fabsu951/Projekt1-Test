@@ -370,6 +370,17 @@ export async function deleteAccount(request: Request, env: CommunityEnv) {
   const keys = [...images.results.map((r) => r.image_key), ...(await trackKeysOf(env, user.id))];
   if (keys.length > 0) await env.IMAGES.delete(keys);
   await env.DB.batch([
+    // Comments and likes on the user's things, then the user's own.
+    ...(["tour", "observation", "route"] as const).flatMap((type) => {
+      const table = type === "tour" ? "tours" : type === "observation" ? "observations" : "routes";
+      return [
+        env.DB.prepare(`DELETE FROM comments WHERE item_type = ? AND item_id IN (SELECT id FROM ${table} WHERE user_id = ?)`).bind(type, user.id),
+        env.DB.prepare(`DELETE FROM likes WHERE item_type = ? AND item_id IN (SELECT id FROM ${table} WHERE user_id = ?)`).bind(type, user.id),
+      ];
+    }),
+    env.DB.prepare("DELETE FROM comments WHERE user_id = ?").bind(user.id),
+    env.DB.prepare("DELETE FROM likes WHERE user_id = ?").bind(user.id),
+    env.DB.prepare("DELETE FROM follows WHERE follower_id = ? OR followee_id = ?").bind(user.id, user.id),
     env.DB.prepare("DELETE FROM reports WHERE user_id = ? OR observation_id IN (SELECT id FROM observations WHERE user_id = ?)").bind(user.id, user.id),
     env.DB.prepare("DELETE FROM observations WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM tours WHERE user_id = ?").bind(user.id),

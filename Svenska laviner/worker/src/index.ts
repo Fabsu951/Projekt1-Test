@@ -4,6 +4,18 @@ import { findChanges, historyRow, readHistory, recordHistory, type HistoryRow } 
 import { getFavorites, saveFavorites } from "./favorites";
 import { createTour, deleteTour, getTour, listTours, tourLines, updateTour } from "./tours";
 import { createRoute, deleteRoute, getRoute, listMyRoutes, updateRoute } from "./routes";
+import {
+  addComment,
+  deleteComment,
+  feed,
+  follow,
+  getPerson,
+  listComments,
+  myFollows,
+  searchPeople,
+  setLike,
+  unfollow,
+} from "./social";
 import { parseTilePath, serveTile, uploadTiles, type TilesEnv } from "./tiles";
 import { notifyChanges, publicKey, subscribe, unsubscribe, type PushEnv } from "./push";
 import { stockholmDate } from "./model";
@@ -197,6 +209,22 @@ async function handleCommunity(request: Request, env: Env, origin: string): Prom
         return json(await restoreObservation(request, env, id), origin);
       if (!obsMatch[2] && method === "DELETE") return json(await deleteObservation(request, env, id), origin);
     }
+
+    if (pathname === "/feed" && method === "GET") return json(await feed(request, env), origin);
+    if (pathname === "/people" && method === "GET") return json(await searchPeople(request, env), origin);
+    if (pathname === "/people/me/follows" && method === "GET") return json(await myFollows(request, env), origin);
+    const personMatch = pathname.match(/^\/people\/(\d+)(\/follow)?$/);
+    if (personMatch) {
+      const id = Number(personMatch[1]);
+      if (!personMatch[2] && method === "GET") return json(await getPerson(request, env, id), origin);
+      if (personMatch[2] && method === "POST") return json(await follow(request, env, id), origin);
+      if (personMatch[2] && method === "DELETE") return json(await unfollow(request, env, id), origin);
+    }
+    if (pathname === "/comments" && method === "GET") return json(await listComments(request, env), origin);
+    if (pathname === "/comments" && method === "POST") return json(await addComment(request, env), origin, 201);
+    const commentMatch = pathname.match(/^\/comments\/(\d+)$/);
+    if (commentMatch && method === "DELETE") return json(await deleteComment(request, env, Number(commentMatch[1])), origin);
+    if (pathname === "/likes" && method === "POST") return json(await setLike(request, env), origin);
 
     if (pathname === "/routes" && method === "GET") return json(await listMyRoutes(request, env), origin);
     if (pathname === "/routes" && method === "POST") return json(await createRoute(request, env), origin, 201);
