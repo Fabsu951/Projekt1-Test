@@ -28,6 +28,7 @@ const NewTourPage = lazy(() => import("./pages/NewTourPage"));
 const TourPage = lazy(() => import("./pages/TourPage"));
 const FeedPage = lazy(() => import("./pages/FeedPage"));
 const PersonPage = lazy(() => import("./pages/PersonPage"));
+const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 
 function App() {
   return (
@@ -84,6 +85,14 @@ function App() {
           element={
             <Suspense fallback={<PageLoading />}>
               <PersonPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/notiser"
+          element={
+            <Suspense fallback={<PageLoading />}>
+              <NotificationsPage />
             </Suspense>
           }
         />

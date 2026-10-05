@@ -2568,3 +2568,67 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Notifications: bell in the menu and the /notiser list */
+.notification-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notification-bell__count {
+  position: absolute;
+  top: -2px;
+  left: 22px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--signal);
+  color: #1a1a1a;
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  letter-spacing: 0;
+}
+
+.notification-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.notification__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  color: inherit;
+}
+
+.notification--unread .notification__link {
+  border-color: var(--signal);
+  background: var(--bg-raised);
+}
+
+.notification__text {
+  display: block;
+}
+
+.notification__time {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.notification-push {
+  margin-bottom: 14px;
+}

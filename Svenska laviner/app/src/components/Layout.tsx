@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { defaultTitle, fullTitle, PageTitleContext } from "./pageTitle";
 import ErrorBoundary from "./ErrorBoundary";
 import Avatar from "./Avatar";
+import NotificationBell from "./NotificationBell";
 import { useAuth } from "../auth/useAuth";
 
 const NAV_ITEMS = [
@@ -44,7 +45,7 @@ function Ridgeline() {
 
 export default function Layout() {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [pageTitle, setPageTitle] = useState<string | null>(null);
 
@@ -89,6 +90,7 @@ export default function Layout() {
               {item.label}
             </NavLink>
           ))}
+          {user && token && <NotificationBell token={token} />}
           <NavLink
             to={user ? "/profil" : "/logga-in"}
             aria-label={user ? `Min profil (${user.displayName})` : undefined}

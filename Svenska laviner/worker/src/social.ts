@@ -89,16 +89,27 @@ export async function getPerson(request: Request, env: CommunityEnv, id: number)
   };
 }
 
+const UPPER_TO_LOWER: Array<[string, string]> = [
+  ["Å", "å"], ["Ä", "ä"], ["Ö", "ö"], ["É", "é"], ["È", "è"], ["Ü", "ü"], ["Æ", "æ"], ["Ø", "ø"],
+];
+
+/** SQL lower-casing a column, including the Nordic letters SQLite's lower() leaves alone. */
+function foldSql(column: string): string {
+  return UPPER_TO_LOWER.reduce((sql, [upper, lower]) => `replace(${sql}, '${upper}', '${lower}')`, `lower(${column})`);
+}
+
 /** Find people by name (signed-in users only, to make scraping the user list harder). */
 export async function searchPeople(request: Request, env: CommunityEnv) {
   const viewer = await requireUser(request, env);
   const q = (new URL(request.url).searchParams.get("q") ?? "").trim();
   if (q.length < 2) return { people: [] };
-  const pattern = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+  // SQLite's LIKE and lower() only fold A–Z, so fold Å Ä Ö (and friends) by hand.
+  const folded = q.toLocaleLowerCase("sv-SE");
+  const pattern = `%${folded.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
   const rows = await env.DB.prepare(
     `SELECT u.id, u.display_name,
             EXISTS (SELECT 1 FROM follows WHERE follower_id = ? AND followee_id = u.id) AS i_follow
-       FROM users u WHERE u.display_name LIKE ? ESCAPE '\\' AND u.id != ?
+       FROM users u WHERE ${foldSql("u.display_name")} LIKE ? ESCAPE '\\' AND u.id != ?
       ORDER BY u.display_name LIMIT 20`
   )
     .bind(viewer.id, pattern, viewer.id)

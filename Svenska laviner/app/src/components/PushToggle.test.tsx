@@ -8,7 +8,7 @@ const { push } = vi.hoisted(() => ({
   push: {
     pushSupported: vi.fn(() => true),
     fetchPushKey: vi.fn(async (): Promise<string | null> => "PUBLIC"),
-    currentSubscription: vi.fn(async (): Promise<unknown> => null),
+    regionPushEnabled: vi.fn(async (): Promise<boolean> => false),
     enablePush: vi.fn(async () => {}),
     updatePushRegions: vi.fn(async () => {}),
     disablePush: vi.fn(async () => {}),
@@ -38,7 +38,7 @@ beforeEach(() => {
   localStorage.setItem("CapacitorStorage.fjallkoll:favorites", JSON.stringify(["kebnekaisefjallen"]));
   Object.values(push).forEach((fn) => fn.mockClear());
   push.fetchPushKey.mockResolvedValue("PUBLIC");
-  push.currentSubscription.mockResolvedValue(null);
+  push.regionPushEnabled.mockResolvedValue(false);
 });
 
 describe("PushToggle", () => {
@@ -59,7 +59,7 @@ describe("PushToggle", () => {
   });
 
   it("follows changes to the favourites once on", async () => {
-    push.currentSubscription.mockResolvedValue({});
+    push.regionPushEnabled.mockResolvedValue(true);
     renderToggle();
     await waitFor(() => expect(screen.getByLabelText(label)).toBeChecked());
     fireEvent.click(screen.getByRole("button", { name: "stjärna" }));

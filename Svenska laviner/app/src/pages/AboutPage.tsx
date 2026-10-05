@@ -140,6 +140,11 @@ export default function AboutPage() {
             bara för dina följare och finns inte med i värmekartan.
           </li>
           <li>
+            <strong>Notiser:</strong> när någon följer dig, kommenterar, gillar eller svarar sparas en notis till dig
+            (vem, vad och när). Notiser raderas efter 90 dagar. Slår du på "Skicka notiserna till den här enheten"
+            sparar vi webbläsarens push-adress kopplad till ditt konto, tills du stänger av det.
+          </li>
+          <li>
             <strong>Profilbild och erfarenhet:</strong> om du lägger till en profilbild beskärs och komprimeras den
             i appen innan den laddas upp, vilket också tar bort inbäddad information som GPS-position. Bilden och din
             erfarenhetsnivå syns för alla. Nivån räknas fram ur antalet turer, höjdmeter och observationer du har –

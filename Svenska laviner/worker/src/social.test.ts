@@ -93,6 +93,12 @@ describe("following", () => {
     expect((await searchPeople(req("/people?q=an", "anna"), env)).people).toEqual([]);
     expect((await searchPeople(req("/people?q=%25%25", "anna"), env)).people).toEqual([]);
     expect(await status(searchPeople(req("/people?q=be"), env))).toBe(401);
+    await env.DB.prepare("UPDATE users SET display_name = 'Åsa Öberg' WHERE id = 3").run();
+    for (const q of ["åsa", "ÅSA", "öBERG", "Sa ö"]) {
+      expect((await searchPeople(req(`/people?q=${encodeURIComponent(q)}`, "anna"), env)).people.map((p) => p.displayName)).toEqual([
+        "Åsa Öberg",
+      ]);
+    }
   });
 });
 

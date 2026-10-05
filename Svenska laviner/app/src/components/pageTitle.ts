@@ -24,6 +24,7 @@ const TITLES: Array<[RegExp, string]> = [
   [/^\/turer\/\d/, "Tur"],
   [/^\/turer/, "Turer"],
   [/^\/flode/, "Flöde"],
+  [/^\/notiser/, "Notiser"],
   [/^\/person\//, "Person"],
   [/^\/sakerhetsguide/, "Säkerhetsguide"],
   [/^\/om-appen/, "Om Fjällkoll"],

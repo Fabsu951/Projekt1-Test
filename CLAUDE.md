@@ -405,6 +405,22 @@ the start, exact map point.
   file input, friendly SMHI error notices instead of raw HTTP errors,
   "Om området"/"Karta offline"/"Lavinskalan" fold on region pages, map
   tour pins include followers-only tours you may see.
+- **Notifications (2026-10-05):** migration `0013`: `notifications`
+  (kind follow|comment|reply|like, actor, item, read_at; pruned after 90
+  days) + `user_push_subscriptions` (account-linked push, opt-in only).
+  `worker/src/notifications.ts`: `notify()` (skips self, no repeat
+  follow/like notice within 24 h, push sent via `ctx.waitUntil` — `defer`
+  threaded through `handleCommunity`), `GET /notifications`,
+  `GET /notifications/unread`, `POST /notifications/read`,
+  `POST /notifications/push|push/off|push/status`. Comments notify the
+  owner ("comment") and earlier commenters ("reply"). App:
+  `NotificationBell` in the menu (polls every 60 s and on tab focus),
+  `/notiser` (marks read on open, "Skicka notiserna till den här
+  enheten" toggle). `services/push.ts` now keeps per-purpose flags
+  (`fjallkoll:push-regions` / `fjallkoll:push-account`) because danger
+  notices and account notices share the browser's one subscription; it is
+  only cancelled when neither uses it. Native apps: bell only, no push.
+  Name search folds case incl. Å/Ä/Ö (`foldSql` in `social.ts`).
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -451,6 +467,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (146 tests as of 2026-10-05, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 85 tests, including the
+  (148 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 88 tests, including the
   real-page fixtures).

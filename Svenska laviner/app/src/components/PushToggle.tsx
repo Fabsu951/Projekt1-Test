@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useFavorites } from "../favorites/useFavorites";
 import {
-  currentSubscription,
+  regionPushEnabled,
   disablePush,
   enablePush,
   fetchPushKey,
@@ -24,11 +24,11 @@ export default function PushToggle() {
   useEffect(() => {
     if (!pushSupported()) return;
     let cancelled = false;
-    Promise.all([fetchPushKey(), currentSubscription()])
-      .then(([key, subscription]) => {
+    Promise.all([fetchPushKey(), regionPushEnabled()])
+      .then(([key, on]) => {
         if (cancelled) return;
         setPublicKey(key);
-        setEnabled(Boolean(key && subscription));
+        setEnabled(Boolean(key && on));
       })
       .catch(() => {});
     return () => {
