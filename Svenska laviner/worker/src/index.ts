@@ -3,6 +3,7 @@ import { parseForecastHtml, type ParsedForecast } from "./parse";
 import { findChanges, historyRow, readHistory, recordHistory, type HistoryRow } from "./history";
 import { getFavorites, saveFavorites } from "./favorites";
 import { createTour, deleteTour, getTour, listTours, tourLines, updateTour } from "./tours";
+import { createRoute, deleteRoute, getRoute, listMyRoutes, updateRoute } from "./routes";
 import { parseTilePath, serveTile, uploadTiles, type TilesEnv } from "./tiles";
 import { notifyChanges, publicKey, subscribe, unsubscribe, type PushEnv } from "./push";
 import { stockholmDate } from "./model";
@@ -195,6 +196,16 @@ async function handleCommunity(request: Request, env: Env, origin: string): Prom
       if (obsMatch[2] === "/restore" && method === "POST")
         return json(await restoreObservation(request, env, id), origin);
       if (!obsMatch[2] && method === "DELETE") return json(await deleteObservation(request, env, id), origin);
+    }
+
+    if (pathname === "/routes" && method === "GET") return json(await listMyRoutes(request, env), origin);
+    if (pathname === "/routes" && method === "POST") return json(await createRoute(request, env), origin, 201);
+    const routeMatch = pathname.match(/^\/routes\/(\d+)$/);
+    if (routeMatch) {
+      const id = Number(routeMatch[1]);
+      if (method === "GET") return json(await getRoute(request, env, id), origin);
+      if (method === "POST") return json(await updateRoute(request, env, id), origin);
+      if (method === "DELETE") return json(await deleteRoute(request, env, id), origin);
     }
 
     if (pathname === "/tours" && method === "GET") return json(await listTours(request, env), origin);

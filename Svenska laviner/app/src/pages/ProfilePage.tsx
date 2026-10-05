@@ -9,12 +9,16 @@ import { fetchMyTours } from "../services/tourService";
 import TourCard from "../components/TourCard";
 import type { Tour } from "../types/tour";
 import type { Observation } from "../types/observation";
+import { deleteRoute, fetchMyRoutes } from "../services/routeService";
+import type { PlannedRoute } from "../types/route";
+import { formatDistance } from "../utils/tourFormat";
 
 export default function ProfilePage() {
   const { user, token, loading, logout, deleteAccount } = useAuth();
   const navigate = useNavigate();
   const [mine, setMine] = useState<Observation[] | null>(null);
   const [tours, setTours] = useState<Tour[] | null>(null);
+  const [routes, setRoutes] = useState<PlannedRoute[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(() => {
@@ -25,6 +29,9 @@ export default function ProfilePage() {
     fetchMyTours(token)
       .then(setTours)
       .catch(() => setTours([]));
+    fetchMyRoutes(token)
+      .then(setRoutes)
+      .catch(() => setRoutes([]));
   }, [token]);
 
   useEffect(load, [load]);
@@ -35,7 +42,7 @@ export default function ProfilePage() {
   async function onDeleteAccount() {
     if (
       !window.confirm(
-        "Radera ditt konto? Alla dina observationer, bilder och turer tas bort permanent. Det går inte att ångra."
+        "Radera ditt konto? Alla dina observationer, bilder, turer och rutter tas bort permanent. Det går inte att ångra."
       )
     )
       return;
@@ -94,9 +101,52 @@ export default function ProfilePage() {
       </section>
 
       <section className="section">
+        <h2>Mina rutter</h2>
+        {!routes && <PageLoading label="Laddar…" />}
+        {routes && routes.length === 0 && (
+          <p className="section__intro">
+            Inga sparade rutter än. <Link to="/karta">Planera en på kartan</Link> och tryck "Spara i mitt konto".
+          </p>
+        )}
+        <ul className="route-list">
+          {routes?.map((r) => (
+            <li key={r.id} className="route-card">
+              <div>
+                <Link to={`/karta?rutt=${r.id}`} className="route-card__title">
+                  {r.title}
+                </Link>
+                <span className="route-card__meta">
+                  {formatDistance(r.distanceM)}
+                  {r.ascentM !== null && ` · ↑ ${r.ascentM} m`} ·{" "}
+                  {new Date(r.updatedAt).toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
+                  {r.shared && " · delad via länk"}
+                </span>
+              </div>
+              <div className="route-card__actions">
+                <Link to={`/karta?rutt=${r.id}`} className="button">
+                  Öppna i kartan
+                </Link>
+                <button
+                  type="button"
+                  className="button button--danger"
+                  onClick={async () => {
+                    if (!token || !window.confirm(`Ta bort rutten "${r.title}"?`)) return;
+                    await deleteRoute(token, r.id);
+                    setRoutes((list) => list?.filter((x) => x.id !== r.id) ?? null);
+                  }}
+                >
+                  Ta bort
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="section">
         <h2>Konto</h2>
         <p className="section__intro">
-          Raderar du kontot tas din e-post, ditt användarnamn och alla dina observationer, bilder och turer bort.
+          Raderar du kontot tas din e-post, ditt användarnamn och alla dina observationer, bilder, turer och rutter bort.
         </p>
         <button type="button" className="button button--danger" onClick={() => void onDeleteAccount()}>
           Radera mitt konto

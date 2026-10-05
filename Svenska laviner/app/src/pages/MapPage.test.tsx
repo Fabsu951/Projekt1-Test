@@ -20,6 +20,11 @@ vi.mock("react-leaflet", () => ({
   useMapEvents: () => null,
   CircleMarker: () => null,
 }));
+vi.mock("../services/routeService", () => ({
+  fetchRoute: () =>
+    Promise.resolve({ id: 7, title: "Sydtoppen", waypoints: [[67.85, 18.6], [67.9, 18.52]], mine: false, shared: true }),
+}));
+vi.mock("../auth/useAuth", () => ({ useAuth: () => ({ user: null, token: null, loading: false }) }));
 vi.mock("../components/TopoLayer", () => ({ default: () => null }));
 vi.mock("../components/SlopeLayer", () => ({ default: () => null }));
 vi.mock("../components/MyPosition", () => ({ default: () => null }));
@@ -70,6 +75,16 @@ describe("MapPage layer menu", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Ångra" }));
     expect(panel).toHaveTextContent("Klicka vidare");
-    expect(JSON.parse(localStorage.getItem("fjallkoll:route-draft")!)).toHaveLength(1);
+    expect(JSON.parse(localStorage.getItem("fjallkoll:route-draft")!).points).toHaveLength(1);
+  });
+
+  it("opens a shared route from a link in the planner", async () => {
+    render(<MemoryRouter initialEntries={["/karta?rutt=7"]}><MapPage /></MemoryRouter>);
+    const panel = await screen.findByRole("region", { name: "Ruttplanering" });
+    expect(panel).toBeInTheDocument();
+    const draft = JSON.parse(localStorage.getItem("fjallkoll:route-draft")!);
+    expect(draft.points).toHaveLength(2);
+    expect(draft.title).toBe("Sydtoppen");
+    expect(draft.id).toBeNull(); // someone else's route: an unsaved copy
   });
 });

@@ -329,10 +329,21 @@ the start, exact map point.
   `RoutePlanner.tsx` (map: points, slope-coloured line, hover dot, credits
   Mapterhorn), `RoutePanel.tsx` (stats, foldable, "Spara som GPX",
   disclaimer that ~30 m data misses short steep bits and slopes above the
-  route), `ElevationProfile.tsx` (SVG, hover syncs to map). Planned next:
-  step 2 save/share routes on the account (ask Fabian: private by
-  default?), step 3 compare route aspects/elevations with today's
-  forecast problems (never call a route "safe").
+  route), `ElevationProfile.tsx` (SVG, hover syncs to map).
+  **Saved routes (step 2, 2026-10-05):** migration `0010` `routes`
+  (waypoints JSON in D1, ≤ 300 points, stats from the app; ≤ 300 routes
+  and 120 saves/h per user), `worker/src/routes.ts`: `GET/POST /routes`
+  (own list only — no public listing), `GET/POST/DELETE /routes/:id`;
+  **private by default**, optional "Dela via länk" (`shared`), anyone
+  with the link can open it. Deleted with the account; in the privacy
+  policy. App: `hooks/useRouteDraft.ts` (draft `{points, id, title,
+  shared, savedPoints, savedTitle}` in localStorage, still reads the old
+  plain-array draft), `RouteSaveBox.tsx` in the panel (name, "Spara i
+  mitt konto"/"Spara ändringar", "Ny rutt", share + copy link; log-in
+  link when signed out), `/karta?rutt=<id>` opens a route (own → edit,
+  someone else's shared → unsaved copy), "Mina rutter" on `/profil`.
+  Next: step 3 compare route aspects/elevations with today's forecast
+  problems (never call a route "safe").
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -379,6 +390,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (119 tests as of 2026-10-05, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 73 tests, including the
+  (124 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 75 tests, including the
   real-page fixtures).

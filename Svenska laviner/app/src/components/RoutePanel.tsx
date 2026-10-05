@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import ElevationProfile from "./ElevationProfile";
 import { formatDistance } from "../utils/tourFormat";
 import { formatHours, SLOPE_BANDS, type RouteAnalysis } from "../utils/routePlan";
@@ -14,6 +14,7 @@ export default function RoutePanel({
   onClear,
   onExport,
   onClose,
+  children,
 }: {
   pointCount: number;
   analysis: RouteAnalysis | null;
@@ -24,6 +25,8 @@ export default function RoutePanel({
   onClear: () => void;
   onExport: () => void;
   onClose: () => void;
+  /** Saving and sharing controls, shown once there is a route. */
+  children?: ReactNode;
 }) {
   const [folded, setFolded] = useState(false);
   const steepBands = analysis
@@ -117,6 +120,7 @@ export default function RoutePanel({
           {analysis.incomplete && (
             <p className="notice">Höjddata saknas för en del av rutten, så siffrorna gäller bara resten.</p>
           )}
+          {children}
         </>
       )}
 

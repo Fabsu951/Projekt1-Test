@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useAuth } from "../auth/useAuth";
 import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -22,8 +23,11 @@ import type { Tour, TourLine } from "../types/tour";
 import { formatDistance } from "../utils/tourFormat";
 import RoutePlanner from "../components/RoutePlanner";
 import RoutePanel from "../components/RoutePanel";
+import RouteSaveBox from "../components/RouteSaveBox";
+import { useRouteDraft } from "../hooks/useRouteDraft";
+import { fetchRoute } from "../services/routeService";
 import { ElevationSampler } from "../utils/elevation";
-import { analyseRoute, routeToGpx, type LatLon, type RouteAnalysis } from "../utils/routePlan";
+import { analyseRoute, routeToGpx, type RouteAnalysis } from "../utils/routePlan";
 
 const TOUR_ICON = L.divIcon({
   className: "tour-pin",
@@ -77,35 +81,14 @@ function FitToContainer({ fullscreen }: { fullscreen: boolean }) {
   return null;
 }
 
-const ROUTE_DRAFT_KEY = "fjallkoll:route-draft";
-
-/** The route being planned, kept on the device so a reload doesn't lose it. */
-function readRouteDraft(): LatLon[] {
-  try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(ROUTE_DRAFT_KEY) ?? "[]");
-    return Array.isArray(parsed)
-      ? parsed.filter((p): p is LatLon => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite))
-      : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveRouteDraft(points: LatLon[]) {
-  try {
-    localStorage.setItem(ROUTE_DRAFT_KEY, JSON.stringify(points));
-  } catch {
-    // Not remembered; the route still works until the page is closed.
-  }
-}
-
-function downloadGpx(analysis: RouteAnalysis) {
+function downloadGpx(analysis: RouteAnalysis, title: string) {
   const date = new Date().toISOString().slice(0, 10);
-  const blob = new Blob([routeToGpx(`Fjällkoll-rutt ${date}`, analysis.samples)], { type: "application/gpx+xml" });
+  const name = title.trim() || `Fjällkoll-rutt ${date}`;
+  const blob = new Blob([routeToGpx(name, analysis.samples)], { type: "application/gpx+xml" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `fjallkoll-rutt-${date}.gpx`;
+  a.download = `${name.replace(/[^\p{L}\p{N} _-]+/gu, "").trim().replace(/\s+/g, "-") || "fjallkoll-rutt"}.gpx`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -135,7 +118,8 @@ export default function MapPage() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
   const [showSlope, setShowSlope] = useState(false);
   const [showObservations, setShowObservations] = useState(true);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { token, loading: authLoading } = useAuth();
   const [showTours, setShowTours] = useState(false);
   const [tours, setTours] = useState<Tour[]>([]);
   const [showHeatmap, setShowHeatmap] = useState(searchParams.get("turer") === "varmekarta");
@@ -169,16 +153,44 @@ export default function MapPage() {
     });
   const [fullscreen, setFullscreen] = useState(false);
   const [planning, setPlanning] = useState(false);
-  const [waypoints, setWaypoints] = useState<LatLon[]>(readRouteDraft);
+  const route = useRouteDraft();
+  const waypoints = route.draft.points;
+  const [routeError, setRouteError] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<RouteAnalysis | null>(null);
   const [analysing, setAnalysing] = useState(false);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const sampler = useRef<ElevationSampler | null>(null);
 
-  const changeRoute = useCallback((next: LatLon[]) => {
-    setWaypoints(next);
-    saveRouteDraft(next);
-  }, []);
+  const changeRoute = route.setPoints;
+
+  // A link to a saved route (/karta?rutt=12) opens it in the planner.
+  const openRouteId = Number(searchParams.get("rutt")) || null;
+  const openRoute = route.open;
+  useEffect(() => {
+    if (!openRouteId || authLoading) return;
+    let cancelled = false;
+    fetchRoute(openRouteId, token)
+      .then((r) => {
+        if (cancelled) return;
+        openRoute(r);
+        setRouteError(null);
+        setPlanning(true);
+      })
+      .catch((err: Error) => !cancelled && setRouteError(err.message))
+      .finally(() => {
+        if (cancelled) return;
+        setSearchParams(
+          (params) => {
+            params.delete("rutt");
+            return params;
+          },
+          { replace: true }
+        );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [openRouteId, authLoading, token, openRoute, setSearchParams]);
 
   useEffect(() => {
     if (waypoints.length < 2) return;
@@ -334,6 +346,12 @@ export default function MapPage() {
           )}
         </div>
 
+        {routeError && (
+          <p className="notice notice--danger" role="alert">
+            {routeError}
+          </p>
+        )}
+
         {positionStatus && (
           <p className="notice" role="status">
             {positionStatus}
@@ -428,9 +446,18 @@ export default function MapPage() {
           onHover={setHoverIndex}
           onUndo={() => changeRoute(waypoints.slice(0, -1))}
           onClear={() => changeRoute([])}
-          onExport={() => analysis && downloadGpx(analysis)}
+          onExport={() => analysis && downloadGpx(analysis, route.draft.title)}
           onClose={() => setPlanning(false)}
-        />
+        >
+          <RouteSaveBox
+            draft={route.draft}
+            dirty={route.dirty}
+            analysis={analysis}
+            onTitle={route.setTitle}
+            onSaved={route.markSaved}
+            onNew={route.startNew}
+          />
+        </RoutePanel>
       )}
     </div>
   );

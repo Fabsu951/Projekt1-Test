@@ -373,6 +373,7 @@ export async function deleteAccount(request: Request, env: CommunityEnv) {
     env.DB.prepare("DELETE FROM reports WHERE user_id = ? OR observation_id IN (SELECT id FROM observations WHERE user_id = ?)").bind(user.id, user.id),
     env.DB.prepare("DELETE FROM observations WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM tours WHERE user_id = ?").bind(user.id),
+    env.DB.prepare("DELETE FROM routes WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM email_tokens WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM users WHERE id = ?").bind(user.id),

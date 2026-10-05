@@ -129,6 +129,11 @@ export default function AboutPage() {
             stänger av det.
           </li>
           <li>
+            <strong>Planerade rutter:</strong> punkterna du klickar ut, namnet och ruttens längd och höjdmeter, om du
+            väljer att spara rutten i ditt konto. Sparade rutter är privata. Väljer du "Dela via länk" kan den som
+            har länken öppna rutten. Rutter som inte sparas finns bara på din enhet.
+          </li>
+          <li>
             <strong>Inloggning och säkerhet:</strong> inloggningssessioner, tillfälliga länkar för att
             bekräfta e-post och återställa lösenord, samt anmälningar av inlägg (vem som anmälde vad).
             För att stoppa lösenordsgissning och skräpkonton räknar vi misslyckade inloggningar och nya
@@ -183,14 +188,14 @@ export default function AboutPage() {
 
         <h3>Hur länge</h3>
         <p>
-          Kontot, dina observationer och dina turer sparas tills du raderar dem. Inloggningar går ut efter 90 dagar,
+          Kontot, dina observationer, turer och rutter sparas tills du raderar dem. Inloggningar går ut efter 90 dagar,
           länkar för att bekräfta e-post efter 24 timmar och länkar för lösenordsåterställning efter en timme.
         </p>
 
         <h3>Dina rättigheter</h3>
         <p>
           Du har rätt att få veta vilka uppgifter vi har om dig, få dem rättade eller raderade, och
-          invända mot behandlingen. Du kan själv ta bort enskilda observationer och turer, och radera hela ditt
+          invända mot behandlingen. Du kan själv ta bort enskilda observationer, turer och rutter, och radera hela ditt
           konto, med allt du publicerat, från din profilsida. Raderingen sker direkt.
           {PRIVACY_CONTACT_EMAIL && (
             <>
