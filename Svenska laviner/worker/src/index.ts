@@ -6,6 +6,14 @@ import { createTour, deleteTour, getTour, listTours, tourLines, updateTour } fro
 import { createRoute, deleteRoute, getRoute, listMyRoutes, updateRoute } from "./routes";
 import { badgesOf, removeAvatar, uploadAvatar } from "./profile";
 import {
+  listNotifications,
+  markRead,
+  subscribeUserPush,
+  unread,
+  unsubscribeUserPush,
+  userPushStatus,
+} from "./notifications";
+import {
   addComment,
   deleteComment,
   feed,
@@ -176,7 +184,8 @@ async function proxyTopowebb(request: Request, env: Env, origin: string): Promis
  * Auth is a bearer token (not a cookie), so it works cross-origin from
  * pages.dev and from the native Capacitor app alike.
  */
-async function handleCommunity(request: Request, env: Env, origin: string): Promise<Response | null> {
+async function handleCommunity(request: Request, env: Env, origin: string, ctx?: ExecutionContext): Promise<Response | null> {
+  const defer = ctx ? (work: Promise<unknown>) => ctx.waitUntil(work) : undefined;
   const { pathname } = new URL(request.url);
   const method = request.method;
 
@@ -225,14 +234,20 @@ async function handleCommunity(request: Request, env: Env, origin: string): Prom
     if (personMatch) {
       const id = Number(personMatch[1]);
       if (!personMatch[2] && method === "GET") return json(await getPerson(request, env, id), origin);
-      if (personMatch[2] && method === "POST") return json(await follow(request, env, id), origin);
+      if (personMatch[2] && method === "POST") return json(await follow(request, env, id, defer), origin);
       if (personMatch[2] && method === "DELETE") return json(await unfollow(request, env, id), origin);
     }
     if (pathname === "/comments" && method === "GET") return json(await listComments(request, env), origin);
-    if (pathname === "/comments" && method === "POST") return json(await addComment(request, env), origin, 201);
+    if (pathname === "/comments" && method === "POST") return json(await addComment(request, env, defer), origin, 201);
     const commentMatch = pathname.match(/^\/comments\/(\d+)$/);
     if (commentMatch && method === "DELETE") return json(await deleteComment(request, env, Number(commentMatch[1])), origin);
-    if (pathname === "/likes" && method === "POST") return json(await setLike(request, env), origin);
+    if (pathname === "/likes" && method === "POST") return json(await setLike(request, env, defer), origin);
+    if (pathname === "/notifications" && method === "GET") return json(await listNotifications(request, env), origin);
+    if (pathname === "/notifications/unread" && method === "GET") return json(await unread(request, env), origin);
+    if (pathname === "/notifications/read" && method === "POST") return json(await markRead(request, env), origin);
+    if (pathname === "/notifications/push" && method === "POST") return json(await subscribeUserPush(request, env), origin);
+    if (pathname === "/notifications/push/off" && method === "POST") return json(await unsubscribeUserPush(request, env), origin);
+    if (pathname === "/notifications/push/status" && method === "POST") return json(await userPushStatus(request, env), origin);
 
     if (pathname === "/routes" && method === "GET") return json(await listMyRoutes(request, env), origin);
     if (pathname === "/routes" && method === "POST") return json(await createRoute(request, env), origin, 201);
@@ -380,7 +395,7 @@ export default {
       return proxyTopowebb(request, env, origin);
     }
 
-    const community = await handleCommunity(request, env, origin);
+    const community = await handleCommunity(request, env, origin, ctx);
     if (community) return community;
 
     if (url.pathname === "/health") {

@@ -6,6 +6,7 @@ import { toRoute, type PlannedRoute, type RouteRow } from "./routes";
 import { canSeeTour, SELECT_TOURS, toTour, type Tour, type TourRow } from "./tours";
 import type { ItemType } from "./socialCleanup";
 import { badgesOf, experienceOf, type Badge } from "./profile";
+import { notify, type Defer, type NotifyEnv } from "./notifications";
 
 // Strava-style social layer: follow people (one-way, no approval needed),
 // a feed of what the people you follow share, and comments and likes on
@@ -131,7 +132,7 @@ export async function myFollows(request: Request, env: CommunityEnv) {
   };
 }
 
-export async function follow(request: Request, env: CommunityEnv, id: number) {
+export async function follow(request: Request, env: NotifyEnv, id: number, defer?: Defer) {
   const me = await requireUser(request, env);
   if (me.id === id) throw new HttpError(400, "Du kan inte följa dig själv.");
   const exists = await env.DB.prepare("SELECT 1 AS x FROM users WHERE id = ?").bind(id).first();
@@ -139,10 +140,11 @@ export async function follow(request: Request, env: CommunityEnv, id: number) {
   const store = d1Store(env.DB);
   const key = `follow:${me.id}`;
   await enforce(store, [{ key, ...FOLLOW_LIMIT }], "Du har följt väldigt många den senaste timmen. Försök igen senare.");
-  await env.DB.prepare("INSERT OR IGNORE INTO follows (follower_id, followee_id, created_at) VALUES (?, ?, ?)")
+  const added = await env.DB.prepare("INSERT OR IGNORE INTO follows (follower_id, followee_id, created_at) VALUES (?, ?, ?)")
     .bind(me.id, id, nowIso())
     .run();
   await record(store, [key]);
+  if (added.meta.changes) await notify(env, [{ userId: id, kind: "follow", actorId: me.id }], defer);
   return getPerson(request, env, id);
 }
 
@@ -313,12 +315,12 @@ export async function listComments(request: Request, env: CommunityEnv) {
   };
 }
 
-export async function addComment(request: Request, env: CommunityEnv) {
+export async function addComment(request: Request, env: NotifyEnv, defer?: Defer) {
   const me = await requirePoster(request, env);
   const body = await readJson<{ type?: unknown; id?: unknown; body?: unknown }>(request);
   const type = itemType(body.type);
   const id = Number(body.id);
-  await itemOwner(env, type, id, me);
+  const owner = await itemOwner(env, type, id, me);
   const text = typeof body.body === "string" ? body.body.trim() : "";
   if (!text) throw new HttpError(400, "Skriv något först.");
   if (text.length > MAX_COMMENT) throw new HttpError(400, `En kommentar får vara högst ${MAX_COMMENT} tecken.`);
@@ -329,6 +331,20 @@ export async function addComment(request: Request, env: CommunityEnv) {
     .bind(type, id, me.id, text, nowIso())
     .run();
   await record(store, [key]);
+  // The owner, and everyone else who has commented here before.
+  const others = await env.DB.prepare(
+    "SELECT DISTINCT user_id FROM comments WHERE item_type = ? AND item_id = ? AND user_id NOT IN (?, ?) LIMIT 20"
+  )
+    .bind(type, id, me.id, owner)
+    .all<{ user_id: number }>();
+  await notify(
+    env,
+    [
+      { userId: owner, kind: "comment", actorId: me.id, itemType: type, itemId: id },
+      ...others.results.map((o) => ({ userId: o.user_id, kind: "reply" as const, actorId: me.id, itemType: type, itemId: id })),
+    ],
+    defer
+  );
   return listComments(new Request(`https://x/comments?type=${type}&id=${id}`, { headers: request.headers }), env);
 }
 
@@ -351,18 +367,19 @@ export async function deleteComment(request: Request, env: CommunityEnv, comment
   return { ok: true };
 }
 
-export async function setLike(request: Request, env: CommunityEnv) {
+export async function setLike(request: Request, env: NotifyEnv, defer?: Defer) {
   const me = await requireUser(request, env);
   const body = await readJson<{ type?: unknown; id?: unknown; liked?: unknown }>(request);
   const type = itemType(body.type);
   const id = Number(body.id);
-  await itemOwner(env, type, id, me);
+  const owner = await itemOwner(env, type, id, me);
   if (body.liked === false) {
     await env.DB.prepare("DELETE FROM likes WHERE item_type = ? AND item_id = ? AND user_id = ?").bind(type, id, me.id).run();
   } else {
-    await env.DB.prepare("INSERT OR IGNORE INTO likes (item_type, item_id, user_id, created_at) VALUES (?, ?, ?, ?)")
+    const added = await env.DB.prepare("INSERT OR IGNORE INTO likes (item_type, item_id, user_id, created_at) VALUES (?, ?, ?, ?)")
       .bind(type, id, me.id, nowIso())
       .run();
+    if (added.meta.changes) await notify(env, [{ userId: owner, kind: "like", actorId: me.id, itemType: type, itemId: id }], defer);
   }
   const r = (await reactions(env, [{ type, id }], me.id)).get(`${type}:${id}`)!;
   return { likes: r.likes, likedByMe: r.likedByMe };

@@ -8,6 +8,7 @@ import { listTours, tourLines } from "./tours";
 import { migratedD1 } from "./testing/sqliteD1";
 import { experiencePoints, removeAvatar, uploadAvatar } from "./profile";
 import { serveImage } from "./observations";
+import { listNotifications, markRead, unread } from "./notifications";
 
 let env: CommunityEnv;
 let stored: Map<string, Uint8Array>;
@@ -232,5 +233,49 @@ describe("profile pictures and experience", () => {
     form.set("image", new Blob([new TextEncoder().encode("<svg/>")]), "x.svg");
     const r = new Request("https://worker.test/auth/avatar", { method: "POST", headers: { Authorization: `Bearer ${tokens.anna}` }, body: form });
     expect(await status(uploadAvatar(r, env))).toBe(415);
+  });
+});
+
+describe("notifications", () => {
+  const texts = async (who: keyof typeof tokens) =>
+    (await listNotifications(req("/notifications", who), env)).notifications.map((n) => n.text);
+
+  it("tells you about new followers, once even if they re-follow", async () => {
+    await follow(req("/people/2/follow", "anna", { method: "POST" }), env, ids.bertil);
+    await unfollow(req("/people/2/follow", "anna", { method: "DELETE" }), env, ids.bertil);
+    await follow(req("/people/2/follow", "anna", { method: "POST" }), env, ids.bertil);
+    expect(await texts("bertil")).toEqual(["Anna började följa dig"]);
+    expect((await unread(req("/notifications/unread", "bertil"), env)).unread).toBe(1);
+    const list = await listNotifications(req("/notifications", "bertil"), env);
+    expect(list.notifications[0]).toMatchObject({ url: "/person/1", read: false });
+  });
+
+  it("tells owners about comments and likes, and earlier commenters about replies", async () => {
+    const id = await tour(ids.bertil, "Sydtoppen", 1);
+    const comment = (who: keyof typeof tokens, body: string) =>
+      addComment(req("/comments", who, { json: { type: "tour", id, body } }), env);
+    await comment("anna", "Fin tur!");
+    await comment("bertil", "Tack!"); // owner answering: Anna hears about it, Bertil doesn't notify himself
+    await comment("cecilia", "Hur var snön?");
+    await setLike(req("/likes", "anna", { json: { type: "tour", id, liked: true } }), env);
+    await setLike(req("/likes", "anna", { json: { type: "tour", id, liked: false } }), env);
+    await setLike(req("/likes", "anna", { json: { type: "tour", id, liked: true } }), env); // no second like notice
+
+    expect(await texts("bertil")).toEqual([
+      "Anna gillade din tur ”Sydtoppen”",
+      "Cecilia kommenterade din tur ”Sydtoppen”",
+      "Anna kommenterade din tur ”Sydtoppen”",
+    ]);
+    expect(await texts("anna")).toEqual(["Cecilia svarade på turen ”Sydtoppen”", "Bertil svarade på turen ”Sydtoppen”"]);
+    expect(await texts("cecilia")).toEqual([]);
+
+    await markRead(req("/notifications/read", "bertil", { json: {} }), env);
+    expect((await unread(req("/notifications/unread", "bertil"), env)).unread).toBe(0);
+  });
+
+  it("forgets notifications with the account that caused them", async () => {
+    await follow(req("/people/2/follow", "anna", { method: "POST" }), env, ids.bertil);
+    await deleteAccount(req("/auth/me", "anna", { method: "DELETE" }), env);
+    expect(await texts("bertil")).toEqual([]);
   });
 });
