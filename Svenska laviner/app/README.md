@@ -1,4 +1,4 @@
-# Toppkoll
+# Turkoll
 
 TypeScript-webbapp (React + Vite) paketerad med [Capacitor](https://capacitorjs.com/) för att kunna publiceras till App Store (iOS) och Google Play (Android) — och samma kod publiceras som en vanlig hemsida.
 
@@ -7,7 +7,7 @@ TypeScript-webbapp (React + Vite) paketerad med [Capacitor](https://capacitorjs.
 - `src/` – appens källkod (React + TypeScript)
 - `android/` – genererat native Android-projekt (öppnas i Android Studio)
 - `ios/` – genererat native iOS-projekt (öppnas i Xcode, kräver macOS)
-- `capacitor.config.ts` – Capacitor-konfiguration (app-id: `se.toppkoll.app`)
+- `capacitor.config.ts` – Capacitor-konfiguration (app-id: `se.turkoll.app`)
 
 ## Utveckling
 

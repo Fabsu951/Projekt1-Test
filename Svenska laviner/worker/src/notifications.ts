@@ -70,7 +70,7 @@ async function sendPushes(env: NotifyEnv, list: Array<NewNotification & { id: nu
     if (subs.results.length === 0) continue;
     const [view] = await describe(env, [{ ...n, created_at: "", read_at: null }]);
     for (const sub of subs.results) {
-      const result = await sendPush(env, sub, { title: "Toppkoll", body: view.text, url: view.url, tag: `social-${n.id}` });
+      const result = await sendPush(env, sub, { title: "Turkoll", body: view.text, url: view.url, tag: `social-${n.id}` });
       if (result === "gone") gone.push(sub.endpoint);
     }
   }

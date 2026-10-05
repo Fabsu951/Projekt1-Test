@@ -1,4 +1,10 @@
-# Toppkoll (formerly Fjällkoll) — project state
+# Turkoll (formerly Toppkoll / Fjällkoll) — project state
+
+> **Renamed again 2026-10-05 from "Toppkoll" to "Turkoll"** the same day:
+> `toppkoll.se` was already registered. Same rules as below (branding only;
+> Cloudflare names and `fjallkoll:*` keys unchanged). appId
+> **`se.turkoll.app`**, SW app cache `turkoll-app-<version>` (old
+> `toppkoll-app-`/`fjallkoll-app-` caches are deleted on activate).
 
 > **Renamed 2026-10-05 from "Fjällkoll" to "Toppkoll"** (user's choice after
 > a name check; Fjällklar AB is a nearby competitor name). Only user-visible
@@ -8,7 +14,7 @@
 > `fjallkoll-worker`, `fjallkoll-images`), the URL `fjallkoll.pages.dev`,
 > and all internal storage keys/caches (`fjallkoll:*` localStorage and
 > Preferences, `fjallkoll-tiles-*` caches) so nobody loses saved data.
-> Optional later: a new Pages project `toppkoll` and domain `toppkoll.se`.
+> Optional later: a new Pages project `turkoll` and domain `turkoll.se`.
 
 > **Renamed 2026-09-23 from "Fjällvarning" to "Fjällkoll"** (user's
 > choice). All branding and Cloudflare resource names in the repo now use
@@ -26,15 +32,15 @@
 > `fjallkoll` created with production branch `production` and first
 > deployed from `claude/bold-lamport-juktha`. Not renamed on purpose:
 > the local folder `fjallvarning-repo` and branch `svenska-laviner`.
-> Capacitor appId is **`se.toppkoll.app`** since 2026-10-05 (was
-> `com.fabsu951.projekt1`; changed before any store upload — never change it
-> again once published). Domain: Fabian was guided 2026-10-05 to register
-> `toppkoll.se` (+ optionally `toppkoll.app`) — steps in `Svenska laviner/DOMAN.md`
+> Capacitor appId is **`se.turkoll.app`** since 2026-10-05 (was
+> `com.fabsu951.projekt1`, briefly `se.toppkoll.app`; changed before any store
+> upload — never change it once published). Domain: Fabian is to register
+> `turkoll.se` (`toppkoll.se` was taken) — steps in `Svenska laviner/DOMAN.md`
 > (buy at a Swedish registrar, DNS to Cloudflare, Pages custom domain); not
 > confirmed bought yet. When done: update `APP_URL`, `VITE_PUBLIC_SITE_URL`,
 > store URLs.
 
-Swedish avalanche forecast/safety app ("Fjällkoll") for backcountry skiers,
+Swedish avalanche forecast/safety app ("Turkoll") for backcountry skiers,
 inspired by Varsom, Rusk, and Skiguide. TypeScript, packaged as both a website
 and native iOS/Android apps (Capacitor) from one codebase.
 
@@ -453,8 +459,8 @@ the start, exact map point.
   permission, iOS camera/photo usage strings + `ITSAppUsesNonExemptEncryption`;
   `VITE_MAP_PROXY_URL` now also in `.env.production`; npm scripts
   `app:sync`, `app:android`, `app:ios`; `/om-appen#radera-konto` for the
-  stores. appId `se.toppkoll.app` (Android package
-  `se.toppkoll.app`, `MainActivity` under `java/se/toppkoll/app/`, iOS bundle id
+  stores. appId `se.turkoll.app` (Android package
+  `se.turkoll.app`, `MainActivity` under `java/se/turkoll/app/`, iOS bundle id
   the same). No Android SDK in cloud sessions, so APKs
   are built on Fabian's PC.
 - **Offline (2026-10-05):** "Utan täckning" page `/offline`
@@ -522,7 +528,7 @@ the start, exact map point.
   2026-10-05** — replaces the old "push only, no caching" rule): the
   `offlineAppShell()` plugin in `vite.config.ts` writes a content-hash
   VERSION and the list of built files into `dist/sw.js`; install precaches
-  them in `toppkoll-app-<version>`, activate deletes older app caches
+  them in `turkoll-app-<version>`, activate deletes older app caches
   (never tile caches). Navigations are **network-first** (offline → saved
   `/`), so a new deploy always shows when online — that is what keeps the
   old stale-content confusion away; `/assets/` (hashed) cache-first.

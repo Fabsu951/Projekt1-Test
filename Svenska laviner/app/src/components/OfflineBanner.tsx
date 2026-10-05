@@ -51,7 +51,7 @@ export default function OfflineBanner() {
       <span className="offline-banner__dot" aria-hidden="true" />
       <span>
         {online ? <strong>Ingen kontakt med servern.</strong> : <strong>Du är offline.</strong>}{" "}
-        {savedFrom ? `Visar det som sparades ${savedTime(savedFrom)}.` : "Toppkoll visar det som är sparat på enheten."}
+        {savedFrom ? `Visar det som sparades ${savedTime(savedFrom)}.` : "Turkoll visar det som är sparat på enheten."}
       </span>
       {!onOfflinePage && (
         <Link to="/offline" className="offline-banner__link">

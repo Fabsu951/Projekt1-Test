@@ -13,7 +13,7 @@ export default function AboutPage() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>Om Toppkoll</h1>
+        <h1>Om Turkoll</h1>
         <p className="page__lead">
           Lavinläget, vädret och terrängen i de svenska fjällen samlat på ett ställe, för dig
           som åker skidor utanför pisten.
@@ -21,7 +21,7 @@ export default function AboutPage() {
       </header>
 
       <div className="notice notice--danger">
-        <strong>Toppkoll ersätter inte officiell lavinprognos eller lavinutbildning.</strong>
+        <strong>Turkoll ersätter inte officiell lavinprognos eller lavinutbildning.</strong>
         <p>
           Farograderna hämtas automatiskt från den officiella prognosen och kan vara
           fördröjda eller, i sällsynta fall, feltolkade. Innan du ger dig ut, läs alltid hela
@@ -34,9 +34,9 @@ export default function AboutPage() {
       </div>
 
       <section className="section">
-        <h2>Vad Toppkoll gör</h2>
+        <h2>Vad Turkoll gör</h2>
         <p>
-          Toppkoll är ett komplement till de officiella källorna, inte en ersättning för dem. För
+          Turkoll är ett komplement till de officiella källorna, inte en ersättning för dem. För
           de sex officiella lavinprognosområdena i svenska fjällen får du:
         </p>
         <ul>
@@ -72,7 +72,7 @@ export default function AboutPage() {
       </section>
 
       <section className="section">
-        <h2>Vad Toppkoll inte gör</h2>
+        <h2>Vad Turkoll inte gör</h2>
         <ul>
           <li>Ersätter inte lavinutbildning eller erfarenhet i fjällterräng</li>
           <li>Ersätter inte ett dagligt beslut baserat på den officiella lavinprognosen</li>
@@ -111,7 +111,7 @@ export default function AboutPage() {
       <section className="section privacy" id="integritet">
         <h2>Integritetspolicy</h2>
         <p>
-          Den här delen beskriver vilka personuppgifter Toppkoll behandlar när du skapar ett
+          Den här delen beskriver vilka personuppgifter Turkoll behandlar när du skapar ett
           konto och delar observationer och turer, och vilka rättigheter du har enligt dataskyddsförordningen
           (GDPR). Du kan använda prognoser, väder, karta och säkerhetsguide utan konto. Då sparar vi
           inga personuppgifter om dig.

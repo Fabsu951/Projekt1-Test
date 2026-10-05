@@ -1,12 +1,12 @@
-# Toppkoll som mobilapp
+# Turkoll som mobilapp
 
-Toppkoll är byggt med Capacitor: samma kod som hemsidan körs i en app för
+Turkoll är byggt med Capacitor: samma kod som hemsidan körs i en app för
 Android och iPhone. Den här guiden visar hur du bygger apparna, testar dem på
 din egen telefon och lägger ut dem i Google Play och App Store.
 
 ## Vad som är förberett
 
-- **Ikon och startbild** med Toppkolls logga, i alla storlekar för Android och
+- **Ikon och startbild** med Turkolls logga, i alla storlekar för Android och
   iPhone. Ritas om med `npm run app:icons` om bilderna i `app/assets/` ändras.
 - **Notch, statusfält och gestfält:** sidan lämnar plats för dem, även i
   helskärmskartan.
@@ -28,7 +28,7 @@ och ett Apple-konto för iPhone. Klockan med notiser i appen fungerar.
 
 ## App-id
 
-Appens id är `se.toppkoll.app` (bytt 2026-10-05, före första publiceringen).
+Appens id är `se.turkoll.app` (bytt 2026-10-05, före första publiceringen).
 Det går **aldrig** att ändra efter att appen finns i Google Play eller App
 Store, så låt det vara som det är. Har du redan en testversion med det gamla
 id:t (`com.fabsu951.projekt1`) på telefonen blir den nya en separat app:
@@ -102,13 +102,13 @@ exempel Ionic Appflow eller Codemagic.
 
 ## Butikstexter (förslag)
 
-**Namn:** Toppkoll – lavinprognos och turer
+**Namn:** Turkoll – lavinprognos och turer
 
 **Kort beskrivning (80 tecken):**
 Lavinprognos, väder, karta och turer för skidåkning i svenska fjällen.
 
 **Lång beskrivning:**
-Toppkoll samlar det du behöver inför en tur i de svenska fjällen:
+Turkoll samlar det du behöver inför en tur i de svenska fjällen:
 
 • Dagens lavinprognos från Naturvårdsverkets lavinprognoser.se, med
   lavinproblem, väderstreck och höjder
@@ -122,7 +122,7 @@ Toppkoll samlar det du behöver inför en tur i de svenska fjällen:
   och notiser
 • Säkerhetsguide om lavinterräng, lavinskalan och vad du ska ha med dig
 
-Toppkoll ersätter inte den officiella lavinprognosen, en lavinutbildning eller
+Turkoll ersätter inte den officiella lavinprognosen, en lavinutbildning eller
 ditt eget omdöme i fält.
 
 **Kategori:** Sport (alternativt Väder)

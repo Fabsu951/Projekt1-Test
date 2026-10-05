@@ -39,7 +39,7 @@ export default function MyPosition({ enabled, onStatus }: Props) {
     Geolocation.watchPosition({ enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 }, (pos, err) => {
       if (cancelled) return;
       if (err || !pos) {
-        onStatus("Kunde inte hämta din position. Kontrollera att platstjänster är påslagna och tillåtna för Toppkoll.");
+        onStatus("Kunde inte hämta din position. Kontrollera att platstjänster är påslagna och tillåtna för Turkoll.");
         return;
       }
       const next = { lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy };

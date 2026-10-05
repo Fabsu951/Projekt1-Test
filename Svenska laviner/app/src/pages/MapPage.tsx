@@ -116,7 +116,7 @@ function FitToContainer({ fullscreen }: { fullscreen: boolean }) {
 
 function downloadGpx(analysis: RouteAnalysis, title: string) {
   const date = new Date().toISOString().slice(0, 10);
-  const name = title.trim() || `Toppkoll-rutt ${date}`;
+  const name = title.trim() || `Turkoll-rutt ${date}`;
   const file = `${name.replace(/[^\p{L}\p{N} _-]+/gu, "").trim().replace(/\s+/g, "-") || "fjallkoll-rutt"}.gpx`;
   void saveTextFile(file, routeToGpx(name, analysis.samples), "application/gpx+xml");
 }
