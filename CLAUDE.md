@@ -393,6 +393,18 @@ the start, exact map point.
   (original SVG frames: ring → notches → mountain crest → stars → double
   ring + snowflakes; initials fallback), `LevelCard.tsx` (progress bar),
   `prepareAvatar` (square crop 512 px JPEG, strips EXIF) on `/profil`.
+- **Site review (2026-10-05):** automated sweep of every route at 390 and
+  1280 px, signed in and out, with mocked worker/SMHI (console errors,
+  overflow, unlabeled controls, missing alt, duplicate ids) was clean
+  except unknown URLs → added `NotFoundPage` (`path="*"`). Also: per-page
+  tab titles (`components/pageTitle.ts`: Layout default by path,
+  `usePageTitle` overrides for region/tour/person), phone header collapses
+  into a "Meny" button (≤ 640 px), the menu shows your framed `Avatar`
+  instead of your name (`/auth/me` now adds `avatarPath` + `xp`; login
+  refetches it), Swedish `FilePicker` instead of the browser's English
+  file input, friendly SMHI error notices instead of raw HTTP errors,
+  "Om området"/"Karta offline"/"Lavinskalan" fold on region pages, map
+  tour pins include followers-only tours you may see.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -439,6 +451,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (141 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  (146 tests as of 2026-10-05, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 85 tests, including the
   real-page fixtures).

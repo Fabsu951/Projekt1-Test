@@ -35,4 +35,7 @@ export interface User {
   emailVerified: boolean;
   /** False until the email is verified (when the server enforces it). */
   canPost: boolean;
+  /** Profile picture and experience points, from /auth/me. */
+  avatarPath?: string | null;
+  xp?: number;
 }

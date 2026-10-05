@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import FilePicker from "../components/FilePicker";
 import { useAuth } from "../auth/useAuth";
 import PageLoading from "../components/PageLoading";
 import TrackMap from "../components/TrackMap";
@@ -80,7 +81,7 @@ export default function NewTourPage() {
       <form className="form" onSubmit={onSubmit}>
         <label className="form__field">
           Spårfil <span className="form__hint">(.gpx eller .fit)</span>
-          <input type="file" accept=".gpx,.fit,application/gpx+xml" onChange={(e) => void onFile(e.target.files?.[0])} />
+          <FilePicker accept=".gpx,.fit,application/gpx+xml" buttonLabel="Välj spårfil" onFile={(f) => void onFile(f)} />
         </label>
 
         {points && (

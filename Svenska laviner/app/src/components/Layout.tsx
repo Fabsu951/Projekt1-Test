@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { defaultTitle, fullTitle, PageTitleContext } from "./pageTitle";
 import ErrorBoundary from "./ErrorBoundary";
+import Avatar from "./Avatar";
 import { useAuth } from "../auth/useAuth";
 
 const NAV_ITEMS = [
@@ -42,6 +45,19 @@ function Ridgeline() {
 export default function Layout() {
   const location = useLocation();
   const { user } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [pageTitle, setPageTitle] = useState<string | null>(null);
+
+  // Close the phone menu after choosing a page.
+  const [menuPath, setMenuPath] = useState(location.pathname);
+  if (menuPath !== location.pathname) {
+    setMenuPath(location.pathname);
+    setMenuOpen(false);
+  }
+
+  useEffect(() => {
+    document.title = fullTitle(pageTitle ?? defaultTitle(location.pathname));
+  }, [pageTitle, location.pathname]);
 
   return (
     <div className="app-shell">
@@ -50,7 +66,17 @@ export default function Layout() {
           <BrandMark />
           Fjällkoll
         </NavLink>
-        <nav className="app-shell__nav">
+        <button
+          type="button"
+          className="app-shell__menu-button"
+          aria-expanded={menuOpen}
+          aria-controls="app-nav"
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          <span className={menuOpen ? "menu-icon menu-icon--open" : "menu-icon"} aria-hidden="true" />
+          Meny
+        </button>
+        <nav id="app-nav" className={menuOpen ? "app-shell__nav app-shell__nav--open" : "app-shell__nav"} aria-label="Huvudmeny">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -65,20 +91,35 @@ export default function Layout() {
           ))}
           <NavLink
             to={user ? "/profil" : "/logga-in"}
+            aria-label={user ? `Min profil (${user.displayName})` : undefined}
+            title={user ? "Min profil" : undefined}
             className={({ isActive }) =>
-              isActive
-                ? "app-shell__nav-link app-shell__nav-link--account app-shell__nav-link--active"
-                : "app-shell__nav-link app-shell__nav-link--account"
+              [
+                "app-shell__nav-link app-shell__nav-link--account",
+                user && "app-shell__nav-link--avatar",
+                isActive && "app-shell__nav-link--active",
+              ]
+                .filter(Boolean)
+                .join(" ")
             }
           >
-            {user ? user.displayName : "Logga in"}
+            {user ? (
+              <>
+                <Avatar name={user.displayName} avatarPath={user.avatarPath} xp={user.xp} size={38} />
+                <span className="app-shell__account-name">Min profil</span>
+              </>
+            ) : (
+              "Logga in"
+            )}
           </NavLink>
         </nav>
         <Ridgeline />
       </header>
       <main>
         <ErrorBoundary key={location.pathname}>
-          <Outlet />
+          <PageTitleContext.Provider value={setPageTitle}>
+            <Outlet />
+          </PageTitleContext.Provider>
         </ErrorBoundary>
       </main>
     </div>

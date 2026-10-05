@@ -141,10 +141,10 @@ export default function MapPage() {
 
   useEffect(() => {
     if (!showTours) return;
-    fetchTours({ limit: 200 })
+    fetchTours({ limit: 200, token })
       .then(setTours)
       .catch(() => setTours([]));
-  }, [showTours]);
+  }, [showTours, token]);
   const [observations, setObservations] = useState<Observation[]>([]);
   const [showPosition, setShowPosition] = useState(false);
   const [layersOpen, setLayersOpen] = useState(readLayersOpen);

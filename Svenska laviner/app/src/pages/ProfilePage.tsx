@@ -21,7 +21,7 @@ import { prepareAvatar } from "../utils/image";
 import type { Person, PersonSummary } from "../types/social";
 
 export default function ProfilePage() {
-  const { user, token, loading, logout, deleteAccount } = useAuth();
+  const { user, token, loading, logout, deleteAccount, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [mine, setMine] = useState<Observation[] | null>(null);
   const [tours, setTours] = useState<Tour[] | null>(null);
@@ -62,6 +62,7 @@ export default function ProfilePage() {
     try {
       const avatarPath = await uploadAvatar(token, await prepareAvatar(file));
       setMe({ ...me, avatarPath });
+      void refreshUser();
     } catch (err) {
       setAvatarError(err instanceof Error ? err.message : "Kunde inte spara bilden.");
     } finally {
@@ -75,6 +76,7 @@ export default function ProfilePage() {
     try {
       await removeAvatar(token);
       setMe({ ...me, avatarPath: null });
+      void refreshUser();
     } finally {
       setAvatarBusy(false);
     }
@@ -86,7 +88,7 @@ export default function ProfilePage() {
   async function onDeleteAccount() {
     if (
       !window.confirm(
-        "Radera ditt konto? Alla dina observationer, bilder, turer och rutter tas bort permanent. Det går inte att ångra."
+        "Radera ditt konto? Allt du har lagt upp – observationer, bilder, turer, rutter och kommentarer – tas bort permanent. Det går inte att ångra."
       )
     )
       return;
@@ -250,7 +252,7 @@ export default function ProfilePage() {
       <section className="section">
         <h2>Konto</h2>
         <p className="section__intro">
-          Raderar du kontot tas din e-post, ditt användarnamn och alla dina observationer, bilder, turer och rutter bort.
+          Raderar du kontot tas din e-post, ditt användarnamn, din profilbild och alla dina observationer, bilder, turer, rutter, kommentarer och följare bort.
         </p>
         <button type="button" className="button button--danger" onClick={() => void onDeleteAccount()}>
           Radera mitt konto

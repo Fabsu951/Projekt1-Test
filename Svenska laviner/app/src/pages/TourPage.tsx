@@ -7,6 +7,7 @@ import { getRegionById } from "../data/regions";
 import { HIDE_ENDS_CHOICES } from "../data/tourSeasons";
 import { tourVisibility, VISIBILITY_CHOICES } from "../data/tourVisibility";
 import Reactions from "../components/Reactions";
+import { usePageTitle } from "../components/pageTitle";
 import type { TourVisibility } from "../types/tour";
 import { deleteTour, fetchTour, updateTour } from "../services/tourService";
 import type { TourWithTrack } from "../types/tour";
@@ -19,6 +20,7 @@ export default function TourPage() {
   const [data, setData] = useState<TourWithTrack | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  usePageTitle(data?.tour.title);
 
   useEffect(() => {
     let cancelled = false;

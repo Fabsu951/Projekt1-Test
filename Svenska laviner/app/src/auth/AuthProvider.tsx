@@ -55,6 +55,10 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     await saveToken(result.token);
     setToken(result.token);
     setUser(result.user);
+    // Login answers don't include the picture; fetch it for the menu.
+    api<{ user: User }>("/auth/me", { token: result.token })
+      .then(({ user }) => setUser(user))
+      .catch(() => {});
   }, []);
 
   const value = useMemo<AuthState>(

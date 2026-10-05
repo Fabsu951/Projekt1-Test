@@ -15,6 +15,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import PageLoading from "./components/PageLoading";
+import NotFoundPage from "./pages/NotFoundPage";
 import "./App.css";
 
 // Leaflet + react-leaflet + leaflet-relief are only needed on this one route
@@ -93,6 +94,7 @@ function App() {
         <Route path="/glomt-losenord" element={<ForgotPasswordPage />} />
         <Route path="/aterstall-losenord" element={<ResetPasswordPage />} />
         <Route path="/verifiera" element={<VerifyEmailPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   );

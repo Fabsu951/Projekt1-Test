@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import FilePicker from "../components/FilePicker";
 import { useAuth } from "../auth/useAuth";
 import LocationPicker, { type Point } from "../components/LocationPicker";
 import PageLoading from "../components/PageLoading";
@@ -181,7 +182,7 @@ export default function NewObservationPage() {
 
         <label className="form__field">
           Bild <span className="form__hint">(valfritt; platsdata i bilden tas bort)</span>
-          <input type="file" accept="image/*" onChange={(e) => void onImage(e.target.files?.[0])} />
+          <FilePicker accept="image/*" buttonLabel="Välj bild" onFile={(f) => void onImage(f)} />
         </label>
         {preview && <img className="form__preview" src={preview} alt="Förhandsvisning av bilden" />}
 

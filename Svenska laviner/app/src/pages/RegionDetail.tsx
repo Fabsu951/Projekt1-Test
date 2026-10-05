@@ -23,6 +23,8 @@ import SourceList from "../components/SourceList";
 import WindRose from "../components/WindRose";
 import { WindArrow } from "../components/CompassIcons";
 import PageLoading from "../components/PageLoading";
+import CollapsibleSection from "../components/CollapsibleSection";
+import { usePageTitle } from "../components/pageTitle";
 import { formatTime, symbolLabel, windCompass } from "../utils/weatherFormat";
 import { withCache } from "../services/cache";
 import {
@@ -35,6 +37,7 @@ import {
 export default function RegionDetail() {
   const { id = "" } = useParams();
   const region = getRegionById(id);
+  usePageTitle(region?.name);
 
   const [forecast, setForecast] = useState<AvalancheForecast | null>(null);
   const [forecastStale, setForecastStale] = useState(false);
@@ -139,20 +142,22 @@ export default function RegionDetail() {
         </section>
       )}
 
-      <section className="section">
-        <h2>Om området</h2>
+      <CollapsibleSection id="region-about" title="Om området">
         <p>{region.description}</p>
         <SourceList sources={region.sources} />
-      </section>
+      </CollapsibleSection>
 
-      <section className="section">
-        <h2>Karta offline</h2>
+      <CollapsibleSection id="region-offline" title="Karta offline">
         <OfflineMapCard region={region} />
-      </section>
+      </CollapsibleSection>
 
       <section className="section">
         <h2>Väder</h2>
-        {weatherError && <p className="error">Kunde inte hämta väderdata: {weatherError}</p>}
+        {weatherError && (
+          <p className="notice" role="status">
+            Väderprognosen från SMHI kunde inte hämtas just nu. Försök igen om en stund.
+          </p>
+        )}
         {!weather && !weatherError && (
           <div className="weather-table">
             {Array.from({ length: 4 }, (_, i) => (
@@ -206,7 +211,9 @@ export default function RegionDetail() {
           <div className="wind-subsection">
             <h3>Uppmätt, senaste dygnet</h3>
             {stationError && (
-              <p className="error">Kunde inte hämta mätdata: {stationError}</p>
+              <p className="notice" role="status">
+                Uppmätt vind från SMHI:s stationer kunde inte hämtas just nu. Prognosen nedan fungerar ändå.
+              </p>
             )}
             {!stationSeries && !stationError && <PageLoading label="Laddar mätdata…" />}
             {stationSeries && stationSeries.length === 0 && (
@@ -276,9 +283,9 @@ export default function RegionDetail() {
         </p>
       </section>
 
-      <section className="section">
-        <DangerScaleGuide />
-      </section>
+      <CollapsibleSection id="region-scale" title="Lavinskalan">
+        <DangerScaleGuide showHeading={false} />
+      </CollapsibleSection>
 
       <section className="section">
         <SafetyChecklist />

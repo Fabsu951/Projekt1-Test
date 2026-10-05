@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import FollowButton from "../components/FollowButton";
 import LevelCard from "../components/LevelCard";
+import { usePageTitle } from "../components/pageTitle";
 import { removeAvatar } from "../services/socialService";
 import PageLoading from "../components/PageLoading";
 import TourCard from "../components/TourCard";
@@ -18,6 +19,7 @@ export default function PersonPage() {
   const [person, setPerson] = useState<Person | null>(null);
   const [tours, setTours] = useState<Tour[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  usePageTitle(person?.displayName);
 
   useEffect(() => {
     if (loading) return;

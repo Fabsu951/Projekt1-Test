@@ -4,7 +4,7 @@ import { findChanges, historyRow, readHistory, recordHistory, type HistoryRow } 
 import { getFavorites, saveFavorites } from "./favorites";
 import { createTour, deleteTour, getTour, listTours, tourLines, updateTour } from "./tours";
 import { createRoute, deleteRoute, getRoute, listMyRoutes, updateRoute } from "./routes";
-import { removeAvatar, uploadAvatar } from "./profile";
+import { badgesOf, removeAvatar, uploadAvatar } from "./profile";
 import {
   addComment,
   deleteComment,
@@ -186,7 +186,10 @@ async function handleCommunity(request: Request, env: Env, origin: string): Prom
     if (pathname === "/auth/logout" && method === "POST") return json(await logout(request, env), origin);
     if (pathname === "/auth/me" && method === "GET") {
       const user = await currentUser(request, env);
-      return user ? json({ user }, origin) : error("Du är inte inloggad.", origin, 401);
+      if (!user) return error("Du är inte inloggad.", origin, 401);
+      // Picture and experience too, for the avatar in the app's menu.
+      const badge = (await badgesOf(env, [user.id]))[user.id];
+      return json({ user: { ...user, ...badge } }, origin);
     }
     if (pathname === "/auth/me" && method === "DELETE") return json(await deleteAccount(request, env), origin);
     if (pathname === "/auth/favorites" && method === "GET") return json(await getFavorites(request, env), origin);
