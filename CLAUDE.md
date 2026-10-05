@@ -495,6 +495,19 @@ the start, exact map point.
   Observationer) · Gemenskap (Flöde, Turer) · Lär dig mer
   (Säkerhetsguide, Om Snöläge) · bell + avatar; thin dividers on desktop,
   small group headings in the phone menu.
+- **Start page "Idag i fjällen" (2026-10-05, replaces the old region
+  list `RegionList`):** `pages/TodayPage.tsx` at `/` (menu label "Idag").
+  Starred areas as `components/today/AreaForecastCard.tsx` (big level box,
+  label, trend vs yesterday from `/forecasts/history`, headline, problem
+  chips with `problemWhere`, 7-day spark, links); empty state + nearest
+  area when nothing is starred; `QuickActions` (Planera rutt →
+  `/karta?planera=1` opens the planner, Ny observation, Utan täckning);
+  `RecentObservations` (last 7 days, favourites only when any, 4 rows);
+  `OverviewMap` (SVG, real area centres, rough dashed Norway border, level
+  colours, links); other areas as compact rows with `ForecastBadge`;
+  off-season box. Two columns ≥ 900 px (`page--wide`, 1100 px). Helpers in
+  `utils/today.ts` (Swedish dates, `recentDays` drops tomorrow,
+  `trendSinceYesterday`). Never shows a level that isn't published.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -548,6 +561,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (161 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  (166 tests as of 2026-10-05, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 89 tests, including the
   real-page fixtures).

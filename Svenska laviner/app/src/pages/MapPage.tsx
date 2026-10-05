@@ -179,7 +179,8 @@ export default function MapPage() {
       return !open;
     });
   const [fullscreen, setFullscreen] = useState(false);
-  const [planning, setPlanning] = useState(false);
+  // "Planera rutt" on the start page links to /karta?planera=1.
+  const [planning, setPlanning] = useState(searchParams.get("planera") === "1");
   const route = useRouteDraft();
   const waypoints = route.draft.points;
   const [routeError, setRouteError] = useState<string | null>(null);

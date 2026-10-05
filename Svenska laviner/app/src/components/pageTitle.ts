@@ -15,7 +15,7 @@ export function usePageTitle(title: string | null | undefined) {
 }
 
 const TITLES: Array<[RegExp, string]> = [
-  [/^\/$/, "Områden"],
+  [/^\/$/, "Idag"],
   [/^\/omrade\//, "Område"],
   [/^\/karta/, "Karta"],
   [/^\/observationer\/ny/, "Ny observation"],

@@ -12,7 +12,7 @@ const NAV_GROUPS = [
   {
     label: "Läget",
     items: [
-      { to: "/", label: "Områden", end: true },
+      { to: "/", label: "Idag", end: true },
       { to: "/karta", label: "Karta", end: false },
       { to: "/observationer", label: "Observationer", end: false },
     ],

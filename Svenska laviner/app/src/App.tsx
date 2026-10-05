@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
-import RegionList from "./pages/RegionList";
+import TodayPage from "./pages/TodayPage";
 import RegionDetail from "./pages/RegionDetail";
 import SafetyGuide from "./pages/SafetyGuide";
 import AboutPage from "./pages/AboutPage";
@@ -35,7 +35,7 @@ function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<RegionList />} />
+        <Route path="/" element={<TodayPage />} />
         <Route path="/omrade/:id" element={<RegionDetail />} />
         <Route
           path="/karta"

@@ -127,7 +127,7 @@ export default function OfflinePage() {
                   : "inte sparad än. Ladda om sidan en gång med uppkoppling."}
             </Status>
             <Status ok={!!status.forecast}>
-              <strong>Lavinprognos:</strong> {status.forecast ? `hämtad ${when(status.forecast)}` : "inte hämtad än. Öppna Områden."}
+              <strong>Lavinprognos:</strong> {status.forecast ? `hämtad ${when(status.forecast)}` : "inte hämtad än. Öppna startsidan."}
             </Status>
             <Status ok={status.weather.length > 0}>
               <strong>Väder:</strong>{" "}
