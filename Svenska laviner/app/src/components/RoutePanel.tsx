@@ -15,6 +15,7 @@ export default function RoutePanel({
   onExport,
   onClose,
   children,
+  flagged,
 }: {
   pointCount: number;
   analysis: RouteAnalysis | null;
@@ -27,6 +28,7 @@ export default function RoutePanel({
   onClose: () => void;
   /** Saving and sharing controls, shown once there is a route. */
   children?: ReactNode;
+  flagged?: boolean[] | null;
 }) {
   const [folded, setFolded] = useState(false);
   const steepBands = analysis
@@ -104,7 +106,7 @@ export default function RoutePanel({
             </div>
           </dl>
 
-          <ElevationProfile samples={analysis.samples} hoverIndex={hoverIndex} onHover={onHover} />
+          <ElevationProfile samples={analysis.samples} hoverIndex={hoverIndex} onHover={onHover} flagged={flagged} />
 
           <p className="route-panel__steep">
             {steepBands.length === 0

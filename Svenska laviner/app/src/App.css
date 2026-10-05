@@ -2021,3 +2021,55 @@
   padding: 6px 12px;
   font-size: 0.85rem;
 }
+
+/* Route vs. today's forecast */
+.route-forecast {
+  margin: 10px 0 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.route-forecast h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.route-forecast__area,
+.route-forecast__none {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+}
+
+.route-forecast__list {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.route-forecast__item {
+  padding: 6px 10px;
+  border-left: 3px solid var(--border);
+  font-size: 0.9rem;
+}
+
+/* Marked stretches use the same white dashes as on the map. */
+.route-forecast__item--hit {
+  border-left: 3px dashed #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.route-forecast__note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.elevation-profile__flag {
+  fill: rgba(255, 255, 255, 0.14);
+}

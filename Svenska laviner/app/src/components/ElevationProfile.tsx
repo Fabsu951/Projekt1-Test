@@ -15,8 +15,11 @@ export default function ElevationProfile({
   samples,
   hoverIndex,
   onHover,
+  flagged,
 }: {
   samples: RouteSample[];
+  /** Per sample: stretches to mark (steep ground matching today's forecast problems). */
+  flagged?: boolean[] | null;
   hoverIndex: number | null;
   onHover: (index: number | null) => void;
 }) {
@@ -92,6 +95,19 @@ export default function ElevationProfile({
         <text x={width - PAD.right} y={HEIGHT - 6} textAnchor="end" className="elevation-profile__label">
           {km(total)}
         </text>
+        {flagged &&
+          samples.map((s, i) =>
+            i > 0 && flagged[i] ? (
+              <rect
+                key={`flag-${i}`}
+                x={x(samples[i - 1].distM)}
+                width={Math.max(1, x(s.distM) - x(samples[i - 1].distM))}
+                y={PAD.top}
+                height={plotH}
+                className="elevation-profile__flag"
+              />
+            ) : null
+          )}
         <path d={area} className="elevation-profile__area" />
         {segments}
         {hovered && hovered.elevation !== null && (

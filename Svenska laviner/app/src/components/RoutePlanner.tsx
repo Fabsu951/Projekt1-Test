@@ -22,11 +22,14 @@ export default function RoutePlanner({
   onChange,
   samples,
   hovered,
+  flagged,
 }: {
   waypoints: LatLon[];
   onChange: (next: LatLon[]) => void;
   samples: RouteSample[] | null;
   hovered: RouteSample | null;
+  /** Per sample: steep ground matching today's forecast problems, drawn marked. */
+  flagged: boolean[] | null;
 }) {
   const map = useMap();
   // Coming back to a saved route: show it once when planning opens.
@@ -74,6 +77,16 @@ export default function RoutePlanner({
           <Polyline positions={waypoints} interactive={false} pathOptions={{ color: "#1b2530", weight: 3, dashArray: "6 6" }} />
         )
       )}
+      {samples &&
+        flagged &&
+        flaggedRuns(samples, flagged).map((positions, i) => (
+          <Polyline
+            key={`flag-${i}`}
+            positions={positions}
+            interactive={false}
+            pathOptions={{ color: "#ffffff", weight: 3, dashArray: "2 7", lineCap: "round", opacity: 1 }}
+          />
+        ))}
       {waypoints.map((p, i) => (
         <Marker
           key={i}
@@ -95,4 +108,20 @@ export default function RoutePlanner({
       )}
     </>
   );
+}
+
+/** Consecutive flagged samples as line pieces. */
+function flaggedRuns(samples: RouteSample[], flagged: boolean[]): LatLon[][] {
+  const runs: LatLon[][] = [];
+  let current: LatLon[] | null = null;
+  samples.forEach((s, i) => {
+    if (i > 0 && flagged[i]) {
+      if (!current) {
+        current = [[samples[i - 1].lat, samples[i - 1].lon]];
+        runs.push(current);
+      }
+      current.push([s.lat, s.lon]);
+    } else current = null;
+  });
+  return runs;
 }

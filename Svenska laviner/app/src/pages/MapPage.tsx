@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
@@ -24,6 +24,8 @@ import { formatDistance } from "../utils/tourFormat";
 import RoutePlanner from "../components/RoutePlanner";
 import RoutePanel from "../components/RoutePanel";
 import RouteSaveBox from "../components/RouteSaveBox";
+import RouteForecastCheck from "../components/RouteForecastCheck";
+import { checkRouteAgainstForecast, regionForRoute } from "../utils/routeForecast";
 import { useRouteDraft } from "../hooks/useRouteDraft";
 import { fetchRoute } from "../services/routeService";
 import { ElevationSampler } from "../utils/elevation";
@@ -162,6 +164,15 @@ export default function MapPage() {
   const sampler = useRef<ElevationSampler | null>(null);
 
   const changeRoute = route.setPoints;
+
+  // Today's forecast for the area the route lies in, and where they meet.
+  const routeRegionId = useMemo(() => (analysis ? regionForRoute(analysis.samples, REGIONS) : null), [analysis]);
+  const routeForecast = routeRegionId ? (forecasts[routeRegionId] ?? null) : null;
+  const forecastCheck = useMemo(
+    () =>
+      analysis && routeForecast?.status === "published" ? checkRouteAgainstForecast(analysis.samples, routeForecast) : null,
+    [analysis, routeForecast]
+  );
 
   // A link to a saved route (/karta?rutt=12) opens it in the planner.
   const openRouteId = Number(searchParams.get("rutt")) || null;
@@ -376,6 +387,7 @@ export default function MapPage() {
               onChange={changeRoute}
               samples={analysis?.samples ?? null}
               hovered={hoverIndex !== null ? (analysis?.samples[hoverIndex] ?? null) : null}
+              flagged={forecastCheck?.flagged ?? null}
             />
           )}
           <TopoLayer />
@@ -448,7 +460,13 @@ export default function MapPage() {
           onClear={() => changeRoute([])}
           onExport={() => analysis && downloadGpx(analysis, route.draft.title)}
           onClose={() => setPlanning(false)}
+          flagged={forecastCheck?.flagged ?? null}
         >
+          <RouteForecastCheck
+            regionName={routeRegionId ? (REGIONS.find((r) => r.id === routeRegionId)?.name ?? null) : null}
+            forecast={routeForecast}
+            check={forecastCheck}
+          />
           <RouteSaveBox
             draft={route.draft}
             dirty={route.dirty}

@@ -342,8 +342,17 @@ the start, exact map point.
   mitt konto"/"Spara ändringar", "Ny rutt", share + copy link; log-in
   link when signed out), `/karta?rutt=<id>` opens a route (own → edit,
   someone else's shared → unsaved copy), "Mina rutter" on `/profil`.
-  Next: step 3 compare route aspects/elevations with today's forecast
-  problems (never call a route "safe").
+  **Forecast check (step 3, 2026-10-05):** `utils/routeForecast.ts`:
+  the route's area = nearest region to its middle sample (≤ 80 km); only
+  with a *published* forecast, every sample on ground ≥ 30° (`STEEP_DEG`)
+  is matched against each problem's aspects (8 sectors; none listed = all)
+  and heights (forecaster's metre limits if given, else bands around a
+  rough per-area treeline `TREELINE_M`, 600–900 m, ±100 m zone, edges
+  widened 50 m so borderline cases are flagged, not missed).
+  `RouteForecastCheck.tsx` in the panel lists per problem the metres,
+  sectors and bands hit; matches are white dashes on the map
+  (`RoutePlanner` `flagged`) and shaded in the profile. Wording never says
+  "safe"; without a published forecast it compares nothing and says so.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -390,6 +399,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (124 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  (133 tests as of 2026-10-05, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 75 tests, including the
   real-page fixtures).
