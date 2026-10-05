@@ -5,6 +5,8 @@ import PageLoading from "../components/PageLoading";
 import TrackMap from "../components/TrackMap";
 import VerifyEmailNotice from "../components/VerifyEmailNotice";
 import { HIDE_ENDS_CHOICES } from "../data/tourSeasons";
+import { VISIBILITY_CHOICES } from "../data/tourVisibility";
+import type { TourVisibility } from "../types/tour";
 import { createTour } from "../services/tourService";
 import { distanceM, importTrackFile, type TrackPoint } from "../utils/trackImport";
 import { formatDistance } from "../utils/tourFormat";
@@ -17,7 +19,7 @@ export default function NewTourPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
-  const [shared, setShared] = useState(true);
+  const [visibility, setVisibility] = useState<TourVisibility>("public");
   const [hideEndsM, setHideEndsM] = useState(500);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -53,7 +55,7 @@ export default function NewTourPage() {
       const tour = await createTour(token!, {
         title: title.trim(),
         description: description.trim(),
-        shared,
+        visibility,
         hideEndsM,
         date: hasTimes ? null : date,
         points,
@@ -108,12 +110,18 @@ export default function NewTourPage() {
           <textarea rows={5} maxLength={4000} value={description} onChange={(e) => setDescription(e.target.value)} />
         </label>
 
-        <label className="form__field form__field--checkbox">
-          <input type="checkbox" checked={shared} onChange={(e) => setShared(e.target.checked)} />
-          Dela turen med andra
+        <label className="form__field">
+          Vem ska se turen?
+          <select value={visibility} onChange={(e) => setVisibility(e.target.value as TourVisibility)}>
+            {VISIBILITY_CHOICES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
         </label>
 
-        {shared && (
+        {visibility !== "private" && (
           <label className="form__field">
             Dölj början och slutet <span className="form__hint">(så att ingen ser var du bor eller parkerar)</span>
             <select value={hideEndsM} onChange={(e) => setHideEndsM(Number(e.target.value))}>

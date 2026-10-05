@@ -112,7 +112,7 @@ export default function RouteSaveBox({
         <div className="route-save__row">
           <label className="route-save__share">
             <input type="checkbox" checked={draft.shared} disabled={busy} onChange={(e) => setShared(e.target.checked)} />
-            Dela via länk
+            Dela
           </label>
           {draft.shared && (
             <button type="button" className="button" onClick={copyLink}>
@@ -121,7 +121,7 @@ export default function RouteSaveBox({
           )}
           <span className="route-save__help">
             {draft.shared
-              ? "Den som har länken kan öppna rutten och spara en egen kopia."
+              ? "Dina följare ser rutten i sitt flöde, och den som har länken kan öppna den och spara en egen kopia."
               : "Rutten är privat – bara du ser den."}
           </span>
         </div>

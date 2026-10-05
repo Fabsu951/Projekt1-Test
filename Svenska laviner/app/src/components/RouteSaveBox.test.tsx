@@ -87,7 +87,7 @@ describe("saving planned routes", () => {
     updateRoute.mockResolvedValue(saved({ shared: true }));
     render(<Harness />);
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Spara i mitt konto" })));
-    await act(async () => fireEvent.click(screen.getByLabelText("Dela via länk")));
+    await act(async () => fireEvent.click(screen.getByLabelText("Dela")));
     expect(updateRoute).toHaveBeenCalledWith("t", 7, { shared: true });
     expect(screen.getByRole("button", { name: "Kopiera länk" })).toBeInTheDocument();
   });

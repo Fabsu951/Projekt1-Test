@@ -13,10 +13,11 @@ export default function TourCard({ tour }: { tour: Tour }) {
           {tour.title}
         </Link>
         {!tour.shared && <span className="tour-card__private">Privat</span>}
+        {tour.visibility === "followers" && <span className="tour-card__private">Följare</span>}
       </header>
       <p className="tour-card__meta">
         {formatTourDate(tour.startedAt)}
-        {region ? ` · ${region.name}` : ""} · {tour.author}
+        {region ? ` · ${region.name}` : ""} · <Link to={`/person/${tour.userId}`}>{tour.author}</Link>
       </p>
       <ul className="tour-card__stats" aria-label="Turens fakta">
         <li>{formatDistance(tour.distanceM)}</li>

@@ -358,6 +358,28 @@ the start, exact map point.
   the heading, open/closed remembered in localStorage
   `fjallkoll:section-open:<id>`); open lists show 5 items + "Visa alla"
   (`ShowMore`).
+- **Social / "som Strava" (2026-10-05):** Fabian's choices: follow
+  one-way without approval, feed of tours + observations + shared routes,
+  comments + likes, tours get "Bara de som följer mig". Migration `0011`:
+  `follows`, `comments` / `likes` (`item_type` tour|observation|route),
+  `tours.followers_only` (visibility = `shared` 0 → private; 1 + 0 →
+  public; 1 + 1 → followers). `worker/src/social.ts`: `GET /feed?before=`
+  (followees + self, 20 per page, merged by created_at), `GET /people?q=`
+  (signed in, LIKE escaped), `GET /people/:id`, `POST/DELETE
+  /people/:id/follow`, `GET /people/me/follows`, `GET/POST /comments`,
+  `DELETE /comments/:id` (author, item owner, admin), `POST /likes`.
+  Comments/likes require the same access as the item (`itemOwner`); tour
+  visibility via `visibleTourSql`/`canSeeTour` in `tours.ts`; followers-only
+  tours never in the heatmap. `socialCleanup.ts` removes an item's
+  comments/likes on delete; account deletion removes follows/comments/likes.
+  Tested against real SQLite with all migrations (`src/testing/sqliteD1.ts`,
+  `social.test.ts`). App: `/flode` (FeedPage + people search), `/person/:id`,
+  `FeedCard` (TrackSketch SVG instead of maps), `Reactions` (like +
+  comment thread, also on TourPage), `FollowButton`, visibility select
+  (`data/tourVisibility.ts`) on new/edit tour, "Följer"/"Följare" on
+  `/profil`, author names link to `/person/:id`. Route "Dela" now also
+  puts the route in followers' feeds. No notifications for new comments
+  yet; comments can't be reported (owners/authors/admins delete instead).
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -404,6 +426,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (135 tests as of 2026-10-05, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 75 tests, including the
+  (138 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 81 tests, including the
   real-page fixtures).

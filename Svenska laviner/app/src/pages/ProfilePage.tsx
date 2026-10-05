@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import ObservationCard from "../components/ObservationCard";
@@ -13,6 +13,9 @@ import type { Observation } from "../types/observation";
 import { deleteRoute, fetchMyRoutes } from "../services/routeService";
 import type { PlannedRoute } from "../types/route";
 import { formatDistance } from "../utils/tourFormat";
+import FollowButton from "../components/FollowButton";
+import { fetchMyFollows } from "../services/socialService";
+import type { PersonSummary } from "../types/social";
 
 export default function ProfilePage() {
   const { user, token, loading, logout, deleteAccount } = useAuth();
@@ -20,6 +23,7 @@ export default function ProfilePage() {
   const [mine, setMine] = useState<Observation[] | null>(null);
   const [tours, setTours] = useState<Tour[] | null>(null);
   const [routes, setRoutes] = useState<PlannedRoute[] | null>(null);
+  const [follows, setFollows] = useState<{ following: PersonSummary[]; followers: PersonSummary[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(() => {
@@ -33,6 +37,9 @@ export default function ProfilePage() {
     fetchMyRoutes(token)
       .then(setRoutes)
       .catch(() => setRoutes([]));
+    fetchMyFollows(token)
+      .then(setFollows)
+      .catch(() => setFollows({ following: [], followers: [] }));
   }, [token]);
 
   useEffect(load, [load]);
@@ -79,6 +86,21 @@ export default function ProfilePage() {
       </header>
 
       <VerifyEmailNotice />
+
+      <CollapsibleSection id="profile-following" title="Följer" count={follows?.following.length}>
+        <PeopleList
+          people={follows?.following ?? null}
+          empty={
+            <>
+              Du följer ingen än. <Link to="/flode">Hitta kompisar i flödet</Link>.
+            </>
+          }
+        />
+      </CollapsibleSection>
+
+      <CollapsibleSection id="profile-followers" title="Följare" count={follows?.followers.length}>
+        <PeopleList people={follows?.followers ?? null} empty="Ingen följer dig än." />
+      </CollapsibleSection>
 
       <CollapsibleSection id="profile-observations" title="Mina observationer" count={mine?.length}>
         {error && <p className="error">{error}</p>}
@@ -170,5 +192,26 @@ export default function ProfilePage() {
         </button>
       </section>
     </div>
+  );
+}
+
+function PeopleList({ people, empty }: { people: PersonSummary[] | null; empty: ReactNode }) {
+  if (!people) return <PageLoading label="Laddar…" />;
+  if (people.length === 0) return <p className="section__intro">{empty}</p>;
+  return (
+    <ShowMore
+      items={people}
+      initial={10}
+      render={(visible) => (
+        <ul className="people-list">
+          {visible.map((p) => (
+            <li key={p.id}>
+              <Link to={`/person/${p.id}`}>{p.displayName}</Link>
+              <FollowButton personId={p.id} following={p.iFollow} />
+            </li>
+          ))}
+        </ul>
+      )}
+    />
   );
 }

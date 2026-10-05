@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { to: "/", label: "Områden", end: true },
   { to: "/karta", label: "Karta", end: false },
   { to: "/observationer", label: "Observationer", end: false },
+  { to: "/flode", label: "Flöde", end: false },
   { to: "/turer", label: "Turer", end: false },
   { to: "/sakerhetsguide", label: "Säkerhetsguide", end: false },
   { to: "/om-appen", label: "Om Fjällkoll", end: false },

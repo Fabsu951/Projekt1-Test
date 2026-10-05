@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../auth/useAuth";
 import { observationTypeLabel } from "../data/observationTypes";
@@ -87,7 +88,11 @@ export default function ObservationCard({ observation: o, onChanged, showAdminAc
       )}
       <footer className="observation-card__footer">
         <span>
-          av <strong>{o.author}</strong> ·{" "}
+          av{" "}
+          <Link to={`/person/${o.userId}`}>
+            <strong>{o.author}</strong>
+          </Link>{" "}
+          ·{" "}
           <a href={`https://www.openstreetmap.org/?mlat=${o.lat}&mlon=${o.lon}#map=14/${o.lat}/${o.lon}`} target="_blank" rel="noreferrer">
             {o.lat.toFixed(4)}, {o.lon.toFixed(4)}
           </a>

@@ -5,6 +5,9 @@ import PageLoading from "../components/PageLoading";
 import TrackMap from "../components/TrackMap";
 import { getRegionById } from "../data/regions";
 import { HIDE_ENDS_CHOICES } from "../data/tourSeasons";
+import { tourVisibility, VISIBILITY_CHOICES } from "../data/tourVisibility";
+import Reactions from "../components/Reactions";
+import type { TourVisibility } from "../types/tour";
 import { deleteTour, fetchTour, updateTour } from "../services/tourService";
 import type { TourWithTrack } from "../types/tour";
 import { formatDistance, formatDuration, formatTourDate } from "../utils/tourFormat";
@@ -81,7 +84,7 @@ export default function TourPage() {
               <Link to={`/omrade/${region.id}`}>{region.name}</Link>
             </>
           ) : null}{" "}
-          · {tour.author}
+          · <Link to={`/person/${tour.userId}`}>{tour.author}</Link>
         </p>
       </header>
 
@@ -104,17 +107,29 @@ export default function TourPage() {
 
       {tour.description && <p className="tour-page__description">{tour.description}</p>}
 
+      {tourVisibility(tour) !== "private" && (
+        <section className="section">
+          <h2>Kommentarer</h2>
+          <Reactions type="tour" id={tour.id} open />
+        </section>
+      )}
+
       {isOwner && (
         <section className="section">
           <h2>Dina inställningar</h2>
-          <label className="form__field form__field--checkbox">
-            <input
-              type="checkbox"
-              checked={tour.shared}
+          <label className="form__field">
+            Vem ska se turen?
+            <select
+              value={tourVisibility(tour)}
               disabled={busy}
-              onChange={(e) => void change({ shared: e.target.checked })}
-            />
-            Dela turen med andra
+              onChange={(e) => void change({ visibility: e.target.value as TourVisibility })}
+            >
+              {VISIBILITY_CHOICES.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="form__field">
             Dölj början och slutet för andra

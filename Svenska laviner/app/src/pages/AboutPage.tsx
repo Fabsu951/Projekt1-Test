@@ -130,8 +130,14 @@ export default function AboutPage() {
           </li>
           <li>
             <strong>Planerade rutter:</strong> punkterna du klickar ut, namnet och ruttens längd och höjdmeter, om du
-            väljer att spara rutten i ditt konto. Sparade rutter är privata. Väljer du "Dela via länk" kan den som
-            har länken öppna rutten. Rutter som inte sparas finns bara på din enhet.
+            väljer att spara rutten i ditt konto. Sparade rutter är privata. Väljer du "Dela" ser dina följare rutten i
+            sitt flöde och den som har länken kan öppna den. Rutter som inte sparas finns bara på din enhet.
+          </li>
+          <li>
+            <strong>Följare, kommentarer och gilla:</strong> vilka du följer, vilka som följer dig, och de
+            kommentarer och gillamarkeringar du gör. Antalet följare syns för alla, men bara du ser vilka det
+            är. Kommentarer syns för alla som kan se inlägget. Turer du delar med "Bara de som följer mig" syns
+            bara för dina följare och finns inte med i värmekartan.
           </li>
           <li>
             <strong>Inloggning och säkerhet:</strong> inloggningssessioner, tillfälliga länkar för att
@@ -188,14 +194,14 @@ export default function AboutPage() {
 
         <h3>Hur länge</h3>
         <p>
-          Kontot, dina observationer, turer och rutter sparas tills du raderar dem. Inloggningar går ut efter 90 dagar,
+          Kontot, dina observationer, turer, rutter och kommentarer sparas tills du raderar dem. Inloggningar går ut efter 90 dagar,
           länkar för att bekräfta e-post efter 24 timmar och länkar för lösenordsåterställning efter en timme.
         </p>
 
         <h3>Dina rättigheter</h3>
         <p>
           Du har rätt att få veta vilka uppgifter vi har om dig, få dem rättade eller raderade, och
-          invända mot behandlingen. Du kan själv ta bort enskilda observationer, turer och rutter, och radera hela ditt
+          invända mot behandlingen. Du kan själv ta bort enskilda observationer, turer, rutter och kommentarer, och radera hela ditt
           konto, med allt du publicerat, från din profilsida. Raderingen sker direkt.
           {PRIVACY_CONTACT_EMAIL && (
             <>

@@ -20,7 +20,7 @@ const GPX = `<gpx xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>
 </trkseg></trk></gpx>`;
 
 describe("NewTourPage", () => {
-  it("reads a GPX file, shows it, and saves it shared with 500 m hidden by default", async () => {
+  it("reads a GPX file, shows it, and saves it visible to everyone with 500 m hidden by default", async () => {
     createTour.mockResolvedValue({ id: 42 });
     render(
       <MemoryRouter initialEntries={["/turer/ny"]}>
@@ -42,7 +42,7 @@ describe("NewTourPage", () => {
     await waitFor(() =>
       expect(createTour).toHaveBeenCalledWith(
         "t",
-        expect.objectContaining({ title: "Kebnekaise sydtopp", shared: true, hideEndsM: 500, date: null })
+        expect.objectContaining({ title: "Kebnekaise sydtopp", visibility: "public", hideEndsM: 500, date: null })
       )
     );
     expect(createTour.mock.calls[0][1].points).toHaveLength(2);

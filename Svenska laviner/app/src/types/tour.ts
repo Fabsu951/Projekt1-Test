@@ -1,5 +1,8 @@
 import type { TrackPoint } from "../utils/trackImport";
 
+/** Everyone, the owner's followers, or only the owner. */
+export type TourVisibility = "public" | "followers" | "private";
+
 export interface Tour {
   id: number;
   userId: number;
@@ -14,6 +17,8 @@ export interface Tour {
   maxElevationM: number | null;
   regionId: string | null;
   shared: boolean;
+  /** Who sees it; missing from workers deployed before followers existed. */
+  visibility?: TourVisibility;
   /** Metres hidden at each end of the track for everyone but the owner. */
   hideEndsM: number;
   /** Map position after the hidden start, or null when nothing is shown. */

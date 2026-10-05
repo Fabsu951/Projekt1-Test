@@ -10,7 +10,7 @@ import { fetchTours } from "../services/tourService";
 import type { Tour } from "../types/tour";
 
 export default function ToursPage() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [region, setRegion] = useState("");
   const [seasons, setSeasons] = useState<string[]>([]);
   const [tours, setTours] = useState<Tour[] | null>(null);
@@ -19,7 +19,7 @@ export default function ToursPage() {
   useEffect(() => {
     let cancelled = false;
     const months = seasonMonths(seasons);
-    fetchTours({ region: region || undefined, months })
+    fetchTours({ region: region || undefined, months, token })
       .then((list) => {
         if (cancelled) return;
         setError(null);
@@ -29,7 +29,7 @@ export default function ToursPage() {
     return () => {
       cancelled = true;
     };
-  }, [region, seasons]);
+  }, [region, seasons, token]);
 
   return (
     <div className="page">

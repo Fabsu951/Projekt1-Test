@@ -1,7 +1,12 @@
-import { render, screen } from "@testing-library/react";
+import { render as rtlRender, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import ObservationCard from "./ObservationCard";
 import type { Observation, User } from "../types/observation";
+
+/** The card links to the author's page, so it needs a router around it. */
+const render = (ui: ReactElement) => rtlRender(<MemoryRouter>{ui}</MemoryRouter>);
 
 const { auth } = vi.hoisted(() => ({ auth: { user: null as User | null, token: null as string | null } }));
 vi.mock("../auth/useAuth", () => ({ useAuth: () => auth }));
