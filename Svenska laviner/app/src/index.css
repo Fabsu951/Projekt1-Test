@@ -1,4 +1,11 @@
 :root {
+  /* Room for the phone's status bar, notch and gesture bar. Browsers give
+     env(); Capacitor's Android app also injects --safe-area-inset-* for
+     web views too old for env(). Both are 0 on ordinary screens. */
+  --safe-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  --safe-right: max(env(safe-area-inset-right, 0px), var(--safe-area-inset-right, 0px));
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+  --safe-left: max(env(safe-area-inset-left, 0px), var(--safe-area-inset-left, 0px));
   /* "Granite & ice": dark granite surfaces, ice-blue for links/interactive
      elements, a trail-marker orange for emphasis, and a snow white used as
      a ring around danger level colors so every level (including the black

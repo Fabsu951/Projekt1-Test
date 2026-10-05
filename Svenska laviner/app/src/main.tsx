@@ -7,6 +7,9 @@ import './index.css'
 import App from './App.tsx'
 import AuthProvider from './auth/AuthProvider'
 import FavoritesProvider from './favorites/FavoritesProvider'
+import { initNativeApp } from './services/native'
+
+void initNativeApp()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
+import { saveTextFile } from "../services/native";
 import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -86,15 +87,8 @@ function FitToContainer({ fullscreen }: { fullscreen: boolean }) {
 function downloadGpx(analysis: RouteAnalysis, title: string) {
   const date = new Date().toISOString().slice(0, 10);
   const name = title.trim() || `Fjällkoll-rutt ${date}`;
-  const blob = new Blob([routeToGpx(name, analysis.samples)], { type: "application/gpx+xml" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${name.replace(/[^\p{L}\p{N} _-]+/gu, "").trim().replace(/\s+/g, "-") || "fjallkoll-rutt"}.gpx`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const file = `${name.replace(/[^\p{L}\p{N} _-]+/gu, "").trim().replace(/\s+/g, "-") || "fjallkoll-rutt"}.gpx`;
+  void saveTextFile(file, routeToGpx(name, analysis.samples), "application/gpx+xml");
 }
 
 const LAYERS_OPEN_KEY = "fjallkoll:map-layers-open";

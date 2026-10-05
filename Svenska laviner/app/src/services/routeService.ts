@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { shareableUrl } from "./native";
 import type { PlannedRoute } from "../types/route";
 import type { LatLon } from "../utils/routePlan";
 
@@ -32,5 +33,5 @@ export async function deleteRoute(token: string, id: number): Promise<void> {
 
 /** The link that opens a route in the map planner. */
 export function routeLink(id: number): string {
-  return `${window.location.origin}/karta?rutt=${id}`;
+  return shareableUrl(`/karta?rutt=${id}`);
 }

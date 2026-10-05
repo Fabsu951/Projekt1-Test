@@ -24,6 +24,12 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Används när du tar en bild till en observation eller som profilbild.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Används när du väljer en bild till en observation eller som profilbild.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Används för att visa var du är på kartan, vilket prognosområde som ligger närmast och var en observation gjordes.</string>
 	<key>UIApplicationSceneManifest</key>

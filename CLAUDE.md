@@ -421,6 +421,25 @@ the start, exact map point.
   notices and account notices share the browser's one subscription; it is
   only cancelled when neither uses it. Native apps: bell only, no push.
   Name search folds case incl. Å/Ä/Ö (`foldSql` in `social.ts`).
+- **Mobile-app readiness (2026-10-05):** step-by-step for Fabian in
+  `Svenska laviner/APPAR.md` (Android Studio test, Play Console incl. data
+  safety answers + 12-tester rule, App Store needs a Mac + Apple account,
+  store texts). Done: new brand icon/splash in `app/assets/` →
+  `npm run app:icons` (`--android --ios` only; it garbles the web manifest
+  otherwise), old `resources/` removed, `public/favicon.svg`;
+  `viewport-fit=cover` + `--safe-top/right/bottom/left` in `index.css`
+  (max of `env()` and Capacitor's injected `--safe-area-inset-*`) on the
+  header, pages and full-screen map; `capacitor.config.ts` SystemBars
+  `insetsHandling: 'css'`, iOS `contentInset: 'never'`, dark background;
+  `services/native.ts` (`initNativeApp` Android back button via
+  `@capacitor/app`, `shareableUrl` → `VITE_PUBLIC_SITE_URL` in the apps,
+  `saveTextFile` → Filesystem + Share sheet in the apps); Android CAMERA
+  permission, iOS camera/photo usage strings + `ITSAppUsesNonExemptEncryption`;
+  `VITE_MAP_PROXY_URL` now also in `.env.production`; npm scripts
+  `app:sync`, `app:android`, `app:ios`; `/om-appen#radera-konto` for the
+  stores. Open decision: appId is still `com.fabsu951.projekt1` and becomes
+  permanent at first store upload. No Android SDK in cloud sessions, so APKs
+  are built on Fabian's PC.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 

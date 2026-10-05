@@ -209,6 +209,21 @@ export default function AboutPage() {
           länkar för att bekräfta e-post efter 24 timmar och länkar för lösenordsåterställning efter en timme.
         </p>
 
+        <h3 id="radera-konto">Radera ditt konto</h3>
+        <p>
+          Logga in, gå till din profil och tryck <strong>Radera mitt konto</strong> längst ner. Då tas kontot och allt
+          du har lagt upp bort direkt och permanent: observationer, bilder, profilbild, turer, rutter, kommentarer,
+          gillamarkeringar, följare och notiser. Det fungerar likadant på webben och i apparna.
+          {PRIVACY_CONTACT_EMAIL && (
+            <>
+              {" "}
+              Kommer du inte åt kontot kan du mejla{" "}
+              <a href={`mailto:${PRIVACY_CONTACT_EMAIL}`}>{PRIVACY_CONTACT_EMAIL}</a> från adressen du registrerade
+              dig med, så raderar vi det åt dig.
+            </>
+          )}
+        </p>
+
         <h3>Dina rättigheter</h3>
         <p>
           Du har rätt att få veta vilka uppgifter vi har om dig, få dem rättade eller raderade, och
