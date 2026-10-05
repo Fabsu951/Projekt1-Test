@@ -58,7 +58,7 @@ export interface PersonSummary extends Badge {
 
 async function withBadges(env: CommunityEnv, people: Array<Omit<PersonSummary, keyof Badge>>): Promise<PersonSummary[]> {
   const badges = await badgesOf(env, people.map((p) => p.id));
-  return people.map((p) => ({ ...p, ...(badges[p.id] ?? { avatarPath: null, xp: 0 }) }));
+  return people.map((p) => ({ ...p, ...(badges[p.id] ?? { avatarPath: null, xp: 0, isAdmin: false }) }));
 }
 
 export async function getPerson(request: Request, env: CommunityEnv, id: number) {

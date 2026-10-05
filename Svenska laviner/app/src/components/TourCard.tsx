@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { getRegionById } from "../data/regions";
 import type { Tour } from "../types/tour";
 import { formatDistance, formatDuration, formatTourDate } from "../utils/tourFormat";
+import AdminBadge from "./AdminBadge";
 
 export default function TourCard({ tour }: { tour: Tour }) {
   const region = tour.regionId ? getRegionById(tour.regionId) : undefined;
@@ -18,6 +19,7 @@ export default function TourCard({ tour }: { tour: Tour }) {
       <p className="tour-card__meta">
         {formatTourDate(tour.startedAt)}
         {region ? ` · ${region.name}` : ""} · <Link to={`/person/${tour.userId}`}>{tour.author}</Link>
+        <AdminBadge show={tour.authorIsAdmin} />
       </p>
       <ul className="tour-card__stats" aria-label="Turens fakta">
         <li>{formatDistance(tour.distanceM)}</li>

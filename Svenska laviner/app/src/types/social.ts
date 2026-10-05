@@ -8,6 +8,7 @@ export type ItemType = "tour" | "observation" | "route";
 export interface Badge {
   avatarPath: string | null;
   xp: number;
+  isAdmin?: boolean;
 }
 
 export interface PersonSummary extends Badge {

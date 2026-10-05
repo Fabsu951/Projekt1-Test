@@ -16,6 +16,7 @@ export interface TourRow {
   id: number;
   user_id: number;
   display_name: string;
+  author_is_admin?: number;
   title: string;
   description: string;
   started_at: string;
@@ -39,6 +40,7 @@ export interface Tour {
   id: number;
   userId: number;
   author: string;
+  authorIsAdmin: boolean;
   title: string;
   description: string;
   startedAt: string;
@@ -89,6 +91,7 @@ export function toTour(row: TourRow): Tour {
     id: row.id,
     userId: row.user_id,
     author: row.display_name,
+    authorIsAdmin: row.author_is_admin === 1,
     title: row.title,
     description: row.description,
     startedAt: row.started_at,
@@ -106,7 +109,7 @@ export function toTour(row: TourRow): Tour {
   };
 }
 
-export const SELECT_TOURS = "SELECT t.*, u.display_name FROM tours t JOIN users u ON u.id = t.user_id";
+export const SELECT_TOURS = "SELECT t.*, u.display_name, u.is_admin AS author_is_admin FROM tours t JOIN users u ON u.id = t.user_id";
 const SELECT = SELECT_TOURS;
 
 export function nearestRegion(point: TrackPoint): string | null {

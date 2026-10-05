@@ -7,6 +7,7 @@ import { getRegionById } from "../data/regions";
 import { imageUrl } from "../services/api";
 import { deleteObservation, reportObservation, restoreObservation } from "../services/observationService";
 import type { Observation } from "../types/observation";
+import AdminBadge from "./AdminBadge";
 
 function formatWhen(iso: string): string {
   return new Date(iso).toLocaleString("sv-SE", {
@@ -91,7 +92,8 @@ export default function ObservationCard({ observation: o, onChanged, showAdminAc
           av{" "}
           <Link to={`/person/${o.userId}`}>
             <strong>{o.author}</strong>
-          </Link>{" "}
+          </Link>
+          <AdminBadge show={o.authorIsAdmin} />{" "}
           ·{" "}
           <a href={`https://www.openstreetmap.org/?mlat=${o.lat}&mlon=${o.lon}#map=14/${o.lat}/${o.lon}`} target="_blank" rel="noreferrer">
             {o.lat.toFixed(4)}, {o.lon.toFixed(4)}

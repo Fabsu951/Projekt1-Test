@@ -2762,3 +2762,91 @@
   display: grid;
   gap: 6px;
 }
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  padding: 1px 7px 1px 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: "Barlow Condensed", system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.admin-badge svg {
+  width: 0.95em;
+  height: 0.95em;
+}
+
+h1 .admin-badge {
+  font-size: 0.9rem;
+  margin-left: 10px;
+}
+
+/* Menu groups: Läget · Gemenskap · Lär dig mer · you */
+.app-shell__nav {
+  align-items: center;
+  gap: 0;
+}
+
+.app-shell__nav-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.app-shell__nav-group + .app-shell__nav-group {
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.app-shell__nav-group--me {
+  gap: 8px;
+}
+
+.app-shell__nav-heading {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .app-shell__nav {
+    align-items: stretch;
+  }
+
+  .app-shell__nav-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .app-shell__nav-group + .app-shell__nav-group {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .app-shell__nav-group--me {
+    margin-top: 6px;
+  }
+
+  .app-shell__nav-heading {
+    display: block;
+    padding: 14px 4px 4px;
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+}

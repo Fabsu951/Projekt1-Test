@@ -11,6 +11,7 @@ import { fetchPerson } from "../services/socialService";
 import { fetchTours } from "../services/tourService";
 import type { Person } from "../types/social";
 import type { Tour } from "../types/tour";
+import AdminBadge from "../components/AdminBadge";
 
 /** Someone's public page: follow them and see the tours they share with you. */
 export default function PersonPage() {
@@ -41,7 +42,10 @@ export default function PersonPage() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>{person.displayName}</h1>
+        <h1>
+          {person.displayName}
+          <AdminBadge show={person.isAdmin} />
+        </h1>
         <LevelCard
           person={person}
           actions={

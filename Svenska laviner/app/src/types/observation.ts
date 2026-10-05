@@ -12,6 +12,7 @@ export interface Observation {
   id: number;
   userId: number;
   author: string;
+  authorIsAdmin?: boolean;
   type: ObservationType;
   lat: number;
   lon: number;

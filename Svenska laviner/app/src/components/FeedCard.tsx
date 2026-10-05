@@ -7,6 +7,7 @@ import { observationTypeLabel } from "../data/observationTypes";
 import { imageUrl } from "../services/api";
 import type { Badge, FeedItem } from "../types/social";
 import { formatDistance, formatDuration, formatTourDate } from "../utils/tourFormat";
+import AdminBadge from "./AdminBadge";
 
 const ago = (iso: string) =>
   new Date(iso).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -30,7 +31,8 @@ export default function FeedCard({ item, badge }: { item: FeedItem; badge?: Badg
         <p>
           <Link to={`/person/${author.id}`} className="feed-card__author">
             {author.name}
-          </Link>{" "}
+          </Link>
+          <AdminBadge show={badge?.isAdmin} />{" "}
           {what} · <time dateTime={item.createdAt}>{ago(item.createdAt)}</time>
         </p>
       </div>

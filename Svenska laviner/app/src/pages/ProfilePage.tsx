@@ -19,6 +19,7 @@ import { fetchMyFollows, fetchPerson, removeAvatar, uploadAvatar } from "../serv
 import LevelCard, { XpExplainer } from "../components/LevelCard";
 import { prepareAvatar } from "../utils/image";
 import type { Person, PersonSummary } from "../types/social";
+import AdminBadge from "../components/AdminBadge";
 
 export default function ProfilePage() {
   const { user, token, loading, logout, deleteAccount, refreshUser } = useAuth();
@@ -103,7 +104,10 @@ export default function ProfilePage() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>{user.displayName}</h1>
+        <h1>
+          {user.displayName}
+          <AdminBadge show={user.isAdmin} />
+        </h1>
         <p className="page__lead">{user.email}</p>
         <div className="button-row">
           <Link to="/observationer/ny" className="button button--primary">
@@ -276,6 +280,7 @@ function PeopleList({ people, empty }: { people: PersonSummary[] | null; empty: 
               <Link to={`/person/${p.id}`} className="people-list__name">
                 <Avatar name={p.displayName} avatarPath={p.avatarPath} xp={p.xp} size={36} />
                 {p.displayName}
+                <AdminBadge show={p.isAdmin} />
               </Link>
               <FollowButton personId={p.id} following={p.iFollow} />
             </li>

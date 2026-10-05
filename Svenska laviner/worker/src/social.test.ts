@@ -212,6 +212,16 @@ describe("profile pictures and experience", () => {
     expect(person).toMatchObject({ tours: 1, ascentM: 3000, observations: 0, xp: 20 + 30, avatarPath: null });
   });
 
+  it("shows everyone who the admins are", async () => {
+    await env.DB.prepare("UPDATE users SET is_admin = 1 WHERE id = ?").bind(ids.bertil).run();
+    await tour(ids.bertil, "Admintur", 1);
+    expect((await getPerson(req("/people/2", "anna"), env, ids.bertil)).person.isAdmin).toBe(true);
+    expect((await getPerson(req("/people/1", "bertil"), env, ids.anna)).person.isAdmin).toBe(false);
+    const { items, people } = await feed(req("/feed", "bertil"), env);
+    expect(items[0]).toMatchObject({ type: "tour", tour: { authorIsAdmin: true } });
+    expect(people[ids.bertil].isAdmin).toBe(true);
+  });
+
   it("stores a picture, replaces the old one, and serves it", async () => {
     const first = await upload("anna");
     expect(first.avatarPath).toMatch(/^\/images\/avatar\/[0-9a-f-]{36}\.jpg$/);

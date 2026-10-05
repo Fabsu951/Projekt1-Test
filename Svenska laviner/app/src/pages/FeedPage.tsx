@@ -7,6 +7,7 @@ import PageLoading from "../components/PageLoading";
 import { fetchFeed, searchPeople } from "../services/socialService";
 import type { Badge, FeedItem, PersonSummary } from "../types/social";
 import Avatar from "../components/Avatar";
+import AdminBadge from "../components/AdminBadge";
 
 /** What the people you follow have shared, plus finding people to follow. */
 export default function FeedPage() {
@@ -119,6 +120,7 @@ function PeopleSearch({ token }: { token: string }) {
               <Link to={`/person/${p.id}`} className="people-list__name">
                 <Avatar name={p.displayName} avatarPath={p.avatarPath} xp={p.xp} size={36} />
                 {p.displayName}
+                <AdminBadge show={p.isAdmin} />
               </Link>
               <FollowButton personId={p.id} following={p.iFollow} />
             </li>

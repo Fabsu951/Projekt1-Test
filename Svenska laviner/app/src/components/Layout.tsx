@@ -7,14 +7,30 @@ import NotificationBell from "./NotificationBell";
 import OfflineBanner from "./OfflineBanner";
 import { useAuth } from "../auth/useAuth";
 
-const NAV_ITEMS = [
-  { to: "/", label: "Områden", end: true },
-  { to: "/karta", label: "Karta", end: false },
-  { to: "/observationer", label: "Observationer", end: false },
-  { to: "/flode", label: "Flöde", end: false },
-  { to: "/turer", label: "Turer", end: false },
-  { to: "/sakerhetsguide", label: "Säkerhetsguide", end: false },
-  { to: "/om-appen", label: "Om Snöläge", end: false },
+/** The menu in three groups: today's conditions, the community, and reading. */
+const NAV_GROUPS = [
+  {
+    label: "Läget",
+    items: [
+      { to: "/", label: "Områden", end: true },
+      { to: "/karta", label: "Karta", end: false },
+      { to: "/observationer", label: "Observationer", end: false },
+    ],
+  },
+  {
+    label: "Gemenskap",
+    items: [
+      { to: "/flode", label: "Flöde", end: false },
+      { to: "/turer", label: "Turer", end: false },
+    ],
+  },
+  {
+    label: "Lär dig mer",
+    items: [
+      { to: "/sakerhetsguide", label: "Säkerhetsguide", end: false },
+      { to: "/om-appen", label: "Om Snöläge", end: false },
+    ],
+  },
 ];
 
 function BrandMark() {
@@ -78,43 +94,56 @@ export default function Layout() {
           <span className={menuOpen ? "menu-icon menu-icon--open" : "menu-icon"} aria-hidden="true" />
           Meny
         </button>
-        <nav id="app-nav" className={menuOpen ? "app-shell__nav app-shell__nav--open" : "app-shell__nav"} aria-label="Huvudmeny">
-          {NAV_ITEMS.map((item) => (
+        <nav
+          id="app-nav"
+          className={menuOpen ? "app-shell__nav app-shell__nav--open" : "app-shell__nav"}
+          aria-label="Huvudmeny"
+        >
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label} className="app-shell__nav-group" role="group" aria-label={group.label}>
+              <span className="app-shell__nav-heading" aria-hidden="true">
+                {group.label}
+              </span>
+              {group.items.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    isActive ? "app-shell__nav-link app-shell__nav-link--active" : "app-shell__nav-link"
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
+          ))}
+          <div className="app-shell__nav-group app-shell__nav-group--me">
+            {user && token && <NotificationBell token={token} />}
             <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
+              to={user ? "/profil" : "/logga-in"}
+              aria-label={user ? `Min profil (${user.displayName})` : undefined}
+              title={user ? "Min profil" : undefined}
               className={({ isActive }) =>
-                isActive ? "app-shell__nav-link app-shell__nav-link--active" : "app-shell__nav-link"
+                [
+                  "app-shell__nav-link app-shell__nav-link--account",
+                  user && "app-shell__nav-link--avatar",
+                  isActive && "app-shell__nav-link--active",
+                ]
+                  .filter(Boolean)
+                  .join(" ")
               }
             >
-              {item.label}
+              {user ? (
+                <>
+                  <Avatar name={user.displayName} avatarPath={user.avatarPath} xp={user.xp} size={38} />
+                  <span className="app-shell__account-name">Min profil</span>
+                </>
+              ) : (
+                "Logga in"
+              )}
             </NavLink>
-          ))}
-          {user && token && <NotificationBell token={token} />}
-          <NavLink
-            to={user ? "/profil" : "/logga-in"}
-            aria-label={user ? `Min profil (${user.displayName})` : undefined}
-            title={user ? "Min profil" : undefined}
-            className={({ isActive }) =>
-              [
-                "app-shell__nav-link app-shell__nav-link--account",
-                user && "app-shell__nav-link--avatar",
-                isActive && "app-shell__nav-link--active",
-              ]
-                .filter(Boolean)
-                .join(" ")
-            }
-          >
-            {user ? (
-              <>
-                <Avatar name={user.displayName} avatarPath={user.avatarPath} xp={user.xp} size={38} />
-                <span className="app-shell__account-name">Min profil</span>
-              </>
-            ) : (
-              "Logga in"
-            )}
-          </NavLink>
+          </div>
         </nav>
         <Ridgeline />
       </header>

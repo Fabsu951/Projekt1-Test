@@ -4,6 +4,7 @@ import { useAuth } from "../auth/useAuth";
 import { addComment, deleteComment, fetchComments, setLiked } from "../services/socialService";
 import type { Badge, Comment, ItemType } from "../types/social";
 import Avatar from "./Avatar";
+import AdminBadge from "./AdminBadge";
 
 const when = (iso: string) =>
   new Date(iso).toLocaleString("sv-SE", {
@@ -130,7 +131,8 @@ export default function Reactions({
               <Avatar name={c.author} avatarPath={people[c.userId]?.avatarPath} xp={people[c.userId]?.xp} size={30} />
               <div>
                 <p className="comment__meta">
-                  <Link to={`/person/${c.userId}`}>{c.author}</Link> · {when(c.createdAt)}
+                  <Link to={`/person/${c.userId}`}>{c.author}</Link>
+                  <AdminBadge show={people[c.userId]?.isAdmin} /> · {when(c.createdAt)}
                   {c.canDelete && (
                     <button type="button" className="comment__delete" onClick={() => void remove(c)}>
                       Ta bort

@@ -486,6 +486,15 @@ the start, exact map point.
   slope and forecast check work without elevation tiles; key
   `fjallkoll:offline-routes`). Writes, drawing new routes (elevation tiles),
   slope layer and heatmap still need a connection.
+- **Admin label + grouped menu (2026-10-05):** everyone sees an "Admin"
+  pill (`AdminBadge.tsx`) next to admins' names: `Badge.isAdmin` from
+  `experienceOf` (person, search, follows, feed/comments/notification
+  `people` maps) and `authorIsAdmin` on observations/tours
+  (`u.is_admin AS author_is_admin` in `SELECT_OBSERVATIONS`/`SELECT_TOURS`).
+  Main menu is `NAV_GROUPS` in `Layout.tsx`: Läget (Områden, Karta,
+  Observationer) · Gemenskap (Flöde, Turer) · Lär dig mer
+  (Säkerhetsguide, Om Snöläge) · bell + avatar; thin dividers on desktop,
+  small group headings in the phone menu.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -539,6 +548,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (160 tests as of 2026-10-05, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 88 tests, including the
+  (161 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 89 tests, including the
   real-page fixtures).

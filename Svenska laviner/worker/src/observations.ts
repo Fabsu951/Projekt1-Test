@@ -32,6 +32,7 @@ export interface ObservationRow {
   id: number;
   user_id: number;
   display_name: string;
+  author_is_admin?: number;
   type: string;
   lat: number;
   lon: number;
@@ -50,6 +51,7 @@ export interface Observation {
   id: number;
   userId: number;
   author: string;
+  authorIsAdmin: boolean;
   type: string;
   lat: number;
   lon: number;
@@ -94,6 +96,7 @@ export function toObservation(row: ObservationRow): Observation {
     id: row.id,
     userId: row.user_id,
     author: row.display_name,
+    authorIsAdmin: row.author_is_admin === 1,
     type: row.type,
     lat: row.lat,
     lon: row.lon,
@@ -109,7 +112,7 @@ export function toObservation(row: ObservationRow): Observation {
   };
 }
 
-export const SELECT_OBSERVATIONS = `SELECT o.*, u.display_name FROM observations o JOIN users u ON u.id = o.user_id`;
+export const SELECT_OBSERVATIONS = `SELECT o.*, u.display_name, u.is_admin AS author_is_admin FROM observations o JOIN users u ON u.id = o.user_id`;
 const SELECT = SELECT_OBSERVATIONS;
 
 /** Public feed: newest first, hidden (reported) ones excluded. */

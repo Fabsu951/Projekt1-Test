@@ -12,6 +12,7 @@ import type { TourVisibility } from "../types/tour";
 import { deleteTour, fetchTour, updateTour } from "../services/tourService";
 import type { TourWithTrack } from "../types/tour";
 import { formatDistance, formatDuration, formatTourDate } from "../utils/tourFormat";
+import AdminBadge from "../components/AdminBadge";
 
 export default function TourPage() {
   const { id = "" } = useParams();
@@ -87,6 +88,7 @@ export default function TourPage() {
             </>
           ) : null}{" "}
           · <Link to={`/person/${tour.userId}`}>{tour.author}</Link>
+          <AdminBadge show={tour.authorIsAdmin} />
         </p>
       </header>
 

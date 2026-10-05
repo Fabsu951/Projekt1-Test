@@ -16,6 +16,8 @@ export const XP = { perTour: 20, per100m: 1, perObservation: 30 } as const;
 export interface Badge {
   avatarPath: string | null;
   xp: number;
+  /** Shown to everyone as an "Admin" label next to the name. */
+  isAdmin: boolean;
 }
 
 export interface Experience extends Badge {
@@ -34,18 +36,19 @@ export async function experienceOf(env: CommunityEnv, ids: number[]): Promise<Ma
   const out = new Map<number, Experience>();
   if (unique.length === 0) return out;
   const rows = await env.DB.prepare(
-    `SELECT u.id, u.avatar_key,
+    `SELECT u.id, u.avatar_key, u.is_admin,
             (SELECT COUNT(*) FROM tours WHERE user_id = u.id) AS tours,
             (SELECT COALESCE(SUM(MIN(ascent_m, ${MAX_ASCENT_PER_TOUR})), 0) FROM tours WHERE user_id = u.id) AS ascent,
             (SELECT COUNT(*) FROM observations WHERE user_id = u.id AND hidden = 0) AS observations
        FROM users u WHERE u.id IN (${unique.map(() => "?").join(", ")})`
   )
     .bind(...unique)
-    .all<{ id: number; avatar_key: string | null; tours: number; ascent: number; observations: number }>();
+    .all<{ id: number; avatar_key: string | null; is_admin: number; tours: number; ascent: number; observations: number }>();
   for (const r of rows.results) {
     out.set(r.id, {
       avatarPath: r.avatar_key ? `/images/${r.avatar_key}` : null,
       xp: experiencePoints(r.tours, r.ascent, r.observations),
+      isAdmin: r.is_admin === 1,
       tours: r.tours,
       ascentM: r.ascent,
       observations: r.observations,
@@ -57,7 +60,7 @@ export async function experienceOf(env: CommunityEnv, ids: number[]): Promise<Ma
 /** Just picture and points, as an object for JSON responses. */
 export async function badgesOf(env: CommunityEnv, ids: number[]): Promise<Record<number, Badge>> {
   const out: Record<number, Badge> = {};
-  for (const [id, e] of await experienceOf(env, ids)) out[id] = { avatarPath: e.avatarPath, xp: e.xp };
+  for (const [id, e] of await experienceOf(env, ids)) out[id] = { avatarPath: e.avatarPath, xp: e.xp, isAdmin: e.isAdmin };
   return out;
 }
 

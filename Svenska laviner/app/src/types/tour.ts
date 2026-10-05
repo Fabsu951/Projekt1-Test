@@ -7,6 +7,7 @@ export interface Tour {
   id: number;
   userId: number;
   author: string;
+  authorIsAdmin?: boolean;
   title: string;
   description: string;
   startedAt: string;

@@ -35,6 +35,7 @@ import { useRouteDraft } from "../hooks/useRouteDraft";
 import { fetchRoute } from "../services/routeService";
 import { ElevationSampler } from "../utils/elevation";
 import { analyseRoute, routeToGpx, type RouteAnalysis } from "../utils/routePlan";
+import AdminBadge from "../components/AdminBadge";
 
 const TOUR_ICON = L.divIcon({
   className: "tour-pin",
@@ -437,6 +438,7 @@ export default function MapPage() {
                   <br />
                   {new Date(o.observedAt).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}{" "}
                   · {o.author}
+                  <AdminBadge show={o.authorIsAdmin} />
                   <br />
                   {o.description.length > 140 ? `${o.description.slice(0, 140)}…` : o.description}
                   <br />
