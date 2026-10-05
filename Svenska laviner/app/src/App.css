@@ -1648,6 +1648,7 @@
   }
 
   .page--map-full .map-toolbar__fullscreen,
+  .page--map-full .map-toolbar__plan,
   .page--map-full .map-toolbar__layers,
   .page--map-full .map-toolbar__locate {
     padding: 8px 10px;
@@ -1699,4 +1700,236 @@
 
 .heat-popup__date {
   color: #555;
+}
+
+/* Route planning on /karta */
+.map-toolbar__plan--on {
+  border-color: var(--signal);
+}
+
+/* Three dots joined by a zigzag: a planned route. */
+.route-icon {
+  width: 16px;
+  height: 14px;
+  background:
+    radial-gradient(circle, currentColor 2px, transparent 2.5px) 0 9px / 5px 5px,
+    radial-gradient(circle, currentColor 2px, transparent 2.5px) 6px 0 / 5px 5px,
+    radial-gradient(circle, currentColor 2px, transparent 2.5px) 11px 9px / 5px 5px,
+    linear-gradient(currentColor, currentColor) 2px 6px / 6px 2px;
+  background-repeat: no-repeat;
+}
+
+.page--planning .map-container .leaflet-container {
+  cursor: crosshair;
+}
+
+.route-point span {
+  display: block;
+  width: 14px;
+  height: 14px;
+  margin: 2px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #1b2530;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  cursor: grab;
+}
+
+.route-point--start span {
+  background: #2e9e5b;
+}
+
+.route-point--end span {
+  background: var(--signal);
+}
+
+.route-panel {
+  margin: 12px 16px 24px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+}
+
+.route-panel h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.route-panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 10px;
+}
+
+.route-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.route-panel__actions .button {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+.route-panel__hint {
+  margin: 4px 0 8px;
+  color: var(--text-muted);
+}
+
+.route-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px 16px;
+  margin: 0 0 10px;
+}
+
+.route-stats dt {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.route-stats dd {
+  margin: 2px 0 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.elevation-profile {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+
+.elevation-profile svg {
+  display: block;
+}
+
+.elevation-profile__grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.elevation-profile__label {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+
+.elevation-profile__area {
+  fill: rgba(158, 197, 230, 0.12);
+}
+
+.elevation-profile__cursor {
+  stroke: var(--text);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.elevation-profile__dot {
+  fill: #111;
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.elevation-profile__tip {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  pointer-events: none;
+}
+
+.route-panel__steep {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  margin: 8px 0;
+  font-size: 0.88rem;
+}
+
+.route-panel__band {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.route-panel__swatch {
+  width: 14px;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.route-panel__note {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* In full screen the panel floats at the bottom of the map. */
+.page--map-full .route-panel {
+  position: fixed;
+  z-index: 60;
+  left: 10px;
+  right: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  max-width: 760px;
+  max-height: 45vh;
+  margin: 0 auto;
+  overflow-y: auto;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.page--map-full.page--planning .heat-legend-box {
+  display: none;
+}
+
+.route-panel__fold {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.route-panel__summary {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+@media (max-width: 600px) {
+  .route-panel {
+    padding: 10px 12px;
+  }
+
+  .route-panel__actions .button {
+    padding: 5px 9px;
+    font-size: 0.8rem;
+  }
+
+  .route-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .route-stats dd {
+    font-size: 1rem;
+  }
 }

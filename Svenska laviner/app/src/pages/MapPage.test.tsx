@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -16,7 +16,9 @@ vi.mock("react-leaflet", () => ({
   Marker: () => null,
   Popup: () => null,
   Polyline: () => null,
-  useMap: () => ({ invalidateSize: () => {} }),
+  useMap: () => ({ invalidateSize: () => {}, fitBounds: () => {}, setView: () => {}, getZoom: () => 5, attributionControl: null }),
+  useMapEvents: () => null,
+  CircleMarker: () => null,
 }));
 vi.mock("../components/TopoLayer", () => ({ default: () => null }));
 vi.mock("../components/SlopeLayer", () => ({ default: () => null }));
@@ -54,5 +56,20 @@ describe("MapPage layer menu", () => {
     expect(document.querySelector(".page--map-full")).toBeNull();
     expect(screen.getByRole("heading", { name: "Karta" })).toBeInTheDocument();
     expect(document.body.style.overflow).toBe("");
+  });
+
+  it("plans a route: hint first, then distance from a saved draft, and undo", async () => {
+    localStorage.setItem("fjallkoll:route-draft", JSON.stringify([[67.85, 18.6], [67.86, 18.6]]));
+    render(<MemoryRouter><MapPage /></MemoryRouter>);
+    fireEvent.click(screen.getByRole("button", { name: "Planera rutt" }));
+    const panel = await screen.findByRole("region", { name: "Ruttplanering" });
+    // Elevation tiles can't load in the test browser: distance still shows, heights are flagged as missing.
+    await waitFor(() => expect(panel).toHaveTextContent("Distans"), { timeout: 3000 });
+    expect(panel).toHaveTextContent("1,1 km");
+    expect(panel).toHaveTextContent("Höjddata saknas");
+
+    fireEvent.click(screen.getByRole("button", { name: "Ångra" }));
+    expect(panel).toHaveTextContent("Klicka vidare");
+    expect(JSON.parse(localStorage.getItem("fjallkoll:route-draft")!)).toHaveLength(1);
   });
 });

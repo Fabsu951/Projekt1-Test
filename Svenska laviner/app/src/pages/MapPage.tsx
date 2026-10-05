@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -20,6 +20,10 @@ import { seasonMonths } from "../data/tourSeasons";
 import { fetchTourLines, fetchTours } from "../services/tourService";
 import type { Tour, TourLine } from "../types/tour";
 import { formatDistance } from "../utils/tourFormat";
+import RoutePlanner from "../components/RoutePlanner";
+import RoutePanel from "../components/RoutePanel";
+import { ElevationSampler } from "../utils/elevation";
+import { analyseRoute, routeToGpx, type LatLon, type RouteAnalysis } from "../utils/routePlan";
 
 const TOUR_ICON = L.divIcon({
   className: "tour-pin",
@@ -71,6 +75,41 @@ function FitToContainer({ fullscreen }: { fullscreen: boolean }) {
     map.invalidateSize();
   }, [map, fullscreen]);
   return null;
+}
+
+const ROUTE_DRAFT_KEY = "fjallkoll:route-draft";
+
+/** The route being planned, kept on the device so a reload doesn't lose it. */
+function readRouteDraft(): LatLon[] {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(ROUTE_DRAFT_KEY) ?? "[]");
+    return Array.isArray(parsed)
+      ? parsed.filter((p): p is LatLon => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite))
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRouteDraft(points: LatLon[]) {
+  try {
+    localStorage.setItem(ROUTE_DRAFT_KEY, JSON.stringify(points));
+  } catch {
+    // Not remembered; the route still works until the page is closed.
+  }
+}
+
+function downloadGpx(analysis: RouteAnalysis) {
+  const date = new Date().toISOString().slice(0, 10);
+  const blob = new Blob([routeToGpx(`Fjällkoll-rutt ${date}`, analysis.samples)], { type: "application/gpx+xml" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `fjallkoll-rutt-${date}.gpx`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 const LAYERS_OPEN_KEY = "fjallkoll:map-layers-open";
@@ -129,6 +168,36 @@ export default function MapPage() {
       return !open;
     });
   const [fullscreen, setFullscreen] = useState(false);
+  const [planning, setPlanning] = useState(false);
+  const [waypoints, setWaypoints] = useState<LatLon[]>(readRouteDraft);
+  const [analysis, setAnalysis] = useState<RouteAnalysis | null>(null);
+  const [analysing, setAnalysing] = useState(false);
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const sampler = useRef<ElevationSampler | null>(null);
+
+  const changeRoute = useCallback((next: LatLon[]) => {
+    setWaypoints(next);
+    saveRouteDraft(next);
+  }, []);
+
+  useEffect(() => {
+    if (waypoints.length < 2) return;
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      setAnalysing(true);
+      sampler.current ??= new ElevationSampler();
+      analyseRoute(waypoints, sampler.current)
+        .then((result) => !cancelled && setAnalysis(result))
+        .catch(() => !cancelled && setAnalysis(null))
+        .finally(() => !cancelled && setAnalysing(false));
+    }, 200);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+      setAnalysis(null);
+      setHoverIndex(null);
+    };
+  }, [waypoints]);
 
   useEffect(() => {
     if (!fullscreen) return;
@@ -157,7 +226,7 @@ export default function MapPage() {
   }, []);
 
   return (
-    <div className={fullscreen ? "page page--map page--map-full" : "page page--map"}>
+    <div className={["page page--map", fullscreen && "page--map-full", planning && "page--planning"].filter(Boolean).join(" ")}>
       {!fullscreen && (
         <header className="page__header">
           <h1>Karta</h1>
@@ -191,6 +260,16 @@ export default function MapPage() {
           >
             Kartlager{activeLayers > 0 && ` (${activeLayers} på)`}
             <span className={layersOpen ? "map-toolbar__chevron map-toolbar__chevron--open" : "map-toolbar__chevron"} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className={planning ? "button map-toolbar__plan map-toolbar__plan--on" : "button map-toolbar__plan"}
+            aria-pressed={planning}
+            aria-label="Planera rutt"
+            onClick={() => setPlanning((on) => !on)}
+          >
+            <span className="route-icon" aria-hidden="true" />
+            <span className="map-toolbar__label">Planera rutt</span>
           </button>
           <button
             type="button"
@@ -273,6 +352,14 @@ export default function MapPage() {
       <div className="map-container">
         <MapContainer center={SWEDEN_FJALL_CENTER} zoom={DEFAULT_ZOOM} scrollWheelZoom>
           <FitToContainer fullscreen={fullscreen} />
+          {planning && (
+            <RoutePlanner
+              waypoints={waypoints}
+              onChange={changeRoute}
+              samples={analysis?.samples ?? null}
+              hovered={hoverIndex !== null ? (analysis?.samples[hoverIndex] ?? null) : null}
+            />
+          )}
           <TopoLayer />
           <SlopeLayer enabled={showSlope} />
           <MyPosition enabled={showPosition} onStatus={onPositionStatus} />
@@ -331,6 +418,20 @@ export default function MapPage() {
         </MapContainer>
         {showHeatmap && heatLines.length > 0 && <HeatLegend />}
       </div>
+
+      {planning && (
+        <RoutePanel
+          pointCount={waypoints.length}
+          analysis={waypoints.length >= 2 ? analysis : null}
+          loading={analysing}
+          hoverIndex={hoverIndex}
+          onHover={setHoverIndex}
+          onUndo={() => changeRoute(waypoints.slice(0, -1))}
+          onClear={() => changeRoute([])}
+          onExport={() => analysis && downloadGpx(analysis)}
+          onClose={() => setPlanning(false)}
+        />
+      )}
     </div>
   );
 }

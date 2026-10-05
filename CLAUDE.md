@@ -315,6 +315,24 @@ the start, exact map point.
   (`SeasonFilter.tsx`); `/karta?turer=varmekarta` opens it directly. The layer toggles on `/karta` sit in a foldable "Kartlager (n på)" panel (open/closed remembered in localStorage `fjallkoll:map-layers-open`); the slope disclaimer stays outside it on purpose. "Helskärm" makes the map cover the whole window (fixed, above the site header; Esc or "Stäng helskärm" leaves) with the buttons, layer panel and notices floating on top; icon-only buttons under 600 px; `FitToContainer` calls `invalidateSize()` on the switch.
   Later (native only, needs plugins/Apple account): Health Connect /
   Apple Health import.
+- **Ruttplanering (route planning, step 1, 2026-10-05):** "Planera rutt" on
+  `/karta` (works in full screen too). Click to add points, drag to move,
+  Ångra/Rensa; straight legs (no path routing — deliberately, no automatic
+  route finding). Draft kept in localStorage `fjallkoll:route-draft`, map
+  frames it when planning opens. `utils/elevation.ts` `ElevationSampler`
+  reads the same Mapterhorn Terrarium tiles as the slope layer (z13,
+  decoded via canvas, cached, bilinear across tile borders) for height,
+  slope and aspect (±30 m differences); `utils/routePlan.ts` samples every
+  25 m: distance, up/down (5 m hysteresis), highest point, Munter time
+  (uphill (km + hm/100)/4, downhill (km + hm/200)/10), metres per slope
+  band (same colours as the slope layer), `routeToGpx`. UI:
+  `RoutePlanner.tsx` (map: points, slope-coloured line, hover dot, credits
+  Mapterhorn), `RoutePanel.tsx` (stats, foldable, "Spara som GPX",
+  disclaimer that ~30 m data misses short steep bits and slopes above the
+  route), `ElevationProfile.tsx` (SVG, hover syncs to map). Planned next:
+  step 2 save/share routes on the account (ask Fabian: private by
+  default?), step 3 compare route aspects/elevations with today's
+  forecast problems (never call a route "safe").
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -361,6 +379,6 @@ the start, exact map point.
   (added 2026-09-26): no fetch handler, no caching, so it can't cause the
   stale-content confusion seen earlier. Keep it that way.
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (112 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  (119 tests as of 2026-10-05, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 73 tests, including the
   real-page fixtures).
