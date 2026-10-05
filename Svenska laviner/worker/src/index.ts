@@ -4,6 +4,7 @@ import { findChanges, historyRow, readHistory, recordHistory, type HistoryRow } 
 import { getFavorites, saveFavorites } from "./favorites";
 import { createTour, deleteTour, getTour, listTours, tourLines, updateTour } from "./tours";
 import { createRoute, deleteRoute, getRoute, listMyRoutes, updateRoute } from "./routes";
+import { removeAvatar, uploadAvatar } from "./profile";
 import {
   addComment,
   deleteComment,
@@ -213,6 +214,10 @@ async function handleCommunity(request: Request, env: Env, origin: string): Prom
     if (pathname === "/feed" && method === "GET") return json(await feed(request, env), origin);
     if (pathname === "/people" && method === "GET") return json(await searchPeople(request, env), origin);
     if (pathname === "/people/me/follows" && method === "GET") return json(await myFollows(request, env), origin);
+    if (pathname === "/auth/avatar" && method === "POST") return json(await uploadAvatar(request, env), origin);
+    if (pathname === "/auth/avatar" && method === "DELETE") return json(await removeAvatar(request, env), origin);
+    const avatarMatch = pathname.match(/^\/people\/(\d+)\/avatar$/);
+    if (avatarMatch && method === "DELETE") return json(await removeAvatar(request, env, Number(avatarMatch[1])), origin);
     const personMatch = pathname.match(/^\/people\/(\d+)(\/follow)?$/);
     if (personMatch) {
       const id = Number(personMatch[1]);

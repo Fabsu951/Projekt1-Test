@@ -161,7 +161,7 @@ export async function listReported(request: Request, env: CommunityEnv) {
   return { observations: rows.results.map(toObservation) };
 }
 
-function detectImage(bytes: Uint8Array): { ext: string; contentType: string } | null {
+export function detectImage(bytes: Uint8Array): { ext: string; contentType: string } | null {
   if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return { ext: "jpg", contentType: "image/jpeg" };
   if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47)
     return { ext: "png", contentType: "image/png" };
@@ -335,7 +335,7 @@ export async function restoreObservation(request: Request, env: CommunityEnv, id
 }
 
 export async function serveImage(env: CommunityEnv, key: string, corsHeaders: Record<string, string>) {
-  if (!/^obs\/[0-9a-f-]{36}\.(jpg|png|webp)$/.test(key)) throw new HttpError(404, "Bilden finns inte.");
+  if (!/^(obs|avatar)\/[0-9a-f-]{36}\.(jpg|png|webp)$/.test(key)) throw new HttpError(404, "Bilden finns inte.");
   const object = await env.IMAGES.get(key);
   if (!object) throw new HttpError(404, "Bilden finns inte.");
   return new Response(object.body, {

@@ -5,6 +5,7 @@ import { SELECT_OBSERVATIONS, toObservation, type Observation, type ObservationR
 import { toRoute, type PlannedRoute, type RouteRow } from "./routes";
 import { canSeeTour, SELECT_TOURS, toTour, type Tour, type TourRow } from "./tours";
 import type { ItemType } from "./socialCleanup";
+import { badgesOf, experienceOf, type Badge } from "./profile";
 
 // Strava-style social layer: follow people (one-way, no approval needed),
 // a feed of what the people you follow share, and comments and likes on
@@ -48,10 +49,15 @@ async function itemOwner(env: CommunityEnv, type: ItemType, id: number, viewer: 
 
 // ---------- People ----------
 
-export interface PersonSummary {
+export interface PersonSummary extends Badge {
   id: number;
   displayName: string;
   iFollow: boolean;
+}
+
+async function withBadges(env: CommunityEnv, people: Array<Omit<PersonSummary, keyof Badge>>): Promise<PersonSummary[]> {
+  const badges = await badgesOf(env, people.map((p) => p.id));
+  return people.map((p) => ({ ...p, ...(badges[p.id] ?? { avatarPath: null, xp: 0 }) }));
 }
 
 export async function getPerson(request: Request, env: CommunityEnv, id: number) {
@@ -67,8 +73,10 @@ export async function getPerson(request: Request, env: CommunityEnv, id: number)
     .bind(viewer?.id ?? -1, viewer?.id ?? -1, id)
     .first<{ id: number; display_name: string; followers: number; following: number; i_follow: number; follows_me: number }>();
   if (!row) throw new HttpError(404, "Personen finns inte.");
+  const exp = (await experienceOf(env, [row.id])).get(row.id)!;
   return {
     person: {
+      ...exp,
       id: row.id,
       displayName: row.display_name,
       followers: row.followers,
@@ -94,7 +102,7 @@ export async function searchPeople(request: Request, env: CommunityEnv) {
   )
     .bind(viewer.id, pattern, viewer.id)
     .all<{ id: number; display_name: string; i_follow: number }>();
-  return { people: rows.results.map((r): PersonSummary => ({ id: r.id, displayName: r.display_name, iFollow: r.i_follow === 1 })) };
+  return { people: await withBadges(env, rows.results.map((r) => ({ id: r.id, displayName: r.display_name, iFollow: r.i_follow === 1 }))) };
 }
 
 /** Who I follow and who follows me. Only ever for yourself. */
@@ -115,8 +123,11 @@ export async function myFollows(request: Request, env: CommunityEnv) {
     .bind(me.id, me.id)
     .all<{ id: number; display_name: string; i_follow: number }>();
   return {
-    following: following.results.map((r): PersonSummary => ({ id: r.id, displayName: r.display_name, iFollow: true })),
-    followers: followers.results.map((r): PersonSummary => ({ id: r.id, displayName: r.display_name, iFollow: r.i_follow === 1 })),
+    following: await withBadges(env, following.results.map((r) => ({ id: r.id, displayName: r.display_name, iFollow: true }))),
+    followers: await withBadges(
+      env,
+      followers.results.map((r) => ({ id: r.id, displayName: r.display_name, iFollow: r.i_follow === 1 }))
+    ),
   };
 }
 
@@ -249,8 +260,12 @@ export async function feed(request: Request, env: CommunityEnv) {
   ];
   const page = drafts.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).slice(0, FEED_PAGE);
   const counts = await reactions(env, page, me.id);
+  const items = page.map((d) => d.build(counts.get(`${d.type}:${d.id}`)!));
+  const authors = items.map((i) => (i.type === "tour" ? i.tour.userId : i.type === "observation" ? i.observation.userId : i.author.id));
   return {
-    items: page.map((d) => d.build(counts.get(`${d.type}:${d.id}`)!)),
+    items,
+    /** Picture and experience of everyone in `items`, by user id. */
+    people: await badgesOf(env, authors),
     nextBefore: page.length === FEED_PAGE ? page[page.length - 1].createdAt : null,
   };
 }
@@ -282,6 +297,7 @@ export async function listComments(request: Request, env: CommunityEnv) {
   const counts = viewer ? (await reactions(env, [{ type, id }], viewer.id)).get(`${type}:${id}`)! : null;
   const likes = counts?.likes ?? ((await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE item_type = ? AND item_id = ?").bind(type, id).first<{ n: number }>())?.n ?? 0);
   return {
+    people: await badgesOf(env, rows.results.map((r) => r.user_id)),
     comments: rows.results.map(
       (r): Comment => ({
         id: r.id,

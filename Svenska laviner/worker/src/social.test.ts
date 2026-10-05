@@ -6,8 +6,11 @@ import { HttpError } from "./http";
 import { addComment, deleteComment, feed, follow, getPerson, listComments, searchPeople, setLike, unfollow } from "./social";
 import { listTours, tourLines } from "./tours";
 import { migratedD1 } from "./testing/sqliteD1";
+import { experiencePoints, removeAvatar, uploadAvatar } from "./profile";
+import { serveImage } from "./observations";
 
 let env: CommunityEnv;
+let stored: Map<string, Uint8Array>;
 const tokens = { anna: "token-anna", bertil: "token-bertil", cecilia: "token-cecilia" };
 const ids = { anna: 1, bertil: 2, cecilia: 3 };
 
@@ -51,7 +54,13 @@ async function tour(userId: number, title: string, shared: number, followersOnly
 
 beforeEach(async () => {
   clock = 0;
-  env = { DB: migratedD1(), IMAGES: { delete: async () => {} } } as unknown as CommunityEnv;
+  stored = new Map();
+  const images = {
+    put: async (key: string, bytes: Uint8Array) => void stored.set(key, bytes),
+    get: async (key: string) => (stored.has(key) ? { body: stored.get(key), httpMetadata: { contentType: "image/jpeg" } } : null),
+    delete: async (keys: string | string[]) => [keys].flat().forEach((k) => stored.delete(k)),
+  };
+  env = { DB: migratedD1(), IMAGES: images } as unknown as CommunityEnv;
   for (const [name, id] of Object.entries(ids)) {
     await env.DB.prepare(
       "INSERT INTO users (id, email, display_name, password_hash, email_verified, created_at) VALUES (?, ?, ?, 'x', 1, ?)"
@@ -173,5 +182,55 @@ describe("comments and likes", () => {
     for (const table of ["follows", "comments", "likes"]) {
       expect((await env.DB.prepare(`SELECT COUNT(*) AS n FROM ${table}`).first<{ n: number }>())!.n).toBe(0);
     }
+  });
+});
+
+describe("profile pictures and experience", () => {
+  const jpeg = () => {
+    const form = new FormData();
+    form.set("image", new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3])], { type: "image/jpeg" }), "a.jpg");
+    return form;
+  };
+  const upload = (who: keyof typeof tokens) =>
+    uploadAvatar(
+      new Request("https://worker.test/auth/avatar", { method: "POST", headers: { Authorization: `Bearer ${tokens[who]}` }, body: jpeg() }),
+      env
+    );
+
+  it("counts tours, metres climbed and observations — capped per tour", async () => {
+    expect(experiencePoints(2, 1550, 3)).toBe(2 * 20 + 15 + 3 * 30);
+    await tour(ids.bertil, "Lång", 1);
+    await env.DB.prepare("UPDATE tours SET ascent_m = 9000").run(); // a broken file can't jump levels
+    const { person } = await getPerson(req("/people/2", "anna"), env, ids.bertil);
+    expect(person).toMatchObject({ tours: 1, ascentM: 3000, observations: 0, xp: 20 + 30, avatarPath: null });
+  });
+
+  it("stores a picture, replaces the old one, and serves it", async () => {
+    const first = await upload("anna");
+    expect(first.avatarPath).toMatch(/^\/images\/avatar\/[0-9a-f-]{36}\.jpg$/);
+    const second = await upload("anna");
+    expect(stored.size).toBe(1); // the first picture is gone
+    const res = await serveImage(env, second.avatarPath.slice("/images/".length), {});
+    expect(res.headers.get("Content-Type")).toBe("image/jpeg");
+    expect((await getPerson(req("/people/1"), env, ids.anna)).person.avatarPath).toBe(second.avatarPath);
+  });
+
+  it("lets only you, or an admin, remove your picture; and removes it with the account", async () => {
+    await upload("bertil");
+    expect(await status(removeAvatar(req("/people/2/avatar", "anna", { method: "DELETE" }), env, ids.bertil))).toBe(403);
+    await env.DB.prepare("UPDATE users SET is_admin = 1 WHERE id = 1").run();
+    await removeAvatar(req("/people/2/avatar", "anna", { method: "DELETE" }), env, ids.bertil);
+    expect(stored.size).toBe(0);
+
+    await upload("cecilia");
+    await deleteAccount(req("/auth/me", "cecilia", { method: "DELETE" }), env);
+    expect(stored.size).toBe(0);
+  });
+
+  it("refuses files that aren't pictures", async () => {
+    const form = new FormData();
+    form.set("image", new Blob([new TextEncoder().encode("<svg/>")]), "x.svg");
+    const r = new Request("https://worker.test/auth/avatar", { method: "POST", headers: { Authorization: `Bearer ${tokens.anna}` }, body: form });
+    expect(await status(uploadAvatar(r, env))).toBe(415);
   });
 });

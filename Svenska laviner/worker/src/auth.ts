@@ -2,6 +2,7 @@ import { HttpError, readJson, nowIso } from "./http";
 import { clear, clientIp, d1Store, enforce, LOGIN_EMAIL_LIMIT, LOGIN_IP_LIMIT, record, REGISTER_IP_LIMIT } from "./rateLimit";
 import { verifyTurnstile, type TurnstileEnv } from "./turnstile";
 import { trackKeysOf } from "./tours";
+import { avatarKeyOf } from "./profile";
 import { appUrl, emailConfigured, type EmailEnv, resetEmail, sendEmail, verificationEmail } from "./email";
 
 export interface CommunityEnv extends EmailEnv, TurnstileEnv {
@@ -367,7 +368,11 @@ export async function deleteAccount(request: Request, env: CommunityEnv) {
   const images = await env.DB.prepare("SELECT image_key FROM observations WHERE user_id = ? AND image_key IS NOT NULL")
     .bind(user.id)
     .all<{ image_key: string }>();
-  const keys = [...images.results.map((r) => r.image_key), ...(await trackKeysOf(env, user.id))];
+  const keys = [
+    ...images.results.map((r) => r.image_key),
+    ...(await trackKeysOf(env, user.id)),
+    ...(await avatarKeyOf(env, user.id)),
+  ];
   if (keys.length > 0) await env.IMAGES.delete(keys);
   await env.DB.batch([
     // Comments and likes on the user's things, then the user's own.
