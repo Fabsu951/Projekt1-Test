@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect } from "react";
 
-// Each page's name in the browser tab ("Karta – Fjällkoll"). Layout sets a
+// Each page's name in the browser tab ("Karta – Toppkoll"). Layout sets a
 // name from the address; pages that know something more specific (a region,
 // a tour, a person) override it with usePageTitle.
 
@@ -27,7 +27,8 @@ const TITLES: Array<[RegExp, string]> = [
   [/^\/notiser/, "Notiser"],
   [/^\/person\//, "Person"],
   [/^\/sakerhetsguide/, "Säkerhetsguide"],
-  [/^\/om-appen/, "Om Fjällkoll"],
+  [/^\/om-appen/, "Om Toppkoll"],
+  [/^\/offline/, "Utan täckning"],
   [/^\/logga-in/, "Logga in"],
   [/^\/registrera/, "Skapa konto"],
   [/^\/profil/, "Min profil"],
@@ -42,5 +43,5 @@ export function defaultTitle(pathname: string): string | null {
 }
 
 export function fullTitle(title: string | null): string {
-  return title ? `${title} – Fjällkoll` : "Fjällkoll";
+  return title ? `${title} – Toppkoll` : "Toppkoll";
 }

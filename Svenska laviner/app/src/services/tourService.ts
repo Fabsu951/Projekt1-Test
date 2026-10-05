@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { cached, USER_SCOPE } from "./cache";
 import type { Tour, TourLine, TourVisibility, TourWithTrack } from "../types/tour";
 import type { TrackPoint } from "../utils/trackImport";
 
@@ -18,7 +19,9 @@ export async function fetchTours(filter: TourFilter = {}): Promise<Tour[]> {
   if (filter.months?.length) params.set("months", filter.months.join(","));
   if (filter.user) params.set("user", String(filter.user));
   params.set("limit", String(filter.limit ?? 100));
-  return (await api<{ tours: Tour[] }>(`/tours?${params}`, { token: filter.token })).tours;
+  // Signed in, the list can include followers-only tours: keep it with the account's data.
+  const key = `${filter.token ? USER_SCOPE : ""}tours:${params}`;
+  return cached(key, async () => (await api<{ tours: Tour[] }>(`/tours?${params}`, { token: filter.token })).tours);
 }
 
 /** Public lines of shared tours, for the heatmap. */
@@ -30,11 +33,11 @@ export async function fetchTourLines(filter: Omit<TourFilter, "limit" | "user" |
 }
 
 export async function fetchMyTours(token: string): Promise<Tour[]> {
-  return (await api<{ tours: Tour[] }>("/tours?mine=1&limit=200", { token })).tours;
+  return cached(`${USER_SCOPE}tours:mine`, async () => (await api<{ tours: Tour[] }>("/tours?mine=1&limit=200", { token })).tours);
 }
 
 export async function fetchTour(id: number, token: string | null): Promise<TourWithTrack> {
-  return api<TourWithTrack>(`/tours/${id}`, { token });
+  return cached(`${token ? USER_SCOPE : ""}tour:${id}`, () => api<TourWithTrack>(`/tours/${id}`, { token }));
 }
 
 export interface NewTour {

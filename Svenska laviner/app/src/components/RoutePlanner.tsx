@@ -23,6 +23,7 @@ export default function RoutePlanner({
   samples,
   hovered,
   flagged,
+  frameKey = 0,
 }: {
   waypoints: LatLon[];
   onChange: (next: LatLon[]) => void;
@@ -30,16 +31,18 @@ export default function RoutePlanner({
   hovered: RouteSample | null;
   /** Per sample: steep ground matching today's forecast problems, drawn marked. */
   flagged: boolean[] | null;
+  /** Changing this frames the route again, e.g. after opening a saved one. */
+  frameKey?: number;
 }) {
   const map = useMap();
   // Coming back to a saved route: show it once when planning opens.
-  const framed = useRef(false);
+  const framed = useRef<number | null>(null);
   useEffect(() => {
-    if (framed.current) return;
-    framed.current = true;
+    if (framed.current === frameKey) return;
+    framed.current = frameKey;
     if (waypoints.length > 1) map.fitBounds(L.latLngBounds(waypoints), { padding: [40, 40], maxZoom: 14 });
     else if (waypoints.length === 1) map.setView(waypoints[0], Math.max(map.getZoom(), 12));
-  }, [map, waypoints]);
+  }, [map, waypoints, frameKey]);
 
   // Heights and slopes come from Mapterhorn's open elevation data.
   useEffect(() => {

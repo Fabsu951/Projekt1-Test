@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Preferences } from "@capacitor/preferences";
 import { api, ApiError } from "../services/api";
+import { cached, clearUserCache, USER_SCOPE } from "../services/cache";
 import type { User } from "../types/observation";
 import { AuthContext, type AuthState } from "./authContext";
 
@@ -34,14 +35,19 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       try {
-        const { user } = await api<{ user: User }>("/auth/me", { token: saved });
+        // Offline, the account as last seen is used, so you stay signed in
+        // and can read what was saved on the device.
+        const { user } = await cached(`${USER_SCOPE}me`, () => api<{ user: User }>("/auth/me", { token: saved }));
         if (!cancelled) {
           setUser(user);
           setToken(saved);
         }
       } catch (err) {
         // Only forget the token when the server says it's invalid — not when offline.
-        if (err instanceof ApiError && err.status === 401) await saveToken(null);
+        if (err instanceof ApiError && err.status === 401) {
+          await saveToken(null);
+          await clearUserCache();
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -52,11 +58,13 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const start = useCallback(async (result: { token: string; user: User }) => {
+    // Nothing saved for a previous account may show up for this one.
+    await clearUserCache();
     await saveToken(result.token);
     setToken(result.token);
     setUser(result.user);
     // Login answers don't include the picture; fetch it for the menu.
-    api<{ user: User }>("/auth/me", { token: result.token })
+    cached(`${USER_SCOPE}me`, () => api<{ user: User }>("/auth/me", { token: result.token }))
       .then(({ user }) => setUser(user))
       .catch(() => {});
   }, []);
@@ -84,18 +92,20 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           // Logging out locally is what matters.
         }
         await saveToken(null);
+        await clearUserCache();
         setToken(null);
         setUser(null);
       },
       async deleteAccount() {
         await api("/auth/me", { method: "DELETE", token });
         await saveToken(null);
+        await clearUserCache();
         setToken(null);
         setUser(null);
       },
       async refreshUser() {
         if (!token) return;
-        const { user } = await api<{ user: User }>("/auth/me", { token });
+        const { user } = await cached(`${USER_SCOPE}me`, () => api<{ user: User }>("/auth/me", { token }));
         setUser(user);
       },
       async resendVerification() {

@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { cached, USER_SCOPE } from "./cache";
 import type { Badge, CommentThread, FeedItem, ItemType, Person, PersonSummary } from "../types/social";
 
 export async function fetchFeed(
@@ -6,7 +7,8 @@ export async function fetchFeed(
   before?: string | null
 ): Promise<{ items: FeedItem[]; people?: Record<number, Badge>; nextBefore: string | null }> {
   const q = before ? `?before=${encodeURIComponent(before)}` : "";
-  return api(`/feed${q}`, { token });
+  // The first page is kept for reading offline; older pages need a connection.
+  return before ? api(`/feed${q}`, { token }) : cached(`${USER_SCOPE}feed`, () => api(`/feed${q}`, { token }));
 }
 
 export async function searchPeople(token: string, q: string): Promise<PersonSummary[]> {
@@ -14,11 +16,11 @@ export async function searchPeople(token: string, q: string): Promise<PersonSumm
 }
 
 export async function fetchPerson(id: number, token: string | null): Promise<Person> {
-  return (await api<{ person: Person }>(`/people/${id}`, { token })).person;
+  return cached(`${token ? USER_SCOPE : ""}person:${id}`, async () => (await api<{ person: Person }>(`/people/${id}`, { token })).person);
 }
 
 export async function fetchMyFollows(token: string): Promise<{ following: PersonSummary[]; followers: PersonSummary[] }> {
-  return api("/people/me/follows", { token });
+  return cached(`${USER_SCOPE}follows`, () => api("/people/me/follows", { token }));
 }
 
 export async function setFollowing(token: string, id: number, follow: boolean): Promise<Person> {
@@ -26,7 +28,7 @@ export async function setFollowing(token: string, id: number, follow: boolean): 
 }
 
 export async function fetchComments(type: ItemType, id: number, token: string | null): Promise<CommentThread> {
-  return api(`/comments?type=${type}&id=${id}`, { token });
+  return cached(`${token ? USER_SCOPE : ""}comments:${type}:${id}`, () => api(`/comments?type=${type}&id=${id}`, { token }));
 }
 
 export async function addComment(token: string, type: ItemType, id: number, body: string): Promise<CommentThread> {

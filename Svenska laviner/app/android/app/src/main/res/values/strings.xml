@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Fjällkoll</string>
-    <string name="title_activity_main">Fjällkoll</string>
+    <string name="app_name">Toppkoll</string>
+    <string name="title_activity_main">Toppkoll</string>
     <string name="package_name">com.fabsu951.projekt1</string>
     <string name="custom_url_scheme">com.fabsu951.projekt1</string>
 </resources>

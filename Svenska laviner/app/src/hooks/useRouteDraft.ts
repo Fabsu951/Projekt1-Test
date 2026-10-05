@@ -90,10 +90,24 @@ export function useRouteDraft() {
 
   const startNew = useCallback(() => update(() => EMPTY), [update]);
 
+  /** Opens a route kept on this device (works without coverage). */
+  const openOffline = useCallback(
+    (r: { routeId: number | null; title: string; waypoints: LatLon[] }) =>
+      update(() => ({
+        ...EMPTY,
+        points: r.waypoints,
+        id: r.routeId,
+        title: r.title,
+        savedPoints: r.routeId !== null ? JSON.stringify(r.waypoints) : null,
+        savedTitle: r.routeId !== null ? r.title : null,
+      })),
+    [update]
+  );
+
   const dirty =
     draft.id === null
       ? draft.points.length > 1
       : JSON.stringify(draft.points) !== draft.savedPoints || draft.title.trim() !== draft.savedTitle;
 
-  return { draft, setPoints, setTitle, markSaved, open, startNew, dirty };
+  return { draft, setPoints, setTitle, markSaved, open, openOffline, startNew, dirty };
 }

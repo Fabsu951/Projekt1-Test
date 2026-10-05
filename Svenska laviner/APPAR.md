@@ -1,12 +1,12 @@
-# Fjällkoll som mobilapp
+# Toppkoll som mobilapp
 
-Fjällkoll är byggt med Capacitor: samma kod som hemsidan körs i en app för
+Toppkoll är byggt med Capacitor: samma kod som hemsidan körs i en app för
 Android och iPhone. Den här guiden visar hur du bygger apparna, testar dem på
 din egen telefon och lägger ut dem i Google Play och App Store.
 
 ## Vad som är förberett
 
-- **Ikon och startbild** med Fjällkolls logga, i alla storlekar för Android och
+- **Ikon och startbild** med Toppkolls logga, i alla storlekar för Android och
   iPhone. Ritas om med `npm run app:icons` om bilderna i `app/assets/` ändras.
 - **Notch, statusfält och gestfält:** sidan lämnar plats för dem, även i
   helskärmskartan.
@@ -30,7 +30,7 @@ och ett Apple-konto för iPhone. Klockan med notiser i appen fungerar.
 
 Appens id är i dag `com.fabsu951.projekt1`. Det går **aldrig** att ändra
 efter att appen finns i Google Play eller App Store. Vill du ha ett snyggare
-id, till exempel `se.fjallkoll.app`, är det nu det ska bytas. Säg till, så gör
+id, till exempel `se.toppkoll.app`, är det nu det ska bytas. Säg till, så gör
 jag det. Det är bara du som ser id:t, inte användarna.
 
 ## 1. Testa på din Android-telefon
@@ -101,13 +101,13 @@ exempel Ionic Appflow eller Codemagic.
 
 ## Butikstexter (förslag)
 
-**Namn:** Fjällkoll – lavinprognos och turer
+**Namn:** Toppkoll – lavinprognos och turer
 
 **Kort beskrivning (80 tecken):**
 Lavinprognos, väder, karta och turer för skidåkning i svenska fjällen.
 
 **Lång beskrivning:**
-Fjällkoll samlar det du behöver inför en tur i de svenska fjällen:
+Toppkoll samlar det du behöver inför en tur i de svenska fjällen:
 
 • Dagens lavinprognos från Naturvårdsverkets lavinprognoser.se, med
   lavinproblem, väderstreck och höjder
@@ -121,7 +121,7 @@ Fjällkoll samlar det du behöver inför en tur i de svenska fjällen:
   och notiser
 • Säkerhetsguide om lavinterräng, lavinskalan och vad du ska ha med dig
 
-Fjällkoll ersätter inte den officiella lavinprognosen, en lavinutbildning eller
+Toppkoll ersätter inte den officiella lavinprognosen, en lavinutbildning eller
 ditt eget omdöme i fält.
 
 **Kategori:** Sport (alternativt Väder)

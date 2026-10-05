@@ -47,17 +47,17 @@ describe("Layout", () => {
   it("names each page in the browser tab, specific pages more precisely", () => {
     auth.user = null;
     const { unmount } = app("/karta");
-    expect(document.title).toBe("Karta – Fjällkoll");
+    expect(document.title).toBe("Karta – Toppkoll");
     unmount();
     app("/omrade/kebnekaisefjallen");
-    expect(document.title).toBe("Kebnekaisefjällen – Fjällkoll");
+    expect(document.title).toBe("Kebnekaisefjällen – Toppkoll");
   });
 
   it("shows a not-found page for unknown addresses", () => {
     auth.user = null;
     app("/finns-inte");
     expect(screen.getByRole("heading", { name: "Sidan finns inte" })).toBeInTheDocument();
-    expect(document.title).toBe("Sidan finns inte – Fjällkoll");
+    expect(document.title).toBe("Sidan finns inte – Toppkoll");
   });
 
   it("opens and closes the phone menu", () => {

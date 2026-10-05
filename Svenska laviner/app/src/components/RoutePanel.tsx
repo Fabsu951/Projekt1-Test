@@ -15,6 +15,7 @@ export default function RoutePanel({
   onExport,
   onClose,
   children,
+  footer,
   flagged,
 }: {
   pointCount: number;
@@ -28,6 +29,8 @@ export default function RoutePanel({
   onClose: () => void;
   /** Saving and sharing controls, shown once there is a route. */
   children?: ReactNode;
+  /** Always shown, also before there is a route (e.g. routes saved offline). */
+  footer?: ReactNode;
   flagged?: boolean[] | null;
 }) {
   const [folded, setFolded] = useState(false);
@@ -125,6 +128,8 @@ export default function RoutePanel({
           {children}
         </>
       )}
+
+      {!folded && footer}
 
       {!folded && (
         <p className="route-panel__note">

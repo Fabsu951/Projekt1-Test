@@ -1,4 +1,14 @@
-# Fjällkoll — project state
+# Toppkoll (formerly Fjällkoll) — project state
+
+> **Renamed 2026-10-05 from "Fjällkoll" to "Toppkoll"** (user's choice after
+> a name check; Fjällklar AB is a nearby competitor name). Only user-visible
+> branding changed (UI, titles, manifest, Capacitor appName, Android/iOS
+> display names, emails, push titles, GPX creator, docs). **Deliberately
+> unchanged:** every Cloudflare resource (`fjallkoll` Pages/D1,
+> `fjallkoll-worker`, `fjallkoll-images`), the URL `fjallkoll.pages.dev`,
+> and all internal storage keys/caches (`fjallkoll:*` localStorage and
+> Preferences, `fjallkoll-tiles-*` caches) so nobody loses saved data.
+> Optional later: a new Pages project `toppkoll` and domain `toppkoll.se`.
 
 > **Renamed 2026-09-23 from "Fjällvarning" to "Fjällkoll"** (user's
 > choice). All branding and Cloudflare resource names in the repo now use
@@ -440,6 +450,25 @@ the start, exact map point.
   stores. Open decision: appId is still `com.fabsu951.projekt1` and becomes
   permanent at first store upload. No Android SDK in cloud sessions, so APKs
   are built on Fabian's PC.
+- **Offline (2026-10-05):** "Utan täckning" page `/offline`
+  (`OfflinePage.tsx`: what works / needs a connection + what this device has
+  saved + a before-the-tour checklist), `OfflineBanner` under the header
+  (offline, or when a page fell back to saved data), linked from About and
+  the map. Pieces: (1) `public/sw.js` precaches the built app (see Other
+  notes); (2) `cached()` in `services/cache.ts` wraps every worker GET in
+  the services (observations, tours, routes, feed, people, comments,
+  notifications, `/auth/me`): saves fresh answers in Preferences (≤ 400 kB
+  each), falls back to them only on network errors (status 0 / no status,
+  never for 4xx/5xx) and fires `SHOWING_SAVED_EVENT`; account data uses
+  `USER_SCOPE` keys and `clearUserCache()` runs on logout/401/new login;
+  (3) offline map views (`OfflineViewBox` in Kartlager: "Spara det som
+  syns", ≤ 4000 tiles, zoom lowered to fit, ≤ 15, key
+  `fjallkoll:offline-views`) and offline routes (`services/offlineRoutes.ts`,
+  `RouteOfflineBox` + `OfflineRouteList` in the route panel: 1.5 km
+  corridor z8–15 via `corridorTiles`, plus the analysis snapshot so profile,
+  slope and forecast check work without elevation tiles; key
+  `fjallkoll:offline-routes`). Writes, drawing new routes (elevation tiles),
+  slope layer and heatmap still need a connection.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -482,10 +511,17 @@ the start, exact map point.
 - Fabian pasted a live `CLOUDFLARE_API_TOKEN` into chat earlier in this
   project's history; he was advised to rotate it (Cloudflare dashboard → My
   Profile → API Tokens). Unconfirmed whether he did.
-- `app/public/sw.js` is a service worker **for push notifications only**
-  (added 2026-09-26): no fetch handler, no caching, so it can't cause the
-  stale-content confusion seen earlier. Keep it that way.
+- `app/public/sw.js` (push since 2026-09-26, **offline app shell since
+  2026-10-05** — replaces the old "push only, no caching" rule): the
+  `offlineAppShell()` plugin in `vite.config.ts` writes a content-hash
+  VERSION and the list of built files into `dist/sw.js`; install precaches
+  them in `toppkoll-app-<version>`, activate deletes older app caches
+  (never tile caches). Navigations are **network-first** (offline → saved
+  `/`), so a new deploy always shows when online — that is what keeps the
+  old stale-content confusion away; `/assets/` (hashed) cache-first.
+  Registered in `main.tsx` for web production builds only, not in the
+  native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (148 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  (160 tests as of 2026-10-05, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 88 tests, including the
   real-page fixtures).

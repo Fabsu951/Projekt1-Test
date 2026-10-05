@@ -51,3 +51,56 @@ export async function withCache<T>(key: string, fetcher: () => Promise<T>): Prom
     throw err;
   }
 }
+
+/** Fired when a screen shows saved data because the network failed; detail = { cachedAt }. */
+export const SHOWING_SAVED_EVENT = "fjallkoll:showing-saved";
+
+/** Data tied to the signed-in account is kept under this prefix, and cleared on logout. */
+export const USER_SCOPE = "user:";
+
+/** Saved answers bigger than this aren't kept (long GPS tracks), to leave room for the rest. */
+const MAX_SAVED_CHARS = 400_000;
+
+/**
+ * Like withCache, for any GET from the worker: returns fresh data and saves
+ * it, or — when the network fails — the last saved answer. Server answers
+ * like "not found" are passed on, never covered up with old data.
+ */
+export async function cached<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+  try {
+    const data = await fetcher();
+    const json = JSON.stringify({ data, cachedAt: new Date().toISOString() });
+    if (json.length <= MAX_SAVED_CHARS) {
+      try {
+        await Preferences.set({ key: PREFIX + key, value: json });
+      } catch {
+        // Storage full or unavailable: the app still works online.
+      }
+    }
+    return data;
+  } catch (err) {
+    const status = (err as { status?: unknown })?.status;
+    if (typeof status === "number" && status >= 400) throw err;
+    const saved = await readCache<T>(key);
+    if (!saved) throw err;
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent(SHOWING_SAVED_EVENT, { detail: { cachedAt: saved.cachedAt } }));
+    }
+    return saved.data;
+  }
+}
+
+/** When something was last saved under this key, or null. */
+export async function savedAt(key: string): Promise<string | null> {
+  return (await readCache(key))?.cachedAt ?? null;
+}
+
+/** Forgets everything saved for the signed-in account (logout, account deletion). */
+export async function clearUserCache(): Promise<void> {
+  try {
+    const { keys } = await Preferences.keys();
+    await Promise.all(keys.filter((k) => k.startsWith(PREFIX + USER_SCOPE)).map((key) => Preferences.remove({ key })));
+  } catch {
+    // Nothing to clear.
+  }
+}

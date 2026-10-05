@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { cached, USER_SCOPE } from "./cache";
 import { shareableUrl } from "./native";
 import type { PlannedRoute } from "../types/route";
 import type { LatLon } from "../utils/routePlan";
@@ -12,11 +13,11 @@ export interface RouteInput {
 }
 
 export async function fetchMyRoutes(token: string): Promise<PlannedRoute[]> {
-  return (await api<{ routes: PlannedRoute[] }>("/routes", { token })).routes;
+  return cached(`${USER_SCOPE}routes`, async () => (await api<{ routes: PlannedRoute[] }>("/routes", { token })).routes);
 }
 
 export async function fetchRoute(id: number, token: string | null): Promise<PlannedRoute> {
-  return (await api<{ route: PlannedRoute }>(`/routes/${id}`, { token })).route;
+  return cached(`${token ? USER_SCOPE : ""}route:${id}`, async () => (await api<{ route: PlannedRoute }>(`/routes/${id}`, { token })).route);
 }
 
 export async function createRoute(token: string, route: RouteInput): Promise<PlannedRoute> {

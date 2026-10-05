@@ -1,6 +1,6 @@
 {
-  "name": "Fjällkoll",
-  "short_name": "Fjällkoll",
+  "name": "Toppkoll",
+  "short_name": "Toppkoll",
   "description": "Lavinprognos, väder och säkerhetsguide för svenska fjällen.",
   "start_url": "/",
   "display": "standalone",

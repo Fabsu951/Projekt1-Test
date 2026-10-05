@@ -10,8 +10,8 @@ describe("AboutPage", () => {
         <AboutPage />
       </MemoryRouter>
     );
-    expect(screen.getByRole("heading", { level: 1, name: "Om Fjällkoll" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Vad Fjällkoll gör" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Om Toppkoll" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Vad Toppkoll gör" })).toBeInTheDocument();
     expect(screen.getByText("Observationer")).toBeInTheDocument();
   });
 

@@ -25,6 +25,10 @@ import { formatDistance } from "../utils/tourFormat";
 import RoutePlanner from "../components/RoutePlanner";
 import RoutePanel from "../components/RoutePanel";
 import RouteSaveBox from "../components/RouteSaveBox";
+import RouteOfflineBox, { OfflineRouteList } from "../components/RouteOfflineBox";
+import OfflineViewBox from "../components/OfflineViewBox";
+import { offlineAnalysisFor } from "../services/offlineRoutes";
+import type { Bounds } from "../services/offlineMap";
 import RouteForecastCheck from "../components/RouteForecastCheck";
 import { checkRouteAgainstForecast, regionForRoute } from "../utils/routeForecast";
 import { useRouteDraft } from "../hooks/useRouteDraft";
@@ -75,6 +79,32 @@ function dangerIcon(dangerLevel: number | null | undefined): L.DivIcon {
   });
 }
 
+/** Reports what part of the map is on screen. */
+function ViewTracker({ onChange }: { onChange: (b: Bounds) => void }) {
+  const map = useMap();
+  useEffect(() => {
+    const report = () => {
+      const b = map.getBounds();
+      onChange({ north: b.getNorth(), south: b.getSouth(), west: b.getWest(), east: b.getEast() });
+    };
+    report();
+    map.on("moveend", report);
+    return () => {
+      map.off("moveend", report);
+    };
+  }, [map, onChange]);
+  return null;
+}
+
+/** Shows an area when asked (a saved offline map). */
+function FlyTo({ target }: { target: Bounds | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (target) map.fitBounds(L.latLngBounds([target.south, target.west], [target.north, target.east]));
+  }, [map, target]);
+  return null;
+}
+
 /** Leaflet only measures its box once; tell it when full screen changes the size. */
 function FitToContainer({ fullscreen }: { fullscreen: boolean }) {
   const map = useMap();
@@ -86,7 +116,7 @@ function FitToContainer({ fullscreen }: { fullscreen: boolean }) {
 
 function downloadGpx(analysis: RouteAnalysis, title: string) {
   const date = new Date().toISOString().slice(0, 10);
-  const name = title.trim() || `Fjällkoll-rutt ${date}`;
+  const name = title.trim() || `Toppkoll-rutt ${date}`;
   const file = `${name.replace(/[^\p{L}\p{N} _-]+/gu, "").trim().replace(/\s+/g, "-") || "fjallkoll-rutt"}.gpx`;
   void saveTextFile(file, routeToGpx(name, analysis.samples), "application/gpx+xml");
 }
@@ -158,6 +188,10 @@ export default function MapPage() {
   const sampler = useRef<ElevationSampler | null>(null);
 
   const changeRoute = route.setPoints;
+  const [viewBounds, setViewBounds] = useState<Bounds | null>(null);
+  const [flyTarget, setFlyTarget] = useState<Bounds | null>(null);
+  const [frameKey, setFrameKey] = useState(0);
+  const [offlineListKey, setOfflineListKey] = useState(0);
 
   // Today's forecast for the area the route lies in, and where they meet.
   const routeRegionId = useMemo(() => (analysis ? regionForRoute(analysis.samples, REGIONS) : null), [analysis]);
@@ -203,7 +237,10 @@ export default function MapPage() {
     const timer = setTimeout(() => {
       setAnalysing(true);
       sampler.current ??= new ElevationSampler();
-      analyseRoute(waypoints, sampler.current)
+      // A route saved offline has its analysis stored: use it, so the
+      // profile and numbers also work without coverage.
+      offlineAnalysisFor(waypoints)
+        .then((stored) => stored ?? analyseRoute(waypoints, sampler.current!))
         .then((result) => !cancelled && setAnalysis(result))
         .catch(() => !cancelled && setAnalysis(null))
         .finally(() => !cancelled && setAnalysing(false));
@@ -349,6 +386,7 @@ export default function MapPage() {
               {heatLines.length === 0 && " Inga delade turer för det valda urvalet än."}
             </p>
           )}
+          <OfflineViewBox bounds={viewBounds} onShow={setFlyTarget} />
         </div>
 
         {routeError && (
@@ -375,6 +413,8 @@ export default function MapPage() {
       <div className="map-container">
         <MapContainer center={SWEDEN_FJALL_CENTER} zoom={DEFAULT_ZOOM} scrollWheelZoom>
           <FitToContainer fullscreen={fullscreen} />
+          <ViewTracker onChange={setViewBounds} />
+          <FlyTo target={flyTarget} />
           {planning && (
             <RoutePlanner
               waypoints={waypoints}
@@ -382,6 +422,7 @@ export default function MapPage() {
               samples={analysis?.samples ?? null}
               hovered={hoverIndex !== null ? (analysis?.samples[hoverIndex] ?? null) : null}
               flagged={forecastCheck?.flagged ?? null}
+              frameKey={frameKey}
             />
           )}
           <TopoLayer />
@@ -454,6 +495,15 @@ export default function MapPage() {
           onClear={() => changeRoute([])}
           onExport={() => analysis && downloadGpx(analysis, route.draft.title)}
           onClose={() => setPlanning(false)}
+          footer={
+            <OfflineRouteList
+              refreshKey={offlineListKey}
+              onOpen={(r) => {
+                route.openOffline(r);
+                setFrameKey((k) => k + 1);
+              }}
+            />
+          }
           flagged={forecastCheck?.flagged ?? null}
         >
           <RouteForecastCheck
@@ -468,6 +518,11 @@ export default function MapPage() {
             onTitle={route.setTitle}
             onSaved={route.markSaved}
             onNew={route.startNew}
+          />
+          <RouteOfflineBox
+            draft={route.draft}
+            analysis={analysis}
+            onSaved={() => setOfflineListKey((k) => k + 1)}
           />
         </RoutePanel>
       )}

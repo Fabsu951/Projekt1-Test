@@ -112,7 +112,7 @@ function AccountPushToggle({ token }: { token: string }) {
     <div className="notification-push">
       <label className="form__field form__field--checkbox">
         <input type="checkbox" checked={on} disabled={busy} onChange={(e) => void toggle(e.target.checked)} />
-        Skicka notiserna till den här enheten även när Fjällkoll är stängt
+        Skicka notiserna till den här enheten även när Toppkoll är stängt
       </label>
       {message && <p className="error">{message}</p>}
     </div>

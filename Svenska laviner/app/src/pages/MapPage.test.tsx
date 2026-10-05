@@ -11,12 +11,25 @@ vi.mock("../services/tourService", () => ({
   fetchTours: () => Promise.resolve([]),
   fetchTourLines: () => Promise.resolve([]),
 }));
+const { fakeMap } = vi.hoisted(() => ({
+  // One stable object, like Leaflet's real map instance.
+  fakeMap: {
+    invalidateSize: () => {},
+    fitBounds: () => {},
+    setView: () => {},
+    getZoom: () => 5,
+    attributionControl: null,
+    on: () => {},
+    off: () => {},
+    getBounds: () => ({ getNorth: () => 68, getSouth: () => 67.8, getWest: () => 18.3, getEast: () => 18.7 }),
+  },
+}));
 vi.mock("react-leaflet", () => ({
   MapContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Marker: () => null,
   Popup: () => null,
   Polyline: () => null,
-  useMap: () => ({ invalidateSize: () => {}, fitBounds: () => {}, setView: () => {}, getZoom: () => 5, attributionControl: null }),
+  useMap: () => fakeMap,
   useMapEvents: () => null,
   CircleMarker: () => null,
 }));

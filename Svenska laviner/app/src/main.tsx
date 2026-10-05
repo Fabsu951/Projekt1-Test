@@ -7,9 +7,17 @@ import './index.css'
 import App from './App.tsx'
 import AuthProvider from './auth/AuthProvider'
 import FavoritesProvider from './favorites/FavoritesProvider'
-import { initNativeApp } from './services/native'
+import { initNativeApp, isNativeApp } from './services/native'
 
 void initNativeApp()
+
+// Keeps the site itself on the device so it opens without coverage (see
+// public/sw.js). Not in the apps: they carry their own copy of the site.
+if (import.meta.env.PROD && !isNativeApp() && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {})
+  })
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

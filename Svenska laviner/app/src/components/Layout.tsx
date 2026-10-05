@@ -4,6 +4,7 @@ import { defaultTitle, fullTitle, PageTitleContext } from "./pageTitle";
 import ErrorBoundary from "./ErrorBoundary";
 import Avatar from "./Avatar";
 import NotificationBell from "./NotificationBell";
+import OfflineBanner from "./OfflineBanner";
 import { useAuth } from "../auth/useAuth";
 
 const NAV_ITEMS = [
@@ -13,7 +14,7 @@ const NAV_ITEMS = [
   { to: "/flode", label: "Flöde", end: false },
   { to: "/turer", label: "Turer", end: false },
   { to: "/sakerhetsguide", label: "Säkerhetsguide", end: false },
-  { to: "/om-appen", label: "Om Fjällkoll", end: false },
+  { to: "/om-appen", label: "Om Toppkoll", end: false },
 ];
 
 function BrandMark() {
@@ -65,7 +66,7 @@ export default function Layout() {
       <header className="app-shell__header">
         <NavLink to="/" className="app-shell__brand">
           <BrandMark />
-          Fjällkoll
+          Toppkoll
         </NavLink>
         <button
           type="button"
@@ -117,6 +118,7 @@ export default function Layout() {
         </nav>
         <Ridgeline />
       </header>
+      <OfflineBanner />
       <main>
         <ErrorBoundary key={location.pathname}>
           <PageTitleContext.Provider value={setPageTitle}>

@@ -16,6 +16,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import PageLoading from "./components/PageLoading";
 import NotFoundPage from "./pages/NotFoundPage";
+import OfflinePage from "./pages/OfflinePage";
 import "./App.css";
 
 // Leaflet + react-leaflet + leaflet-relief are only needed on this one route
@@ -46,6 +47,7 @@ function App() {
         />
         <Route path="/sakerhetsguide" element={<SafetyGuide />} />
         <Route path="/om-appen" element={<AboutPage />} />
+        <Route path="/offline" element={<OfflinePage />} />
         <Route path="/observationer" element={<ObservationsPage />} />
         <Route
           path="/observationer/ny"

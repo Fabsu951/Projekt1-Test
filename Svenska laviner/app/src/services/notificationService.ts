@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { cached, USER_SCOPE } from "./cache";
 import type { Badge } from "../types/social";
 
 export interface AppNotification {
@@ -19,7 +20,7 @@ export const NOTIFICATIONS_READ_EVENT = "fjallkoll:notifications-read";
 export async function fetchNotifications(
   token: string
 ): Promise<{ notifications: AppNotification[]; unread: number; people: Record<number, Badge> }> {
-  return api("/notifications", { token });
+  return cached(`${USER_SCOPE}notifications`, () => api("/notifications", { token }));
 }
 
 export async function fetchUnread(token: string): Promise<number> {

@@ -183,7 +183,7 @@ export function routeToGpx(name: string, samples: RouteSample[]): string {
     )
     .join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="Fjällkoll" xmlns="http://www.topografix.com/GPX/1/1">
+<gpx version="1.1" creator="Toppkoll" xmlns="http://www.topografix.com/GPX/1/1">
   <trk>
     <name>${esc(name)}</name>
     <trkseg>

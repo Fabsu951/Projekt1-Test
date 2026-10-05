@@ -1,5 +1,6 @@
 import type { Observation } from "../types/observation";
 import { api } from "./api";
+import { cached, USER_SCOPE } from "./cache";
 
 export interface ObservationFilter {
   region?: string;
@@ -17,11 +18,13 @@ export async function fetchObservations(opts: ObservationFilter = {}): Promise<O
   if (opts.days) params.set("days", String(opts.days));
   if (opts.limit) params.set("limit", String(opts.limit));
   const qs = params.toString();
-  return (await api<{ observations: Observation[] }>(`/observations${qs ? `?${qs}` : ""}`)).observations;
+  return cached(`observations:${qs}`, async () => (await api<{ observations: Observation[] }>(`/observations${qs ? `?${qs}` : ""}`)).observations);
 }
 
 export async function fetchMyObservations(token: string): Promise<Observation[]> {
-  return (await api<{ observations: Observation[] }>("/observations?mine=1&limit=200", { token })).observations;
+  return cached(`${USER_SCOPE}observations`, async () =>
+    (await api<{ observations: Observation[] }>("/observations?mine=1&limit=200", { token })).observations
+  );
 }
 
 export async function fetchReported(token: string): Promise<Observation[]> {

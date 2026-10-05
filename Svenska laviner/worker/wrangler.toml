@@ -17,7 +17,7 @@ VAPID_SUBJECT = "mailto:fabian.n.sund@gmail.com"
 # Sender for verification/reset emails; must be on a domain verified in
 # Resend. Emails are only sent once the RESEND_API_KEY secret is set too:
 #   npx wrangler secret put RESEND_API_KEY
-# EMAIL_FROM = "Fjällkoll <noreply@example.se>"
+# EMAIL_FROM = "Toppkoll <noreply@example.se>"
 
 # User accounts + observations, stored in the EU. Create once with:
 #   npx wrangler d1 create fjallkoll --jurisdiction eu
