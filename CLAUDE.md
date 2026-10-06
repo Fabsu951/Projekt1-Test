@@ -179,9 +179,15 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   `gpkgTiles.ts`, uploads 200-tile batches in `tileBatch.ts` format to
   `POST /admin/tiles/topowebb`, authorised by a fresh random
   `TILE_UPLOAD_TOKEN` secret it sets each run). Fabian's step-by-step
-  (order boxes in SWEREF 99 TM, ~270k tiles ≈ 7 GB) is in
-  `Svenska laviner/KARTBYTE.md`; waiting on Geotorget (HTTP 500 on
-  2026-09-26). The old `/topowebb` WMTS proxy route is kept for old app
+  (~270k tiles ≈ 7 GB) is in `Svenska laviner/KARTBYTE.md`. **Ordered
+  2026-10-06** (Geotorget ärende LM2026/152399, type "Behörighet"): it is
+  delivered via the STAC API `https://api.lantmateriet.se/stac-karta/v1`
+  with Geotorget Basic auth, not a download link.
+  `worker/scripts/fetch-topowebb.ps1` lists collections → items in three
+  WGS84 boxes → `.gpkg` assets (EPSG:3857 only), saves `stac-*.json`
+  (no secrets) and downloads with `-Download`; collection id and asset
+  layout were guessed (cloud sessions can't reach the API), so check its
+  first output before trusting it. The old `/topowebb` WMTS proxy route is kept for old app
   builds. Worker only fetches/stores on demand for z ≤ 15 inside a box
   around Sweden (`fetchable()`), so it can't be used to crawl.
   **Offline maps (feature 5, 2026-09-27):** "Karta offline" section on

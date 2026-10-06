@@ -9,27 +9,42 @@ Sajten använder redan den nya kartadressen. Tills importen är gjord hämtar
 workern saknade kartbitar från den gamla tjänsten (och sparar dem), så inget
 syns förändrat för användarna.
 
-## 1. Beställ på Geotorget
+## 1. Beställ på Geotorget och hämta filerna
 
-1. Logga in på <https://geotorget.lantmateriet.se> och öppna produkten
-   **Topografisk webbkarta Nedladdning, raster**.
-2. Välj **Web Mercator (EPSG:3857)** – inte SWEREF 99 TM.
-3. Välj den **färglagda** kartan (inte "nedtonad"), om du får välja.
-4. Upplösning: den högsta som erbjuds (1,2 m/pixel). Importen tar bara med
-   zoom 0–15, resten hoppas över.
-5. Område: rita eller ange tre rutor. Koordinaterna ska anges i
-   **SWEREF 99 TM** (även om kartan beställs i Web Mercator):
+1. **Klart 2026-10-06:** produkten är beställd på Geotorget (ärende
+   LM2026/152399, "Behörighet", status Lyckad). Den levereras inte som en
+   nedladdningslänk utan via Lantmäteriets STAC-API
+   (`https://api.lantmateriet.se/stac-karta/v1`), med Geotorget-inloggningen.
+2. Visa först vad som finns (laddar inte ner något):
 
-   | Ruta | Öst (E) | Norr (N) |
-   |---|---|---|
-   | Norra: Kebnekaise + Abisko/Riksgränsen | 581 000 – 722 000 | 7 494 000 – 7 619 000 |
-   | Mitten: Västra Vindelfjällen + Södra Lapplandsfjällen | 447 000 – 562 000 | 7 181 000 – 7 354 000 |
-   | Södra: Södra Jämtland + Västra Härjedalen | 338 000 – 456 000 | 6 896 000 – 7 085 000 |
+   ```powershell
+   cd "C:\Users\fabia\Documents\fjallvarning-repo\Svenska laviner\worker"
+   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1
+   ```
 
-6. Ladda ner alla GeoPackage-filer (`.gpkg`) till en mapp, t.ex.
-   `C:\Users\fabia\Downloads\topowebb`.
+   En inloggningsruta frågar efter Geotorget-e-post och lösenord (sparas
+   aldrig). Skriptet listar API:ets samlingar, letar upp kartbladen som
+   täcker de tre fjällrutorna nedan och visar GeoPackage-filerna och deras
+   storlek. Hittar det inte samlingen själv: kör igen med
+   `-Collection <id>` från listan.
+3. Stämmer det (Web Mercator / EPSG:3857, rimlig storlek): kör igen med
+   `-Download`. Filerna hamnar i `C:\Users\fabia\Downloads\topowebb`, en
+   i taget; avbryts det går det bra att köra om (färdiga filer hoppas över).
 
-Uppskattning: runt 270 000 kartbitar, ca 7 GB (ryms i R2:s gratisnivå på 10 GB).
+Rutorna (SWEREF 99 TM; i skriptet omräknade till WGS84):
+
+| Ruta | Öst (E) | Norr (N) |
+|---|---|---|
+| Norra: Kebnekaise + Abisko/Riksgränsen | 581 000 – 722 000 | 7 494 000 – 7 619 000 |
+| Mitten: Västra Vindelfjällen + Södra Lapplandsfjällen | 447 000 – 562 000 | 7 181 000 – 7 354 000 |
+| Södra: Södra Jämtland + Västra Härjedalen | 338 000 – 456 000 | 6 896 000 – 7 085 000 |
+
+Uppskattning: runt 270 000 kartbitar i zoom 0–15, ca 7 GB i R2 (ryms i
+gratisnivån på 10 GB). Nedladdningen kan bli större eftersom filerna även
+har zoom 16–17, som importen hoppar över.
+
+Villkor: CC BY 4.0. Ange "©Lantmäteriet", datakällan och licensen (görs på
+kartan och på Om-sidan).
 
 ## 2. Importera
 
