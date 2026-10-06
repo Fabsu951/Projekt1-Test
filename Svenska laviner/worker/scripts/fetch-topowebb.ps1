@@ -80,7 +80,7 @@ if (-not $Collection) {
 }
 Write-Host ("Använder samlingen: {0}" -f $Collection) -ForegroundColor Green
 
-# ---- 2. Items (map sheets) covering the mountain boxes ----
+# ---- 2. Items covering the mountain boxes ----
 $items = [ordered]@{}
 foreach ($name in $boxes.Keys) {
   $bbox = ($boxes[$name] | ForEach-Object { $_.ToString([Globalization.CultureInfo]::InvariantCulture) }) -join ","
@@ -95,76 +95,86 @@ foreach ($name in $boxes.Keys) {
     $url = Next-Link $page.Json
     Start-Sleep -Milliseconds 300
   }
-  Write-Host ("  {0}: {1} kartblad" -f $name, $count)
+  Write-Host ("  {0}: {1} poster" -f $name, $count)
 }
 $items.Values | ConvertTo-Json -Depth 20 | Set-Content -Encoding UTF8 (Join-Path $OutDir "stac-items.json")
 
-# ---- 3. The GeoPackage files, Web Mercator only ----
+# ---- 3. The GeoPackage file: coloured, Web Mercator ----
+# Lantmäteriet ships all of Sweden per variant (SWEREF/Web Mercator, coloured/"nedtonad"), ~150 GB each.
 $files = @()
 foreach ($it in $items.Values) {
-  $epsg = $it.properties.'proj:epsg'
   foreach ($p in $it.assets.PSObject.Properties) {
     $a = $p.Value
-    $isGpkg = ("$($a.type)" -match "geopackage|sqlite") -or ("$($a.href)" -match "\.gpkg(\?|$)")
+    $name = [IO.Path]::GetFileName(([uri]$a.href).AbsolutePath)
+    $isGpkg = ("$($a.type)" -match "geopackage|sqlite") -or ($name -match "\.gpkg$")
     if (-not $isGpkg) { continue }
-    $assetEpsg = $a.'proj:epsg'
-    if (-not $assetEpsg) { $assetEpsg = $epsg }
-    $files += [pscustomobject]@{
-      Item  = $it.id
-      Asset = $p.Name
-      Epsg  = $assetEpsg
-      Size  = $a.'file:size'
-      Href  = $a.href
-      Name  = [IO.Path]::GetFileName(([uri]$a.href).AbsolutePath)
-    }
+    $epsg = $a.'proj:epsg'
+    if (-not $epsg) { $epsg = $it.properties.'proj:epsg' }
+    if (-not $epsg -and $name -match "-(\d{4,5})\.gpkg$") { $epsg = [int]$Matches[1] }
+    $files += [pscustomobject]@{ Item = $it.id; Name = $name; Epsg = $epsg; Size = $a.'file:size'; Href = $a.href }
   }
 }
-$mercator = @($files | Where-Object { $_.Epsg -eq 3857 -or $_.Epsg -eq $null })
-if ($mercator.Count -lt $files.Count) {
-  Write-Host ("Hoppar över {0} filer i annan projektion än Web Mercator (EPSG:3857)." -f ($files.Count - $mercator.Count))
-}
-$files = $mercator
 
 Write-Host ""
-Write-Host ("{0} kartblad, {1} GeoPackage-filer:" -f $items.Count, $files.Count)
-$files | Select-Object -First 15 | ForEach-Object {
-  $mb = if ($_.Size) { "{0:N0} MB" -f ($_.Size / 1MB) } else { "okänd storlek" }
-  Write-Host ("  {0}  [{1}, EPSG {2}, {3}]" -f $_.Name, $_.Asset, $_.Epsg, $mb)
-}
-if ($files.Count -gt 15) { Write-Host ("  … och {0} till" -f ($files.Count - 15)) }
-$known = ($files | Where-Object { $_.Size } | Measure-Object -Property Size -Sum).Sum
-if ($known) { Write-Host ("Totalt (kända storlekar): {0:N1} GB" -f ($known / 1GB)) }
-$names = @($files | Group-Object Name | Where-Object { $_.Count -gt 1 })
-if ($names.Count -gt 0) { Write-Host "OBS: flera filer har samma namn – de sparas med kartbladets id före." -ForegroundColor Yellow }
-
-if (-not $Download) {
-  Write-Host ""
-  Write-Host "Inget nedladdat än. Skicka utskriften ovan till Claude, eller kör igen med -Download." -ForegroundColor Cyan
-  exit 0
-}
-
-# ---- 4. Download, gently (one file at a time) and resumable ----
-$i = 0
+Write-Host "GeoPackage-filer i samlingen:"
 foreach ($f in $files) {
-  $i++
-  $target = if ($names.Count -gt 0) { Join-Path $OutDir ("{0}_{1}" -f $f.Item, $f.Name) } else { Join-Path $OutDir $f.Name }
-  if ((Test-Path $target) -and (-not $f.Size -or (Get-Item $target).Length -eq $f.Size)) {
-    Write-Host ("  [{0}/{1}] finns redan: {2}" -f $i, $files.Count, (Split-Path $target -Leaf))
-    continue
-  }
-  Write-Host ("  [{0}/{1}] laddar ner {2} ..." -f $i, $files.Count, (Split-Path $target -Leaf))
-  $part = "$target.part"
-  try {
-    Invoke-WebRequest -Uri $f.Href -Headers $headers -UserAgent $ua -OutFile $part -TimeoutSec 3600 -UseBasicParsing
-    Move-Item -Force $part $target
-  } catch {
-    Write-Host ("      FEL: {0}" -f $_.Exception.Message) -ForegroundColor Red
-    Remove-Item -ErrorAction SilentlyContinue $part
-  }
-  Start-Sleep -Seconds 1
+  $gb = if ($f.Size) { "{0:N1} GB" -f ($f.Size / 1GB) } else { "okänd storlek" }
+  Write-Host ("  {0}  [EPSG {1}, {2}]" -f $f.Name, $f.Epsg, $gb)
 }
-$headers = $null
+$pick = @($files | Where-Object { $_.Epsg -eq 3857 -and $_.Name -notmatch "nedton" })
+if ($pick.Count -ne 1) {
+  Write-Host "Hittade inte exakt en färglagd Web Mercator-fil (EPSG:3857). Skicka utskriften till Claude." -ForegroundColor Yellow
+  exit 1
+}
+$file = $pick[0]
+$target = Join-Path $OutDir $file.Name
+Write-Host ("Väljer: {0} (färglagd, Web Mercator). De andra behövs inte." -f $file.Name) -ForegroundColor Green
+
+# Does the server allow resuming (HTTP Range)? Matters for a file this size.
+$hdrFile = Join-Path $env:TEMP ("snolage-auth-{0}.txt" -f [guid]::NewGuid())
+[IO.File]::WriteAllText($hdrFile, "Authorization: $($headers.Authorization)`n")
+try {
+  $code = & curl.exe -s -L -r 0-99 -o NUL -w "%{http_code}" -H "@$hdrFile" -A $ua $file.Href
+  $resume = $code -eq "206"
+  Write-Host ("Återupptagning (HTTP Range): {0} (svar {1})" -f ($(if ($resume) { "ja" } else { "nej" })), $code)
+
+  $drive = Get-PSDrive -Name (Split-Path -Qualifier $OutDir).TrimEnd(":")
+  $have = if (Test-Path $target) { (Get-Item $target).Length } elseif (Test-Path "$target.part") { (Get-Item "$target.part").Length } else { 0 }
+  $need = if ($file.Size) { $file.Size - $have } else { 0 }
+  Write-Host ("Ledigt på {0}: {1:N0} GB, behövs: {2:N0} GB" -f $drive.Name, ($drive.Free / 1GB), ($need / 1GB))
+
+  if (-not $Download) {
+    Write-Host ""
+    Write-Host "Inget nedladdat än. Skicka utskriften ovan till Claude, eller kör igen med -Download." -ForegroundColor Cyan
+    exit 0
+  }
+  if (Test-Path $target) {
+    if (-not $file.Size -or (Get-Item $target).Length -eq $file.Size) { Write-Host "Filen finns redan: $target" -ForegroundColor Green; exit 0 }
+  }
+  if ($file.Size -and $drive.Free -lt $need + 2GB) {
+    Write-Host "För lite ledigt utrymme. Välj en annan disk med -OutDir, t.ex. -OutDir E:\topowebb" -ForegroundColor Red
+    exit 1
+  }
+
+  # ---- 4. Download with curl (built into Windows), resumable: just run again if it stops ----
+  Write-Host ("Laddar ner till {0}.part – det tar många timmar. Avbryt med Ctrl+C och kör samma kommando igen för att fortsätta." -f $target)
+  $curlArgs = @("-L", "--fail", "--retry", "20", "--retry-delay", "30", "--retry-all-errors", "-H", "@$hdrFile", "-A", $ua, "-o", "$target.part")
+  if ($resume) { $curlArgs += @("-C", "-") }
+  & curl.exe @curlArgs $file.Href
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "Nedladdningen avbröts (curl kod $LASTEXITCODE). Kör samma kommando igen för att fortsätta." -ForegroundColor Red
+    exit 1
+  }
+  if ($file.Size -and (Get-Item "$target.part").Length -ne $file.Size) {
+    Write-Host "Filen blev inte komplett. Kör samma kommando igen för att fortsätta." -ForegroundColor Red
+    exit 1
+  }
+  Move-Item -Force "$target.part" $target
+} finally {
+  Remove-Item -ErrorAction SilentlyContinue $hdrFile
+  $headers = $null
+}
 
 Write-Host ""
-Write-Host "Klart. Kör nu importen som provkörning:" -ForegroundColor Green
-Write-Host "  npx tsx scripts/import-tiles.ts --dry-run (Get-ChildItem $OutDir\*.gpkg).FullName"
+Write-Host "Klart. Kör nu importen som provkörning (läser bara fjällrutorna ur filen):" -ForegroundColor Green
+Write-Host "  npx tsx scripts/import-tiles.ts --dry-run `"$target`""

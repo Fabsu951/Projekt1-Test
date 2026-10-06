@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { decodeTiles, encodeTiles, imageType, validTile } from "./tileBatch";
-import { HALF_WORLD, mapLevel } from "./gpkgTiles";
+import { gpkgRange, HALF_WORLD, mapLevel, MOUNTAIN_BOXES, tileRange } from "./gpkgTiles";
 import { fetchable, parseTilePath } from "./tiles";
 
 const png = (n: number) => new Uint8Array([0x89, 0x50, 0x4e, 0x47, n]);
@@ -81,5 +81,40 @@ describe("fetchable", () => {
     expect(fetchable(16, 35742, 15040)).toBe(false); // too deep
     expect(fetchable(12, 0, 0)).toBe(false); // far outside Sweden
     expect(fetchable(10, 300, 300)).toBe(false); // Africa-ish
+  });
+});
+
+describe("mountain areas", () => {
+  it("finds the tiles touching a box", () => {
+    // Zoom 1: the north-east quarter of the world is x 1, y 0.
+    expect(tileRange([10, 60, 20, 70], 1)).toEqual({ minX: 1, maxX: 1, minY: 0, maxY: 0 });
+    // Kebnekaise's summit (18.55 E, 67.90 N) lies in the northern box at zoom 15.
+    const r = tileRange(MOUNTAIN_BOXES.norra, 15);
+    const x = Math.floor(((18.55 + 180) / 360) * 2 ** 15);
+    expect(x >= r.minX && x <= r.maxX).toBe(true);
+    expect(r.minY).toBeLessThan(r.maxY);
+  });
+
+  it("keeps the import near the planned size", () => {
+    let tiles = 0;
+    for (let z = 8; z <= 15; z++) {
+      for (const box of Object.values(MOUNTAIN_BOXES)) {
+        const r = tileRange(box, z);
+        tiles += (r.maxX - r.minX + 1) * (r.maxY - r.minY + 1);
+      }
+    }
+    expect(tiles).toBeGreaterThan(200_000);
+    expect(tiles).toBeLessThan(400_000);
+  });
+
+  it("shifts the range into a GeoPackage level's numbering", () => {
+    const level = { gpkgLevel: 3, z: 10, offsetX: 500, offsetY: 200 };
+    const r = tileRange(MOUNTAIN_BOXES.sodra, 10);
+    expect(gpkgRange(level, MOUNTAIN_BOXES.sodra)).toEqual({
+      minX: r.minX - 500,
+      maxX: r.maxX - 500,
+      minY: r.minY - 200,
+      maxY: r.maxY - 200,
+    });
   });
 });

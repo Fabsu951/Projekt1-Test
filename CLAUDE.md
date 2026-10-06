@@ -183,11 +183,14 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   2026-10-06** (Geotorget ärende LM2026/152399, type "Behörighet"): it is
   delivered via the STAC API `https://api.lantmateriet.se/stac-karta/v1`
   with Geotorget Basic auth, not a download link.
-  `worker/scripts/fetch-topowebb.ps1` lists collections → items in three
-  WGS84 boxes → `.gpkg` assets (EPSG:3857 only), saves `stac-*.json`
-  (no secrets) and downloads with `-Download`; collection id and asset
-  layout were guessed (cloud sessions can't reach the API), so check its
-  first output before trusting it. The old `/topowebb` WMTS proxy route is kept for old app
+  Collection `topowebb` holds **one file per variant for all of Sweden**
+  (`topowebb-3006/3857.gpkg`, `topowebb_nedtonad-3006/3857.gpkg`,
+  ~130–160 GB each; seen 2026-10-06). `worker/scripts/fetch-topowebb.ps1`
+  picks `topowebb-3857.gpkg`, probes HTTP Range, checks disk space and
+  downloads with `curl.exe -C -` (`-Download`, `-OutDir`), auth header via
+  a temp file deleted afterwards. `import-tiles.ts` therefore reads only
+  `MOUNTAIN_BOXES` (`gpkgTiles.ts`, via the tile table's index) plus
+  everything up to zoom 7 (`OVERVIEW_MAX_ZOOM`); `--all` for the whole file. The old `/topowebb` WMTS proxy route is kept for old app
   builds. Worker only fetches/stores on demand for z ≤ 15 inside a box
   around Sweden (`fetchable()`), so it can't be used to crawl.
   **Offline maps (feature 5, 2026-09-27):** "Karta offline" section on
@@ -677,5 +680,5 @@ the start, exact map point.
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
   (181 tests as of 2026-10-06, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 106 tests, including the
+  suite in `Svenska laviner/worker` (`npm test`, 109 tests, including the
   real-page fixtures).

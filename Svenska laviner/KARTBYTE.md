@@ -23,13 +23,14 @@ syns förändrat för användarna.
    ```
 
    En inloggningsruta frågar efter Geotorget-e-post och lösenord (sparas
-   aldrig). Skriptet listar API:ets samlingar, letar upp kartbladen som
-   täcker de tre fjällrutorna nedan och visar GeoPackage-filerna och deras
-   storlek. Hittar det inte samlingen själv: kör igen med
-   `-Collection <id>` från listan.
-3. Stämmer det (Web Mercator / EPSG:3857, rimlig storlek): kör igen med
-   `-Download`. Filerna hamnar i `C:\Users\fabia\Downloads\topowebb`, en
-   i taget; avbryts det går det bra att köra om (färdiga filer hoppas över).
+   aldrig). **Samlingen `topowebb` har en fil per variant för hela
+   Sverige** (SWEREF/Web Mercator × färg/nedtonad, ca 140–160 GB styck).
+   Skriptet väljer `topowebb-3857.gpkg` (färg, Web Mercator, ca 145 GB),
+   kollar om nedladdningen kan återupptas och hur mycket diskutrymme som
+   finns.
+3. Kör igen med `-Download` (eller `-Download -OutDir E:\topowebb` för en
+   annan disk). Det tar många timmar; avbryts det, kör samma kommando igen
+   så fortsätter det där det slutade.
 
 Rutorna (SWEREF 99 TM; i skriptet omräknade till WGS84):
 
@@ -39,9 +40,9 @@ Rutorna (SWEREF 99 TM; i skriptet omräknade till WGS84):
 | Mitten: Västra Vindelfjällen + Södra Lapplandsfjällen | 447 000 – 562 000 | 7 181 000 – 7 354 000 |
 | Södra: Södra Jämtland + Västra Härjedalen | 338 000 – 456 000 | 6 896 000 – 7 085 000 |
 
-Uppskattning: runt 270 000 kartbitar i zoom 0–15, ca 7 GB i R2 (ryms i
-gratisnivån på 10 GB). Nedladdningen kan bli större eftersom filerna även
-har zoom 16–17, som importen hoppar över.
+Importen läser bara rutorna ovan ur den stora filen (plus hela Sverige
+upp till zoom 7): runt 270 000 kartbitar i zoom 8–15, ca 7 GB i R2 (ryms i
+gratisnivån på 10 GB). `--all` tar med hela filen (ryms inte gratis).
 
 Villkor: CC BY 4.0. Ange "©Lantmäteriet", datakällan och licensen (görs på
 kartan och på Om-sidan).
@@ -54,12 +55,12 @@ I PowerShell, där du är inloggad med `npx wrangler login`:
 git -C C:\Users\fabia\Documents\fjallvarning-repo pull
 powershell -ExecutionPolicy Bypass -File "C:\Users\fabia\Documents\fjallvarning-repo\Svenska laviner\deploy.ps1"
 cd "C:\Users\fabia\Documents\fjallvarning-repo\Svenska laviner\worker"
-npx tsx scripts/import-tiles.ts --dry-run (Get-ChildItem C:\Users\fabia\Downloads\topowebb\*.gpkg).FullName
-npx tsx scripts/import-tiles.ts (Get-ChildItem C:\Users\fabia\Downloads\topowebb\*.gpkg).FullName
+npx tsx scripts/import-tiles.ts --dry-run C:\Users\fabia\Downloads\topowebb\topowebb-3857.gpkg
+npx tsx scripts/import-tiles.ts C:\Users\fabia\Downloads\topowebb\topowebb-3857.gpkg
 ```
 
-- `--dry-run` räknar bara och visar vilken tabell och vilka zoomnivåer som
-  används – kontrollera att det står 0–15 (eller en del av dem).
+- `--dry-run` räknar bara och visar tabell, zoomnivåer (ska vara 0–15) och
+  område. Räkna med runt 270 000 kartbitar; är det miljoner, avbryt.
 - Den riktiga körningen skapar en engångsnyckel på workern och laddar upp i
   buntar. Räkna med en till några timmar. Avbryts den går det bra att köra
   om – kartbitar skrivs bara över.

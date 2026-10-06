@@ -7,11 +7,24 @@
 //
 // Options: --max-zoom 15 (default; the app zooms in further from there),
 //          --table <name> (which tile table, if the file has several),
+//          --all (all of the file, not just the mountain areas),
 //          --dry-run (just count what would be uploaded).
+//
+// Lantmäteriet ships all of Sweden in one ~145 GB file. By default only the
+// three mountain boxes (MOUNTAIN_BOXES) are read, plus every tile up to zoom
+// OVERVIEW_MAX_ZOOM, via the tile table's index, so the rest is never touched.
 import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { encodeTiles, imageType, validTile, type Tile } from "../src/tileBatch";
-import { mapLevel, type LevelMapping, type TileMatrix, type TileMatrixSet } from "../src/gpkgTiles";
+import {
+  gpkgRange,
+  mapLevel,
+  MOUNTAIN_BOXES,
+  OVERVIEW_MAX_ZOOM,
+  type LevelMapping,
+  type TileMatrix,
+  type TileMatrixSet,
+} from "../src/gpkgTiles";
 
 const WORKER = process.env.FJALLKOLL_WORKER_URL ?? "https://fjallkoll-worker.fabian-n-sund.workers.dev";
 // Well inside a Worker invocation's limits on the free plan.
@@ -24,15 +37,17 @@ interface Options {
   maxZoom: number;
   table: string | null;
   dryRun: boolean;
+  all: boolean;
 }
 
 function parseArgs(argv: string[]): Options {
-  const opts: Options = { files: [], maxZoom: 15, table: null, dryRun: false };
+  const opts: Options = { files: [], maxZoom: 15, table: null, dryRun: false, all: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--max-zoom") opts.maxZoom = Number(argv[++i]);
     else if (arg === "--table") opts.table = argv[++i];
     else if (arg === "--dry-run") opts.dryRun = true;
+    else if (arg === "--all") opts.all = true;
     else opts.files.push(arg);
   }
   if (opts.files.length === 0) {
@@ -130,6 +145,32 @@ function createUploadToken(): string {
   return token;
 }
 
+const SELECT_TILES = (table: string) =>
+  `SELECT zoom_level AS level, tile_column AS col, tile_row AS row, tile_data AS data FROM "${table.replace(/"/g, '""')}"`;
+
+/** The rows to import: everything, or per level only the mountain boxes (uses the table's unique index). */
+function* tileRows(db: import("node:sqlite").DatabaseSync, table: string, levels: LevelMapping[], all: boolean): Generator<unknown> {
+  if (all) {
+    yield* db.prepare(SELECT_TILES(table)).iterate();
+    return;
+  }
+  const whole = db.prepare(`${SELECT_TILES(table)} WHERE zoom_level = ?`);
+  const box = db.prepare(
+    `${SELECT_TILES(table)} WHERE zoom_level = ? AND tile_column BETWEEN ? AND ? AND tile_row BETWEEN ? AND ?`
+  );
+  for (const level of levels) {
+    if (level.z <= OVERVIEW_MAX_ZOOM) {
+      yield* whole.iterate(level.gpkgLevel);
+      continue;
+    }
+    // The boxes don't overlap, so no tile comes twice.
+    for (const area of Object.values(MOUNTAIN_BOXES)) {
+      const r = gpkgRange(level, area);
+      yield* box.iterate(level.gpkgLevel, r.minX, r.maxX, r.minY, r.maxY);
+    }
+  }
+}
+
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
   const token = opts.dryRun ? "" : createUploadToken();
@@ -144,10 +185,10 @@ async function main() {
     console.log(`\n${file}\n  tabell: ${table}${tables.length > 1 ? ` (finns även: ${tables.filter((t) => t !== table).join(", ")})` : ""}`);
     console.log(`  zoomnivåer: ${wanted.map((l) => l.z).join(", ")}${wanted.length < levels.length ? ` (hoppar över nivåer över ${opts.maxZoom})` : ""}`);
 
+    console.log(`  område: ${opts.all ? "hela filen" : `fjällrutorna (${Object.keys(MOUNTAIN_BOXES).join(", ")}), hela filen upp till zoom ${OVERVIEW_MAX_ZOOM}`}`);
+
     const byLevel = new Map<number, LevelMapping>(wanted.map((l) => [l.gpkgLevel, l]));
-    const rows = db
-      .prepare(`SELECT zoom_level AS level, tile_column AS col, tile_row AS row, tile_data AS data FROM "${table.replace(/"/g, '""')}"`)
-      .iterate();
+    const rows = tileRows(db, table, wanted, opts.all);
 
     let batch: Tile[] = [];
     let batchBytes = 0;
