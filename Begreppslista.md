@@ -61,8 +61,8 @@ Fö. 1, 2, 3 och 5. T = skattesats.
 - **After-tax interest expense**: räntekostnad efter skatt. **= Interest expense × (1 − T).**
 - **Bad debt expense**: kundförluster. **= AR × uppskattad förlust-%.** Motposten är allowance for doubtful accounts, som minskar AR.
 - **Cost allocation**: kostnadsfördelning över perioder, produkter eller avdelningar.
-- **Depreciation**: avskrivning av materiella tillgångar. Ingen utbetalning. **= Anskaffningsvärde / Nyttjandeperiod.**
-- **Amortization**: avskrivning av immateriella tillgångar. **= Kostnad / Nyttjandeperiod.**
+- **Depreciation**: avskrivning av materiella tillgångar. Ingen utbetalning. $= \dfrac{\text{Anskaffningsvärde}}{\text{Nyttjandeperiod}}$
+- **Amortization**: avskrivning av immateriella tillgångar. $= \dfrac{\text{Kostnad}}{\text{Nyttjandeperiod}}$
 - **30-regeln**: räkenskapsenlig avskrivning. **Årets avskrivning = Kvarvarande värde × 30 %.**
 
 ## 6. Standarder och finansiella instrument
@@ -95,46 +95,46 @@ Fö. 1, 2, 3 och 5. T = skattesats.
 **Ratio analysis**: nyckeltal delas in i lönsamhet, likviditet, solvens, effektivitet och marknad. Jämför alltid över tid och mot branschen.
 
 **Likviditet**
-- **Current ratio**: balanslikviditet. **= Current assets / Current liabilities.** Över 1 är bra.
+- **Current ratio**: balanslikviditet. $= \dfrac{\text{Current assets}}{\text{Current liabilities}}$. Över 1 är bra.
 - **Quick ratio**: samma som current ratio men utan lager.
 
 **Effektivitet**
-- **Asset turnover** **= Revenue / Genomsnittliga totala tillgångar.**
-- **Inventory turnover** **= COGS / Genomsnittligt lager.** **Days inventory = 365 / Inventory turnover.**
-- **AR turnover** **= Kreditförsäljning / Genomsnittliga AR.** **DSO = 365 / AR turnover.**
-- **AP turnover** **= Inköp (eller COGS) / Genomsnittliga AP.** **DPO = 365 / AP turnover.**
+- **Asset turnover** $= \dfrac{\text{Revenue}}{\text{Genomsnittliga totala tillgångar}}$
+- **Inventory turnover** $= \dfrac{\text{COGS}}{\text{Genomsnittligt lager}}$. **Days inventory** $= \dfrac{365}{\text{Inventory turnover}}$
+- **AR turnover** $= \dfrac{\text{Kreditförsäljning}}{\text{Genomsnittliga AR}}$. **DSO** $= \dfrac{365}{\text{AR turnover}}$
+- **AP turnover** $= \dfrac{\text{Inköp (eller COGS)}}{\text{Genomsnittliga AP}}$. **DPO** $= \dfrac{365}{\text{AP turnover}}$
 
 **Lönsamhet**
-- **Net profit margin**: nettomarginal. **= Net income / Revenue.**
-- **After-tax operating income margin** **= NOPAT / Revenue = EBIT(1 − T) / Revenue.**
-- **ROA**: avkastning på tillgångar. **= Net income / Genomsnittliga totala tillgångar.**
-- **ROE**: avkastning på eget kapital. **= Net income / Genomsnittligt eget kapital.** Jämförs med cost of equity.
-  - För stamaktieägare: **ROE = Net income till stamaktieägare / Genomsnittligt eget kapital för stamaktieägare.**
-- **ROC / ROR**: avkastning på investerat kapital. **= NOPAT / Invested capital.** Jämförs med WACC.
+- **Net profit margin**: nettomarginal. $= \dfrac{\text{Net income}}{\text{Revenue}}$
+- **After-tax operating income margin** $= \dfrac{\text{NOPAT}}{\text{Revenue}} = \dfrac{\text{EBIT}\,(1 - T)}{\text{Revenue}}$
+- **ROA**: avkastning på tillgångar. $= \dfrac{\text{Net income}}{\text{Genomsnittliga totala tillgångar}}$
+- **ROE**: avkastning på eget kapital. $= \dfrac{\text{Net income}}{\text{Genomsnittligt eget kapital}}$. Jämförs med cost of equity.
+  - För stamaktieägare: $\text{ROE} = \dfrac{\text{Net income till stamaktieägare}}{\text{Genomsnittligt eget kapital för stamaktieägare}}$
+- **ROC / ROR**: avkastning på investerat kapital. $= \dfrac{\text{NOPAT}}{\text{Invested capital}}$. Jämförs med WACC.
 
 **Marknad**
-- **EPS**: vinst per aktie. **= (Net income − Preferred dividends) / Vägt genomsnittligt antal stamaktier.**
-- **P/E**: pris/vinst-tal. **= Aktiekurs / EPS.**
-- **Dividend payout ratio**: utdelningsandel. **= Dividends / Net income = DPS / EPS.**
+- **EPS**: vinst per aktie. $= \dfrac{\text{Net income} - \text{Preferred dividends}}{\text{Vägt genomsnittligt antal stamaktier}}$
+- **P/E**: pris/vinst-tal. $= \dfrac{\text{Aktiekurs}}{\text{EPS}}$
+- **Dividend payout ratio**: utdelningsandel. $= \dfrac{\text{Dividends}}{\text{Net income}} = \dfrac{\text{DPS}}{\text{EPS}}$
 - **Retention ratio** **= 1 − Payout ratio.**
 
 ## 9. DuPont
 Grundidé: **Avkastning = Lönsamhet × Effektivitet (× Skuldsättning).**
-- **2 faktorer**: **ROA = (NI / Sales) × (Sales / Assets).**
-- **3 faktorer**: **ROE = Profit margin × Asset turnover × Equity multiplier = (NI / Sales) × (Sales / Assets) × (Assets / Equity).**
+- **2 faktorer**: $\text{ROA} = \dfrac{\text{NI}}{\text{Sales}} \times \dfrac{\text{Sales}}{\text{Assets}}$
+- **3 faktorer**: $\text{ROE} = \text{Profit margin} \times \text{Asset turnover} \times \text{Equity multiplier} = \dfrac{\text{NI}}{\text{Sales}} \times \dfrac{\text{Sales}}{\text{Assets}} \times \dfrac{\text{Assets}}{\text{Equity}}$
 - **4 faktorer**: **ROE = Tax burden × Operating margin × Asset turnover × Equity multiplier.**
-- **5 faktorer**: **ROE = (NI / EBT) × (EBT / EBIT) × (EBIT / Sales) × (Sales / Assets) × (Assets / Equity).** Faktorerna är:
-  - **Tax burden = NI / EBT**
-  - **Debt burden = EBT / EBIT**, där ett värde nära 1 betyder låg räntebelastning
-  - **EBIT margin = EBIT / Sales**
-  - **Asset turnover = Sales / Assets**
-  - **Equity multiplier = Assets / Equity**
+- **5 faktorer**: $\text{ROE} = \dfrac{\text{NI}}{\text{EBT}} \times \dfrac{\text{EBT}}{\text{EBIT}} \times \dfrac{\text{EBIT}}{\text{Sales}} \times \dfrac{\text{Sales}}{\text{Assets}} \times \dfrac{\text{Assets}}{\text{Equity}}$. Faktorerna är:
+  - **Tax burden** $= \dfrac{\text{NI}}{\text{EBT}}$
+  - **Debt burden** $= \dfrac{\text{EBT}}{\text{EBIT}}$, där ett värde nära 1 betyder låg räntebelastning
+  - **EBIT margin** $= \dfrac{\text{EBIT}}{\text{Sales}}$
+  - **Asset turnover** $= \dfrac{\text{Sales}}{\text{Assets}}$
+  - **Equity multiplier** $= \dfrac{\text{Assets}}{\text{Equity}}$
 
 ## 10. Kapitalkostnad och EVA
 - **Cost of capital**: kapitalkostnad, det avkastningskrav som ägare (cost of equity) och långivare (cost of debt) har.
 - **Cost of assets**: avkastningskravet på verksamhetens tillgångar. Ungefär lika med WACC.
-- **Total capitalization** **= Debt + Equity.** Vikterna i WACC blir **E/(D+E)** och **D/(D+E)**.
-- **WACC** **= E/(D+E) · Rₑ + D/(D+E) · R_d · (1 − T).**
+- **Total capitalization** **= Debt + Equity.** Vikterna i WACC blir $\dfrac{E}{D+E}$ och $\dfrac{D}{D+E}$.
+- **WACC** $= \dfrac{E}{D+E}\,R_e + \dfrac{D}{D+E}\,R_d\,(1 - T)$
 - **NOPAT**: rörelseresultat efter skatt. **= EBIT × (1 − T).**
 - **Capital charge** **= Invested capital × WACC.**
 - **EVA** **= NOPAT − (Invested capital × WACC) = (ROC − WACC) × Invested capital.** Positivt EVA betyder att värde skapas.
