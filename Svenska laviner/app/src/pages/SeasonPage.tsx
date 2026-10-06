@@ -27,7 +27,17 @@ function dayText(d: SeasonDay): string {
   return `${when}: ${level}`;
 }
 
-/** Month blocks (Mon–Sun weeks) for the months the season has forecasts in. */
+/** "20 feb 2026" */
+function shortDate(date: string): string {
+  const [y, m, d] = date.split("-").map(Number);
+  return `${d} ${MONTHS[m - 1]} ${y}`;
+}
+
+/**
+ * Month blocks (Mon–Sun weeks) for the months the season has daily forecasts
+ * in. Months without any are left out: some areas (Kebnekaisefjällen) only
+ * get daily forecasts from late winter, and empty months read as missing data.
+ */
 function months(days: SeasonDay[]) {
   if (days.length === 0) return [];
   const byDate = new Map(days.map((d) => [d.date, d]));
@@ -43,7 +53,7 @@ function months(days: SeasonDay[]) {
       const date = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       cells.push({ date, day: d, data: byDate.get(date) ?? null });
     }
-    out.push({ key: `${y}-${m}`, title: `${MONTHS[m - 1]} ${y}`, cells });
+    if (cells.some((c) => c?.data)) out.push({ key: `${y}-${m}`, title: `${MONTHS[m - 1]} ${y}`, cells });
   }
   return out;
 }
@@ -138,6 +148,10 @@ export default function SeasonPage() {
 
           <section className="section" aria-labelledby="season-calendar">
             <h2 id="season-calendar">Dag för dag</h2>
+            <p className="muted season__span">
+              Dagliga prognoser {shortDate(withLevel[0].date)} – {shortDate(withLevel[withLevel.length - 1].date)}. Övriga
+              dagar publicerade Naturvårdsverket ingen daglig prognos för området (till exempel bara försäsongstips).
+            </p>
             <div className="season__months">
               {calendar.map((m) => (
                 <div key={m.key} className="season__month">

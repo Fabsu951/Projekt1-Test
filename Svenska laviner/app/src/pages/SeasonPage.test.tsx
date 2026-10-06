@@ -48,6 +48,28 @@ describe("SeasonPage", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Drevsnöflak, Bestående flak");
   });
 
+  it("leaves out months without daily forecasts and says when they ran", async () => {
+    fetchSeason.mockResolvedValue(
+      toSeason({
+        regionId: "kebnekaisefjallen",
+        season: 2025,
+        days: [
+          { date: "2025-11-30", danger: 0, label: "Ej bedömd lavinfara", problems: [] },
+          { date: "2026-02-20", danger: 2, problems: [] },
+          { date: "2026-04-11", danger: 3, problems: [] },
+        ],
+        problems: [],
+      })!
+    );
+    renderPage();
+    expect(await screen.findByText(/Dagliga prognoser 20 feb 2026 – 11 apr 2026/)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "nov 2025" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "dec 2025" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "jan 2026" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "mar 2026" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "feb 2026" })).toBeInTheDocument();
+  });
+
   it("loads another season when chosen", async () => {
     renderPage();
     await screen.findByRole("button", { name: /18 feb/ });

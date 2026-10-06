@@ -625,7 +625,7 @@ the start, exact map point.
   month calendars (Mon-first, level number in each cell, hatched = no
   level, tap → day + problems), bars per level (danger colours, counts as
   text), problems bars (accent), "Visa som lista" table view.
-  `fetchSeason` goes through `cached()` (offline).
+  `fetchSeason` goes through `cached()` (offline). Months without any daily forecast are left out and a line gives the first–last level day: Kebnekaisefjällen only had "Försäsongstips" 25 Nov–19 Feb 2026, dailies from 20 Feb (not a bug).
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -679,6 +679,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (181 tests as of 2026-10-06, all passing). Worker has its own Vitest
+  (182 tests as of 2026-10-06, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 109 tests, including the
   real-page fixtures).
