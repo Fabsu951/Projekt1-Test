@@ -33,6 +33,12 @@ function problem(overrides: Partial<WorkerProblem> = {}): WorkerProblem {
 }
 
 describe("toForecast", () => {
+  it("passes spring conditions and 'no danger' on without a level", () => {
+    const spring = toForecast(item({ special: "spring", headline: "Vårförhållanden i fjällen" }));
+    expect(spring).toMatchObject({ status: "spring", dangerLevel: null, headline: "Vårförhållanden i fjällen" });
+    expect(toForecast(item({ special: "no-danger" }))).toMatchObject({ status: "no-danger", dangerLevel: null });
+  });
+
   it("maps a parsed danger level to a published forecast", () => {
     const f = toForecast(item({ danger: 3, headline: "Vindpackad snö i lä.", publishedText: "22 januari 2027, 18:00" }));
     expect(f.status).toBe("published");

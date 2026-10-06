@@ -60,7 +60,7 @@ export default function AreaForecastCard({ region, forecast, history, now }: Pro
         </ul>
       )}
 
-      {forecast && forecast.status !== "published" && (
+      {forecast && (forecast.status === "season-over" || forecast.status === "not-assessed" || forecast.status === "unavailable") && (
         <p className="area-card__message area-card__message--muted">
           {forecast.status === "season-over"
             ? "Ingen prognos just nu. Lavinprognoserna publiceras från mitten av december."

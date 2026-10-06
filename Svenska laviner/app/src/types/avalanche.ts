@@ -49,10 +49,13 @@ export interface ForecastProblem {
  * - published: an official forecast with a parsed danger level.
  * - season-over / not-assessed: lavinprognoser.se explicitly says there is
  *   no forecast (off-season, or the area isn't assessed today).
+ * - spring / no-danger: the forecast's own "Vårförhållanden" or "Ingen
+ *   lavinfara" (risk 6 / 7 in Naturvårdsverket's API) — real answers that
+ *   aren't levels 1–5, so they never get a level or a danger colour.
  * - unavailable: we couldn't fetch or confidently parse it. Never guess a
  *   level in this case — point the user at the official page instead.
  */
-export type ForecastStatus = "published" | "season-over" | "not-assessed" | "unavailable";
+export type ForecastStatus = "published" | "season-over" | "not-assessed" | "spring" | "no-danger" | "unavailable";
 
 export interface AvalancheForecast {
   regionId: string;

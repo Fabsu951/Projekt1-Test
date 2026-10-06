@@ -1,5 +1,16 @@
 import { REGION_SOURCES } from "./regions";
 import { parseForecastHtml, type ParsedForecast } from "./parse";
+import {
+  API_AREA_IDS,
+  currentUrl,
+  forecastFromApi,
+  forecastInForce,
+  historyRowsFromApi,
+  readForecasts,
+  recentUrl,
+  type ApiForecast,
+  type SpecialRisk,
+} from "./forecastApi";
 import { findChanges, historyRow, readHistory, recordHistory, type HistoryRow } from "./history";
 import { getFavorites, saveFavorites } from "./favorites";
 import { createTour, deleteTour, getTour, importedSources, listTours, tourLines, updateTour } from "./tours";
@@ -69,6 +80,11 @@ interface RegionForecastResponse extends ParsedForecast {
   sourceUrl: string;
   fetchedAt: string;
   fetchError: string | null;
+  /** "api" (Naturvårdsverket's open API) or "page" (read from lavinprognoser.se). */
+  source?: "api" | "page";
+  /** Risk 6 "Vårförhållanden" / 7 "Ingen lavinfara": a real answer, but not a level 1–5. */
+  special?: SpecialRisk | null;
+  riskLabel?: string | null;
 }
 
 function emptyForecast(
@@ -130,6 +146,49 @@ async function fetchRegion(regionId: string, slugs: string[]): Promise<RegionFor
   }
 
   return emptyForecast(regionId, lastUrl, fetchedAt, `HTTP 404 (tried: ${slugs.join(", ")})`);
+}
+
+const API_HEADERS = { "User-Agent": "Snolage/1.0 (https://fjallkoll.pages.dev; fabian.n.sund@gmail.com)" };
+
+/** One API answer; if the server dislikes our property list, asks again for everything. */
+async function apiForecasts(urlWith: string, urlWithout: string): Promise<ApiForecast[]> {
+  for (const url of [urlWith, urlWithout]) {
+    const res = await fetch(url, { headers: API_HEADERS, cf: { cacheTtl: CACHE_TTL_SECONDS, cacheEverything: true } });
+    if (!res.ok) continue;
+    try {
+      return readForecasts(await res.json());
+    } catch {
+      continue;
+    }
+  }
+  throw new Error("Prognos-API:et svarade inte som väntat.");
+}
+
+interface RegionResult {
+  forecast: RegionForecastResponse;
+  /** Recent days' levels from the API, to fill gaps in the stored history. */
+  pastRows: HistoryRow[];
+}
+
+/** An area's forecast from Naturvårdsverket's API, or null when the API can't be used. */
+async function fetchRegionFromApi(regionId: string, sourceUrl: string, now: Date): Promise<RegionResult | null> {
+  const areaId = API_AREA_IDS[regionId];
+  if (!areaId) return null;
+  try {
+    const recent = await apiForecasts(recentUrl(areaId, now), recentUrl(areaId, now, false));
+    // Off-season there's no daily forecast; the record covering now says why.
+    const current = forecastInForce(recent, now)
+      ? []
+      : await apiForecasts(currentUrl(areaId), currentUrl(areaId, false));
+    const parsed = forecastFromApi(recent, current, now);
+    return {
+      forecast: { regionId, sourceUrl, fetchedAt: now.toISOString(), fetchError: null, source: "api", ...parsed },
+      pastRows: historyRowsFromApi(regionId, recent, now),
+    };
+  } catch (err) {
+    console.error(`Forecast API failed for ${regionId}, reading the page instead`, err);
+    return null;
+  }
 }
 
 // Proxies Lantmäteriet's topowebb-ccby WMTS endpoint so the Basic Auth
@@ -282,23 +341,35 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
   return null;
 }
 
-async function fetchAllRegions(): Promise<RegionForecastResponse[]> {
-  return Promise.all(REGION_SOURCES.map((r) => fetchRegion(r.id, r.slugs)));
+/** Every area: from the official API when it answers, otherwise from lavinprognoser.se's page. */
+async function fetchAllRegions(): Promise<RegionResult[]> {
+  const now = new Date();
+  return Promise.all(
+    REGION_SOURCES.map(async (r) => {
+      const fromApi = await fetchRegionFromApi(r.id, `${SOURCE_BASE}/${r.slugs[0]}/`, now);
+      if (fromApi) return fromApi;
+      return { forecast: { ...(await fetchRegion(r.id, r.slugs)), source: "page" as const }, pastRows: [] };
+    })
+  );
 }
 
 /**
  * Saves today's published levels and notifies subscribers of any change;
  * never lets a database or push problem break forecasts.
  */
-async function recordAll(env: Env, results: RegionForecastResponse[]): Promise<void> {
+async function recordAll(env: Env, results: RegionResult[]): Promise<void> {
   if (!env.DB) return;
   const rows = results
-    .map((r) => historyRow(r.regionId, r))
+    .map((r) => historyRow(r.forecast.regionId, r.forecast))
     .filter((r): r is HistoryRow => r !== null);
+  // Earlier days from the API fill gaps (days nobody opened the app), but
+  // only today's forecasts may trigger notifications.
+  const current = new Set(rows.map((r) => `${r.regionId}|${r.date}`));
+  const past = results.flatMap((r) => r.pastRows).filter((r) => !current.has(`${r.regionId}|${r.date}`));
   try {
     const now = new Date();
     const changes = await findChanges(env.DB, rows);
-    await recordHistory(env.DB, rows, now);
+    await recordHistory(env.DB, [...past, ...rows], now);
     await notifyChanges(env as PushEnv, changes, stockholmDate(now));
   } catch (err) {
     console.error("Could not record forecast history or send notifications", err);
@@ -357,7 +428,7 @@ export default {
       const results = await fetchAllRegions();
       ctx.waitUntil(recordAll(env, results));
 
-      const response = new Response(JSON.stringify({ regions: results }), {
+      const response = new Response(JSON.stringify({ regions: results.map((r) => r.forecast) }), {
         headers: {
           ...corsHeaders(origin),
           "Content-Type": "application/json",

@@ -81,7 +81,7 @@ describe("TodayPage", () => {
   it("never shows a danger level off-season, and says when forecasts start", async () => {
     mockLoad.mockResolvedValue(forecasts("season-over", null));
     renderPage();
-    await waitFor(() => expect(screen.getAllByText("Säsongen slut")).toHaveLength(REGIONS.length));
+    await waitFor(() => expect(screen.getAllByText("Utanför säsong")).toHaveLength(REGIONS.length));
     expect(screen.getByText("Ingen lavinprognos just nu.")).toBeInTheDocument();
     expect(screen.queryByText(/fara/)).not.toBeInTheDocument();
   });

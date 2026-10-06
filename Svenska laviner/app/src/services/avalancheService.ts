@@ -44,6 +44,8 @@ export interface WorkerRegionForecast {
   publishedText: string | null;
   /** Missing from workers deployed before problems were parsed. */
   mainMessage?: string | null;
+  /** "spring" (Vårförhållanden) or "no-danger" (Ingen lavinfara); older workers leave it out. */
+  special?: "spring" | "no-danger" | null;
   problems?: WorkerProblem[];
 }
 
@@ -93,6 +95,16 @@ export function toForecast(item: WorkerRegionForecast): AvalancheForecast {
   if (item.fetchError) return base;
   if (item.seasonOver) return { ...base, status: "season-over" };
   if (item.notAssessed) return { ...base, status: "not-assessed" };
+  if (item.special === "spring" || item.special === "no-danger") {
+    return {
+      ...base,
+      status: item.special,
+      headline: item.headline,
+      mainMessage: text(item.mainMessage),
+      publishedText: item.publishedText,
+      problems: toProblems(item.problems),
+    };
+  }
   if (item.danger !== null && Number.isInteger(item.danger) && item.danger >= 1 && item.danger <= 5) {
     return {
       ...base,

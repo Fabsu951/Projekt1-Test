@@ -3,7 +3,9 @@ import { getDangerInfo } from "../data/dangerScale";
 
 const NO_FORECAST_LABELS: Record<ForecastStatus, string> = {
   published: "Ingen prognos",
-  "season-over": "Säsongen slut",
+  "season-over": "Utanför säsong",
+  spring: "Vårförhållanden",
+  "no-danger": "Ingen lavinfara",
   "not-assessed": "Ej bedömd",
   unavailable: "Ingen prognos",
 };

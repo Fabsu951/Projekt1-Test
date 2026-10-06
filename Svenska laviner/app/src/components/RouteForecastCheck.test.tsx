@@ -55,7 +55,7 @@ describe("RouteForecastCheck", () => {
       </MemoryRouter>
     );
     expect(screen.getByText(/ingen publicerad lavinprognos för Kebnekaisefjällen/)).toBeInTheDocument();
-    expect(screen.getByText("Säsongen slut")).toBeInTheDocument();
+    expect(screen.getByText("Utanför säsong")).toBeInTheDocument();
   });
 
   it("says when the route is outside every forecast area", () => {

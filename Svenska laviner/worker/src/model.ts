@@ -134,6 +134,13 @@ export function stockholmDate(at: Date): string {
   return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm" }).format(at);
 }
 
+/** An instant from a Swedish wall-clock time (handles summer/winter time). */
+export function stockholmLocal(year: number, month: number, day: number, hour: number, minute: number): Date {
+  const naiveUtc = Date.UTC(year, month - 1, day, hour, minute);
+  const offset = stockholmOffsetMinutes(new Date(naiveUtc));
+  return new Date(naiveUtc - offset * 60000);
+}
+
 /** Parses the site's "fredag 20-02-2026 18:00" (Swedish local time). */
 export function parseSwedishDateTime(text: string | null | undefined): Date | null {
   const m = text?.match(/(\d{2})-(\d{2})-(\d{4})\s+(\d{2}):(\d{2})/);

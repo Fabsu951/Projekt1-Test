@@ -12,6 +12,9 @@ const NO_FORECAST_TEXT: Record<ForecastStatus, string> = {
   "season-over":
     "Prognossäsongen är slut. Naturvårdsverket publicerar lavinprognoser dagligen kl 18 från mitten av december till mitten av maj. Utanför säsong får du själv bedöma förhållandena.",
   "not-assessed": "Området är inte bedömt i dagens prognos. Gör en egen bedömning av förhållandena.",
+  spring:
+    "Vårförhållanden: lavinfaran varierar mycket under dagen och kan på kort tid öka när snötäcket värms upp. Färdas tidigt på dagen medan snön är frusen.",
+  "no-danger": "Ingen lavinfara enligt dagens prognos. Var ändå uppmärksam på förhållandena.",
   unavailable: UNAVAILABLE_TEXT,
 };
 
@@ -29,7 +32,15 @@ export default function OfficialForecast({ forecast }: Props) {
           )}
         </>
       ) : (
-        <p>{NO_FORECAST_TEXT[forecast.status]}</p>
+        <>
+          {(forecast.status === "spring" || forecast.status === "no-danger") && forecast.headline && (
+            <p className="official-forecast__headline">{forecast.headline}</p>
+          )}
+          <p>{NO_FORECAST_TEXT[forecast.status]}</p>
+          {(forecast.status === "spring" || forecast.status === "no-danger") && forecast.mainMessage && (
+            <p className="official-forecast__message">{forecast.mainMessage}</p>
+          )}
+        </>
       )}
       <a className="official-forecast__link" href={forecast.sourceUrl} target="_blank" rel="noreferrer">
         {published ? "Läs hela prognosen på lavinprognoser.se →" : "Öppna lavinprognoser.se →"}

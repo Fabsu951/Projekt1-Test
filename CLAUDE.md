@@ -91,7 +91,7 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
     WMTS product at `/topowebb` so those credentials never reach the client
     bundle (this was a deliberate choice over embedding them client-side —
     see commit history around "Add Lantmäteriet topo basemap via Worker
-    proxy"). Also has a `/forecasts` route that scrapes lavinprognoser.se.
+    proxy"). Also has a `/forecasts` route: Naturvårdsverket's open API since 2026-10-06 (see "Official forecast API"), lavinprognoser.se page scraping as fallback.
     The app reads it via `loadForecasts()` in `avalancheService.ts` (same
     `VITE_MAP_PROXY_URL` base). The old synthetic placeholder forecasts are
     **gone on purpose** — anything not fetched/parsed confidently shows as
@@ -570,9 +570,28 @@ the start, exact map point.
   version (view changes) for next season — ask lavinprognoser@naturvardsverket.se.
   Unreachable from cloud sessions: `worker/scripts/fetch-api-fixtures.ps1`
   saves real answers to `worker/src/fixtures/nvgis/` for Fabian to push;
-  plan is to switch `/forecasts` (+ history) from page scraping to the API
-  once fixtures exist, keeping the "never guess a level" rules (and
-  mapping 6/7 explicitly, not as levels).
+  **Switched 2026-10-06:** fixtures pushed (112 files; only areas 1, 2, 3,
+  7, 8, 9 have forecasts — the others are sub-areas). `worker/src/forecastApi.ts`:
+  per area `published_forecasts_by_interval` from 3 days back (ISO UTC
+  times, one record per version; morning corrections have later
+  `change_date`, superseded ones carry `updated_forecast_id`), plus
+  `published_forecasts` (Swedish wall-clock times) only when no daily
+  forecast is in force (off-season note "Prognossäsongen är avslutad" /
+  pre-season "Försäsongstips": long risk-0 record → `seasonOver`).
+  Same rules as the scraper: level only for a ≤ 48 h forecast covering now
+  and published by now, newest version wins; risk 0 → notAssessed; 6/7 →
+  `special: "spring" | "no-danger"` (app statuses `spring` / `no-danger`,
+  labels Vårförhållanden / Ingen lavinfara, never a level or colour). The
+  `published_forecasts` layer's own dates can be bogus (a "Måttlig" record
+  "valid" 1 Jan–2 Mar), so the interval layer is primary. Problems:
+  title → site slug, `sensitivity_spread_content` → text, size slider
+  5/40/85 → the site's size 1/2/3 texts (other values → no size). Asks with
+  `propertyName` (no polygons); retries without it, and falls back to the
+  page scraper per area if the API fails (`source: "api" | "page"` in
+  `/forecasts`). Recent days from the API also backfill `forecast_history`
+  (only today's rows can trigger push). Tested in `forecastApi.test.ts`
+  incl. "same level as the archived page" for every overlapping day.
+  App label for season-over is now "Utanför säsong" (true before and after).
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -626,6 +645,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (173 tests as of 2026-10-06, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 91 tests, including the
+  (174 tests as of 2026-10-06, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 101 tests, including the
   real-page fixtures).
