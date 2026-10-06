@@ -2,7 +2,7 @@ import { REGION_SOURCES } from "./regions";
 import { parseForecastHtml, type ParsedForecast } from "./parse";
 import { findChanges, historyRow, readHistory, recordHistory, type HistoryRow } from "./history";
 import { getFavorites, saveFavorites } from "./favorites";
-import { createTour, deleteTour, getTour, listTours, tourLines, updateTour } from "./tours";
+import { createTour, deleteTour, getTour, importedSources, listTours, tourLines, updateTour } from "./tours";
 import { createRoute, deleteRoute, getRoute, listMyRoutes, updateRoute } from "./routes";
 import { badgesOf, removeAvatar, uploadAvatar } from "./profile";
 import {
@@ -262,6 +262,7 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
     if (pathname === "/tours" && method === "GET") return json(await listTours(request, env), origin);
     if (pathname === "/tours" && method === "POST") return json(await createTour(request, env), origin, 201);
     if (pathname === "/tours/lines" && method === "GET") return json(await tourLines(request, env), origin);
+    if (pathname === "/tours/sources" && method === "GET") return json(await importedSources(request, env), origin);
     const tourMatch = pathname.match(/^\/tours\/(\d+)$/);
     if (tourMatch) {
       const id = Number(tourMatch[1]);

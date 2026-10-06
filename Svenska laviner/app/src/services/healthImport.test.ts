@@ -1,8 +1,14 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("capacitor-health", () => ({ Health: {} }));
+const { queryWorkouts, createTour, fetchImportedSources } = vi.hoisted(() => ({
+  queryWorkouts: vi.fn(),
+  createTour: vi.fn(),
+  fetchImportedSources: vi.fn(),
+}));
+vi.mock("capacitor-health", () => ({ Health: { queryWorkouts } }));
+vi.mock("./tourService", () => ({ createTour, fetchImportedSources }));
 
-import { defaultTitle, toHealthWorkout } from "./healthImport";
+import { checkForNewWorkouts, defaultTitle, findNewWorkouts, setAutoImport, toHealthWorkout } from "./healthImport";
 
 function route(n: number, stepDeg = 0.001) {
   return Array.from({ length: n }, (_, i) => ({
@@ -43,5 +49,39 @@ describe("toHealthWorkout", () => {
     const w = toHealthWorkout({ ...base, id: "e", workoutType: "RUNNING", route: route(50) })!;
     expect(w.label).toBe("Löpning");
     expect(w.suggested).toBe(false);
+  });
+});
+
+describe("finding and importing new sessions", () => {
+  const ski = { ...base, id: "ski-1", workoutType: "SKIING", route: route(50) };
+  const run = { ...base, id: "run-1", workoutType: "RUNNING", route: route(50), startDate: "2027-02-04T07:00:00Z" };
+
+  beforeEach(() => {
+    localStorage.clear();
+    vi.useRealTimers();
+    queryWorkouts.mockReset().mockResolvedValue({ workouts: [ski, run] });
+    createTour.mockReset().mockImplementation(async (_t, tour) => ({ id: 7, title: tour.title }));
+    fetchImportedSources.mockReset().mockResolvedValue([]);
+  });
+
+  it("leaves out sessions already imported on another phone", async () => {
+    fetchImportedSources.mockResolvedValue(["hc:ski-1"]);
+    expect((await findNewWorkouts("token")).map((w) => w.id)).toEqual(["run-1"]);
+  });
+
+  it("only lists, without importing, while automatic import is off", async () => {
+    const r = await checkForNewWorkouts("token");
+    expect(r).toEqual({ imported: [], waiting: 2 });
+    expect(createTour).not.toHaveBeenCalled();
+  });
+
+  it("adds ski sessions as private tours when automatic import is on, and leaves runs waiting", async () => {
+    await setAutoImport(true);
+    const r = await checkForNewWorkouts("token");
+    expect(r.imported).toHaveLength(1);
+    expect(r.waiting).toBe(1);
+    expect(createTour).toHaveBeenCalledWith("token", expect.objectContaining({ visibility: "private", sourceRef: "hc:ski-1", title: "Skidtur 3 februari" }));
+    // Imported once: not offered again.
+    expect((await findNewWorkouts("token")).map((w) => w.id)).toEqual(["run-1"]);
   });
 });

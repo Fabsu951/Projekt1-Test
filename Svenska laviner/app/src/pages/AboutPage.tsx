@@ -140,8 +140,9 @@ export default function AboutPage() {
             <strong>Health Connect (Android-appen):</strong> om du kopplar Health Connect läser appen dina
             träningspass och deras GPS-rutter från den senaste månaden, aldrig puls, vikt eller annan hälsodata.
             Läsningen sker på telefonen. Bara de pass du själv väljer att importera skickas till oss, och de sparas
-            som privata turer tills du väljer att dela dem. Du kan sluta när som helst, i appen eller i Health
-            Connect.
+            som privata turer tills du väljer att dela dem. Slår du på automatisk import läggs nya skidpass till som
+            privata turer när du öppnar appen. Vi sparar passets id hos turen så att samma pass inte importeras två
+            gånger. Du kan sluta när som helst, i appen eller i Health Connect.
           </li>
           <li>
             <strong>Planerade rutter:</strong> punkterna du klickar ut, namnet och ruttens längd och höjdmeter, om du

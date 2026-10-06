@@ -3,20 +3,22 @@ import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import TrackSketch from "../components/TrackSketch";
 import {
+  autoImportEnabled,
   defaultTitle,
   disconnectHealth,
   findNewWorkouts,
   healthConnectAvailable,
   healthConnected,
   healthImportSupported,
+  importWorkout,
   LOOKBACK_DAYS,
   openHealthConnectInstall,
   openHealthConnectSettings,
   rememberImported,
   requestHealthAccess,
+  setAutoImport,
   type HealthWorkout,
 } from "../services/healthImport";
-import { createTour } from "../services/tourService";
 import type { Tour } from "../types/tour";
 import { formatDistance } from "../utils/tourFormat";
 
@@ -49,17 +51,22 @@ export default function HealthImportPage() {
   const [busy, setBusy] = useState(false);
   const [imported, setImported] = useState<Tour[]>([]);
   const [failed, setFailed] = useState<string | null>(null);
+  const [auto, setAuto] = useState(false);
+
+  useEffect(() => {
+    void autoImportEnabled().then(setAuto);
+  }, []);
 
   const load = useCallback(async () => {
     setState({ kind: "loading" });
     try {
-      const workouts = await findNewWorkouts();
+      const workouts = await findNewWorkouts(token);
       setSelected(new Set(workouts.filter((w) => w.suggested).map((w) => w.id)));
       setState({ kind: "list", workouts });
     } catch (err) {
       setState({ kind: "error", message: err instanceof Error ? err.message : "Kunde inte läsa från Health Connect." });
     }
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     let live = true;
@@ -97,17 +104,7 @@ export default function HealthImportPage() {
     const done: Tour[] = [];
     for (const w of chosen) {
       try {
-        done.push(
-          await createTour(token!, {
-            title: defaultTitle(w),
-            description: "",
-            visibility: "private",
-            hideEndsM: 500,
-            date: null,
-            points: w.points,
-          })
-        );
-        await rememberImported([w.id]);
+        done.push(await importWorkout(token!, w));
       } catch (err) {
         setFailed(`${defaultTitle(w)}: ${err instanceof Error ? err.message : "kunde inte sparas"}`);
         break;
@@ -242,6 +239,26 @@ export default function HealthImportPage() {
           </div>
           <p className="muted">Turerna sparas som privata. Start och slut döljs med 500 m om du senare delar dem.</p>
         </>
+      )}
+
+      {(state.kind === "list" || state.kind === "error") && (
+        <label className="health-auto">
+          <input
+            type="checkbox"
+            checked={auto}
+            onChange={async (e) => {
+              const on = e.target.checked;
+              setAuto(on);
+              await setAutoImport(on);
+            }}
+          />
+          <span>
+            <strong>Lägg till nya skidpass automatiskt</strong>
+            <br />
+            När du öppnar appen läggs nya skidturer, snöskopass och vandringar till som <strong>privata</strong> turer. Du
+            väljer fortfarande själv vilka du delar. Andra pass, till exempel löprundor, väntar här.
+          </span>
+        </label>
       )}
 
       {(state.kind === "list" || state.kind === "error") && (

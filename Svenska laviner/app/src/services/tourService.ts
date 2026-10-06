@@ -48,10 +48,17 @@ export interface NewTour {
   /** YYYY-MM-DD, only used when the track has no times. */
   date: string | null;
   points: TrackPoint[];
+  /** Where an imported tour came from ("hc:<id>"); the server keeps one tour per source. */
+  sourceRef?: string;
 }
 
 export async function createTour(token: string, tour: NewTour): Promise<Tour> {
   return (await api<{ tour: Tour }>("/tours", { method: "POST", token, json: tour })).tour;
+}
+
+/** Sources of the tours you've imported (e.g. prefix "hc" for Health Connect). */
+export async function fetchImportedSources(token: string, prefix: string): Promise<string[]> {
+  return (await api<{ refs: string[] }>(`/tours/sources?prefix=${encodeURIComponent(prefix)}`, { token })).refs;
 }
 
 export async function updateTour(

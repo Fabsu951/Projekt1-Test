@@ -4,7 +4,7 @@ import type { CommunityEnv } from "./auth";
 import { deleteAccount } from "./auth";
 import { HttpError } from "./http";
 import { addComment, deleteComment, feed, follow, getPerson, listComments, searchPeople, setLike, unfollow } from "./social";
-import { listTours, tourLines } from "./tours";
+import { createTour, importedSources, listTours, tourLines } from "./tours";
 import { migratedD1 } from "./testing/sqliteD1";
 import { experiencePoints, removeAvatar, uploadAvatar } from "./profile";
 import { serveImage } from "./observations";
@@ -293,5 +293,30 @@ describe("notifications", () => {
     await follow(req("/people/2/follow", "anna", { method: "POST" }), env, ids.bertil);
     await deleteAccount(req("/auth/me", "anna", { method: "DELETE" }), env);
     expect(await texts("bertil")).toEqual([]);
+  });
+});
+
+describe("imported tours", () => {
+  const points = Array.from({ length: 40 }, (_, i) => [67.9 + i * 0.001, 18.5, 800 + i * 5, Date.UTC(2026, 1, 3, 9, i)]);
+  const upload = (sourceRef?: unknown) =>
+    createTour(
+      req("/tours", "anna", { json: { title: "Skidtur", description: "", visibility: "private", hideEndsM: 500, points, sourceRef } }),
+      env
+    );
+
+  it("imports a watch session once, even when it is sent again", async () => {
+    const first = await upload("hc:abc-123");
+    const again = await upload("hc:abc-123");
+    expect(again).toMatchObject({ duplicate: true, tour: { id: first.tour.id } });
+    expect(await importedSources(req("/tours/sources?prefix=hc", "anna"), env)).toEqual({ refs: ["hc:abc-123"] });
+    // Someone else's import of a session with the same id is their own tour.
+    expect((await importedSources(req("/tours/sources?prefix=hc", "bertil"), env)).refs).toEqual([]);
+    expect(stored.size).toBe(1);
+  });
+
+  it("refuses odd source refs and still takes plain uploads", async () => {
+    expect(await status(upload("javascript:alert(1) "))).toBe(400);
+    expect(await status(upload(42))).toBe(400);
+    expect((await upload()).tour.title).toBe("Skidtur");
   });
 });

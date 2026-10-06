@@ -538,6 +538,18 @@ the start, exact map point.
   NSHealth*UsageDescription strings exist, but HealthKit (entitlement, UI)
   is **not** wired up yet; background import (WorkManager / HKObserverQuery)
   also not built. Not compiled here (no Android SDK) — Fabian must build.
+  **Step 2 (2026-10-06):** migration `0014` `tours.source_ref` (unique per
+  user, e.g. `hc:<session id>`); `POST /tours` with an existing
+  `sourceRef` returns `{tour, duplicate: true}` before the rate limit;
+  `GET /tours/sources?prefix=hc` lists your refs, so `findNewWorkouts(token)`
+  skips sessions imported from another phone. Optional **automatic
+  import** (Preferences `fjallkoll:health-auto`, toggle on `/turer/halsa`):
+  `checkForNewWorkouts` (one shared run per moment) imports
+  `suggested` (winter) sessions as private tours when the app is open;
+  others wait. `HealthImportNotice` reports "N nya turer … lagts till som
+  privata" + "N pass väntar". dl.google.com is blocked in cloud sessions,
+  so no Android SDK — true background import (WorkManager +
+  READ_HEALTH_DATA_IN_BACKGROUND) is left until it can be compiled.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -591,6 +603,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (170 tests as of 2026-10-06, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 89 tests, including the
+  (173 tests as of 2026-10-06, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 91 tests, including the
   real-page fixtures).

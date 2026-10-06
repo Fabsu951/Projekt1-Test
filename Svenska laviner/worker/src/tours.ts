@@ -148,15 +148,50 @@ interface CreateBody {
   /** Used when the track itself has no timestamps, as YYYY-MM-DD. */
   date?: unknown;
   points?: unknown;
+  /** Where an imported tour came from, e.g. "hc:<session id>"; one tour per source per person. */
+  sourceRef?: unknown;
+}
+
+const SOURCE_REF = /^[a-z]{2,10}:[\w.:-]{1,190}$/;
+
+function readSourceRef(value: unknown): string | null {
+  if (value === undefined || value === null || value === "") return null;
+  if (typeof value !== "string" || !SOURCE_REF.test(value)) throw new HttpError(400, "Ogiltig källa för turen.");
+  return value;
+}
+
+async function tourFromSource(env: CommunityEnv, userId: number, ref: string) {
+  const row = await env.DB.prepare(`${SELECT} WHERE t.user_id = ? AND t.source_ref = ?`).bind(userId, ref).first<TourRow>();
+  return row ? toTour(row) : null;
+}
+
+/** The sources (with this prefix, e.g. "hc") of the tours you've imported, so the app can skip them. */
+export async function importedSources(request: Request, env: CommunityEnv) {
+  const user = await requireUser(request, env);
+  const prefix = new URL(request.url).searchParams.get("prefix") ?? "";
+  if (!/^[a-z]{0,10}$/.test(prefix)) throw new HttpError(400, "Ogiltigt prefix.");
+  const rows = await env.DB.prepare(
+    "SELECT source_ref FROM tours WHERE user_id = ? AND source_ref LIKE ? ORDER BY id DESC LIMIT 2000"
+  )
+    .bind(user.id, `${prefix}%`)
+    .all<{ source_ref: string }>();
+  return { refs: rows.results.map((r) => r.source_ref) };
 }
 
 export async function createTour(request: Request, env: CommunityEnv) {
   const user = await requirePoster(request, env);
+  const body = await readJson<CreateBody>(request);
+  // The same watch session again (another phone, a retry): hand back the tour we already have.
+  const sourceRef = readSourceRef(body.sourceRef);
+  if (sourceRef) {
+    const existing = await tourFromSource(env, user.id, sourceRef);
+    if (existing) return { tour: existing, duplicate: true };
+  }
+
   const store = d1Store(env.DB);
   const key = `tour-upload:${user.id}`;
   await enforce(store, [{ key, ...UPLOAD_LIMIT }], "Du har laddat upp många turer den senaste timmen. Försök igen senare.");
 
-  const body = await readJson<CreateBody>(request);
   const title = text(body.title, MAX_TITLE, "en titel", true);
   const description = text(body.description, MAX_DESCRIPTION, "beskrivningen");
   let points: TrackPoint[];
@@ -180,8 +215,8 @@ export async function createTour(request: Request, env: CommunityEnv) {
 
   const result = await env.DB.prepare(
     `INSERT INTO tours (user_id, title, description, started_at, duration_s, distance_m, ascent_m, descent_m,
-       max_elevation_m, region_id, shared, followers_only, hide_ends_m, pin_lat, pin_lon, track_key, preview, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       max_elevation_m, region_id, shared, followers_only, hide_ends_m, pin_lat, pin_lon, track_key, preview, source_ref, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       user.id,
@@ -201,9 +236,18 @@ export async function createTour(request: Request, env: CommunityEnv) {
       pin?.[1] ?? null,
       trackKey,
       preview ? JSON.stringify(preview) : null,
+      sourceRef,
       nowIso()
     )
-    .run();
+    .run()
+    .catch(async (err) => {
+      // Two uploads of the same session at once: keep the first.
+      const existing = sourceRef ? await tourFromSource(env, user.id, sourceRef) : null;
+      if (!existing) throw err;
+      await env.IMAGES.delete(trackKey);
+      return null;
+    });
+  if (!result) return { tour: (await tourFromSource(env, user.id, sourceRef!))!, duplicate: true };
   await record(store, [key]);
   const row = await env.DB.prepare(`${SELECT} WHERE t.id = ?`).bind(Number(result.meta.last_row_id)).first<TourRow>();
   return { tour: toTour(row!) };
