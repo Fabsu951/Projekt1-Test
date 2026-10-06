@@ -519,6 +519,25 @@ the start, exact map point.
   `OfflineTileLayer` loads straight from the network once it knows
   nothing is saved; `TopoLayer` `keepBuffer 4`, `updateWhenZooming false`.
   Measured with Playwright (200 pins, 12 drags): long tasks ~17 s → 0.
+- **Health Connect import (Android, 2026-10-06, step 1 of "automatic
+  tours from Apple Health/Health Connect"):** plugin `capacitor-health`
+  (mley, MIT, v8.4.0; Android minSdk raised 24 → 26 for it).
+  `services/healthImport.ts`: READ_WORKOUTS + READ_ROUTE only, sessions
+  from the last 30 days (`LOOKBACK_DAYS`; HC's default history limit),
+  route ≥ 10 points and ≥ 300 m, `simplify()`d to our TrackPoint format;
+  imported/skipped HC ids remembered in Preferences
+  `fjallkoll:health-imported`, connection flag `fjallkoll:health-connected`.
+  `/turer/halsa` (`HealthImportPage`, lazy): install/connect/denied states,
+  checklist (winter types preselected), imports as **private** tours
+  (hide ends 500 m) — Fabian agreed: auto-detect, never auto-publish.
+  `HealthImportNotice` ("N nya pass från klockan") on Turer (+ invite) and
+  the start page, only in the Android app when signed in. Manifest:
+  READ_EXERCISE(_ROUTE), `<queries>` for HC, rationale activity + alias →
+  `privacy_policy_url` string. Privacy policy + APPAR.md (Play Console
+  Health Connect declaration) updated. iOS: plugin is in Package.swift and
+  NSHealth*UsageDescription strings exist, but HealthKit (entitlement, UI)
+  is **not** wired up yet; background import (WorkManager / HKObserverQuery)
+  also not built. Not compiled here (no Android SDK) — Fabian must build.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -572,6 +591,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (167 tests as of 2026-10-05, all passing). Worker has its own Vitest
+  (170 tests as of 2026-10-06, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 89 tests, including the
   real-page fixtures).

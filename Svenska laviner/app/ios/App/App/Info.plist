@@ -24,6 +24,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Snöläge kan hämta dina träningspass med GPS-rutt från Hälsa, så att du kan lägga in dem i din turdagbok. Inget annat läses.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Snöläge sparar ingenting i Hälsa.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Används när du tar en bild till en observation eller som profilbild.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

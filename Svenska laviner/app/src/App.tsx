@@ -30,6 +30,7 @@ const TourPage = lazy(() => import("./pages/TourPage"));
 const FeedPage = lazy(() => import("./pages/FeedPage"));
 const PersonPage = lazy(() => import("./pages/PersonPage"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
+const HealthImportPage = lazy(() => import("./pages/HealthImportPage"));
 
 function App() {
   return (
@@ -58,6 +59,14 @@ function App() {
           }
         />
         <Route path="/turer" element={<ToursPage />} />
+        <Route
+          path="/turer/halsa"
+          element={
+            <Suspense fallback={<PageLoading />}>
+              <HealthImportPage />
+            </Suspense>
+          }
+        />
         <Route
           path="/turer/ny"
           element={

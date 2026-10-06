@@ -3315,3 +3315,94 @@ h1 .admin-badge {
   border-radius: 3px;
   box-shadow: 0 0 0 1px var(--snow);
 }
+
+/* Health Connect import */
+.health-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  background: #13283a;
+  color: var(--text);
+}
+
+.health-notice span {
+  color: var(--accent);
+  font-size: 0.88rem;
+}
+
+.health-notice--invite {
+  border-color: var(--border);
+  background: var(--bg-elevated);
+}
+
+.health-step {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elevated);
+}
+
+.health-step ol {
+  padding-left: 1.2em;
+}
+
+.health-list {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.health-list__item label {
+  display: grid;
+  grid-template-columns: auto 56px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  cursor: pointer;
+}
+
+.health-list__sketch {
+  display: block;
+  width: 56px;
+  height: 56px;
+}
+
+.health-list__sketch svg {
+  width: 100%;
+  height: 100%;
+}
+
+.health-list__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.health-list__text span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.health-imported {
+  margin: 6px 0 0;
+  padding-left: 1.2em;
+}
+
+.notice--ok {
+  background: #14291d;
+  border-color: #2f6b45;
+  color: #c4f0d2;
+}
+
+.health-disconnect {
+  margin-top: 24px;
+}

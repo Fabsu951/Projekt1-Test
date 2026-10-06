@@ -14,6 +14,7 @@ const { mockLoad, mockHistory, mockObservations } = vi.hoisted(() => ({
 
 vi.mock("../services/avalancheService", () => ({ loadForecasts: mockLoad, fetchForecastHistory: mockHistory }));
 vi.mock("../services/observationService", () => ({ fetchObservations: mockObservations }));
+vi.mock("../auth/useAuth", () => ({ useAuth: () => ({ user: null, token: null }) }));
 
 function forecasts(status: ForecastStatus, dangerLevel: AvalancheForecast["dangerLevel"]) {
   const byId: Record<string, AvalancheForecast> = {};

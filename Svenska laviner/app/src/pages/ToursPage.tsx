@@ -8,6 +8,7 @@ import SeasonFilter from "../components/SeasonFilter";
 import { seasonMonths } from "../data/tourSeasons";
 import { fetchTours } from "../services/tourService";
 import type { Tour } from "../types/tour";
+import HealthImportNotice from "../components/HealthImportNotice";
 
 export default function ToursPage() {
   const { user, token } = useAuth();
@@ -48,6 +49,8 @@ export default function ToursPage() {
           </Link>
         </div>
       </header>
+
+      <HealthImportNotice invite />
 
       <p className="notice">
         Turerna delas av användare. Förhållandena en annan dag kan vara helt andra – kontrollera alltid dagens

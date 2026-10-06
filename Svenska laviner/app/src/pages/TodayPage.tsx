@@ -15,6 +15,7 @@ import NearestRegion from "../components/NearestRegion";
 import PushToggle from "../components/PushToggle";
 import ForecastBadge from "../components/ForecastBadge";
 import FavoriteButton from "../components/FavoriteButton";
+import HealthImportNotice from "../components/HealthImportNotice";
 
 // The start page, "Idag i fjällen": today's forecast for your starred areas
 // first, then quick actions, fresh observations, an overview map and the
@@ -100,6 +101,8 @@ export default function TodayPage() {
           </p>
         </div>
       )}
+
+      <HealthImportNotice />
 
       <div className="today__grid">
         <div className="today__main">

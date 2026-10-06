@@ -23,6 +23,9 @@ din egen telefon och lägger ut dem i Google Play och App Store.
 - **Radera konto:** en egen sida för butikernas krav finns på
   `https://fjallkoll.pages.dev/om-appen#radera-konto`.
 
+- **Health Connect (Android):** hämtar pass med GPS-spår från klockans app
+  som privata turer. Kräver Android 8 eller senare.
+
 **Fungerar inte i apparna än:** push-notiser. De kräver Firebase för Android
 och ett Apple-konto för iPhone. Klockan med notiser i appen fungerar.
 
@@ -79,7 +82,15 @@ Kör `npm run app:android` igen varje gång koden har ändrats.
    - Delas inte med tredje part för reklam. Krypteras under överföring.
      Användare kan begära radering: ange
      `https://fjallkoll.pages.dev/om-appen#radera-konto`.
-5. **Integritetspolicy:** `https://fjallkoll.pages.dev/om-appen#integritet`
+5. **Health Connect:** appen kan hämta träningspass med GPS-rutt från Health
+   Connect (sidan "Hämta från Health Connect" under Turer). Google kräver då
+   en deklaration i Play Console under **App content → Health apps / Health
+   Connect permissions**: ange att appen läser **Exercise** och **Exercise
+   route**, för att användaren ska kunna importera sina skidturer till
+   turdagboken, att datan bara läses när användaren ber om det och att inget
+   säljs eller används för reklam. Lägg också till "Health and fitness" i
+   Data safety. Granskningen kan ta några dagar extra.
+6. **Integritetspolicy:** `https://fjallkoll.pages.dev/om-appen#integritet`
 
 ## 3. App Store (iPhone)
 
