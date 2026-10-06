@@ -1,0 +1,234 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<title>Financial Management Glossary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Serif:wght@500;600&display=swap">
+<style>
+/* Layout: one reading column, section chips on top, every formula on its own ledger-tinted line */
+:root {
+  --bg: #f5f7f4; --surface: #ffffff; --fg: #1a2420; --muted: #5a6761;
+  --rule: #dce2dc; --accent: #1d6b58; --formula: #ebf2ed;
+  --display: "IBM Plex Serif", Georgia, serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --math: "Cambria Math", "STIX Two Math", "Latin Modern Math", math, serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111714; --surface: #172019; --fg: #e3eae5; --muted: #98a59e;
+  --rule: #2a3530; --accent: #6cc3a6; --formula: #1b2621; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111714; --surface: #172019; --fg: #e3eae5; --muted: #98a59e;
+  --rule: #2a3530; --accent: #6cc3a6; --formula: #1b2621; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--body); }
+.wrap { max-width: 46rem; margin: 0 auto; padding-inline: 16px; padding-block: 2rem 4rem; }
+header h1 { font: 600 1.9rem/1.2 var(--display); margin: 0 0 .35rem; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); }
+nav { display: flex; flex-wrap: wrap; gap: .4rem; margin: 1.25rem 0 0; }
+nav a { font-size: .82rem; color: var(--accent); text-decoration: none; border: 1px solid var(--rule);
+  background: var(--surface); border-radius: 999px; padding: .2rem .7rem; }
+nav a:hover, nav a:focus-visible { border-color: var(--accent); outline: none; }
+section { margin-top: 2.25rem; scroll-margin-top: 1rem; }
+h2 { font: 600 1.3rem/1.3 var(--display); margin: 0 0 .75rem; padding-bottom: .4rem;
+  border-bottom: 1px solid var(--rule); display: flex; gap: .6rem; align-items: baseline; text-wrap: balance; }
+h2 .n { font: 600 .8rem var(--body); color: var(--accent); font-variant-numeric: tabular-nums; }
+h3 { font: 600 .75rem var(--body); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 1.4rem 0 .5rem; }
+ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .55rem; }
+ul ul { margin-top: .45rem; padding-left: 1rem; border-left: 1px solid var(--rule); gap: .4rem; }
+li { min-width: 0; }
+li strong { font-weight: 600; }
+p { margin: .5rem 0; }
+.f { display: block; width: fit-content; max-width: 100%; overflow-x: auto; margin-top: .3rem;
+  background: var(--formula); border-radius: 6px; padding: .35rem .7rem; }
+.fd { overflow-x: auto; background: var(--formula); border-radius: 6px; padding: .6rem .8rem; margin: .4rem 0; }
+.fd + p { color: var(--muted); font-size: .88rem; margin-top: 0; }
+math { font-family: var(--math); font-size: 1.12em; }
+.fd math { font-size: 1.15em; }
+.f math[display="block"], .fd math { display: block; text-align: left; margin: 0; }
+</style>
+<div class="wrap">
+<header>
+  <h1>Financial Management Glossary</h1>
+  <p>Financial Management and Investment · Lectures 1, 2, 3 and 5 · T = tax rate</p>
+  <nav><a href="#s1">Financial statements</a><a href="#s2">Assets</a><a href="#s3">Liabilities</a><a href="#s4">Equity and dividends</a><a href="#s5">Income and expenses</a><a href="#s6">Standards and financial instruments</a><a href="#s7">Cash flows</a><a href="#s8">Ratios</a><a href="#s9">DuPont</a><a href="#s10">Cost of capital and EVA</a></nav>
+</header>
+<section id="s1"><h2><span class="n">1</span>Financial statements</h2>
+<ul>
+<li><strong>Primary financial statements</strong>: the four main reports: income statement, balance sheet, statement of cash flows and statement of changes in equity.</li>
+<li><strong>Income statement</strong>: shows profit or loss over a period. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Revenue</mtext><mo>−</mo><mtext>Expenses</mtext><mo>=</mo><mtext>Profit</mtext></mrow><annotation encoding="application/x-tex">\text{Revenue} - \text{Expenses} = \text{Profit}</annotation></semantics></math></span></span></li>
+<li><strong>Statement of financial position / Balance sheet</strong>: a snapshot at a specific date. Liabilities are shown as positive amounts. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Assets</mtext><mo>=</mo><mtext>Liabilities</mtext><mo>+</mo><mtext>Equity</mtext></mrow><annotation encoding="application/x-tex">\text{Assets} = \text{Liabilities} + \text{Equity}</annotation></semantics></math></span></span></li>
+<li><strong>Usefulness of the balance sheet</strong>: shows liquidity, solvency, capital structure and risk.</li>
+<li><strong>Statement of cash flows</strong>: actual cash in and out, split into operating, investing and financing. Profit ≠ cash flow. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Opening cash</mtext><mo>+</mo><mtext>Net cash flow</mtext><mo>=</mo><mtext>Closing cash</mtext></mrow><annotation encoding="application/x-tex">\text{Opening cash} + \text{Net cash flow} = \text{Closing cash}</annotation></semantics></math></span></span></li>
+<li><strong>Statement of changes in equity</strong>: explains why equity changed.</li>
+<li><strong>Comprehensive income</strong>: OCI (other comprehensive income) is certain unrealized value changes. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Comprehensive income</mtext><mo>=</mo><mtext>Net income</mtext><mo>+</mo><mtext>OCI</mtext></mrow><annotation encoding="application/x-tex">\text{Comprehensive income} = \text{Net income} + \text{OCI}</annotation></semantics></math></span></span></li>
+<li><strong>Omit</strong>: leave out.</li>
+</ul>
+</section><section id="s2"><h2><span class="n">2</span>Assets</h2>
+<ul>
+<li><strong>Current assets</strong>: turned into cash within 12 months, e.g. cash, AR, inventory, short-term investments and prepaid expenses.</li>
+<li><strong>Non-current assets</strong>: held for more than 1 year, e.g. PPE, intangibles and long-term investments.</li>
+<li><strong>Short-term or long-term investment</strong>: current if the company intends to sell within 12 months, otherwise non-current.</li>
+<li><strong>Accounts receivable (AR)</strong>: money customers owe the company. Current.</li>
+<li><strong>Inventory</strong>: raw materials, WIP and finished goods. Current. Becomes COGS when sold.</li>
+<li><strong>Marketable investments</strong>: securities that are easy to sell. Usually current.</li>
+<li><strong>PPE (Property, plant &amp; equipment)</strong>: buildings, machinery and vehicles. Non-current, depreciated.</li>
+<li><strong>Intangible assets</strong>: non-physical assets, e.g. patents, trademarks, licenses and goodwill.</li>
+<li><strong>Patent</strong>: an exclusive legal right for a limited time. Intangible.</li>
+<li><strong>Goodwill</strong>: arises only in an acquisition (M&amp;A). <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Goodwill</mtext><mo>=</mo><mtext>Purchase price</mtext><mo>−</mo><mtext>Fair value of identifiable net assets</mtext></mrow><annotation encoding="application/x-tex">\text{Goodwill} = \text{Purchase price} - \text{Fair value of identifiable net assets}</annotation></semantics></math></span></span></li>
+</ul>
+</section><section id="s3"><h2><span class="n">3</span>Liabilities</h2>
+<ul>
+<li><strong>Current liabilities</strong>: due within 12 months. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Liabilities</mtext><mo>=</mo><mtext>Current</mtext><mo>+</mo><mtext>Non-current</mtext></mrow><annotation encoding="application/x-tex">\text{Liabilities} = \text{Current} + \text{Non-current}</annotation></semantics></math></span></span></li>
+<li><strong>Accounts payable (AP)</strong>: money the company owes suppliers. Current.</li>
+<li><strong>Accrued expenses</strong>: expenses incurred but not yet paid. Current.</li>
+<li><strong>Notes payable</strong>: a formal written debt. Current if due within 12 months, otherwise non-current.</li>
+<li><strong>Interest payable</strong>: interest incurred but not yet paid. Current.</li>
+<li><strong>Bonds payable</strong>: debt from issued bonds. Usually non-current; the part due within 12 months is current.</li>
+<li><strong>Provision</strong>: a liability with uncertain amount or timing. Split into current and non-current by when it will be used.</li>
+<li><strong>Warranty provision</strong>: expected future warranty costs. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Sales</mtext><mo>×</mo><mtext>Estimated warranty %</mtext></mrow><annotation encoding="application/x-tex">= \text{Sales} \times \text{Estimated warranty \%}</annotation></semantics></math></span></span></li>
+<li><strong>Pension provision</strong>: estimated future pension obligation. Usually non-current.</li>
+</ul>
+</section><section id="s4"><h2><span class="n">4</span>Equity and dividends</h2>
+<ul>
+<li><strong>Equity</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Assets</mtext><mo>−</mo><mtext>Liabilities</mtext><mo>=</mo><mtext>Share capital</mtext><mo>+</mo><mtext>Share premium</mtext><mo>+</mo><mtext>Retained earnings</mtext><mo>−</mo><mtext>Treasury shares</mtext></mrow><annotation encoding="application/x-tex">= \text{Assets} - \text{Liabilities} = \text{Share capital} + \text{Share premium} + \text{Retained earnings} - \text{Treasury shares}</annotation></semantics></math></span></span></li>
+<li><strong>Residual claim</strong>: the owners&#39; claim on what remains after all liabilities are paid.</li>
+<li><strong>Shareholders&#39; equity – ordinary</strong>: equity belonging to ordinary (common) shareholders, excluding preferred shares.</li>
+<li><strong>Par value</strong>: nominal value per share, not the market price.</li>
+<li><strong>Share capital</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Number of shares</mtext><mo>×</mo><mtext>Par value</mtext></mrow><annotation encoding="application/x-tex">= \text{Number of shares} \times \text{Par value}</annotation></semantics></math></span></span></li>
+<li><strong>Share premium</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Issue price</mtext><mo>=</mo><mtext>Par value</mtext><mo>+</mo><mtext>Share premium</mtext></mrow><annotation encoding="application/x-tex">\text{Issue price} = \text{Par value} + \text{Share premium}</annotation></semantics></math></span></span></li>
+<li><strong>Retained earnings</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Ending RE</mtext><mo>=</mo><mtext>Beginning RE</mtext><mo>+</mo><mtext>Net income</mtext><mo>−</mo><mtext>Dividends for the year</mtext></mrow><annotation encoding="application/x-tex">\text{Ending RE} = \text{Beginning RE} + \text{Net income} - \text{Dividends for the year}</annotation></semantics></math></span></span></li>
+<li><strong>Treasury shares</strong>: the company&#39;s own repurchased shares. Reduce equity; no votes and no dividends.</li>
+<li><strong>Dividends</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Number of shares</mtext><mo>×</mo><mtext>Dividend per share</mtext></mrow><annotation encoding="application/x-tex">= \text{Number of shares} \times \text{Dividend per share}</annotation></semantics></math></span></span></li>
+<li><strong>Cash dividend</strong>: dividend paid in cash.</li>
+<li><strong>Share/stock dividend</strong>: dividend paid in new shares.</li>
+<li><strong>Dividend yield</strong>: dividend relative to the share price.</li>
+<li><strong>Preferred dividends</strong>: paid to preferred shareholders before ordinary shareholders. Not an expense; reduce retained earnings. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Nominal value</mtext><mo>×</mo><mtext>Dividend rate</mtext></mrow><annotation encoding="application/x-tex">= \text{Nominal value} \times \text{Dividend rate}</annotation></semantics></math></span></span></li>
+</ul>
+</section><section id="s5"><h2><span class="n">5</span>Income and expenses</h2>
+<ul>
+<li><strong>Revenue</strong>: income from the core business.</li>
+<li><strong>Gain</strong>: profit from a non-core transaction. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Gain</mtext><mo>=</mo><mtext>Selling price</mtext><mo>−</mo><mtext>Book value</mtext></mrow><annotation encoding="application/x-tex">\text{Gain} = \text{Selling price} - \text{Book value}</annotation></semantics></math></span></span></li>
+<li><strong>Expense/loss</strong>: reduces profit. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Loss</mtext><mo>=</mo><mtext>Book value</mtext><mo>−</mo><mtext>Selling price</mtext></mrow><annotation encoding="application/x-tex">\text{Loss} = \text{Book value} - \text{Selling price}</annotation></semantics></math></span></span></li>
+<li><strong>COGS (Cost of goods sold)</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Beginning inventory</mtext><mo>+</mo><mtext>Purchases</mtext><mo>−</mo><mtext>Ending inventory</mtext></mrow><annotation encoding="application/x-tex">= \text{Beginning inventory} + \text{Purchases} - \text{Ending inventory}</annotation></semantics></math></span></span></li>
+<li><strong>Gross profit</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Revenue</mtext><mo>−</mo><mtext>COGS</mtext></mrow><annotation encoding="application/x-tex">= \text{Revenue} - \text{COGS}</annotation></semantics></math></span></span></li>
+<li><strong>SG&amp;A (Selling, general &amp; administrative expenses)</strong>: overhead costs, not part of production cost.</li>
+<li><strong>EBIT (Earnings before interest and taxes)</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Revenue</mtext><mo>−</mo><mtext>COGS</mtext><mo>−</mo><mtext>SG&amp;A</mtext><mo>−</mo><mtext>Other operating expenses</mtext></mrow><annotation encoding="application/x-tex">= \text{Revenue} - \text{COGS} - \text{SG\&amp;A} - \text{Other operating expenses}</annotation></semantics></math></span></span></li>
+<li><strong>Interest expense</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Loan</mtext><mo>×</mo><mtext>Interest rate</mtext></mrow><annotation encoding="application/x-tex">= \text{Loan} \times \text{Interest rate}</annotation></semantics></math></span></span></li>
+<li><strong>EBT (Earnings before tax)</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>EBIT</mtext><mo>−</mo><mtext>Interest expense</mtext></mrow><annotation encoding="application/x-tex">= \text{EBIT} - \text{Interest expense}</annotation></semantics></math></span></span></li>
+<li><strong>After-tax interest expense</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Interest expense</mtext><mo>×</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>T</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">= \text{Interest expense} \times (1 - T)</annotation></semantics></math></span></span></li>
+<li><strong>Bad debt expense</strong>: estimated customer losses. The allowance for doubtful accounts reduces AR. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>AR</mtext><mo>×</mo><mtext>Estimated loss %</mtext></mrow><annotation encoding="application/x-tex">= \text{AR} \times \text{Estimated loss \%}</annotation></semantics></math></span></span></li>
+<li><strong>Cost allocation</strong>: spreading a cost over periods, products or departments.</li>
+<li><strong>Depreciation</strong>: for tangible assets. Not a cash payment. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Cost</mtext><mtext>Useful life</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Cost}}{\text{Useful life}}</annotation></semantics></math></span></span></li>
+<li><strong>Amortization</strong>: for intangible assets with a limited life. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Cost</mtext><mtext>Useful life</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Cost}}{\text{Useful life}}</annotation></semantics></math></span></span></li>
+<li><strong>30% rule</strong>: Swedish declining-balance depreciation. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Depreciation for the year</mtext><mo>=</mo><mtext>Remaining value</mtext><mo>×</mo><mn>30</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">\text{Depreciation for the year} = \text{Remaining value} \times 30\%</annotation></semantics></math></span></span></li>
+</ul>
+</section><section id="s6"><h2><span class="n">6</span>Standards and financial instruments</h2>
+<ul>
+<li><strong>IASB (International Accounting Standards Board)</strong>: issues IFRS. Older standards are called IAS.</li>
+<li><strong>IFRS 9</strong>: financial instruments. Covers classification (amortized cost, FVOCI, FVTPL), impairment using ECL (Expected Credit Loss) and hedge accounting.</li>
+<li><strong>FVTPL (Fair value through profit or loss)</strong>: value changes go directly into profit or loss. Used for trading securities.</li>
+<li><strong>Unrealized gain/loss</strong>: value change on an asset still held. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Market value</mtext><mo>−</mo><mtext>Cost</mtext></mrow><annotation encoding="application/x-tex">= \text{Market value} - \text{Cost}</annotation></semantics></math></span></span></li>
+<li><strong>Realized gain/loss</strong>: gain or loss when the asset is sold. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Selling price</mtext><mo>−</mo><mtext>Cost</mtext></mrow><annotation encoding="application/x-tex">= \text{Selling price} - \text{Cost}</annotation></semantics></math></span></span></li>
+</ul>
+</section><section id="s7"><h2><span class="n">7</span>Cash flows</h2>
+<ul>
+<li><strong>Operating activities</strong>: day-to-day business, e.g. customers, salaries and suppliers.</li>
+<li><strong>Investing activities</strong>: buying and selling assets.<ul>
+<li><strong>Purchase fixed assets</strong>: outflow.</li>
+<li><strong>Investment in securities</strong>: buying is an outflow, selling is an inflow.</li>
+<li><strong>Make a loan</strong> (lend money): outflow.</li>
+</ul>
+</li>
+<li><strong>Financing activities</strong>: cash flows to and from owners and lenders.<ul>
+<li><strong>Equity invested</strong> (owners put in money): inflow.</li>
+<li><strong>Debt invested</strong> / <strong>take out a loan</strong>: inflow.</li>
+<li><strong>Repay a loan</strong>: outflow.</li>
+<li><strong>Dividends</strong> and <strong>share buybacks</strong>: outflows.</li>
+</ul>
+</li>
+<li><strong>Interest payment</strong>: operating or financing under IFRS; operating under US GAAP.</li>
+<li><strong>Cash outflows</strong>: all payments made.</li>
+<li><strong>Life cycle</strong>: cash flow pattern by stage (Operating / Investing / Financing):<ul>
+<li><strong>Start-up</strong>: − / − / +</li>
+<li><strong>Growth</strong>: +/− / − / +</li>
+<li><strong>Maturity</strong>: + / − / −</li>
+<li><strong>Decline</strong>: ↓ / + / −</li>
+</ul>
+</li>
+</ul>
+</section><section id="s8"><h2><span class="n">8</span>Ratios</h2>
+<p><strong>Ratio analysis</strong>: ratios are grouped into profitability, liquidity, solvency, efficiency and market ratios. Always compare over time and with the industry.</p>
+<h3>Liquidity</h3>
+<ul>
+<li><strong>Current ratio</strong>: above 1 is good. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Current assets</mtext><mtext>Current liabilities</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Current assets}}{\text{Current liabilities}}</annotation></semantics></math></span></span></li>
+<li><strong>Quick ratio</strong>: same as the current ratio but excluding inventory.</li>
+</ul>
+<h3>Efficiency</h3>
+<ul>
+<li><strong>Asset turnover</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Revenue</mtext><mtext>Average total assets</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Revenue}}{\text{Average total assets}}</annotation></semantics></math></span></span></li>
+<li><strong>Inventory turnover</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>COGS</mtext><mtext>Average inventory</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{COGS}}{\text{Average inventory}}</annotation></semantics></math></span></span><ul>
+<li><strong>Days inventory</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mn>365</mn><mtext>Inventory turnover</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{365}{\text{Inventory turnover}}</annotation></semantics></math></span></span></li>
+</ul>
+</li>
+<li><strong>AR turnover</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Credit sales</mtext><mtext>Average AR</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Credit sales}}{\text{Average AR}}</annotation></semantics></math></span></span><ul>
+<li><strong>DSO (Days sales outstanding)</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mn>365</mn><mtext>AR turnover</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{365}{\text{AR turnover}}</annotation></semantics></math></span></span></li>
+</ul>
+</li>
+<li><strong>AP turnover</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Purchases (or COGS)</mtext><mtext>Average AP</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Purchases (or COGS)}}{\text{Average AP}}</annotation></semantics></math></span></span><ul>
+<li><strong>DPO (Days payable outstanding)</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mn>365</mn><mtext>AP turnover</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{365}{\text{AP turnover}}</annotation></semantics></math></span></span></li>
+</ul>
+</li>
+</ul>
+<h3>Profitability</h3>
+<ul>
+<li><strong>Net profit margin</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Net income</mtext><mtext>Revenue</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Net income}}{\text{Revenue}}</annotation></semantics></math></span></span></li>
+<li><strong>After-tax operating income margin</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>NOPAT</mtext><mtext>Revenue</mtext></mfrac></mstyle><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mrow><mtext>EBIT</mtext><mo>×</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>T</mi><mo stretchy="false">)</mo></mrow><mtext>Revenue</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{NOPAT}}{\text{Revenue}} = \dfrac{\text{EBIT} \times (1 - T)}{\text{Revenue}}</annotation></semantics></math></span></span></li>
+<li><strong>ROA (Return on assets)</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Net income</mtext><mtext>Average total assets</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Net income}}{\text{Average total assets}}</annotation></semantics></math></span></span></li>
+<li><strong>ROE (Return on equity)</strong>: compared with the cost of equity. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Net income</mtext><mtext>Average equity</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Net income}}{\text{Average equity}}</annotation></semantics></math></span></span><ul>
+<li>For ordinary shareholders: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>ROE</mtext><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Net income available to ordinary shareholders</mtext><mtext>Average ordinary shareholders’ equity</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\text{ROE} = \dfrac{\text{Net income available to ordinary shareholders}}{\text{Average ordinary shareholders&#x27; equity}}</annotation></semantics></math></span></span></li>
+</ul>
+</li>
+<li><strong>ROC / ROR (Return on capital / Rate of return)</strong>: compared with WACC. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>NOPAT</mtext><mtext>Invested capital</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{NOPAT}}{\text{Invested capital}}</annotation></semantics></math></span></span></li>
+</ul>
+<h3>Market</h3>
+<ul>
+<li><strong>EPS (Earnings per share)</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mrow><mtext>Net income</mtext><mo>−</mo><mtext>Preferred dividends</mtext></mrow><mtext>Weighted average number of ordinary shares</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Net income} - \text{Preferred dividends}}{\text{Weighted average number of ordinary shares}}</annotation></semantics></math></span></span></li>
+<li><strong>P/E (Price/earnings ratio)</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Share price</mtext><mtext>EPS</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Share price}}{\text{EPS}}</annotation></semantics></math></span></span></li>
+<li><strong>Dividend payout ratio</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Dividends</mtext><mtext>Net income</mtext></mfrac></mstyle><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>DPS</mtext><mtext>EPS</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Dividends}}{\text{Net income}} = \dfrac{\text{DPS}}{\text{EPS}}</annotation></semantics></math></span></span></li>
+<li><strong>Retention ratio</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>1</mn><mo>−</mo><mtext>Payout ratio</mtext></mrow><annotation encoding="application/x-tex">= 1 - \text{Payout ratio}</annotation></semantics></math></span></span></li>
+</ul>
+</section><section id="s9"><h2><span class="n">9</span>DuPont</h2>
+<p>Core idea: Return = Profitability × Efficiency (× Leverage).</p>
+<h3>2-factor</h3>
+<p><div class="fd"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>ROA</mtext><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Net income</mtext><mtext>Sales</mtext></mfrac></mstyle><mo>×</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Sales</mtext><mtext>Assets</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\text{ROA} = \dfrac{\text{Net income}}{\text{Sales}} \times \dfrac{\text{Sales}}{\text{Assets}}</annotation></semantics></math></span></div></p>
+<h3>3-factor</h3>
+<p><div class="fd"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>ROE</mtext><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Net income</mtext><mtext>Sales</mtext></mfrac></mstyle><mo>×</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Sales</mtext><mtext>Assets</mtext></mfrac></mstyle><mo>×</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Assets</mtext><mtext>Equity</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\text{ROE} = \dfrac{\text{Net income}}{\text{Sales}} \times \dfrac{\text{Sales}}{\text{Assets}} \times \dfrac{\text{Assets}}{\text{Equity}}</annotation></semantics></math></span></div></p>
+<p>(Profit margin × Asset turnover × Equity multiplier)</p>
+<h3>4-factor</h3>
+<p><div class="fd"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>ROE</mtext><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Net income</mtext><mtext>EBT</mtext></mfrac></mstyle><mo>×</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>EBT</mtext><mtext>Sales</mtext></mfrac></mstyle><mo>×</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Sales</mtext><mtext>Assets</mtext></mfrac></mstyle><mo>×</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Assets</mtext><mtext>Equity</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\text{ROE} = \dfrac{\text{Net income}}{\text{EBT}} \times \dfrac{\text{EBT}}{\text{Sales}} \times \dfrac{\text{Sales}}{\text{Assets}} \times \dfrac{\text{Assets}}{\text{Equity}}</annotation></semantics></math></span></div></p>
+<p>(Tax burden × Pre-tax margin × Asset turnover × Equity multiplier)</p>
+<h3>5-factor</h3>
+<p><div class="fd"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>ROE</mtext><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Net income</mtext><mtext>EBT</mtext></mfrac></mstyle><mo>×</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>EBT</mtext><mtext>EBIT</mtext></mfrac></mstyle><mo>×</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>EBIT</mtext><mtext>Sales</mtext></mfrac></mstyle><mo>×</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Sales</mtext><mtext>Assets</mtext></mfrac></mstyle><mo>×</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Assets</mtext><mtext>Equity</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\text{ROE} = \dfrac{\text{Net income}}{\text{EBT}} \times \dfrac{\text{EBT}}{\text{EBIT}} \times \dfrac{\text{EBIT}}{\text{Sales}} \times \dfrac{\text{Sales}}{\text{Assets}} \times \dfrac{\text{Assets}}{\text{Equity}}</annotation></semantics></math></span></div></p>
+<p>(Tax burden × Debt burden × EBIT margin × Asset turnover × Equity multiplier)</p>
+<h3>The factors</h3>
+<ul>
+<li><strong>Tax burden</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Net income</mtext><mtext>EBT</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Net income}}{\text{EBT}}</annotation></semantics></math></span></span></li>
+<li><strong>Debt (interest) burden</strong>: close to 1 means low interest burden. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>EBT</mtext><mtext>EBIT</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{EBT}}{\text{EBIT}}</annotation></semantics></math></span></span></li>
+<li><strong>EBIT margin (operating margin)</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>EBIT</mtext><mtext>Sales</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{EBIT}}{\text{Sales}}</annotation></semantics></math></span></span></li>
+<li><strong>Pre-tax margin</strong>: used in the 4-factor model. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>EBT</mtext><mtext>Sales</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{EBT}}{\text{Sales}}</annotation></semantics></math></span></span></li>
+<li><strong>Asset turnover</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Sales</mtext><mtext>Assets</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Sales}}{\text{Assets}}</annotation></semantics></math></span></span></li>
+<li><strong>Equity multiplier (leverage)</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mtext>Assets</mtext><mtext>Equity</mtext></mfrac></mstyle></mrow><annotation encoding="application/x-tex">= \dfrac{\text{Assets}}{\text{Equity}}</annotation></semantics></math></span></span></li>
+</ul>
+</section><section id="s10"><h2><span class="n">10</span>Cost of capital and EVA</h2>
+<ul>
+<li><strong>Cost of capital</strong>: the return required by owners (cost of equity) and lenders (cost of debt).</li>
+<li><strong>Cost of assets</strong>: the required return on the business&#39;s assets. Roughly equal to WACC.</li>
+<li><strong>Total capitalization</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Debt</mtext><mo>+</mo><mtext>Equity</mtext></mrow><annotation encoding="application/x-tex">= \text{Debt} + \text{Equity}</annotation></semantics></math></span></span><ul>
+<li>WACC weights: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle scriptlevel="0" displaystyle="true"><mfrac><mi>E</mi><mrow><mi>D</mi><mo>+</mo><mi>E</mi></mrow></mfrac></mstyle><mtext> and </mtext><mstyle scriptlevel="0" displaystyle="true"><mfrac><mi>D</mi><mrow><mi>D</mi><mo>+</mo><mi>E</mi></mrow></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\dfrac{E}{D+E} \text{ and } \dfrac{D}{D+E}</annotation></semantics></math></span></span></li>
+</ul>
+</li>
+<li><strong>WACC (Weighted average cost of capital)</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mi>E</mi><mrow><mi>D</mi><mo>+</mo><mi>E</mi></mrow></mfrac></mstyle><mo>×</mo><msub><mi>R</mi><mi>e</mi></msub><mo>+</mo><mstyle scriptlevel="0" displaystyle="true"><mfrac><mi>D</mi><mrow><mi>D</mi><mo>+</mo><mi>E</mi></mrow></mfrac></mstyle><mo>×</mo><msub><mi>R</mi><mi>d</mi></msub><mo>×</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>T</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">= \dfrac{E}{D+E} \times R_e + \dfrac{D}{D+E} \times R_d \times (1 - T)</annotation></semantics></math></span></span></li>
+<li><strong>NOPAT (Net operating profit after tax)</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>EBIT</mtext><mo>×</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>T</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">= \text{EBIT} \times (1 - T)</annotation></semantics></math></span></span></li>
+<li><strong>Capital charge</strong>: <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>Invested capital</mtext><mo>×</mo><mtext>WACC</mtext></mrow><annotation encoding="application/x-tex">= \text{Invested capital} \times \text{WACC}</annotation></semantics></math></span></span></li>
+<li><strong>EVA (Economic value added)</strong>: positive EVA means value is created. <span class="f"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext>NOPAT</mtext><mo>−</mo><mtext>Invested capital</mtext><mo>×</mo><mtext>WACC</mtext><mo>=</mo><mo stretchy="false">(</mo><mtext>ROC</mtext><mo>−</mo><mtext>WACC</mtext><mo stretchy="false">)</mo><mo>×</mo><mtext>Invested capital</mtext></mrow><annotation encoding="application/x-tex">= \text{NOPAT} - \text{Invested capital} \times \text{WACC} = (\text{ROC} - \text{WACC}) \times \text{Invested capital}</annotation></semantics></math></span></span></li>
+</ul>
+</section>
+</div>
+</body></html>
