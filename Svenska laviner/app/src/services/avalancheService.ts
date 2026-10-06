@@ -269,7 +269,7 @@ export async function fetchSeason(regionId: string, season: number, workerBase =
   if (!workerBase) throw new Error("Säsongsdata saknas i den här versionen.");
   return cached(`season:${regionId}:${season}`, async () => {
     const res = await fetch(
-      `${workerBase.replace(/\/$/, "")}/forecasts/season?region=${encodeURIComponent(regionId)}&season=${season}`
+      `${workerBase.replace(/\/$/, "")}/forecasts/season?region=${encodeURIComponent(regionId)}&season=${season}&v=2`
     );
     if (!res.ok) throw new ApiError(res.status, "Kunde inte hämta säsongen just nu.");
     const season_ = toSeason(await res.json());

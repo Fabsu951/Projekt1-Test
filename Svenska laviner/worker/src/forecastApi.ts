@@ -469,13 +469,32 @@ export function currentSeasonYear(now: Date): number {
   return m >= 11 ? y : y - 1;
 }
 
-export function seasonUrl(areaId: number, startYear: number, withPropertyNames = true): string {
+/** Days per request: the API cuts long intervals short, so a season is asked for in pieces. */
+export const SEASON_CHUNK_DAYS = 14;
+
+/** URLs covering the whole season in back-to-back pieces (answers overlap at the seams; merge by id). */
+export function seasonUrls(areaId: number, startYear: number, withPropertyNames = true): string[] {
   const { start, end } = seasonRange(startYear);
-  return layerUrl(
-    "published_forecasts_by_interval",
-    { lang: "sv", location: String(areaId), start_date: localStamp(start), end_date: localStamp(end) },
-    withPropertyNames
-  );
+  const urls: string[] = [];
+  for (let from = start; from < end; ) {
+    const to = new Date(Math.min(from.getTime() + SEASON_CHUNK_DAYS * 86_400_000, end.getTime()));
+    urls.push(
+      layerUrl(
+        "published_forecasts_by_interval",
+        { lang: "sv", location: String(areaId), start_date: localStamp(from), end_date: localStamp(to) },
+        withPropertyNames
+      )
+    );
+    from = to;
+  }
+  return urls;
+}
+
+/** Joins the pieces' answers, each forecast version once. */
+export function mergeForecasts(lists: ApiForecast[][]): ApiForecast[] {
+  const byId = new Map<number, ApiForecast>();
+  for (const list of lists) for (const f of list) byId.set(f.id, f);
+  return [...byId.values()];
 }
 
 export interface SeasonDay {

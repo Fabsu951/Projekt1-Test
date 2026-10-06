@@ -5,7 +5,8 @@ import {
   currentSeasonYear,
   currentUrl,
   seasonSummary,
-  seasonUrl,
+  mergeForecasts,
+  seasonUrls,
   forecastFromApi,
   forecastInForce,
   historyRowsFromApi,
@@ -397,12 +398,16 @@ async function forecastSeason(request: Request, url: URL, origin: string): Promi
     return error("Okänd säsong.", origin, 400);
   }
   const cache = caches.default;
-  const cacheKey = new Request(`${url.origin}/forecasts/season?region=${regionId}&season=${season}`, request);
+  // v=2: answers cached before the season was fetched in pieces only covered its last weeks.
+  const cacheKey = new Request(`${url.origin}/forecasts/season?region=${regionId}&season=${season}&v=2`, request);
   const hit = await cache.match(cacheKey);
   if (hit) return new Response(hit.body, { headers: { ...corsHeaders(origin), "Content-Type": "application/json" } });
   try {
     // Only with the property list: a season's worth of area polygons would be tens of MB.
-    const list = await apiForecasts(seasonUrl(areaId, season), seasonUrl(areaId, season));
+    // In two-week pieces: one request for the whole season only returned its last weeks.
+    const withProps = seasonUrls(areaId, season);
+    const lists = await Promise.all(withProps.map((u) => apiForecasts(u, u)));
+    const list = mergeForecasts(lists);
     const body = JSON.stringify({ regionId, season, ...seasonSummary(list, now) });
     const ttl = season === current ? CURRENT_SEASON_TTL_SECONDS : PAST_SEASON_TTL_SECONDS;
     const response = new Response(body, {

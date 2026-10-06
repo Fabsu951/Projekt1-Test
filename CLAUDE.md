@@ -607,7 +607,7 @@ the start, exact map point.
   `toTrend`/`toNote` in `avalancheService.ts` re-validate (level only 1–5).
   **Season overview (2026-10-06):** worker `GET /forecasts/season?region=&season=YYYY`
   (YYYY = start year; 2016 … `currentSeasonYear`, which before November is
-  last season): one `published_forecasts_by_interval` call 1 Nov → 15 Jun
+  last season): `published_forecasts_by_interval` 1 Nov → 15 Jun in 14-day pieces (`seasonUrls`, merged by id — one call for the whole season only returned its last weeks, seen 2026-10-06; cache key `&v=2`)
   **with propertyName only** (polygons would be tens of MB), `seasonSummary`
   = latest version per day (validTo date), level only 1–5 else the label,
   level counts, problems by days; Cloudflare-cached 7 days (past) / 1 h
@@ -671,5 +671,5 @@ the start, exact map point.
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
   (181 tests as of 2026-10-06, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 105 tests, including the
+  suite in `Svenska laviner/worker` (`npm test`, 106 tests, including the
   real-page fixtures).

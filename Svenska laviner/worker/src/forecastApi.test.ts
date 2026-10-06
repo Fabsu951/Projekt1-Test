@@ -12,7 +12,8 @@ import {
   recentUrl,
   currentSeasonYear,
   seasonSummary,
-  seasonUrl,
+  mergeForecasts,
+  seasonUrls,
   type ApiForecast,
 } from "./forecastApi";
 import { extractModel, readForecast } from "./model";
@@ -165,8 +166,19 @@ describe("forecast API answers", () => {
   it("knows which season it is and asks for the whole of it", () => {
     expect(currentSeasonYear(local("2026-10-06 12:00"))).toBe(2025);
     expect(currentSeasonYear(local("2026-12-20 12:00"))).toBe(2026);
-    expect(new URL(seasonUrl(3, 2025)).searchParams.get("viewparams")).toBe(
-      "lang:sv;location:3;start_date:2025-11-01 00:00;end_date:2026-06-15 00:00"
-    );
+    const params = seasonUrls(3, 2025).map((u) => new URL(u).searchParams.get("viewparams")!);
+    expect(params[0]).toBe("lang:sv;location:3;start_date:2025-11-01 00:00;end_date:2025-11-15 00:00");
+    expect(params[params.length - 1]).toMatch(/end_date:2026-06-15 00:00$/);
+    // Back to back: each piece starts where the previous one ended.
+    for (let i = 1; i < params.length; i++) {
+      expect(params[i].match(/start_date:([^;]+)/)![1]).toBe(params[i - 1].match(/end_date:(.+)$/)![1]);
+    }
+    expect(params.length).toBeLessThanOrEqual(20);
+  });
+
+  it("merges overlapping pieces into one version each", () => {
+    const a = load("published_forecasts_by_interval_1_2026-01-18.json");
+    const merged = mergeForecasts([a, a.slice(3), []]);
+    expect(merged.map((f) => f.id).sort()).toEqual(a.map((f) => f.id).sort());
   });
 });
