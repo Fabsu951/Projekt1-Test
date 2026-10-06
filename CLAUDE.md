@@ -550,6 +550,29 @@ the start, exact map point.
   privata" + "N pass väntar". dl.google.com is blocked in cloud sessions,
   so no Android SDK — true background import (WorkManager +
   READ_HEALTH_DATA_IN_BACKGROUND) is left until it can be compiled.
+- **Official forecast API (2026-10-06):** Petter Palmgren
+  (Lavinprognostjänsten, Naturvårdsverket) answered Fabian's API question
+  with the PDF "Lavinprognoser – en guide till öppna API:er" (2026): open
+  GeoServer WFS, no account, `https://nvgis.naturvardsverket.se/geoserver/lavinprognoser/ows`
+  (`service=WFS&version=1.0.0&request=GetFeature&typeName=lavinprognoser:<layer>&outputformat=application/json&viewparams=lang:sv;location:<id>;valid_date:YYYY-MM-DD HH:MM`).
+  Layers: `location`, `location_center` (current `risk`), `forecast_view`,
+  `published_forecasts` (location, valid_date, lang), 
+  `published_forecasts_by_interval` (start_date/end_date),
+  `forecast_by_id` (old), `published_forecast_area_interval`. Fields incl.
+  risk (0 ej bedömd, 1–5, **6 vårförhållanden, 7 ingen lavinfara**),
+  risk_rubrik, assessment_title/content, trend_*, valid_from/to,
+  published_date, `problems` JSON (problem_type_id, title, content,
+  altitude_meter_above_treeline/treeline/below_treeline,
+  direction_meter_north…north_west, sensitivity, spread, size_meter_value,
+  position_content, above_meters/below_meters), snow_*/weather_*, peaks.
+  Geometry in SWEREF99 (EPSG:3006). WMS raster layers `slope_aspect`,
+  `slope_inclination` (official slope maps). He expects an updated
+  version (view changes) for next season — ask lavinprognoser@naturvardsverket.se.
+  Unreachable from cloud sessions: `worker/scripts/fetch-api-fixtures.ps1`
+  saves real answers to `worker/src/fixtures/nvgis/` for Fabian to push;
+  plan is to switch `/forecasts` (+ history) from page scraping to the API
+  once fixtures exist, keeping the "never guess a level" rules (and
+  mapping 6/7 explicitly, not as levels).
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
