@@ -4,10 +4,16 @@
 //
 // From the worker folder:
 //   npx tsx scripts/import-tiles.ts C:\Nedladdningar\*.gpkg
+// or straight from Lantmäteriet with HTTP Range requests, no download
+// (fetch-topowebb.ps1 -DryRun / -Import does this with the login):
+//   npx tsx scripts/import-tiles.ts https://…/topowebb-3857.gpkg
+// or straight from Lantmäteriet without downloading (fetch-topowebb.ps1 -Import
+// does this with the login): npx tsx scripts/import-tiles.ts https://…/topowebb-3857.gpkg
 //
 // Options: --max-zoom 15 (default; the app zooms in further from there),
 //          --table <name> (which tile table, if the file has several),
 //          --all (all of the file, not just the mountain areas),
+//          --skip <n> (remote only: continue after the first n tiles of an interrupted run),
 //          --dry-run (just count what would be uploaded).
 //
 // Lantmäteriet ships all of Sweden in one ~145 GB file. By default only the
@@ -16,6 +22,8 @@
 import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { encodeTiles, imageType, validTile, type Tile } from "../src/tileBatch";
+import { RemoteGpkg } from "./remoteGpkg";
+import { httpReader } from "./remoteSqlite";
 import {
   gpkgRange,
   mapLevel,
@@ -38,16 +46,18 @@ interface Options {
   table: string | null;
   dryRun: boolean;
   all: boolean;
+  skip: number;
 }
 
 function parseArgs(argv: string[]): Options {
-  const opts: Options = { files: [], maxZoom: 15, table: null, dryRun: false, all: false };
+  const opts: Options = { files: [], maxZoom: 15, table: null, dryRun: false, all: false, skip: 0 };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--max-zoom") opts.maxZoom = Number(argv[++i]);
     else if (arg === "--table") opts.table = argv[++i];
     else if (arg === "--dry-run") opts.dryRun = true;
     else if (arg === "--all") opts.all = true;
+    else if (arg === "--skip") opts.skip = Math.max(0, Math.floor(Number(argv[++i]) || 0));
     else opts.files.push(arg);
   }
   if (opts.files.length === 0) {
@@ -76,16 +86,21 @@ async function openDatabase(file: string) {
   return new sqlite.DatabaseSync(file, { readOnly: true });
 }
 
+function pickTable(tables: string[], wanted: string | null): string {
+  if (tables.length === 0) throw new Error("Filen innehåller inga tiles.");
+  // Lantmäteriet ships a coloured and a toned-down ("nedtonad") layer; we want the coloured one.
+  const table = wanted ?? tables.find((t) => !/nedton|grey|gray/i.test(t)) ?? tables[0];
+  if (!tables.includes(table)) throw new Error(`Tabellen ${table} finns inte. Finns: ${tables.join(", ")}`);
+  return table;
+}
+
 /** The tile table to import and how each of its levels maps onto z/x/y. */
 function describe(db: import("node:sqlite").DatabaseSync, wanted: string | null) {
   const tables = db
     .prepare("SELECT table_name FROM gpkg_contents WHERE data_type = 'tiles'")
     .all()
     .map((r) => String((r as Row).table_name));
-  if (tables.length === 0) throw new Error("Filen innehåller inga tiles.");
-  // Lantmäteriet ships a coloured and a toned-down ("nedtonad") layer; we want the coloured one.
-  const table = wanted ?? tables.find((t) => !/nedton|grey|gray/i.test(t)) ?? tables[0];
-  if (!tables.includes(table)) throw new Error(`Tabellen ${table} finns inte. Finns: ${tables.join(", ")}`);
+  const table = pickTable(tables, wanted);
 
   const set = db
     .prepare(
@@ -171,6 +186,90 @@ function* tileRows(db: import("node:sqlite").DatabaseSync, table: string, levels
   }
 }
 
+interface TileSource {
+  label: string;
+  tables: string[];
+  table: string;
+  levels: LevelMapping[];
+  rows(wanted: LevelMapping[]): AsyncIterable<Row> | Iterable<Row>;
+  /** Counts without reading every tile (remote files). */
+  dryRun?(wanted: LevelMapping[]): Promise<{ total: number; skipped: number }>;
+  progress?(): string;
+  close(): void;
+}
+
+async function openLocal(file: string, opts: Options): Promise<TileSource> {
+  const db = await openDatabase(file);
+  const { tables, table, levels } = describe(db, opts.table);
+  return {
+    label: file,
+    tables,
+    table,
+    levels,
+    rows: (wanted) => tileRows(db, table, wanted, opts.all) as Iterable<Row>,
+    close: () => db.close(),
+  };
+}
+
+/**
+ * The GeoPackage read straight from Lantmäteriet with HTTP Range requests,
+ * so the ~145 GB file never has to be downloaded. The Authorization header
+ * comes from the LM_AUTH environment variable (set by fetch-topowebb.ps1).
+ */
+async function openRemote(url: string, opts: Options): Promise<TileSource> {
+  if (opts.all) throw new Error("--all går bara med en nedladdad fil.");
+  const reader = httpReader(url, process.env.LM_AUTH ? { Authorization: process.env.LM_AUTH } : {});
+  const gpkg = await RemoteGpkg.open(reader);
+  const tables = await gpkg.tileTables();
+  const table = pickTable(tables, opts.table);
+  const set = await gpkg.matrixSet(table);
+  const levels = (await gpkg.matrices(table)).map((m) => mapLevel(set, m));
+  const mb = () => `(${reader.requests.toLocaleString("sv-SE")} anrop, ${(reader.bytes / 1e6).toFixed(0)} MB hämtat)`;
+  const label = url.replace(/\?.*$/, "");
+  return {
+    label,
+    tables,
+    table,
+    levels,
+    async *rows(wanted) {
+      console.log("  letar upp kartbitarna i filens index…");
+      const keys = await gpkg.tileKeys(table, wanted);
+      console.log(`  ${keys.length.toLocaleString("sv-SE")} kartbitar att hämta ${mb()}`);
+      if (opts.skip) console.log(`  hoppar över de första ${opts.skip.toLocaleString("sv-SE")} (--skip)`);
+      yield* gpkg.tiles(table, keys.slice(opts.skip)) as AsyncIterable<Row>;
+    },
+    async dryRun(wanted) {
+      console.log("  letar upp kartbitarna i filens index…");
+      const keys = await gpkg.tileKeys(table, wanted);
+      const byLevel = new Map(wanted.map((l) => [l.gpkgLevel, l]));
+      const perZoom = new Map<number, number>();
+      for (const k of keys) {
+        const z = byLevel.get(k.level)!.z;
+        perZoom.set(z, (perZoom.get(z) ?? 0) + 1);
+      }
+      console.log(`  per zoom: ${[...perZoom].sort((a, b) => a[0] - b[0]).map(([z, n]) => `${z}: ${n.toLocaleString("sv-SE")}`).join(", ")}`);
+      // Read a handful of tiles spread over the list to check they are real images.
+      const sample = Array.from({ length: Math.min(12, keys.length) }, (_, i) => keys[Math.floor((i * keys.length) / Math.min(12, keys.length))]);
+      let ok = 0;
+      let bytes = 0;
+      for await (const t of gpkg.tiles(table, sample)) {
+        if (t.data.length && imageType(t.data)) ok++;
+        bytes += t.data.length;
+      }
+      console.log(`  stickprov: ${ok} av ${sample.length} är giltiga bilder, i snitt ${sample.length ? Math.round(bytes / sample.length / 1000) : 0} kB ${mb()}`);
+      if (sample.length && ok === 0) throw new Error("Inga giltiga kartbilder i stickprovet.");
+      const gb = sample.length ? ((bytes / sample.length) * keys.length) / 1e9 : 0;
+      console.log(`  uppskattad storlek: ca ${gb.toFixed(1)} GB`);
+      return { total: keys.length, skipped: 0 };
+    },
+    progress: mb,
+    close: () => {},
+  };
+}
+
+/** Tiles handled so far (incl. --skip), for the "continue with --skip" hint. */
+let lastReported = 0;
+
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
   const token = opts.dryRun ? "" : createUploadToken();
@@ -179,17 +278,22 @@ async function main() {
   const started = Date.now();
 
   for (const file of opts.files) {
-    const db = await openDatabase(file);
-    const { tables, table, levels } = describe(db, opts.table);
+    const source = /^https?:\/\//i.test(file) ? await openRemote(file, opts) : await openLocal(file, opts);
+    const { tables, table, levels } = source;
     const wanted = levels.filter((l) => l.z <= opts.maxZoom);
-    console.log(`\n${file}\n  tabell: ${table}${tables.length > 1 ? ` (finns även: ${tables.filter((t) => t !== table).join(", ")})` : ""}`);
+    console.log(`\n${source.label}\n  tabell: ${table}${tables.length > 1 ? ` (finns även: ${tables.filter((t) => t !== table).join(", ")})` : ""}`);
     console.log(`  zoomnivåer: ${wanted.map((l) => l.z).join(", ")}${wanted.length < levels.length ? ` (hoppar över nivåer över ${opts.maxZoom})` : ""}`);
-
     console.log(`  område: ${opts.all ? "hela filen" : `fjällrutorna (${Object.keys(MOUNTAIN_BOXES).join(", ")}), hela filen upp till zoom ${OVERVIEW_MAX_ZOOM}`}`);
 
-    const byLevel = new Map<number, LevelMapping>(wanted.map((l) => [l.gpkgLevel, l]));
-    const rows = tileRows(db, table, wanted, opts.all);
+    if (opts.dryRun && source.dryRun) {
+      const counted = await source.dryRun(wanted);
+      total += counted.total;
+      skipped += counted.skipped;
+      source.close();
+      continue;
+    }
 
+    const byLevel = new Map<number, LevelMapping>(wanted.map((l) => [l.gpkgLevel, l]));
     let batch: Tile[] = [];
     let batchBytes = 0;
     const inFlight = new Set<Promise<void>>();
@@ -204,8 +308,7 @@ async function main() {
       if (inFlight.size >= PARALLEL) await Promise.race(inFlight);
     };
 
-    for (const raw of rows) {
-      const r = raw as Row;
+    for await (const r of source.rows(wanted)) {
       const level = byLevel.get(Number(r.level));
       if (!level) continue;
       const data = r.data as Uint8Array;
@@ -219,12 +322,15 @@ async function main() {
       batch.push({ z, x, y, data });
       batchBytes += data.length;
       total++;
-      if (total % 5000 === 0) console.log(`  ${total.toLocaleString("sv-SE")} tiles…`);
+      if (total % 5000 === 0) {
+        lastReported = total + opts.skip;
+        console.log(`  ${lastReported.toLocaleString("sv-SE")} tiles…${source.progress ? ` ${source.progress()}` : ""}`);
+      }
       if (batch.length >= BATCH_TILES || batchBytes >= BATCH_BYTES) await flush();
     }
     await flush();
     await Promise.all(inFlight);
-    db.close();
+    source.close();
   }
 
   const minutes = ((Date.now() - started) / 60000).toFixed(1);
@@ -236,5 +342,8 @@ async function main() {
 
 main().catch((err) => {
   console.error(`\nFel: ${err instanceof Error ? err.message : err}`);
+  if (lastReported > 0) {
+    console.error(`Fortsätt senare där det slutade genom att lägga till: --skip ${Math.max(0, lastReported - 5000)}`);
+  }
   process.exit(1);
 });

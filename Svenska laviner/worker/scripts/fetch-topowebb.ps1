@@ -7,7 +7,13 @@
 #
 #   cd "Svenska laviner\worker"
 #   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1             # visa bara vad som finns
-#   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -Download   # ladda ner
+#   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -DryRun     # provkör import direkt från Lantmäteriet
+#   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -Import     # importera fjällrutorna till R2
+#   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -Download   # (alternativ) ladda ner hela filen
+#
+# -DryRun / -Import read only the needed parts of the ~145 GB file with HTTP
+# Range requests (import-tiles.ts + remoteGpkg.ts), so nothing big is saved
+# on this computer. The real import also needs `npx wrangler login`.
 #
 # Inloggningen (Geotorget-e-post + lösenord) frågas efter varje gång och
 # sparas aldrig. Filerna stac-*.json som skriptet sparar innehåller inga
@@ -15,12 +21,15 @@
 
 param(
   [switch]$Download,
+  [switch]$DryRun,
+  [switch]$Import,
   [string]$Collection = "",
   [string]$OutDir = (Join-Path $env:USERPROFILE "Downloads\topowebb")
 )
 
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"   # Invoke-WebRequest is very slow with the progress bar
+if ($Import -and $DryRun) { Write-Host "Välj -DryRun eller -Import, inte båda." ; exit 1 }
 $base = "https://api.lantmateriet.se/stac-karta/v1"
 $ua = "Snolage-kartbyte"
 
@@ -143,9 +152,33 @@ try {
   $need = if ($file.Size) { $file.Size - $have } else { 0 }
   Write-Host ("Ledigt på {0}: {1:N0} GB, behövs: {2:N0} GB" -f $drive.Name, ($drive.Free / 1GB), ($need / 1GB))
 
+  if ($DryRun -or $Import) {
+    if (-not $resume) {
+      Write-Host "Servern stöder inte delhämtning just nu, så importen kan inte läsa direkt. Använd -Download i stället." -ForegroundColor Red
+      exit 1
+    }
+    $worker = Split-Path -Parent $PSScriptRoot
+    $importArgs = @("tsx", (Join-Path $PSScriptRoot "import-tiles.ts"))
+    if ($DryRun) { $importArgs += "--dry-run" }
+    $importArgs += $file.Href
+    Write-Host ""
+    Write-Host ($(if ($DryRun) { "Provkör importen (laddar inte upp något)..." } else { "Importerar fjällrutorna till R2. Det tar en stund; avbryts det går det bra att köra igen." }))
+    Push-Location $worker
+    $env:LM_AUTH = $headers.Authorization
+    try {
+      & npx @importArgs
+      $importExit = $LASTEXITCODE
+    } finally {
+      Remove-Item Env:LM_AUTH -ErrorAction SilentlyContinue
+      Pop-Location
+    }
+    if ($importExit -ne 0) { Write-Host "Importen avbröts (kod $importExit). Skicka utskriften till Claude." -ForegroundColor Red; exit 1 }
+    exit 0
+  }
+
   if (-not $Download) {
     Write-Host ""
-    Write-Host "Inget nedladdat än. Skicka utskriften ovan till Claude, eller kör igen med -Download." -ForegroundColor Cyan
+    Write-Host "Inget hämtat än. Nästa steg: kör igen med -DryRun (provkörning direkt från Lantmäteriet)." -ForegroundColor Cyan
     exit 0
   }
   if (Test-Path $target) {

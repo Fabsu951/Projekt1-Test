@@ -15,7 +15,7 @@ syns förändrat för användarna.
    LM2026/152399, "Behörighet", status Lyckad). Den levereras inte som en
    nedladdningslänk utan via Lantmäteriets STAC-API
    (`https://api.lantmateriet.se/stac-karta/v1`), med Geotorget-inloggningen.
-2. Visa först vad som finns (laddar inte ner något):
+2. Visa vad som finns (hämtar inget):
 
    ```powershell
    cd "C:\Users\fabia\Documents\fjallvarning-repo\Svenska laviner\worker"
@@ -23,14 +23,27 @@ syns förändrat för användarna.
    ```
 
    En inloggningsruta frågar efter Geotorget-e-post och lösenord (sparas
-   aldrig). **Samlingen `topowebb` har en fil per variant för hela
-   Sverige** (SWEREF/Web Mercator × färg/nedtonad, ca 140–160 GB styck).
-   Skriptet väljer `topowebb-3857.gpkg` (färg, Web Mercator, ca 145 GB),
-   kollar om nedladdningen kan återupptas och hur mycket diskutrymme som
-   finns.
-3. Kör igen med `-Download` (eller `-Download -OutDir E:\topowebb` för en
-   annan disk). Det tar många timmar; avbryts det, kör samma kommando igen
-   så fortsätter det där det slutade.
+   aldrig). Samlingen `topowebb` har **en fil per variant för hela
+   Sverige** (ca 130–160 GB styck); skriptet väljer `topowebb-3857.gpkg`
+   (färg, Web Mercator, 145,5 GB) och kollar att servern stöder
+   delhämtning (HTTP Range: ja, 2026-10-06).
+3. **Ingen nedladdning behövs.** Importen läser bara de delar av filen
+   som innehåller fjällrutorna, direkt från Lantmäteriet:
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -DryRun   # provkörning, laddar inte upp
+   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -Import   # på riktigt (kräver npx wrangler login)
+   ```
+
+   Provkörningen visar antal kartbitar per zoom, ett stickprov och
+   uppskattad storlek. Den riktiga körningen hämtar ca 7 GB i stora block
+   (ungefär ett anrop per tolv kartbitar) och laddar upp till R2.
+   Avbryts den skriver den ut `--skip <n>`; kör då
+   `npx tsx scripts/import-tiles.ts --skip <n> <adressen>` – eller bara
+   `-Import` igen (allt skrivs över, det tar bara längre).
+4. Alternativ om delhämtning slutar fungera: `-Download` (eller
+   `-Download -OutDir E:\topowebb` om C: har för lite plats – filen är
+   145,5 GB) och sedan importen från filen enligt avsnitt 2.
 
 Rutorna (SWEREF 99 TM; i skriptet omräknade till WGS84):
 

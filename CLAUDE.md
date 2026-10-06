@@ -190,7 +190,16 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   downloads with `curl.exe -C -` (`-Download`, `-OutDir`), auth header via
   a temp file deleted afterwards. `import-tiles.ts` therefore reads only
   `MOUNTAIN_BOXES` (`gpkgTiles.ts`, via the tile table's index) plus
-  everything up to zoom 7 (`OVERVIEW_MAX_ZOOM`); `--all` for the whole file. The old `/topowebb` WMTS proxy route is kept for old app
+  everything up to zoom 7 (`OVERVIEW_MAX_ZOOM`); `--all` for the whole file.
+  Fabian's C: had 117 GB free, so **no download**: the server answers
+  Range requests (206), and `import-tiles.ts <https URL>` reads the
+  GeoPackage remotely — `scripts/remoteSqlite.ts` (read-only SQLite
+  b-tree reader over HTTP Range: schema, index range scans, rowid lookups,
+  overflow pages; leaf + overflow pages fetched in merged runs ≈ 1 request
+  per 12 tiles) + `scripts/remoteGpkg.ts`; auth header from env `LM_AUTH`,
+  which `fetch-topowebb.ps1 -DryRun | -Import` sets for the child process
+  only. `--skip <n>` resumes. Tested against real SQLite files served
+  locally (`scripts/remoteSqlite.test.ts`: identical tiles and bytes). The old `/topowebb` WMTS proxy route is kept for old app
   builds. Worker only fetches/stores on demand for z ≤ 15 inside a box
   around Sweden (`fetchable()`), so it can't be used to crawl.
   **Offline maps (feature 5, 2026-09-27):** "Karta offline" section on
@@ -680,5 +689,5 @@ the start, exact map point.
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
   (182 tests as of 2026-10-06, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 109 tests, including the
+  suite in `Svenska laviner/worker` (`npm test`, 112 tests, including the
   real-page fixtures).
