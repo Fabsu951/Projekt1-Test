@@ -3431,3 +3431,96 @@ h1 .admin-badge {
 .health-auto input {
   margin-top: 3px;
 }
+
+/* Förväntad utveckling + field report / mountain weather */
+.forecast-trend {
+  margin: 4px 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--bg-raised);
+}
+
+.forecast-trend--compact {
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+
+.official-forecast .forecast-trend p,
+.forecast-trend p {
+  margin: 0;
+}
+
+.forecast-trend__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.forecast-trend__label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.forecast-trend__change {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-muted);
+}
+
+.forecast-trend__change--up {
+  color: #ffb36b;
+}
+
+.forecast-trend__change--down {
+  color: #9fe0b0;
+}
+
+.forecast-trend__text {
+  margin-top: 6px !important;
+  color: var(--text);
+  white-space: pre-line;
+}
+
+.area-card__trendline {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+}
+
+.forecast-notes {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.forecast-note {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  padding: 0 14px;
+}
+
+.forecast-note summary {
+  cursor: pointer;
+  padding: 10px 0;
+  font-weight: 600;
+}
+
+.forecast-note[open] summary {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.forecast-note__text {
+  margin: 0 0 10px;
+  white-space: pre-line;
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+.forecast-note a {
+  display: inline-block;
+  margin-bottom: 12px;
+  font-size: 0.88rem;
+}

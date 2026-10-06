@@ -41,6 +41,18 @@ const PROPERTIES = [
   "assessment_content",
   "problems",
   "updated_forecast_id",
+  "trend_risk",
+  "trend_label",
+  "trend_date",
+  "trend_content",
+  "snow_title",
+  "snow_content",
+  "snow_link",
+  "snow_link_text",
+  "weather_title",
+  "weather_content",
+  "weather_link",
+  "weather_link_text",
 ];
 
 export interface ApiForecast {
@@ -57,6 +69,28 @@ export interface ApiForecast {
   problems: ParsedProblem[];
   /** Set when a newer version of this forecast replaced it. */
   replacedBy: number | null;
+  trend: ForecastTrend | null;
+  snow: ForecastNote | null;
+  weather: ForecastNote | null;
+}
+
+/** "Förväntad utveckling": the forecaster's expected level for the next day. */
+export interface ForecastTrend {
+  /** YYYY-MM-DD the expectation is for. */
+  date: string;
+  /** 1–5 only; anything else (0 ej bedömd, 6, 7) has just its label. */
+  danger: number | null;
+  label: string | null;
+  text: string | null;
+}
+
+/** The snow report ("Rapport från området") or the mountain weather forecast. */
+export interface ForecastNote {
+  title: string | null;
+  /** Plain text, one paragraph or heading per line. */
+  text: string;
+  link: string | null;
+  linkText: string | null;
 }
 
 /** "Spring conditions" and "no avalanche danger" are real answers, but not levels 1–5. */
@@ -66,6 +100,9 @@ export interface ApiParsedForecast extends ParsedForecast {
   special: SpecialRisk | null;
   /** The forecast's own wording for `special`, e.g. "Vårförhållanden". */
   riskLabel: string | null;
+  trend: ForecastTrend | null;
+  snow: ForecastNote | null;
+  weather: ForecastNote | null;
 }
 
 function viewparams(params: Record<string, string>): string {
@@ -208,6 +245,63 @@ function problemsOf(value: unknown): ParsedProblem[] {
   return Array.isArray(list) ? list.map(toProblem).filter((p): p is ParsedProblem => p !== null) : [];
 }
 
+/**
+ * Rich text from the forecast editor → plain text that keeps its structure:
+ * paragraphs and bold headings each on their own line. Office XML pasted
+ * into the editor (inside comments) is dropped along with the markup.
+ */
+export function htmlToLines(html: string | null | undefined): string | null {
+  if (!html) return null;
+  const marked = html
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<(style|script|xml)[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<(strong|b)(\s[^>]*)?>([\s\S]*?)<\/\1>/gi, (_m, _t, _a, inner) => `\n${inner}\n`)
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(div|p|li|h[1-6])>/gi, "\n")
+    .replace(/\r/g, "");
+  const lines = marked
+    .split("\n")
+    .map((line) => htmlToText(line))
+    .filter((line): line is string => !!line);
+  return lines.length ? lines.join("\n") : null;
+}
+
+/** Only web links, and "www.smhi.se" made into one. */
+function webLink(value: unknown): string | null {
+  const text = str(value);
+  if (!text) return null;
+  const url = /^https?:\/\//i.test(text) ? text : /^www\./i.test(text) ? `https://${text}` : null;
+  if (!url) return null;
+  try {
+    return new URL(url).protocol === "https:" || new URL(url).protocol === "http:" ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+function note(p: Json, prefix: "snow" | "weather"): ForecastNote | null {
+  const text = htmlToLines(str(p[`${prefix}_content`]));
+  if (!text) return null;
+  return {
+    title: str(p[`${prefix}_title`]),
+    text,
+    link: webLink(p[`${prefix}_link`]),
+    linkText: str(p[`${prefix}_link_text`]),
+  };
+}
+
+function trendOf(p: Json): ForecastTrend | null {
+  const date = str(p.trend_date);
+  if (!date || !/^\d{4}-\d{2}-\d{2}/.test(date)) return null;
+  const risk = num(p.trend_risk);
+  return {
+    date: date.slice(0, 10),
+    danger: risk !== null && Number.isInteger(risk) && risk >= 1 && risk <= 5 ? risk : null,
+    label: str(p.trend_label),
+    text: htmlToLines(str(p.trend_content)),
+  };
+}
+
 /** The forecasts in a GeoJSON answer; anything malformed is dropped. */
 export function readForecasts(json: unknown): ApiForecast[] {
   if (!isObj(json) || !Array.isArray(json.features)) throw new Error("Oväntat svar från prognos-API:et.");
@@ -228,6 +322,9 @@ export function readForecasts(json: unknown): ApiForecast[] {
         mainMessage: htmlToText(str(p.assessment_content)),
         problems: problemsOf(p.problems),
         replacedBy: num(p.updated_forecast_id),
+        trend: trendOf(p),
+        snow: note(p, "snow"),
+        weather: note(p, "weather"),
       },
     ];
   });
@@ -287,6 +384,9 @@ function none(extra: Partial<ApiParsedForecast> = {}): ApiParsedForecast {
     validUntil: null,
     special: null,
     riskLabel: null,
+    trend: null,
+    snow: null,
+    weather: null,
     ...extra,
   };
 }
@@ -309,6 +409,9 @@ export function forecastFromApi(recent: ApiForecast[], current: ApiForecast[], n
         publishedText: validFromText(f.validFrom!),
         problems: f.problems,
         validUntil: f.validTo!.toISOString(),
+        trend: f.trend,
+        snow: f.snow,
+        weather: f.weather,
       });
     }
     if (f.risk !== null && Number.isInteger(f.risk) && f.risk >= 1 && f.risk <= 5) {
@@ -325,6 +428,9 @@ export function forecastFromApi(recent: ApiForecast[], current: ApiForecast[], n
         validUntil: f.validTo!.toISOString(),
         special: null,
         riskLabel: null,
+        trend: f.trend,
+        snow: f.snow,
+        weather: f.weather,
       };
     }
     return { ...none(), confidence: "none" };

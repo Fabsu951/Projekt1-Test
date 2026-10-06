@@ -13,6 +13,7 @@ import type { AvalancheForecast } from "../types/avalanche";
 import type { WeatherPoint } from "../types/weather";
 import ForecastBadge from "../components/ForecastBadge";
 import OfficialForecast from "../components/OfficialForecast";
+import ForecastNotes from "../components/ForecastNotes";
 import ObservationCard from "../components/ObservationCard";
 import { fetchObservations } from "../services/observationService";
 import type { Observation } from "../types/observation";
@@ -123,6 +124,7 @@ export default function RegionDetail() {
         <p className="notice notice--stale">Ingen kontakt just nu — visar senast sparade prognos.</p>
       )}
       {forecast && <OfficialForecast forecast={forecast} />}
+      {forecast && <ForecastNotes forecast={forecast} />}
 
       {history.some((d) => d.dangerLevel !== null) && (
         <section className="section">

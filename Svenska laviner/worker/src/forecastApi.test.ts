@@ -7,6 +7,7 @@ import {
   forecastFromApi,
   forecastInForce,
   historyRowsFromApi,
+  htmlToLines,
   readForecasts,
   recentUrl,
   type ApiForecast,
@@ -115,6 +116,27 @@ describe("forecast API answers", () => {
     });
     expect(forecastFromApi([{ ...base, risk: 7 }], [], now)).toMatchObject({ danger: null, special: "no-danger" });
     expect(forecastFromApi([{ ...base, risk: 0 }], [], now)).toMatchObject({ danger: null, notAssessed: true });
+  });
+
+  it("passes on the expected development, the snow report and the mountain weather", () => {
+    const list = load("published_forecasts_by_interval_3_2026-02-15.json");
+    const f = forecastFromApi(list, [], local("2026-02-18 12:00"));
+    expect(f.trend).toMatchObject({ date: "2026-02-19", danger: 2, label: "Måttlig lavinfara" });
+    expect(f.snow?.title).toBe("Rapport från området");
+    expect(f.snow?.text).not.toMatch(/<|&nbsp;|mso|WordDocument/);
+    expect(f.snow?.text.split("\n").length).toBeGreaterThan(2);
+    expect(f.snow?.link).toMatch(/^https:\/\/(www\.)?lavinprognoser\.se\//);
+    expect(f.weather).toMatchObject({ title: "Fjällväderprognos" });
+    expect(f.weather?.link).toMatch(/^https:\/\//);
+    // Off-season: nothing of the kind.
+    expect(forecastFromApi([], load("published_forecasts_3_now.json"), local("2026-10-06 12:00")).snow).toBeNull();
+  });
+
+  it("keeps paragraphs and headings of the editor's text on their own lines", () => {
+    expect(htmlToLines("<div><b>Lavinaktivitet</b><br> Inga nya laviner.</div><div>Lugnt&nbsp;väder.</div>")).toBe(
+      "Lavinaktivitet\nInga nya laviner.\nLugnt väder."
+    );
+    expect(htmlToLines("<!--[if gte mso 9]><xml><w:WordDocument/></xml><![endif]--><div>&nbsp;</div>")).toBeNull();
   });
 
   it("gives one history row per day, from the latest version", () => {

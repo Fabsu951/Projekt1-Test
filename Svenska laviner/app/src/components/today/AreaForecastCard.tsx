@@ -6,6 +6,7 @@ import { forecastLabel } from "../../utils/forecastLabel";
 import { problemWhere, recentDays, trendSinceYesterday } from "../../utils/today";
 import FavoriteButton from "../FavoriteButton";
 import ProblemIcon from "../ProblemIcon";
+import ForecastTrendLine from "../ForecastTrendLine";
 
 interface Props {
   region: AvalancheRegion;
@@ -45,6 +46,12 @@ export default function AreaForecastCard({ region, forecast, history, now }: Pro
       </p>
 
       {message && <p className="area-card__message">{message}</p>}
+
+      {forecast?.trend && (
+        <div className="area-card__trendline">
+          <ForecastTrendLine trend={forecast.trend} today={level} compact />
+        </div>
+      )}
 
       {forecast && forecast.problems.length > 0 && (
         <ul className="area-card__problems" aria-label="Lavinproblem">

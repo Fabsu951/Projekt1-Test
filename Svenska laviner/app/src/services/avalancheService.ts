@@ -1,4 +1,4 @@
-import type { AvalancheForecast, DangerLevel, Elevation, ForecastProblem } from "../types/avalanche";
+import type { AvalancheForecast, DangerLevel, Elevation, ForecastNote, ForecastProblem, ForecastTrend } from "../types/avalanche";
 import { REGIONS } from "../data/regions";
 import { SITE_PROBLEM_TYPES } from "../data/avalancheProblems";
 import { COMPASS_SECTORS, type CompassSector } from "../utils/windAnalysis";
@@ -46,6 +46,9 @@ export interface WorkerRegionForecast {
   mainMessage?: string | null;
   /** "spring" (Vårförhållanden) or "no-danger" (Ingen lavinfara); older workers leave it out. */
   special?: "spring" | "no-danger" | null;
+  trend?: unknown;
+  snow?: unknown;
+  weather?: unknown;
   problems?: WorkerProblem[];
 }
 
@@ -90,6 +93,35 @@ function unavailable(regionId: string, sourceUrl = OFFICIAL_FORECAST_URL): Avala
   };
 }
 
+const httpLink = (v: unknown): string | null => (typeof v === "string" && /^https?:\/\//.test(v) ? v : null);
+
+/** The expected development, only with a level 1–5 or a label, never a guess. */
+export function toTrend(raw: unknown): ForecastTrend | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  const date = typeof r.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.date) ? r.date : null;
+  if (!date) return null;
+  const level = r.danger;
+  const dangerLevel = Number.isInteger(level) && (level as number) >= 1 && (level as number) <= 5 ? (level as DangerLevel) : null;
+  const label = text(r.label);
+  const note = text(r.text);
+  if (dangerLevel === null && !label && !note) return null;
+  return { date, dangerLevel, label, text: note };
+}
+
+export function toNote(raw: unknown): ForecastNote | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  const body = typeof r.text === "string" && r.text.trim() ? r.text.trim() : null;
+  if (!body) return null;
+  return { title: text(r.title), text: body, link: httpLink(r.link), linkText: text(r.linkText) };
+}
+
+/** Trend, snow report and weather, which come with any forecast in force. */
+function extras(item: WorkerRegionForecast) {
+  return { trend: toTrend(item.trend), snow: toNote(item.snow), weather: toNote(item.weather) };
+}
+
 export function toForecast(item: WorkerRegionForecast): AvalancheForecast {
   const base = unavailable(item.regionId, item.sourceUrl || OFFICIAL_FORECAST_URL);
   if (item.fetchError) return base;
@@ -103,6 +135,7 @@ export function toForecast(item: WorkerRegionForecast): AvalancheForecast {
       mainMessage: text(item.mainMessage),
       publishedText: item.publishedText,
       problems: toProblems(item.problems),
+      ...extras(item),
     };
   }
   if (item.danger !== null && Number.isInteger(item.danger) && item.danger >= 1 && item.danger <= 5) {
@@ -114,6 +147,7 @@ export function toForecast(item: WorkerRegionForecast): AvalancheForecast {
       mainMessage: text(item.mainMessage),
       publishedText: item.publishedText,
       problems: toProblems(item.problems),
+      ...extras(item),
     };
   }
   return base;

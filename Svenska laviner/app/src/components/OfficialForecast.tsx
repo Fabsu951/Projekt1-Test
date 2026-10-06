@@ -1,4 +1,5 @@
 import type { AvalancheForecast, ForecastStatus } from "../types/avalanche";
+import ForecastTrendLine from "./ForecastTrendLine";
 
 interface Props {
   forecast: AvalancheForecast;
@@ -27,6 +28,7 @@ export default function OfficialForecast({ forecast }: Props) {
         <>
           {forecast.headline && <p className="official-forecast__headline">{forecast.headline}</p>}
           {forecast.mainMessage && <p className="official-forecast__message">{forecast.mainMessage}</p>}
+          {forecast.trend && <ForecastTrendLine trend={forecast.trend} today={forecast.dangerLevel} />}
           {forecast.publishedText && (
             <p className="official-forecast__meta">Publicerad {forecast.publishedText}</p>
           )}
@@ -39,6 +41,9 @@ export default function OfficialForecast({ forecast }: Props) {
           <p>{NO_FORECAST_TEXT[forecast.status]}</p>
           {(forecast.status === "spring" || forecast.status === "no-danger") && forecast.mainMessage && (
             <p className="official-forecast__message">{forecast.mainMessage}</p>
+          )}
+          {(forecast.status === "spring" || forecast.status === "no-danger") && forecast.trend && (
+            <ForecastTrendLine trend={forecast.trend} today={null} />
           )}
         </>
       )}

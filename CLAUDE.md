@@ -594,6 +594,17 @@ the start, exact map point.
   App label for season-over is now "Utanför säsong" (true before and after).
   **Verified live 2026-10-06** (deployed `0244832`): all six areas
   `"source":"api"`, `seasonOver: true`, headline "Prognossäsongen är avslutad".
+  **Trend + field report + weather (2026-10-06):** the API's `trend_*`
+  (→ `trend {date, danger 1–5 | null, label, text}`), `snow_*`
+  ("Rapport från området") and `weather_*` ("Fjällväderprognos") →
+  `{title, text, link, linkText}`, only with a forecast in force.
+  `htmlToLines()` keeps the editor's paragraphs/bold headings as lines
+  (Office XML comments dropped); links only http(s), "www.x" → https.
+  App: `ForecastTrendLine` ("Förväntad utveckling lör 20 feb: [badge] ↑",
+  arrow vs today, comment unless `compact`) in `OfficialForecast` and on
+  start-page cards; `ForecastNotes` (two `<details>`, `white-space:
+  pre-line`) under the official forecast on region pages. App-side
+  `toTrend`/`toNote` in `avalancheService.ts` re-validate (level only 1–5).
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -647,6 +658,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (174 tests as of 2026-10-06, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 101 tests, including the
+  (178 tests as of 2026-10-06, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 103 tests, including the
   real-page fixtures).

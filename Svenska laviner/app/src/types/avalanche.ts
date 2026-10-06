@@ -72,6 +72,29 @@ export interface AvalancheForecast {
   publishedText: string | null;
   /** The official forecast page for this region. */
   sourceUrl: string;
+  /** "Förväntad utveckling": the expected level for the next day (from Naturvårdsverket's API). */
+  trend?: ForecastTrend | null;
+  /** "Rapport från området": what the forecasters saw in the field. */
+  snow?: ForecastNote | null;
+  /** "Fjällväderprognos". */
+  weather?: ForecastNote | null;
+}
+
+export interface ForecastTrend {
+  /** YYYY-MM-DD. */
+  date: string;
+  /** Only a published level 1–5; otherwise just the label. */
+  dangerLevel: DangerLevel | null;
+  label: string | null;
+  text: string | null;
+}
+
+export interface ForecastNote {
+  title: string | null;
+  /** Plain text, one paragraph or heading per line. */
+  text: string;
+  link: string | null;
+  linkText: string | null;
 }
 
 export interface DangerLevelInfo {
