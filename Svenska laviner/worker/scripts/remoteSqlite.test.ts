@@ -32,6 +32,7 @@ let dir: string;
 let server: Server;
 let url: string;
 let file: string;
+let gdalFile: string;
 const MAX_Z = 11;
 
 beforeAll(async () => {
@@ -65,8 +66,35 @@ beforeAll(async () => {
   db.exec("COMMIT");
   db.close();
 
-  const bytes = readFileSync(file);
+  // A second file written the way GDAL does it: upper-case table name in the
+  // schema, lower-case in gpkg_contents, DDL with defaults and constraints.
+  gdalFile = join(dir, "gdal.gpkg");
+  const g = new DatabaseSync(gdalFile);
+  g.exec(`
+    CREATE TABLE gpkg_spatial_ref_sys (srs_name TEXT NOT NULL,srs_id INTEGER NOT NULL PRIMARY KEY,organization TEXT NOT NULL,organization_coordsys_id INTEGER NOT NULL,definition  TEXT NOT NULL,description TEXT);
+    INSERT INTO gpkg_spatial_ref_sys VALUES ('WGS 84 / Pseudo-Mercator', 3857, 'EPSG', 3857, '', NULL);
+    CREATE TABLE gpkg_contents (table_name TEXT NOT NULL PRIMARY KEY,data_type TEXT NOT NULL,identifier TEXT UNIQUE,description TEXT DEFAULT '',last_change DATETIME NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),min_x DOUBLE, min_y DOUBLE,max_x DOUBLE, max_y DOUBLE,srs_id INTEGER,CONSTRAINT fk_gc_r_srs_id FOREIGN KEY (srs_id) REFERENCES gpkg_spatial_ref_sys(srs_id));
+    INSERT INTO gpkg_contents (table_name, data_type, identifier) VALUES ('topowebb', 'Tiles', 'topowebb');
+    CREATE TABLE gpkg_tile_matrix_set (table_name TEXT NOT NULL PRIMARY KEY,srs_id INTEGER NOT NULL,min_x DOUBLE NOT NULL,min_y DOUBLE NOT NULL,max_x DOUBLE NOT NULL,max_y DOUBLE NOT NULL);
+    CREATE TABLE gpkg_tile_matrix (table_name TEXT NOT NULL,zoom_level INTEGER NOT NULL,matrix_width INTEGER NOT NULL,matrix_height INTEGER NOT NULL,tile_width INTEGER NOT NULL,tile_height INTEGER NOT NULL,pixel_x_size DOUBLE NOT NULL,pixel_y_size DOUBLE NOT NULL,CONSTRAINT pk_ttm PRIMARY KEY (table_name, zoom_level));
+    CREATE TABLE "TOPOWEBB" (id INTEGER PRIMARY KEY AUTOINCREMENT,zoom_level INTEGER NOT NULL,tile_column INTEGER NOT NULL,tile_row INTEGER NOT NULL,tile_data BLOB NOT NULL,UNIQUE (zoom_level, tile_column, tile_row));
+  `);
+  g.prepare("INSERT INTO gpkg_tile_matrix_set VALUES ('TOPOWEBB', 3857, ?, ?, ?, ?)").run(-HALF_WORLD, -HALF_WORLD, HALF_WORLD, HALF_WORLD);
+  const gInsert = g.prepare(`INSERT INTO "TOPOWEBB" (zoom_level, tile_column, tile_row, tile_data) VALUES (?, ?, ?, ?)`);
+  for (let z = 6; z <= 9; z++) {
+    const px = (2 * HALF_WORLD) / 256 / 2 ** z;
+    g.prepare("INSERT INTO gpkg_tile_matrix VALUES ('TOPOWEBB', ?, ?, ?, 256, 256, ?, ?)").run(z, 2 ** z, 2 ** z, px, px);
+    for (let x = tx(17, z); x <= tx(20, z); x++) for (let y = ty(68.7, z); y <= ty(67.5, z); y++) gInsert.run(z, x, y, tileBytes(z, x, y));
+  }
+  g.close();
+
+  const files: Record<string, Buffer> = { "/topowebb-3857.gpkg": readFileSync(file), "/gdal.gpkg": readFileSync(gdalFile) };
   server = createServer((req, res) => {
+    const bytes = files[req.url ?? ""];
+    if (!bytes) {
+      res.writeHead(404).end();
+      return;
+    }
     if (req.headers.authorization !== "Basic dGVzdDp0ZXN0") {
       res.writeHead(401).end();
       return;
@@ -96,12 +124,24 @@ describe("reading a GeoPackage over HTTP Range requests", () => {
       "tile_data",
     ]);
     expect(indexColumns(`CREATE UNIQUE INDEX i ON t ("zoom_level", tile_column ASC, [tile_row])`)).toEqual(["zoom_level", "tile_column", "tile_row"]);
+    // Comments, quoted defaults with commas and parentheses, multi-line formatting.
+    const commented = `CREATE TABLE gpkg_contents (
+      table_name TEXT NOT NULL PRIMARY KEY, -- the table's name, e.g. (tiles)
+      /* what kind, e.g. features, tiles */ data_type TEXT NOT NULL,
+      description TEXT DEFAULT 'a, b (c)',
+      last_change DATETIME NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+      "min x" DOUBLE,
+      CONSTRAINT fk_gc_r_srs_id FOREIGN KEY (srs_id) REFERENCES gpkg_spatial_ref_sys(srs_id)
+    )`;
+    expect(tableColumns(commented)).toEqual(["table_name", "data_type", "description", "last_change", "min x"]);
+    expect(indexColumns("UNIQUE (zoom_level, tile_column, tile_row)")).toEqual(["zoom_level", "tile_column", "tile_row"]);
   });
 
   it("finds exactly the tiles SQLite itself finds, with identical bytes", async () => {
     const reader = httpReader(url, { Authorization: "Basic dGVzdDp0ZXN0" });
     const gpkg = await RemoteGpkg.open(reader);
-    expect(await gpkg.tileTables()).toEqual(["topowebb_nedtonad", "topowebb"]);
+    // topowebb_nedtonad is registered but has no table in this file.
+    expect(await gpkg.tileTables()).toEqual(["topowebb"]);
     const set = await gpkg.matrixSet("topowebb");
     expect(set.srs).toBe(3857);
     const levels = (await gpkg.matrices("topowebb")).map((m) => mapLevel(set, m));
@@ -131,6 +171,34 @@ describe("reading a GeoPackage over HTTP Range requests", () => {
     // Far less than the whole file was read.
     expect(reader.bytes).toBeLessThan(readFileSync(file).length);
   }, 120_000);
+
+  it("handles GDAL-style files (table name case differs, data_type 'Tiles')", async () => {
+    const reader = httpReader(url.replace("topowebb-3857.gpkg", "gdal.gpkg"), { Authorization: "Basic dGVzdDp0ZXN0" });
+    const gpkg = await RemoteGpkg.open(reader);
+    expect(await gpkg.tileTables()).toEqual(["TOPOWEBB"]);
+    const set = await gpkg.matrixSet("TOPOWEBB");
+    const levels = (await gpkg.matrices("TOPOWEBB")).map((m) => mapLevel(set, m));
+    expect(levels.map((l) => l.z)).toEqual([6, 7, 8, 9]);
+    const keys = await gpkg.tileKeys("TOPOWEBB", levels);
+    const db = new DatabaseSync(gdalFile, { readOnly: true });
+    const all = db.prepare(`SELECT zoom_level z, tile_column x, tile_row y FROM "TOPOWEBB"`).all() as Array<{ z: number; x: number; y: number }>;
+    db.close();
+    const expected = all.filter(
+      (r) =>
+        r.z <= OVERVIEW_MAX_ZOOM ||
+        Object.values(MOUNTAIN_BOXES).some((b) => {
+          const t = tileRange(b, r.z);
+          return r.x >= t.minX && r.x <= t.maxX && r.y >= t.minY && r.y <= t.maxY;
+        })
+    );
+    expect(keys.length).toBe(expected.length);
+    let n = 0;
+    for await (const t of gpkg.tiles("TOPOWEBB", keys)) {
+      expect(Buffer.from(t.data).equals(Buffer.from(tileBytes(t.level, t.col, t.row)))).toBe(true);
+      n++;
+    }
+    expect(n).toBe(expected.length);
+  });
 
   it("stops with a clear message when the login is wrong", async () => {
     await expect(RemoteGpkg.open(httpReader(url, { Authorization: "Basic fel" }))).rejects.toThrow(/nekade åtkomst/);

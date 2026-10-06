@@ -132,7 +132,7 @@ async function upload(token: string, tiles: Tile[]): Promise<void> {
       const res = await fetch(`${WORKER}/admin/tiles/topowebb`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/octet-stream" },
-        body,
+        body: body as Uint8Array<ArrayBuffer>,
       });
       if (res.ok) return;
       if (res.status === 401) throw Object.assign(new Error("Workern godkände inte uppladdningsnyckeln."), { fatal: true });
@@ -221,6 +221,9 @@ async function openRemote(url: string, opts: Options): Promise<TileSource> {
   const reader = httpReader(url, process.env.LM_AUTH ? { Authorization: process.env.LM_AUTH } : {});
   const gpkg = await RemoteGpkg.open(reader);
   const tables = await gpkg.tileTables();
+  if (tables.length === 0) {
+    console.error(`\nHittade ingen tabell med kartbitar. Filen innehåller:\n${await gpkg.describeSchema()}`);
+  }
   const table = pickTable(tables, opts.table);
   const set = await gpkg.matrixSet(table);
   const levels = (await gpkg.matrices(table)).map((m) => mapLevel(set, m));

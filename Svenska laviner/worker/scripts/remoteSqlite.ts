@@ -384,37 +384,88 @@ export class RemoteSqlite {
   }
 }
 
-/** Column names of a CREATE TABLE statement, in order (constraints skipped). */
-export function tableColumns(sql: string): string[] {
-  const body = sql.slice(sql.indexOf("(") + 1, sql.lastIndexOf(")"));
+/**
+ * Splits the part between the outermost parentheses of a CREATE statement at
+ * top-level commas, skipping comments and respecting quotes and brackets.
+ */
+function topLevelParts(sql: string): string[] {
   const parts: string[] = [];
-  let depth = 0;
   let current = "";
-  for (const ch of body) {
-    if (ch === "(") depth++;
-    if (ch === ")") depth--;
-    if (ch === "," && depth === 0) {
+  let depth = 0;
+  let started = false;
+  for (let i = 0; i < sql.length; i++) {
+    const ch = sql[i];
+    if (ch === "-" && sql[i + 1] === "-") {
+      const end = sql.indexOf("\n", i);
+      i = end < 0 ? sql.length : end;
+      if (started) current += " ";
+      continue;
+    }
+    if (ch === "/" && sql[i + 1] === "*") {
+      const end = sql.indexOf("*/", i + 2);
+      i = end < 0 ? sql.length : end + 1;
+      if (started) current += " ";
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === "`" || ch === "[") {
+      const close = ch === "[" ? "]" : ch;
+      let j = i + 1;
+      for (; j < sql.length; j++) {
+        if (sql[j] !== close) continue;
+        if (close !== "]" && sql[j + 1] === close) j++; // doubled quote inside
+        else break;
+      }
+      if (started) current += sql.slice(i, j + 1);
+      i = j;
+      continue;
+    }
+    if (ch === "(") {
+      depth++;
+      if (depth === 1 && !started) {
+        started = true;
+        continue;
+      }
+    } else if (ch === ")") {
+      depth--;
+      if (depth === 0 && started) break;
+    } else if (ch === "," && depth === 1 && started) {
       parts.push(current);
       current = "";
-    } else current += ch;
+      continue;
+    }
+    if (started) current += ch;
   }
   parts.push(current);
-  return parts
-    .map((p) => p.trim())
-    .filter((p) => p && !/^(constraint|primary\s+key|unique|check|foreign\s+key)\b/i.test(p))
-    .map((p) => p.match(/^(?:"([^"]+)"|`([^`]+)`|\[([^\]]+)\]|(\S+))/)!.slice(1).find(Boolean)!);
+  return parts.map((p) => p.trim()).filter(Boolean);
+}
+
+const NAME = /^("(?:[^"]|"")*"|`[^`]*`|\[[^\]]*\]|[^\s(]+)/;
+const CONSTRAINT = /^(constraint|primary\s+key|unique|check|foreign\s+key)\b/i;
+const unquote = (name: string) =>
+  /^["`[]/.test(name) ? name.slice(1, -1).replace(/""/g, '"') : name;
+
+/** The column definitions of a CREATE TABLE statement (constraints skipped). */
+function columnParts(sql: string): string[] {
+  return topLevelParts(sql).filter((p) => !CONSTRAINT.test(p));
+}
+
+/** Column names of a CREATE TABLE statement, in order (constraints skipped). */
+export function tableColumns(sql: string): string[] {
+  return columnParts(sql).map((p) => unquote(p.match(NAME)![1]));
 }
 
 /** The column list of a UNIQUE (...) table constraint or CREATE INDEX statement. */
 export function indexColumns(sql: string): string[] {
-  const inner = sql.slice(sql.lastIndexOf("(") + 1, sql.lastIndexOf(")"));
-  return inner.split(",").map((c) => c.trim().replace(/^["`[]|["`\]]$/g, "").split(/\s+/)[0].replace(/^["`[]|["`\]]$/g, ""));
+  return topLevelParts(sql.slice(sql.indexOf("("))).map((c) => unquote(c.match(NAME)![1]));
 }
 
-/** The table's rows as objects; an INTEGER PRIMARY KEY column gets the rowid. */
+/** The table's rows as objects keyed by lower-case column name; an INTEGER PRIMARY KEY column gets the rowid. */
 export async function readTable(db: RemoteSqlite, entry: SchemaEntry): Promise<Array<Record<string, Value>>> {
-  const columns = tableColumns(entry.sql ?? "");
-  const rowidColumn = columns.find((c) => new RegExp(`(^|[\\s,(])"?${c}"?\\s+integer\\s+primary\\s+key`, "i").test(entry.sql ?? ""));
+  const parts = columnParts(entry.sql ?? "");
+  // Lower-case keys: SQLite column names are case-insensitive.
+  const columns = parts.map((p) => unquote(p.match(NAME)![1]).toLowerCase());
+  // An INTEGER PRIMARY KEY column is the rowid itself (stored as NULL in the record).
+  const rowidColumn = columns.find((_, i) => /^\S+\s+integer\s+primary\s+key/i.test(parts[i]));
   const rows: Array<Record<string, Value>> = [];
   for await (const { rowid, values } of db.scanTable(entry.rootPage)) {
     const row: Record<string, Value> = {};

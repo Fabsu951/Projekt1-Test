@@ -28,6 +28,9 @@ async function* pool<T, R>(items: T[], limit: number, work: (item: T) => Promise
   }
 }
 
+/** SQLite compares table and column names case-insensitively (ASCII). */
+const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
+
 export class RemoteGpkg {
   private constructor(
     private db: RemoteSqlite,
@@ -40,7 +43,7 @@ export class RemoteGpkg {
   }
 
   private entry(name: string): SchemaEntry {
-    const e = this.schemaEntries.find((s) => s.type === "table" && s.name === name);
+    const e = this.schemaEntries.find((s) => s.type === "table" && same(s.name, name));
     if (!e) throw new Error(`Tabellen ${name} saknas i filen.`);
     return e;
   }
@@ -49,12 +52,46 @@ export class RemoteGpkg {
     return readTable(this.db, this.entry(name));
   }
 
+  /**
+   * Tile tables: registered as "tiles" in gpkg_contents, else listed in
+   * gpkg_tile_matrix_set, else any table with the tile pyramid's columns.
+   */
   async tileTables(): Promise<string[]> {
-    return (await this.rows("gpkg_contents")).filter((r) => r.data_type === "tiles").map((r) => String(r.table_name));
+    const tables = this.schemaEntries.filter((e) => e.type === "table");
+    const has = (name: string) => tables.some((t) => same(t.name, name));
+    const found = new Set<string>();
+    if (has("gpkg_contents")) {
+      for (const r of await this.rows("gpkg_contents")) {
+        if (String(r.data_type ?? "").trim().toLowerCase() === "tiles") found.add(String(r.table_name));
+      }
+    }
+    if (found.size === 0 && has("gpkg_tile_matrix_set")) {
+      for (const r of await this.rows("gpkg_tile_matrix_set")) found.add(String(r.table_name));
+    }
+    if (found.size === 0) {
+      for (const t of tables) {
+        const cols = tableColumns(t.sql ?? "").map((c) => c.toLowerCase());
+        if (["zoom_level", "tile_column", "tile_row", "tile_data"].every((c) => cols.includes(c))) found.add(t.name);
+      }
+    }
+    // Use the table's own spelling (gpkg_contents may differ in case; SQLite doesn't care).
+    return [...found].flatMap((name) => tables.filter((t) => same(t.name, name)).map((t) => t.name)).filter((n, i, a) => a.indexOf(n) === i);
+  }
+
+  /** What the file contains, for error messages: tables with their columns and gpkg_contents. */
+  async describeSchema(): Promise<string> {
+    const lines = this.schemaEntries
+      .filter((e) => e.type === "table" || e.type === "view")
+      .map((e) => `    ${e.type} ${e.name} (${tableColumns(e.sql ?? "").join(", ")})`);
+    if (this.schemaEntries.some((e) => e.type === "table" && same(e.name, "gpkg_contents"))) {
+      lines.push("  gpkg_contents:");
+      for (const r of await this.rows("gpkg_contents")) lines.push(`    ${String(r.table_name)}: ${String(r.data_type)}`);
+    }
+    return lines.join("\n");
   }
 
   async matrixSet(table: string): Promise<TileMatrixSet> {
-    const set = (await this.rows("gpkg_tile_matrix_set")).find((r) => r.table_name === table);
+    const set = (await this.rows("gpkg_tile_matrix_set")).find((r) => same(String(r.table_name), table));
     if (!set) throw new Error(`Hittar inget tile matrix set för ${table}.`);
     const srs = (await this.rows("gpkg_spatial_ref_sys")).find((r) => Number(r.srs_id) === Number(set.srs_id));
     const code = String(srs?.organization ?? "").toUpperCase() === "EPSG" ? Number(srs?.organization_coordsys_id) : Number(set.srs_id);
@@ -63,7 +100,7 @@ export class RemoteGpkg {
 
   async matrices(table: string): Promise<TileMatrix[]> {
     return (await this.rows("gpkg_tile_matrix"))
-      .filter((r) => r.table_name === table)
+      .filter((r) => same(String(r.table_name), table))
       .map((r) => ({
         zoomLevel: Number(r.zoom_level),
         tileWidth: Number(r.tile_width),
@@ -77,12 +114,15 @@ export class RemoteGpkg {
   /** The tile table's unique index and where tile_data sits in its rows. */
   private tileIndex(table: string): { root: number; order: "col-row" | "row-col"; tableRoot: number; dataAt: number } {
     const tableEntry = this.entry(table);
-    const columns = tableColumns(tableEntry.sql ?? "");
+    const columns = tableColumns(tableEntry.sql ?? "").map((c) => c.toLowerCase());
     const dataAt = columns.indexOf("tile_data");
     if (dataAt < 0) throw new Error(`${table} saknar kolumnen tile_data.`);
-    const unique = tableEntry.sql?.match(/unique\s*\(([^)]*)\)/i);
-    for (const idx of this.schemaEntries.filter((s) => s.type === "index" && s.tblName === table)) {
-      const cols = idx.sql ? indexColumns(idx.sql) : unique ? indexColumns(`(${unique[1]})`) : [];
+    // Autoindexes (no SQL of their own) come from UNIQUE constraints, numbered in order.
+    const uniques = (tableEntry.sql ?? "").match(/unique\s*\([^)]*\)/gi) ?? [];
+    for (const idx of this.schemaEntries.filter((s) => s.type === "index" && same(s.tblName, table))) {
+      const auto = /_autoindex_.*_(\d+)$/.exec(idx.name);
+      const constraint = auto ? (uniques[Number(auto[1]) - 1] ?? uniques[0]) : undefined;
+      const cols = (idx.sql ? indexColumns(idx.sql) : constraint ? indexColumns(constraint) : []).map((c) => c.toLowerCase());
       if (cols.length !== 3 || cols[0] !== "zoom_level") continue;
       if (cols[1] === "tile_column" && cols[2] === "tile_row") return { root: idx.rootPage, order: "col-row", tableRoot: tableEntry.rootPage, dataAt };
       if (cols[1] === "tile_row" && cols[2] === "tile_column") return { root: idx.rootPage, order: "row-col", tableRoot: tableEntry.rootPage, dataAt };
