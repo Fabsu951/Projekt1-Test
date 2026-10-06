@@ -1,6 +1,6 @@
 // Lantmäteriet's topographic map, served by our Cloudflare Worker at
 // /tiles/topowebb/{z}/{x}/{y}.png. The worker hosts the tiles in R2 (from
-// the CC0 "Topografisk webbkarta Nedladdning, raster"), fills gaps from the
+// the CC BY 4.0 "Topografisk webbkarta Nedladdning, raster"), fills gaps from the
 // old WMTS until it closes on 2026-12-31, and after that falls back to
 // OpenStreetMap outside what we host. Without a configured worker (local
 // dev) the map shows plain OpenStreetMap.
@@ -23,5 +23,5 @@ export const offlineMapsAvailable = Boolean(PROXY_BASE);
 
 const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsgivare';
 export const TOPOWEBB_ATTRIBUTION = PROXY_BASE
-  ? `&copy; <a href="https://www.lantmateriet.se/">Lantmäteriet</a>, CC0 · utanför fjällen ${OSM_ATTRIBUTION}`
+  ? `&copy; Lantmäteriet, <a href="https://creativecommons.org/licenses/by/4.0/deed.sv">CC BY 4.0</a> · utanför fjällen ${OSM_ATTRIBUTION}`
   : OSM_ATTRIBUTION;

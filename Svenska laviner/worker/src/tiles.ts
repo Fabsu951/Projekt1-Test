@@ -2,7 +2,7 @@ import { corsHeaders } from "./http";
 import { imageType, decodeTiles, validTile } from "./tileBatch";
 
 // Lantmäteriet shuts its free WMTS ("Topografisk webbkarta Visning,
-// översiktlig") on 2026-12-31. Its CC0 replacement, "Topografisk webbkarta
+// översiktlig") on 2026-12-31. Its CC BY 4.0 replacement, "Topografisk webbkarta
 // Nedladdning, raster", is a GeoPackage download, so we host the tiles
 // ourselves in R2 (scripts/import-tiles.ts). Until then, tiles missing from
 // R2 are fetched from the old service and kept, so everything users have

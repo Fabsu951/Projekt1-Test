@@ -2,7 +2,7 @@
 
 Lantmäteriet stänger "Topografisk webbkarta Visning, översiktlig" (kartan
 Snöläge använt hittills) den **31 december 2026**. Ersättaren är den
-kostnadsfria (CC0) produkten **Topografisk webbkarta Nedladdning, raster**,
+kostnadsfria produkten (licens CC BY 4.0: ange "©Lantmäteriet", datakällan och licensen) **Topografisk webbkarta Nedladdning, raster**,
 som vi laddar ner en gång och lagrar själva i Cloudflare R2.
 
 Sajten använder redan den nya kartadressen. Tills importen är gjord hämtar

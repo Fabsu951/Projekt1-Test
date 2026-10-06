@@ -167,7 +167,7 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   **Confirmed end date 2026-12-31** (Lantmäteriet's own notice,
   "Avveckling av produkten Topografisk webbkarta Visning, översiktlig").
   The paid alternatives (Visning 83 000 kr/år, Visning cache) are out; the
-  CC0 replacement is **Topografisk webbkarta Nedladdning, raster**
+  free (CC BY 4.0 — credit "©Lantmäteriet", the product name and the licence, done in `mapTiles.ts` + About) replacement is **Topografisk webbkarta Nedladdning, raster**
   (GeoPackage/PNG, EPSG:3857 zoom 0–17, updated quarterly). Built
   2026-09-26: the app now loads `${VITE_MAP_PROXY_URL}/tiles/topowebb/{z}/{x}/{y}.png`
   (`TopoLayer.tsx`, maxNativeZoom 15); the worker (`worker/src/tiles.ts`)

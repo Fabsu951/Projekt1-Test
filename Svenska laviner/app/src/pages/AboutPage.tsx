@@ -97,7 +97,12 @@ export default function AboutPage() {
             Topografisk karta: <a href="https://www.lantmateriet.se/" target="_blank" rel="noreferrer">
               Lantmäteriet
             </a>{" "}
-            (Topografisk webbkarta Visning, översiktlig), CC0
+            (datakälla: Topografisk webbkarta Nedladdning, raster, och tidigare Topografisk webbkarta Visning,
+            översiktlig), ©Lantmäteriet,{" "}
+            <a href="https://creativecommons.org/licenses/by/4.0/deed.sv" target="_blank" rel="noreferrer">
+              CC BY 4.0
+            </a>
+            . Kartbilderna visas obearbetade.
           </li>
           <li>
             Terränglutning: höjddata (SRTM/NASADEM, ~30 m upplösning) från{" "}
