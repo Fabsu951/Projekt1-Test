@@ -592,6 +592,8 @@ the start, exact map point.
   (only today's rows can trigger push). Tested in `forecastApi.test.ts`
   incl. "same level as the archived page" for every overlapping day.
   App label for season-over is now "Utanför säsong" (true before and after).
+  **Verified live 2026-10-06** (deployed `0244832`): all six areas
+  `"source":"api"`, `seasonOver: true`, headline "Prognossäsongen är avslutad".
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
