@@ -137,6 +137,11 @@ export default function RegionDetail() {
         </section>
       )}
 
+      <Link to={`/omrade/${region.id}/sasong`} className="season-link">
+        <strong>Säsongen dag för dag</strong>
+        <span>Farograder och lavinproblem för hela vintern, även tidigare säsonger →</span>
+      </Link>
+
       {forecast && forecast.problems.length > 0 && (
         <section className="section">
           <h2>Lavinproblem</h2>

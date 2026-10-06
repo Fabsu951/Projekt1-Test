@@ -31,6 +31,7 @@ const FeedPage = lazy(() => import("./pages/FeedPage"));
 const PersonPage = lazy(() => import("./pages/PersonPage"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const HealthImportPage = lazy(() => import("./pages/HealthImportPage"));
+const SeasonPage = lazy(() => import("./pages/SeasonPage"));
 
 function App() {
   return (
@@ -38,6 +39,14 @@ function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<TodayPage />} />
         <Route path="/omrade/:id" element={<RegionDetail />} />
+        <Route
+          path="/omrade/:id/sasong"
+          element={
+            <Suspense fallback={<PageLoading />}>
+              <SeasonPage />
+            </Suspense>
+          }
+        />
         <Route
           path="/karta"
           element={

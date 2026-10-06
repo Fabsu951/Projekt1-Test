@@ -605,6 +605,18 @@ the start, exact map point.
   start-page cards; `ForecastNotes` (two `<details>`, `white-space:
   pre-line`) under the official forecast on region pages. App-side
   `toTrend`/`toNote` in `avalancheService.ts` re-validate (level only 1–5).
+  **Season overview (2026-10-06):** worker `GET /forecasts/season?region=&season=YYYY`
+  (YYYY = start year; 2016 … `currentSeasonYear`, which before November is
+  last season): one `published_forecasts_by_interval` call 1 Nov → 15 Jun
+  **with propertyName only** (polygons would be tens of MB), `seasonSummary`
+  = latest version per day (validTo date), level only 1–5 else the label,
+  level counts, problems by days; Cloudflare-cached 7 days (past) / 1 h
+  (current). App `/omrade/:id/sasong` (`SeasonPage`, lazy; link card
+  "Säsongen dag för dag" on region pages): season chips (5 back), tiles,
+  month calendars (Mon-first, level number in each cell, hatched = no
+  level, tap → day + problems), bars per level (danger colours, counts as
+  text), problems bars (accent), "Visa som lista" table view.
+  `fetchSeason` goes through `cached()` (offline).
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not reviewed by a lawyer.
 
@@ -658,6 +670,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (178 tests as of 2026-10-06, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 103 tests, including the
+  (181 tests as of 2026-10-06, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 105 tests, including the
   real-page fixtures).

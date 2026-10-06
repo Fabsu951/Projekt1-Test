@@ -455,3 +455,77 @@ export function historyRowsFromApi(regionId: string, list: ApiForecast[], now: D
       : []
   );
 }
+
+// ---------- A whole season ----------
+
+/** A forecast season runs from late autumn (pre-season notes) to early summer. */
+export function seasonRange(startYear: number): { start: Date; end: Date } {
+  return { start: stockholmLocal(startYear, 11, 1, 0, 0), end: stockholmLocal(startYear + 1, 6, 15, 0, 0) };
+}
+
+/** The season that is current, or the one just ended (before November). */
+export function currentSeasonYear(now: Date): number {
+  const [y, m] = stockholmDate(now).split("-").map(Number);
+  return m >= 11 ? y : y - 1;
+}
+
+export function seasonUrl(areaId: number, startYear: number, withPropertyNames = true): string {
+  const { start, end } = seasonRange(startYear);
+  return layerUrl(
+    "published_forecasts_by_interval",
+    { lang: "sv", location: String(areaId), start_date: localStamp(start), end_date: localStamp(end) },
+    withPropertyNames
+  );
+}
+
+export interface SeasonDay {
+  /** YYYY-MM-DD, the day the forecast was valid until (like the history). */
+  date: string;
+  /** 1–5, or null for "ej bedömd" / spring / no danger. */
+  danger: number | null;
+  /** The forecast's own wording when there's no level, e.g. "Vårförhållanden". */
+  label: string | null;
+  problems: string[];
+}
+
+export interface SeasonSummary {
+  days: SeasonDay[];
+  /** Days per level 1–5. */
+  levels: Record<"1" | "2" | "3" | "4" | "5", number>;
+  /** Problem slug → number of days it was in the forecast, most common first. */
+  problems: Array<{ type: string; name: string; days: number }>;
+  firstDate: string | null;
+  lastDate: string | null;
+}
+
+/** One entry per forecast day (latest version of each), never a level outside 1–5. */
+export function seasonSummary(list: ApiForecast[], now: Date): SeasonSummary {
+  const byDay = new Map<string, ApiForecast>();
+  for (const f of [...list].filter((x) => isDaily(x, now)).sort(newestFirst)) {
+    const day = stockholmDate(f.validTo!);
+    if (!byDay.has(day)) byDay.set(day, f);
+  }
+  const days: SeasonDay[] = [...byDay.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : 1))
+    .map(([date, f]) => {
+      const level = f.risk !== null && Number.isInteger(f.risk) && f.risk >= 1 && f.risk <= 5 ? f.risk : null;
+      return { date, danger: level, label: level === null ? f.riskLabel : null, problems: f.problems.map((p) => p.type) };
+    });
+  const levels = { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 };
+  for (const d of days) if (d.danger !== null) levels[String(d.danger) as keyof typeof levels]++;
+  const counts = new Map<string, { name: string; days: number }>();
+  for (const f of byDay.values()) {
+    for (const p of f.problems) {
+      const c = counts.get(p.type) ?? { name: p.name, days: 0 };
+      c.days++;
+      counts.set(p.type, c);
+    }
+  }
+  return {
+    days,
+    levels,
+    problems: [...counts.entries()].map(([type, c]) => ({ type, ...c })).sort((a, b) => b.days - a.days),
+    firstDate: days[0]?.date ?? null,
+    lastDate: days[days.length - 1]?.date ?? null,
+  };
+}

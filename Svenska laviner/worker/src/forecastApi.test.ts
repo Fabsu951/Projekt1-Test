@@ -10,6 +10,9 @@ import {
   htmlToLines,
   readForecasts,
   recentUrl,
+  currentSeasonYear,
+  seasonSummary,
+  seasonUrl,
   type ApiForecast,
 } from "./forecastApi";
 import { extractModel, readForecast } from "./model";
@@ -145,5 +148,25 @@ describe("forecast API answers", () => {
     expect(rows.find((r) => r.date === "2026-02-18")?.danger).toBe(2);
     expect(new Set(rows.map((r) => r.date)).size).toBe(rows.length);
     expect(rows.every((r) => r.danger >= 1 && r.danger <= 5)).toBe(true);
+  });
+
+  it("sums up a season day by day, with levels and the most common problems", () => {
+    const list = ["2026-01-18", "2026-02-15", "2026-04-05"].flatMap((d) => load(`published_forecasts_by_interval_3_${d}.json`));
+    const s = seasonSummary(list, local("2026-10-06 12:00"));
+    expect(s.days.length).toBeGreaterThan(15);
+    expect(new Set(s.days.map((d) => d.date)).size).toBe(s.days.length);
+    expect(s.days.find((d) => d.date === "2026-02-18")?.danger).toBe(2); // the corrected level, not the evening's 1
+    const total = Object.values(s.levels).reduce((a, b) => a + b, 0);
+    expect(total).toBe(s.days.filter((d) => d.danger !== null).length);
+    expect(s.problems[0].days).toBeGreaterThanOrEqual(s.problems[s.problems.length - 1].days);
+    expect(s.firstDate! <= s.lastDate!).toBe(true);
+  });
+
+  it("knows which season it is and asks for the whole of it", () => {
+    expect(currentSeasonYear(local("2026-10-06 12:00"))).toBe(2025);
+    expect(currentSeasonYear(local("2026-12-20 12:00"))).toBe(2026);
+    expect(new URL(seasonUrl(3, 2025)).searchParams.get("viewparams")).toBe(
+      "lang:sv;location:3;start_date:2025-11-01 00:00;end_date:2026-06-15 00:00"
+    );
   });
 });

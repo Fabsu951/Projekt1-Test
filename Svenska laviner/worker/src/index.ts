@@ -2,7 +2,10 @@ import { REGION_SOURCES } from "./regions";
 import { parseForecastHtml, type ParsedForecast } from "./parse";
 import {
   API_AREA_IDS,
+  currentSeasonYear,
   currentUrl,
+  seasonSummary,
+  seasonUrl,
   forecastFromApi,
   forecastInForce,
   historyRowsFromApi,
@@ -377,6 +380,41 @@ async function recordAll(env: Env, results: RegionResult[]): Promise<void> {
 }
 
 const HISTORY_CACHE_TTL_SECONDS = 60 * 10;
+/** Finished seasons never change; the current one grows twice a day. */
+const PAST_SEASON_TTL_SECONDS = 60 * 60 * 24 * 7;
+const CURRENT_SEASON_TTL_SECONDS = 60 * 60;
+const FIRST_SEASON = 2016;
+
+/** A whole season's daily levels and problems for one area, from the official API. */
+async function forecastSeason(request: Request, url: URL, origin: string): Promise<Response> {
+  const regionId = url.searchParams.get("region") ?? "";
+  const areaId = API_AREA_IDS[regionId];
+  if (!areaId) return error("Okänt område.", origin, 400);
+  const now = new Date();
+  const current = currentSeasonYear(now);
+  const season = Number(url.searchParams.get("season") ?? current);
+  if (!Number.isInteger(season) || season < FIRST_SEASON || season > current) {
+    return error("Okänd säsong.", origin, 400);
+  }
+  const cache = caches.default;
+  const cacheKey = new Request(`${url.origin}/forecasts/season?region=${regionId}&season=${season}`, request);
+  const hit = await cache.match(cacheKey);
+  if (hit) return new Response(hit.body, { headers: { ...corsHeaders(origin), "Content-Type": "application/json" } });
+  try {
+    // Only with the property list: a season's worth of area polygons would be tens of MB.
+    const list = await apiForecasts(seasonUrl(areaId, season), seasonUrl(areaId, season));
+    const body = JSON.stringify({ regionId, season, ...seasonSummary(list, now) });
+    const ttl = season === current ? CURRENT_SEASON_TTL_SECONDS : PAST_SEASON_TTL_SECONDS;
+    const response = new Response(body, {
+      headers: { ...corsHeaders(origin), "Content-Type": "application/json", "Cache-Control": `public, max-age=${ttl}` },
+    });
+    await cache.put(cacheKey, response.clone());
+    return response;
+  } catch (err) {
+    console.error(err);
+    return error("Kunde inte hämta säsongen från Naturvårdsverket just nu.", origin, 502);
+  }
+}
 
 async function forecastHistory(url: URL, env: Env, origin: string): Promise<Response> {
   const regionId = url.searchParams.get("region") ?? "";
@@ -457,6 +495,10 @@ export default {
         console.error(err);
         return error("Något gick fel på servern. Försök igen.", origin, 500);
       }
+    }
+
+    if (url.pathname === "/forecasts/season" && request.method === "GET") {
+      return forecastSeason(request, url, origin);
     }
 
     if (url.pathname === "/forecasts/history" && request.method === "GET") {

@@ -2,7 +2,8 @@ import type { AvalancheForecast, DangerLevel, Elevation, ForecastNote, ForecastP
 import { REGIONS } from "../data/regions";
 import { SITE_PROBLEM_TYPES } from "../data/avalancheProblems";
 import { COMPASS_SECTORS, type CompassSector } from "../utils/windAnalysis";
-import { withCache } from "./cache";
+import { cached, withCache } from "./cache";
+import { ApiError } from "./api";
 
 /**
  * Official forecasts come from Naturvårdsverket's lavinprognoser.se
@@ -219,4 +220,66 @@ export async function loadForecasts(): Promise<LoadedForecasts> {
   const byId: Record<string, AvalancheForecast> = {};
   for (const f of list) byId[f.regionId] = f;
   return { byId, stale, cachedAt };
+}
+
+/** One day of a season, as the worker's /forecasts/season sends it. */
+export interface SeasonDay {
+  date: string;
+  dangerLevel: DangerLevel | null;
+  /** The forecast's wording when there's no level ("Ej bedömd lavinfara", "Vårförhållanden"). */
+  label: string | null;
+  problems: string[];
+}
+
+export interface Season {
+  regionId: string;
+  /** The year the season starts, e.g. 2025 for 2025/26. */
+  season: number;
+  days: SeasonDay[];
+  levels: Record<DangerLevel, number>;
+  problems: Array<{ type: string; name: string; days: number }>;
+}
+
+/** Keeps only well-formed data, and levels only 1–5. */
+export function toSeason(raw: unknown): Season | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  if (typeof r.regionId !== "string" || !Number.isInteger(r.season) || !Array.isArray(r.days)) return null;
+  const days = r.days.flatMap((d): SeasonDay[] => {
+    if (typeof d?.date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(d.date)) return [];
+    const level = d.danger;
+    const dangerLevel = Number.isInteger(level) && level >= 1 && level <= 5 ? (level as DangerLevel) : null;
+    const problems = Array.isArray(d.problems) ? d.problems.filter((p: unknown): p is string => typeof p === "string") : [];
+    return [{ date: d.date, dangerLevel, label: dangerLevel === null ? text(d.label) : null, problems }];
+  });
+  const levels = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as Record<DangerLevel, number>;
+  for (const d of days) if (d.dangerLevel) levels[d.dangerLevel]++;
+  const problems = Array.isArray(r.problems)
+    ? r.problems.flatMap((p): Season["problems"] =>
+        typeof p?.type === "string" && typeof p?.name === "string" && Number.isInteger(p?.days)
+          ? [{ type: p.type, name: p.name, days: p.days }]
+          : []
+      )
+    : [];
+  return { regionId: r.regionId, season: r.season as number, days, levels, problems };
+}
+
+/** A whole season for an area, from Naturvårdsverket's API via the worker (saved for offline use). */
+export async function fetchSeason(regionId: string, season: number, workerBase = WORKER_BASE): Promise<Season> {
+  if (!workerBase) throw new Error("Säsongsdata saknas i den här versionen.");
+  return cached(`season:${regionId}:${season}`, async () => {
+    const res = await fetch(
+      `${workerBase.replace(/\/$/, "")}/forecasts/season?region=${encodeURIComponent(regionId)}&season=${season}`
+    );
+    if (!res.ok) throw new ApiError(res.status, "Kunde inte hämta säsongen just nu.");
+    const season_ = toSeason(await res.json());
+    if (!season_) throw new ApiError(502, "Säsongsdatan gick inte att läsa.");
+    return season_;
+  });
+}
+
+/** The season that is on, or just ended (before November): 2025 for 2025/26. */
+export function currentSeason(now = new Date()): number {
+  const [y, m] = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm" }).format(now).split("-").map(Number);
+  return m >= 11 ? y : y - 1;
 }

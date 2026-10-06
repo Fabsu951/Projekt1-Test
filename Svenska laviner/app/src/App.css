@@ -3524,3 +3524,220 @@ h1 .admin-badge {
   margin-bottom: 12px;
   font-size: 0.88rem;
 }
+
+/* Säsongen dag för dag */
+.season-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  color: var(--text);
+}
+
+.season-link span {
+  color: var(--accent);
+  font-size: 0.88rem;
+}
+
+.season__picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.season__picker .chip {
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.season__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.season__tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+}
+
+.season__tile strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.season__tile span {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.season__months {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px 18px;
+}
+
+.season__month h3 {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  text-transform: capitalize;
+}
+
+.season__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.season__weekday {
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.season__day {
+  aspect-ratio: 1;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.season__day--none {
+  background: repeating-linear-gradient(135deg, var(--bg-raised) 0 3px, var(--bg-elevated) 3px 6px);
+  color: var(--text-muted);
+}
+
+.season__day--empty {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--border);
+  cursor: default;
+}
+
+.season__day--selected,
+.season__day:focus-visible {
+  outline: 2px solid var(--snow);
+  outline-offset: 1px;
+}
+
+.season__selected,
+.season__hint {
+  margin: 12px 0 8px;
+  font-size: 0.9rem;
+}
+
+.season__selected {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--bg-raised);
+}
+
+.season__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.season__legend li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.season__legend b {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px var(--snow);
+}
+
+.season__legend-none {
+  background: repeating-linear-gradient(135deg, var(--bg-raised) 0 2px, var(--bg-elevated) 2px 4px);
+}
+
+.season__bars,
+.season__problems {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.season__bars li,
+.season__problems li {
+  display: grid;
+  grid-template-columns: 8.5em minmax(0, 1fr) 3em;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+}
+
+.season__problems li {
+  grid-template-columns: 28px 8em minmax(0, 1fr) 3em;
+}
+
+.season__bar-track {
+  height: 14px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.season__bar {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: 0 4px 4px 0;
+}
+
+.season__bar--problem {
+  background: var(--accent);
+}
+
+.season__bar-value {
+  text-align: right;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.season__table {
+  margin: 18px 0;
+  font-size: 0.88rem;
+}
+
+.season__table summary {
+  cursor: pointer;
+  color: var(--accent);
+}
+
+.season__table ul {
+  margin: 8px 0 0;
+  padding-left: 1.2em;
+  max-height: 320px;
+  overflow: auto;
+}
