@@ -9,6 +9,7 @@
 #   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1             # visa bara vad som finns
 #   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -DryRun     # provkör import direkt från Lantmäteriet
 #   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -Import     # importera fjällrutorna till R2
+#   ... -Import -Skip 120000                                                         # fortsätt en avbruten import
 #   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -Download   # (alternativ) ladda ner hela filen
 #
 # -DryRun / -Import read only the needed parts of the ~145 GB file with HTTP
@@ -23,6 +24,7 @@ param(
   [switch]$Download,
   [switch]$DryRun,
   [switch]$Import,
+  [int]$Skip = 0,
   [string]$Collection = "",
   [string]$OutDir = (Join-Path $env:USERPROFILE "Downloads\topowebb")
 )
@@ -160,6 +162,7 @@ try {
     $worker = Split-Path -Parent $PSScriptRoot
     $importArgs = @("tsx", (Join-Path $PSScriptRoot "import-tiles.ts"))
     if ($DryRun) { $importArgs += "--dry-run" }
+    if ($Skip -gt 0) { $importArgs += @("--skip", "$Skip") }
     $importArgs += $file.Href
     Write-Host ""
     Write-Host ($(if ($DryRun) { "Provkör importen (laddar inte upp något)..." } else { "Importerar fjällrutorna till R2. Det tar en stund; avbryts det går det bra att köra igen." }))

@@ -198,7 +198,7 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   overflow pages; leaf + overflow pages fetched in merged runs ≈ 1 request
   per 12 tiles) + `scripts/remoteGpkg.ts`; auth header from env `LM_AUTH`,
   which `fetch-topowebb.ps1 -DryRun | -Import` sets for the child process
-  only. `--skip <n>` resumes. Tested against real SQLite files served
+  only. `--skip <n>` resumes (`fetch-topowebb.ps1 -Import -Skip <n>`). **Live dry run OK 2026-10-06:** file `https://dl1.lantmateriet.se/karta/topowebb/data/topowebb-3857.gpkg`, table `topowebb`, zoom 0–15 used (16–17 skipped), 285 892 tiles (z15 211 242), ~2.8 GB, sample 12/12 valid PNGs, index scan ≈ 2 700 requests / 3.4 min. Tested against real SQLite files served
   locally (`scripts/remoteSqlite.test.ts`: identical tiles and bytes, plus a GDAL-style file; also checked against a real GDAL 3.10 GPKG). First live `-DryRun` (2026-10-06) failed with "Filen innehåller inga tiles": tile tables are now found case-insensitively (GDAL may write `TOPOWEBB` in the schema), via gpkg_contents → gpkg_tile_matrix_set → tile columns, and the CREATE TABLE parser skips comments/quoted text; if none is found the schema is printed. The old `/topowebb` WMTS proxy route is kept for old app
   builds. Worker only fetches/stores on demand for z ≤ 15 inside a box
   around Sweden (`fetchable()`), so it can't be used to crawl.

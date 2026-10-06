@@ -346,7 +346,8 @@ async function main() {
 main().catch((err) => {
   console.error(`\nFel: ${err instanceof Error ? err.message : err}`);
   if (lastReported > 0) {
-    console.error(`Fortsätt senare där det slutade genom att lägga till: --skip ${Math.max(0, lastReported - 5000)}`);
+    const skip = Math.max(0, lastReported - 5000);
+    console.error(`Fortsätt där det slutade med: fetch-topowebb.ps1 -Import -Skip ${skip} (eller --skip ${skip} direkt till import-tiles.ts)`);
   }
   process.exit(1);
 });

@@ -38,9 +38,10 @@ syns förändrat för användarna.
    Provkörningen visar antal kartbitar per zoom, ett stickprov och
    uppskattad storlek. Den riktiga körningen hämtar ca 7 GB i stora block
    (ungefär ett anrop per tolv kartbitar) och laddar upp till R2.
-   Avbryts den skriver den ut `--skip <n>`; kör då
-   `npx tsx scripts/import-tiles.ts --skip <n> <adressen>` – eller bara
-   `-Import` igen (allt skrivs över, det tar bara längre).
+   Avbryts den skriver den ut ett tal; kör då
+   `fetch-topowebb.ps1 -Import -Skip <talet>` så fortsätter den där
+   (eller bara `-Import` igen – allt skrivs över, det tar bara längre).
+   Provkörningen 2026-10-06: 285 892 kartbitar, ca 2,8 GB, stickprov 12/12.
 4. Alternativ om delhämtning slutar fungera: `-Download` (eller
    `-Download -OutDir E:\topowebb` om C: har för lite plats – filen är
    145,5 GB) och sedan importen från filen enligt avsnitt 2.
