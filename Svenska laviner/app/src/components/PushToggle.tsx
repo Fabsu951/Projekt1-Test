@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useAuth } from "../auth/useAuth";
 import { useFavorites } from "../favorites/useFavorites";
 import {
   regionPushEnabled,
@@ -8,54 +9,83 @@ import {
   pushSupported,
   updatePushRegions,
 } from "../services/push";
+import {
+  disableNativeRegionPush,
+  enableNativeRegionPush,
+  isNativeApp,
+  nativePushAvailable,
+  nativeRegionPushEnabled,
+  updateNativeRegions,
+} from "../services/nativePush";
 
 /**
- * "Notiser när farograden ändras" for the starred regions. Hidden when the
- * browser can't do web push or the server hasn't enabled it yet.
+ * "Notiser när farograden ändras" for the starred regions: web push in
+ * browsers, Firebase in the Android/iOS apps. Hidden where neither works or
+ * the server hasn't turned that kind on yet.
  */
 export default function PushToggle() {
   const { favorites } = useFavorites();
+  const { token } = useAuth();
+  const native = isNativeApp();
   const [publicKey, setPublicKey] = useState<string | null>(null);
+  const [available, setAvailable] = useState(false);
   const [enabled, setEnabled] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const synced = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!pushSupported()) return;
     let cancelled = false;
-    Promise.all([fetchPushKey(), regionPushEnabled()])
-      .then(([key, on]) => {
-        if (cancelled) return;
-        setPublicKey(key);
-        setEnabled(Boolean(key && on));
-      })
-      .catch(() => {});
+    if (native) {
+      Promise.all([nativePushAvailable(), nativeRegionPushEnabled()])
+        .then(([ok, on]) => {
+          if (cancelled) return;
+          setAvailable(ok);
+          setEnabled(ok && on);
+        })
+        .catch(() => {});
+    } else if (pushSupported()) {
+      Promise.all([fetchPushKey(), regionPushEnabled()])
+        .then(([key, on]) => {
+          if (cancelled) return;
+          setPublicKey(key);
+          setAvailable(Boolean(key));
+          setEnabled(Boolean(key && on));
+        })
+        .catch(() => {});
+    }
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [native]);
 
   // Starring or unstarring a region updates which notifications arrive.
   useEffect(() => {
     const key = favorites.join(",");
     if (!enabled || synced.current === key) return;
     synced.current = key;
-    const request = favorites.length > 0 ? updatePushRegions(favorites) : disablePush().then(() => setEnabled(false));
+    const request =
+      favorites.length > 0
+        ? native
+          ? updateNativeRegions(favorites, token)
+          : updatePushRegions(favorites)
+        : (native ? disableNativeRegionPush(token) : disablePush()).then(() => setEnabled(false));
     request.catch(() => setMessage("Kunde inte uppdatera dina notiser. Försök igen senare."));
-  }, [favorites, enabled]);
+  }, [favorites, enabled, native, token]);
 
-  if (!publicKey || favorites.length === 0) return null;
+  if (!available || favorites.length === 0) return null;
 
   async function toggle() {
     setBusy(true);
     setMessage(null);
     try {
       if (enabled) {
-        await disablePush();
+        if (native) await disableNativeRegionPush(token);
+        else await disablePush();
         setEnabled(false);
       } else {
-        await enablePush(publicKey!, favorites);
+        if (native) await enableNativeRegionPush(favorites, token);
+        else await enablePush(publicKey!, favorites);
         synced.current = favorites.join(",");
         setEnabled(true);
       }

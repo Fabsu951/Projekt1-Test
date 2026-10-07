@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status-bar icon for push notifications: Snöläge's mountain, white on transparent. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M2,20 L9,8 L12.5,13 L15,9.5 L22,20 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M19,3.5 a2,2 0 1,0 0.01,0 Z" />
+</vector>

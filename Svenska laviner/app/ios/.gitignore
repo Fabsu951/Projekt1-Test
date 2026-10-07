@@ -11,3 +11,6 @@ capacitor-cordova-ios-plugins
 # Generated Config files
 App/App/capacitor.config.json
 App/App/config.xml
+
+# Made by `npx cap sync` (Firebase plugin, symlink option); absolute path, machine-specific.
+App/CapApp-SPM/symlinks/

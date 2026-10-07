@@ -43,6 +43,8 @@ import {
 import { parseTerrainPath, serveTerrain } from "./terrain";
 import { parseTilePath, serveTile, uploadTiles, type TilesEnv } from "./tiles";
 import { notifyChanges, publicKey, subscribe, unsubscribe, type PushEnv } from "./push";
+import { notifyNativeChanges, registerDevice, unregisterDevice, type NativeEnv } from "./nativePush";
+import { fcmConfigured, type FcmEnv } from "./fcm";
 import { stockholmDate } from "./model";
 import type { VapidEnv } from "./webpush";
 import { corsHeaders, error, HttpError, json } from "./http";
@@ -68,7 +70,7 @@ import {
   serveImage,
 } from "./observations";
 
-export interface Env extends CommunityEnv, VapidEnv, TilesEnv {
+export interface Env extends CommunityEnv, VapidEnv, TilesEnv, FcmEnv {
   ALLOWED_ORIGIN?: string;
   LANTMATERIET_USER?: string;
   LANTMATERIET_PASSWORD?: string;
@@ -376,6 +378,7 @@ async function recordAll(env: Env, results: RegionResult[]): Promise<void> {
     const changes = await findChanges(env.DB, rows);
     await recordHistory(env.DB, [...past, ...rows], now);
     await notifyChanges(env as PushEnv, changes, stockholmDate(now));
+    await notifyNativeChanges(env as NativeEnv, changes, stockholmDate(now));
   } catch (err) {
     console.error("Could not record forecast history or send notifications", err);
   }
@@ -489,6 +492,20 @@ export default {
     if (terrain) return serveTerrain(request, ctx, origin, terrain);
     if (url.pathname === "/admin/tiles/topowebb" && request.method === "POST") {
       return uploadTiles(request, env, origin);
+    }
+
+    if (url.pathname === "/native/status" && request.method === "GET") {
+      return json({ enabled: fcmConfigured(env) }, origin);
+    }
+    if (url.pathname.startsWith("/native/") && request.method === "POST") {
+      try {
+        if (url.pathname === "/native/register") return json(await registerDevice(request, env), origin);
+        if (url.pathname === "/native/unregister") return json(await unregisterDevice(request, env), origin);
+      } catch (err) {
+        if (err instanceof HttpError) return error(err.message, origin, err.status);
+        console.error(err);
+        return error("Något gick fel på servern. Försök igen.", origin, 500);
+      }
     }
 
     if (url.pathname.startsWith("/push/")) {

@@ -185,6 +185,14 @@ export default function AboutPage() {
             raderas uppgifterna.
           </li>
           <li>
+            <strong>Notiser i mobilappen:</strong> i Android- och iPhone-appen skickas notiser via Googles Firebase
+            Cloud Messaging (till iPhone vidare via Apple). Slår du på notiser sparar vi telefonens notis-id från
+            Firebase, om det är Android eller iPhone, vilka områden du valt och, bara om du slår på notiser för ditt
+            konto, kopplingen till kontot. Notisens text (till exempel ny farograd eller vem som kommenterade)
+            passerar Google och Apple på vägen till telefonen. Stänger du av notiserna raderas uppgifterna. Loggar
+            du ut slutar telefonen få notiser om kontot.
+          </li>
+          <li>
             <strong>På din enhet:</strong> appen sparar din inloggning och senast hämtade prognoser och
             väder lokalt, så att den fungerar utan täckning. Vi använder inga kakor för spårning, ingen
             annonsering och ingen analys av hur du använder appen.
@@ -218,9 +226,13 @@ export default function AboutPage() {
           <li>
             <strong>Resend</strong>: utskick av e-post för bekräftelse och lösenordsåterställning.
           </li>
+          <li>
+            <strong>Google (Firebase Cloud Messaging)</strong>: leverans av notiser till mobilapparna, bara om du slår
+            på notiser i appen. Notiser till iPhone går vidare via <strong>Apple</strong>s push-tjänst.
+          </li>
         </ul>
         <p>
-          Båda är amerikanska företag. Överföringen till USA sker med stöd av EU:s och USA:s
+          Alla är amerikanska företag. Överföringen till USA sker med stöd av EU:s och USA:s
           ramverk för dataskydd (EU–US Data Privacy Framework) och EU-kommissionens standardavtalsklausuler.
         </p>
 

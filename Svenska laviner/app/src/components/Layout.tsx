@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import NativePushBridge from "./NativePushBridge";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { defaultTitle, fullTitle, PageTitleContext } from "./pageTitle";
 import ErrorBoundary from "./ErrorBoundary";
@@ -148,6 +149,7 @@ export default function Layout() {
         <Ridgeline />
       </header>
       <OfflineBanner />
+      <NativePushBridge />
       <main>
         <ErrorBoundary key={location.pathname}>
           <PageTitleContext.Provider value={setPageTitle}>

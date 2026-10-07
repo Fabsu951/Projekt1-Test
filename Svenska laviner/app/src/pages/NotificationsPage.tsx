@@ -5,6 +5,13 @@ import Avatar from "../components/Avatar";
 import PageLoading from "../components/PageLoading";
 import { fetchNotifications, markAllRead, type AppNotification } from "../services/notificationService";
 import { accountPushEnabled, disableAccountPush, enableAccountPush, fetchPushKey, pushSupported } from "../services/push";
+import {
+  disableNativeAccountPush,
+  enableNativeAccountPush,
+  isNativeApp,
+  nativeAccountPushEnabled,
+  nativePushAvailable,
+} from "../services/nativePush";
 import type { Badge } from "../types/social";
 
 const when = (iso: string) =>
@@ -70,35 +77,50 @@ export default function NotificationsPage() {
   );
 }
 
-/** Opt-in push to this browser for the account's notifications. */
+/** Opt-in push for the account's notifications: web push in browsers, Firebase in the apps. */
 function AccountPushToggle({ token }: { token: string }) {
+  const native = isNativeApp();
   const [publicKey, setPublicKey] = useState<string | null>(null);
+  const [available, setAvailable] = useState(false);
   const [on, setOn] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!pushSupported()) return;
     let cancelled = false;
-    Promise.all([fetchPushKey(), accountPushEnabled(token)])
-      .then(([key, enabled]) => {
-        if (cancelled) return;
-        setPublicKey(key);
-        setOn(Boolean(key && enabled));
-      })
-      .catch(() => {});
+    if (native) {
+      Promise.all([nativePushAvailable(), nativeAccountPushEnabled()])
+        .then(([ok, enabled]) => {
+          if (cancelled) return;
+          setAvailable(ok);
+          setOn(ok && enabled);
+        })
+        .catch(() => {});
+    } else if (pushSupported()) {
+      Promise.all([fetchPushKey(), accountPushEnabled(token)])
+        .then(([key, enabled]) => {
+          if (cancelled) return;
+          setPublicKey(key);
+          setAvailable(Boolean(key));
+          setOn(Boolean(key && enabled));
+        })
+        .catch(() => {});
+    }
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, native]);
 
-  if (!pushSupported() || !publicKey) return null;
+  if (!available) return null;
 
   async function toggle(next: boolean) {
     setBusy(true);
     setMessage(null);
     try {
-      if (next) await enableAccountPush(publicKey!, token);
+      if (native) {
+        if (next) await enableNativeAccountPush(token);
+        else await disableNativeAccountPush(token);
+      } else if (next) await enableAccountPush(publicKey!, token);
       else await disableAccountPush(token);
       setOn(next);
     } catch (err) {

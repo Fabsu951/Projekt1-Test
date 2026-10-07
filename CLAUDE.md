@@ -351,8 +351,31 @@ the start, exact map point.
   stores `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` as secrets, refuses to
   overwrite; `VAPID_SUBJECT` is in `wrangler.toml`). Never rotate the keys
   casually — every subscription is bound to the public key. iPhones only
-  get web push after "Lägg till på hemskärmen". Native app push (Firebase
-  + APNs) is still not built.
+  get web push after "Lägg till på hemskärmen".
+- **Native app push (built 2026-10-07, OFF until Firebase is set up):**
+  FCM HTTP v1 for both apps (Firebase forwards to APNs for iOS), so the
+  worker only talks to Google. Worker `fcm.ts` (service-account JWT RS256
+  via WebCrypto → OAuth token cached ~1 h; `UNREGISTERED`/404 → "gone"),
+  `nativePush.ts` (`GET /native/status`, `POST /native/register` {token,
+  platform, regions, account — account only with a valid bearer},
+  `/native/unregister`; `notifyNativeChanges` next to web `notifyChanges`;
+  `sendNativeToUser` from `notifications.ts`), migration `0015`
+  `native_devices` (token PK, platform, regions JSON, user_id SET NULL;
+  account deletion unlinks). Secret `FCM_SERVICE_ACCOUNT` (whole JSON,
+  piped into `wrangler secret put`). App: `@capacitor-firebase/messaging`
+  8.5 (+ `firebase` peer), `services/nativePush.ts` (state in Preferences
+  `fjallkoll:native-push` {regions, account}; re-registers on
+  `tokenReceived`; taps open `data.url` only if it's an in-app path),
+  `PushToggle` + `AccountPushToggle` pick native vs web, `NativePushBridge`
+  in Layout, logout/delete → `stopNativeAccountPush`. Native: AppDelegate
+  APNs forwarding, `UIBackgroundModes remote-notification`, Android
+  `POST_NOTIFICATIONS`, white `ic_stat_snolage` + `notification_accent`;
+  `capacitor.config.ts` FirebaseMessaging presentationOptions + SPM
+  `symlink` option (the generated `CapApp-SPM/symlinks/` is gitignored —
+  absolute path; `npx cap sync` recreates it). Fabian's steps (Firebase
+  project, google-services.json, GoogleService-Info.plist, APNs .p8, Xcode
+  Push capability, service-account secret) in `Svenska laviner/NOTISER.md`.
+  Privacy policy mentions Google/Firebase + Apple. Not compiled here.
 - **Turdagbok (tour diary, 2026-09-27, idea from Fabian's parents):**
   users upload GPX/FIT files from their watch (`app/src/utils/trackImport.ts`,
   FIT via `@garmin/fitsdk`, loaded lazily; simplified to ≥ 10 m spacing,
@@ -711,6 +734,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (182 tests as of 2026-10-06, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 115 tests, including the
+  (187 tests as of 2026-10-07, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 121 tests, including the
   real-page fixtures).

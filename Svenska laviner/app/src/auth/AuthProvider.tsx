@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { Preferences } from "@capacitor/preferences";
 import { api, ApiError } from "../services/api";
 import { cached, clearUserCache, USER_SCOPE } from "../services/cache";
+import { stopNativeAccountPush } from "../services/nativePush";
 import type { User } from "../types/observation";
 import { AuthContext, type AuthState } from "./authContext";
 
@@ -86,6 +87,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         );
       },
       async logout() {
+        // This phone stops getting the account's push notices (area notices stay).
+        await stopNativeAccountPush();
         try {
           await api("/auth/logout", { method: "POST", token });
         } catch {
@@ -98,6 +101,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       },
       async deleteAccount() {
         await api("/auth/me", { method: "DELETE", token });
+        await stopNativeAccountPush();
         await saveToken(null);
         await clearUserCache();
         setToken(null);

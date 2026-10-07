@@ -388,6 +388,8 @@ export async function deleteAccount(request: Request, env: CommunityEnv) {
     env.DB.prepare("DELETE FROM follows WHERE follower_id = ? OR followee_id = ?").bind(user.id, user.id),
     env.DB.prepare("DELETE FROM notifications WHERE user_id = ? OR actor_id = ?").bind(user.id, user.id),
     env.DB.prepare("DELETE FROM user_push_subscriptions WHERE user_id = ?").bind(user.id),
+    // Phones keep their area notices but stop getting the account's.
+    env.DB.prepare("UPDATE native_devices SET user_id = NULL WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM reports WHERE user_id = ? OR observation_id IN (SELECT id FROM observations WHERE user_id = ?)").bind(user.id, user.id),
     env.DB.prepare("DELETE FROM observations WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM tours WHERE user_id = ?").bind(user.id),

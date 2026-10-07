@@ -12,12 +12,27 @@ const config: CapacitorConfig = {
     contentInset: 'never',
   },
   plugins: {
+    // Push through Firebase Cloud Messaging (services/nativePush.ts); on iPhone
+    // also shown while the app is open.
+    FirebaseMessaging: {
+      presentationOptions: ['alert', 'badge', 'sound'],
+    },
     SystemBars: {
       // Android: the page is edge-to-edge and pads for the bars itself;
       // Capacitor injects --safe-area-inset-* for older web views.
       insetsHandling: 'css',
       initialViewportFitValueHint: 'cover',
       style: 'DARK',
+    },
+  },
+  // Avoids a Swift package name clash in the Firebase plugin (its README).
+  experimental: {
+    ios: {
+      spm: {
+        packageOptions: {
+          '@capacitor-firebase/messaging': { symlink: true },
+        },
+      },
     },
   },
 };

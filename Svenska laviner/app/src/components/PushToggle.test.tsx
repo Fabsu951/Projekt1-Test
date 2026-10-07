@@ -15,6 +15,7 @@ const { push } = vi.hoisted(() => ({
   },
 }));
 vi.mock("../services/push", () => push);
+vi.mock("../auth/useAuth", () => ({ useAuth: () => ({ user: null, token: null }) }));
 
 /** Stars Riksgränsfjällen, as a user would elsewhere in the app. */
 function StarRiksgransen() {

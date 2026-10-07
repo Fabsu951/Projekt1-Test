@@ -2,6 +2,8 @@ import { requireUser, type CommunityEnv } from "./auth";
 import { HttpError, nowIso, readJson } from "./http";
 import { badgesOf } from "./profile";
 import type { ItemType } from "./socialCleanup";
+import { fcmConfigured, type FcmEnv } from "./fcm";
+import { sendNativeToUser } from "./nativePush";
 import { isPushEndpoint, sendPush, vapidConfigured, type VapidEnv } from "./webpush";
 
 // Notifications about people: new followers, comments and likes on your
@@ -10,7 +12,7 @@ import { isPushEndpoint, sendPush, vapidConfigured, type VapidEnv } from "./webp
 // turned that on for.
 
 export type NotificationKind = "follow" | "comment" | "reply" | "like";
-export type NotifyEnv = CommunityEnv & VapidEnv;
+export type NotifyEnv = CommunityEnv & VapidEnv & FcmEnv;
 /** Runs work after the response is sent (ctx.waitUntil in the worker). */
 export type Defer = (work: Promise<unknown>) => void;
 
@@ -54,7 +56,7 @@ export async function notify(env: NotifyEnv, list: NewNotification[], defer?: De
       .run();
     stored.push({ ...n, id: Number(r.meta.last_row_id) });
   }
-  if (stored.length && vapidConfigured(env)) {
+  if (stored.length && (vapidConfigured(env) || fcmConfigured(env))) {
     const work = sendPushes(env, stored);
     if (defer) defer(work);
     else await work;
@@ -64,11 +66,17 @@ export async function notify(env: NotifyEnv, list: NewNotification[], defer?: De
 async function sendPushes(env: NotifyEnv, list: Array<NewNotification & { id: number }>) {
   const gone: string[] = [];
   for (const n of list) {
-    const subs = await env.DB.prepare("SELECT endpoint, p256dh, auth FROM user_push_subscriptions WHERE user_id = ?")
-      .bind(n.userId)
-      .all<{ endpoint: string; p256dh: string; auth: string }>();
-    if (subs.results.length === 0) continue;
+    const subs = vapidConfigured(env)
+      ? await env.DB.prepare("SELECT endpoint, p256dh, auth FROM user_push_subscriptions WHERE user_id = ?")
+          .bind(n.userId)
+          .all<{ endpoint: string; p256dh: string; auth: string }>()
+      : { results: [] };
+    const devices = fcmConfigured(env)
+      ? await env.DB.prepare("SELECT 1 AS x FROM native_devices WHERE user_id = ? LIMIT 1").bind(n.userId).first()
+      : null;
+    if (subs.results.length === 0 && !devices) continue;
     const [view] = await describe(env, [{ ...n, created_at: "", read_at: null }]);
+    if (devices) await sendNativeToUser(env, n.userId, { title: "Snöläge", body: view.text, url: view.url, tag: `social-${n.id}` });
     for (const sub of subs.results) {
       const result = await sendPush(env, sub, { title: "Snöläge", body: view.text, url: view.url, tag: `social-${n.id}` });
       if (result === "gone") gone.push(sub.endpoint);
