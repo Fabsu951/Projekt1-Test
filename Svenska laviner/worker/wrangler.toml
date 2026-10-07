@@ -10,7 +10,7 @@ crons = ["20 6,7,16,17 * * *"]
 [vars]
 ALLOWED_ORIGIN = "*"
 # Public site URL, used in links in emails.
-APP_URL = "https://fjallkoll.pages.dev"
+APP_URL = "https://snolage.se"
 # Contact given to browser push services with each notification (VAPID).
 # The keys themselves are secrets, created by: node scripts/setup-push.mjs
 VAPID_SUBJECT = "mailto:fabian.n.sund@gmail.com"

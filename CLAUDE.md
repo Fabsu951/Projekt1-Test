@@ -43,6 +43,13 @@
 > (buy at a Swedish registrar, DNS to Cloudflare, Pages custom domain); not
 > confirmed bought yet. When done: update `APP_URL`, `VITE_PUBLIC_SITE_URL`,
 > store URLs.
+> **Bought 2026-10-07 at Loopia:** `snolage.se`, `snöläge.se`, `snolage.online`,
+> `snöläge.online` (renew 7 Oct 2027). `snolage.se` added to Cloudflare
+> (Free) and its name servers switched to Cloudflare's the same day. Code
+> now uses `https://snolage.se` (`APP_URL`, `VITE_PUBLIC_SITE_URL`, Android
+> `privacy_policy_url`) — deploy only once the Pages custom domain works.
+> Still to do: Pages custom domains `snolage.se` + `www`, Turnstile hostname
+> `snolage.se`, Resend + `EMAIL_FROM`, the three other domains → redirect.
 
 Swedish avalanche forecast/safety app ("Snöläge") for backcountry skiers,
 inspired by Varsom, Rusk, and Skiguide. TypeScript, packaged as both a website

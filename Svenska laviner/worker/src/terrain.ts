@@ -11,7 +11,7 @@ import { imageType } from "./tileBatch";
 // cache for a month (the maps change very rarely).
 
 const WMS = "https://nvgis.naturvardsverket.se/geoserver/lavinprognoser/wms";
-const HEADERS = { "User-Agent": "Snolage/1.0 (https://fjallkoll.pages.dev; fabian.n.sund@gmail.com)" };
+const HEADERS = { "User-Agent": "Snolage/1.0 (https://snolage.se; fabian.n.sund@gmail.com)" };
 const TERRAIN_TTL_SECONDS = 60 * 60 * 24 * 30;
 const HALF_WORLD = 20037508.342789244;
 

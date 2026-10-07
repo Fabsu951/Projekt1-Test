@@ -4,7 +4,7 @@ import { Capacitor } from "@capacitor/core";
 
 /** The public site. In the apps the page's own origin is https://localhost, which is useless in a shared link. */
 export const PUBLIC_SITE_URL = (
-  (import.meta.env.VITE_PUBLIC_SITE_URL as string | undefined) ?? "https://fjallkoll.pages.dev"
+  (import.meta.env.VITE_PUBLIC_SITE_URL as string | undefined) ?? "https://snolage.se"
 ).replace(/\/$/, "");
 
 export function isNativeApp(): boolean {

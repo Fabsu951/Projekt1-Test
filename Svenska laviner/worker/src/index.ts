@@ -155,7 +155,7 @@ async function fetchRegion(regionId: string, slugs: string[]): Promise<RegionFor
   return emptyForecast(regionId, lastUrl, fetchedAt, `HTTP 404 (tried: ${slugs.join(", ")})`);
 }
 
-const API_HEADERS = { "User-Agent": "Snolage/1.0 (https://fjallkoll.pages.dev; fabian.n.sund@gmail.com)" };
+const API_HEADERS = { "User-Agent": "Snolage/1.0 (https://snolage.se; fabian.n.sund@gmail.com)" };
 
 /** One API answer; if the server dislikes our property list, asks again for everything. */
 async function apiForecasts(urlWith: string, urlWithout: string): Promise<ApiForecast[]> {

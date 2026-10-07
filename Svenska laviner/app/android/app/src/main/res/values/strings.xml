@@ -5,5 +5,5 @@
     <string name="package_name">se.snolage.app</string>
     <string name="custom_url_scheme">se.snolage.app</string>
     <!-- Shown by Health Connect when someone asks why Snöläge wants access. -->
-    <string name="privacy_policy_url">https://fjallkoll.pages.dev/om-appen#integritet</string>
+    <string name="privacy_policy_url">https://snolage.se/om-appen#integritet</string>
 </resources>

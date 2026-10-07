@@ -9,7 +9,7 @@
 export interface EmailEnv {
   RESEND_API_KEY?: string;
   EMAIL_FROM?: string;
-  /** Public site URL used in links, e.g. https://fjallkoll.pages.dev */
+  /** Public site URL used in links, e.g. https://snolage.se */
   APP_URL?: string;
 }
 
@@ -25,7 +25,7 @@ export function emailConfigured(env: EmailEnv): boolean {
 }
 
 export function appUrl(env: EmailEnv): string {
-  return (env.APP_URL ?? "https://fjallkoll.pages.dev").replace(/\/$/, "");
+  return (env.APP_URL ?? "https://snolage.se").replace(/\/$/, "");
 }
 
 export async function sendEmail(env: EmailEnv, email: Email): Promise<void> {
