@@ -3377,6 +3377,22 @@ h1 .admin-badge {
   background: var(--bg-elevated);
 }
 
+.health-connected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.6rem;
+  align-items: baseline;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid color-mix(in srgb, #3fb950 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, #3fb950 12%, transparent);
+}
+
+.health-connected > span {
+  color: #3fb950;
+  font-weight: 700;
+}
+
 .health-step {
   padding: 14px;
   border: 1px solid var(--border);

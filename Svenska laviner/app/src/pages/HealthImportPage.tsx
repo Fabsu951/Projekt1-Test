@@ -159,6 +159,15 @@ export default function HealthImportPage() {
         </div>
       )}
       {failed && <p className="error">{failed}</p>}
+      {state.kind === "list" && (
+        <p className="health-connected" role="status">
+          <span aria-hidden="true">✓</span> Kopplad till {HEALTH_STORE_NAME}. Snöläge letar efter pass med GPS-spår från de senaste{" "}
+          {LOOKBACK_DAYS} dagarna varje gång du öppnar appen.
+          <button type="button" className="link-button" onClick={() => void load()}>
+            Leta igen
+          </button>
+        </p>
+      )}
 
       {state.kind === "checking" || state.kind === "loading" ? (
         <p>{state.kind === "loading" ? `Läser pass från ${HEALTH_STORE_NAME}…` : `Kollar ${HEALTH_STORE_NAME}…`}</p>
