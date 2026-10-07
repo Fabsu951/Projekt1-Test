@@ -8,7 +8,7 @@ const { queryWorkouts, createTour, fetchImportedSources } = vi.hoisted(() => ({
 vi.mock("capacitor-health", () => ({ Health: { queryWorkouts } }));
 vi.mock("./tourService", () => ({ createTour, fetchImportedSources }));
 
-import { checkForNewWorkouts, defaultTitle, findNewWorkouts, setAutoImport, toHealthWorkout } from "./healthImport";
+import { checkForNewWorkouts, defaultTitle, findNewWorkouts, permissionGranted, setAutoImport, toHealthWorkout } from "./healthImport";
 
 function route(n: number, stepDeg = 0.001) {
   return Array.from({ length: n }, (_, i) => ({
@@ -93,5 +93,25 @@ describe("finding and importing new sessions", () => {
     expect(createTour).toHaveBeenCalledWith("token", expect.objectContaining({ visibility: "private", sourceRef: "hc:ski-1", title: "Skidtur 3 februari" }));
     // Imported once: not offered again.
     expect((await findNewWorkouts("token")).map((w) => w.id)).toEqual(["run-1"]);
+  });
+});
+
+describe("permissionGranted", () => {
+  it("reads the object the Android and iOS plugin code actually returns", () => {
+    const res = { permissions: { READ_WORKOUTS: true, READ_ROUTE: false } };
+    expect(permissionGranted(res, "READ_WORKOUTS")).toBe(true);
+    expect(permissionGranted(res, "READ_ROUTE")).toBe(false);
+  });
+
+  it("also reads the list shape from the plugin's types", () => {
+    const res = { permissions: [{ READ_WORKOUTS: false }, { READ_ROUTE: true }] };
+    expect(permissionGranted(res, "READ_ROUTE")).toBe(true);
+    expect(permissionGranted(res, "READ_WORKOUTS")).toBe(false);
+  });
+
+  it("treats a missing or odd answer as not granted", () => {
+    expect(permissionGranted({}, "READ_ROUTE")).toBe(false);
+    expect(permissionGranted(null, "READ_ROUTE")).toBe(false);
+    expect(permissionGranted({ permissions: "yes" }, "READ_ROUTE")).toBe(false);
   });
 });

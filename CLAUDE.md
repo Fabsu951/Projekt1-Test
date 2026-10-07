@@ -544,6 +544,9 @@ the start, exact map point.
   **First native build OK 2026-10-07** (Android Studio, JBR 21, SDK API 36,
   Firebase messaging + capacitor-health compiled) on Fabian's Galaxy S22
   (Android 14); first-time setup hiccups are in APPAR.md §1.
+  First run found a real bug: capacitor-health's types say
+  `permissions` is a list, but Android and iOS return one object →
+  "e.permissions.some is not a function"; `permissionGranted()` reads both.
 - **Offline (2026-10-05):** "Utan täckning" page `/offline`
   (`OfflinePage.tsx`: what works / needs a connection + what this device has
   saved + a before-the-tour checklist), `OfflineBanner` under the header
@@ -776,6 +779,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (189 tests as of 2026-10-07, all passing). Worker has its own Vitest
+  (192 tests as of 2026-10-07, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 122 tests, including the
   real-page fixtures).

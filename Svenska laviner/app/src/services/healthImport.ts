@@ -86,14 +86,21 @@ export async function openHealthConnectSettings(): Promise<void> {
   else await Health.openHealthConnectSettings();
 }
 
-function granted(response: { permissions: Array<Record<string, boolean>> }, name: string): boolean {
-  return response.permissions.some((p) => p[name] === true);
+/**
+ * Whether the plugin reports a permission as granted. Its types promise a
+ * list of {name: bool}, but both the Android and iOS code answer with one
+ * object ({READ_WORKOUTS: true, …}), so accept either.
+ */
+export function permissionGranted(response: { permissions?: unknown } | null | undefined, name: string): boolean {
+  const perms = response?.permissions;
+  const list = Array.isArray(perms) ? perms : perms && typeof perms === "object" ? [perms] : [];
+  return list.some((p) => !!p && typeof p === "object" && (p as Record<string, unknown>)[name] === true);
 }
 
 /** Asks for sessions + routes. Returns whether routes may be read (without them there is nothing to import). */
 export async function requestHealthAccess(): Promise<{ workouts: boolean; routes: boolean }> {
   const res = await Health.requestHealthPermissions({ permissions: ["READ_WORKOUTS", "READ_ROUTE"] });
-  const result = { workouts: granted(res, "READ_WORKOUTS"), routes: granted(res, "READ_ROUTE") };
+  const result = { workouts: permissionGranted(res, "READ_WORKOUTS"), routes: permissionGranted(res, "READ_ROUTE") };
   await Preferences.set({ key: CONNECTED_KEY, value: result.workouts && result.routes ? "1" : "0" });
   return result;
 }
