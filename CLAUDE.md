@@ -342,7 +342,8 @@ the start, exact map point.
   `snolage.se` when the domain is live). Site key
   `0x4AAAAAAFP30ifEeD290W8o` is in `app/.env.production` (public). Order:
   deploy the site first, then `npx wrangler secret put TURNSTILE_SECRET_KEY`
-  (Fabian has the secret; never in chat) — confirm it's done.
+  (Fabian has the secret; never in chat). **Secret set 2026-10-07 —
+  Turnstile is ON** (after the deploy).
 - **Web push (built, OFF until keys exist):** "Notis när farograden ändras i
   mina områden" checkbox under "Mina områden" (`PushToggle.tsx`,
   `services/push.ts`, `public/sw.js`), shown only in browsers with push
