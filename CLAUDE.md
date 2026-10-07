@@ -541,6 +541,9 @@ the start, exact map point.
   `se.snolage.app`, `MainActivity` under `java/se/snolage/app/`, iOS bundle id
   the same). No Android SDK in cloud sessions, so APKs
   are built on Fabian's PC.
+  **First native build OK 2026-10-07** (Android Studio, JBR 21, SDK API 36,
+  Firebase messaging + capacitor-health compiled) on Fabian's Galaxy S22
+  (Android 14); first-time setup hiccups are in APPAR.md §1.
 - **Offline (2026-10-05):** "Utan täckning" page `/offline`
   (`OfflinePage.tsx`: what works / needs a connection + what this device has
   saved + a before-the-tour checklist), `OfflineBanner` under the header

@@ -68,6 +68,25 @@ Android Studio.
 
 Kör `npm run app:android` igen varje gång koden har ändrats.
 
+**Första gången (så gick det 7 oktober 2026):**
+
+- "Gradle JVM version 25 is incompatible" → klicka **Use JVM 21**.
+- "Please provide the path to the Android SDK" → Cancel, sedan File →
+  Settings → Languages & Frameworks → Android SDK. Kryssa i **Android 16.0
+  ("Baklava"), API 36.0** under SDK Platforms och **Command-line Tools** under
+  SDK Tools → Apply.
+- Hittar Gradle ändå inte SDK:t, skapa `android\local.properties` (finns inte
+  i git):
+
+  ```powershell
+  Set-Content -Path "C:\Users\fabia\Documents\fjallvarning-repo\Svenska laviner\app\android\local.properties" -Value "sdk.dir=C:/Users/fabia/AppData/Local/Android/Sdk" -Encoding ascii
+  ```
+
+  och kör File → Sync Project with Gradle Files.
+- På Samsung heter Build-nummer **Kompileringsnr** (Om telefonen →
+  Programvaruinformation).
+- Uppgradera inte AGP/Gradle/Kotlin när Android Studio föreslår det.
+
 ## 2. Google Play
 
 1. Skapa ett utvecklarkonto på
