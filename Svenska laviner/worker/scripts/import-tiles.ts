@@ -138,6 +138,7 @@ async function upload(token: string, tiles: Tile[]): Promise<void> {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/octet-stream" },
         body: body as Uint8Array<ArrayBuffer>,
+        signal: AbortSignal.timeout(120_000),
       });
       if (res.ok) return;
       if (res.status === 401) throw Object.assign(new Error("Workern godkände inte uppladdningsnyckeln."), { fatal: true });
@@ -213,6 +214,8 @@ interface TileSource {
   /** Counts without reading every tile (remote files). */
   dryRun?(wanted: LevelMapping[]): Promise<{ total: number; skipped: number }>;
   progress?(): string;
+  /** Tiles this run will handle, once known (for the time estimate). */
+  planned?(): number | null;
   close(): void;
 }
 
@@ -246,6 +249,7 @@ async function openRemote(url: string, opts: Options): Promise<TileSource> {
   const set = await gpkg.matrixSet(table);
   const levels = (await gpkg.matrices(table)).map((m) => mapLevel(set, m));
   const mb = () => `(${reader.requests.toLocaleString("sv-SE")} anrop, ${(reader.bytes / 1e6).toFixed(0)} MB hämtat)`;
+  let plannedCount: number | null = null;
   const label = url.replace(/\?.*$/, "");
   return {
     label,
@@ -257,6 +261,7 @@ async function openRemote(url: string, opts: Options): Promise<TileSource> {
       const keys = await gpkg.tileKeys(table, wanted);
       console.log(`  ${keys.length.toLocaleString("sv-SE")} kartbitar att hämta ${mb()}`);
       if (opts.skip) console.log(`  hoppar över de första ${opts.skip.toLocaleString("sv-SE")} (--skip)`);
+      plannedCount = Math.max(0, keys.length - opts.skip);
       yield* gpkg.tiles(table, keys.slice(opts.skip)) as AsyncIterable<Row>;
     },
     async dryRun(wanted) {
@@ -284,6 +289,7 @@ async function openRemote(url: string, opts: Options): Promise<TileSource> {
       return { total: keys.length, skipped: 0 };
     },
     progress: mb,
+    planned: () => plannedCount,
     close: () => {},
   };
 }
@@ -297,6 +303,24 @@ async function main() {
   let total = 0;
   let skipped = 0;
   const started = Date.now();
+  let runStarted = 0;
+  /** " – ca 40 min kvar", from this run's pace. */
+  const eta = (source: TileSource) => {
+    const planned = source.planned?.() ?? null;
+    if (!planned || !runStarted || total === 0) return "";
+    const perTile = (Date.now() - runStarted) / total;
+    const minutes = Math.round(((planned - total) * perTile) / 60000);
+    return ` – ca ${minutes < 1 ? "1" : minutes.toLocaleString("sv-SE")} min kvar`;
+  };
+  // A sign of life every minute, so a slow stretch doesn't look like a hang.
+  let lastTotal = -1;
+  const heartbeat = setInterval(() => {
+    if (total === lastTotal) {
+      console.log(`  … väntar på svar (${new Date().toLocaleTimeString("sv-SE")}), ${(total + opts.skip).toLocaleString("sv-SE")} tiles hittills`);
+    }
+    lastTotal = total;
+  }, 60_000);
+  heartbeat.unref();
 
   for (const file of opts.files) {
     const source = /^https?:\/\//i.test(file) ? await openRemote(file, opts) : await openLocal(file, opts);
@@ -330,6 +354,7 @@ async function main() {
     };
 
     for await (const r of source.rows(wanted)) {
+      if (!runStarted) runStarted = Date.now();
       const level = byLevel.get(Number(r.level));
       if (!level) continue;
       const data = r.data as Uint8Array;
@@ -345,7 +370,7 @@ async function main() {
       total++;
       if (total % 5000 === 0) {
         lastReported = total + opts.skip;
-        console.log(`  ${lastReported.toLocaleString("sv-SE")} tiles…${source.progress ? ` ${source.progress()}` : ""}`);
+        console.log(`  ${lastReported.toLocaleString("sv-SE")} tiles…${source.progress ? ` ${source.progress()}` : ""}${eta(source)}`);
       }
       if (batch.length >= BATCH_TILES || batchBytes >= BATCH_BYTES) await flush();
     }

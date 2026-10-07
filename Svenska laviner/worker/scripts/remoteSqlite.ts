@@ -20,7 +20,11 @@ export function httpReader(url: string, headers: Record<string, string> = {}, at
     async read(offset: number, length: number): Promise<Uint8Array> {
       for (let attempt = 1; ; attempt++) {
         try {
-          const res = await fetch(url, { headers: { ...headers, Range: `bytes=${offset}-${offset + length - 1}` } });
+          // A stalled connection would otherwise wait forever; time out and retry instead.
+          const res = await fetch(url, {
+            headers: { ...headers, Range: `bytes=${offset}-${offset + length - 1}` },
+            signal: AbortSignal.timeout(60_000),
+          });
           if (res.status === 401 || res.status === 403) {
             throw Object.assign(new Error(`Servern nekade åtkomst (HTTP ${res.status}).`), { fatal: true });
           }
