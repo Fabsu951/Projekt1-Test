@@ -40,6 +40,7 @@ import {
   setLike,
   unfollow,
 } from "./social";
+import { parseTerrainPath, serveTerrain } from "./terrain";
 import { parseTilePath, serveTile, uploadTiles, type TilesEnv } from "./tiles";
 import { notifyChanges, publicKey, subscribe, unsubscribe, type PushEnv } from "./push";
 import { stockholmDate } from "./model";
@@ -484,6 +485,8 @@ export default {
 
     const tile = request.method === "GET" ? parseTilePath(url.pathname) : null;
     if (tile) return serveTile(request, env, ctx, origin, tile);
+    const terrain = request.method === "GET" ? parseTerrainPath(url.pathname) : null;
+    if (terrain) return serveTerrain(request, ctx, origin, terrain);
     if (url.pathname === "/admin/tiles/topowebb" && request.method === "POST") {
       return uploadTiles(request, env, origin);
     }

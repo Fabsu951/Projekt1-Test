@@ -9,6 +9,9 @@ import { REGIONS } from "../data/regions";
 import { loadForecasts } from "../services/avalancheService";
 import type { AvalancheForecast } from "../types/avalanche";
 import SlopeLayer from "../components/SlopeLayer";
+import OfficialTerrainLayer from "../components/OfficialTerrainLayer";
+import OfficialTerrainLegend from "../components/OfficialTerrainLegend";
+import { officialTerrainAvailable, type OfficialTerrain } from "../services/mapTiles";
 import TopoLayer from "../components/TopoLayer";
 import MyPosition from "../components/MyPosition";
 import { fetchObservations } from "../services/observationService";
@@ -110,6 +113,7 @@ function saveLayersOpen(open: boolean) {
 export default function MapPage() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
   const [showSlope, setShowSlope] = useState(false);
+  const [officialTerrain, setOfficialTerrain] = useState<OfficialTerrain | null>(null);
   const [showObservations, setShowObservations] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const { token, loading: authLoading } = useAuth();
@@ -232,7 +236,7 @@ export default function MapPage() {
       window.removeEventListener("keydown", onKey);
     };
   }, [fullscreen]);
-  const activeLayers = [showObservations, showTours, showHeatmap, showSlope].filter(Boolean).length;
+  const activeLayers = [showObservations, showTours, showHeatmap, showSlope, officialTerrain !== null].filter(Boolean).length;
   const [positionStatus, setPositionStatus] = useState<string | null>(null);
   const onPositionStatus = useCallback((message: string | null) => setPositionStatus(message), []);
 
@@ -334,7 +338,7 @@ export default function MapPage() {
               checked={showSlope}
               onChange={(e) => setShowSlope(e.target.checked)}
             />
-            Terränglutning (zooma in för att se den)
+            Terränglutning, egen beräkning (zooma in för att se den)
           </label>
           {showSlope && (
             <div className="slope-legend">
@@ -345,6 +349,27 @@ export default function MapPage() {
                 </span>
               ))}
             </div>
+          )}
+          {officialTerrainAvailable && (
+            <fieldset className="official-terrain">
+              <legend>Naturvårdsverkets terrängkartor</legend>
+              {(
+                [
+                  ["lutning", "Lutning"],
+                  ["riktning", "Sluttningsriktning"],
+                ] as Array<[OfficialTerrain, string]>
+              ).map(([id, label]) => (
+                <label key={id} className="map-toolbar__toggle">
+                  <input
+                    type="checkbox"
+                    checked={officialTerrain === id}
+                    onChange={(e) => setOfficialTerrain(e.target.checked ? id : null)}
+                  />
+                  {label}
+                </label>
+              ))}
+              {officialTerrain && <OfficialTerrainLegend layer={officialTerrain} />}
+            </fieldset>
           )}
           {showHeatmap && (
             <p className="notice map-layers__note">
@@ -366,6 +391,14 @@ export default function MapPage() {
         {positionStatus && (
           <p className="notice" role="status">
             {positionStatus}
+          </p>
+        )}
+
+        {officialTerrain && (
+          <p className="notice">
+            {officialTerrain === "lutning" ? "Lutningskartan" : "Kartan över sluttningsriktning"} kommer från
+            Naturvårdsverkets lavinprognostjänst. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos.
+            Zooma in om lagret inte syns.
           </p>
         )}
 
@@ -395,6 +428,7 @@ export default function MapPage() {
           )}
           <TopoLayer />
           <SlopeLayer enabled={showSlope} />
+          <OfficialTerrainLayer layer={officialTerrain} />
           <MyPosition enabled={showPosition} onStatus={onPositionStatus} />
           {showHeatmap && <TourHeatmap lines={heatLines} />}
           {showObservations && <ObservationMarkers observations={observations} />}

@@ -25,3 +25,15 @@ const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright
 export const TOPOWEBB_ATTRIBUTION = PROXY_BASE
   ? `&copy; Lantmäteriet, <a href="https://creativecommons.org/licenses/by/4.0/deed.sv">CC BY 4.0</a> · utanför fjällen ${OSM_ATTRIBUTION}`
   : OSM_ATTRIBUTION;
+
+/**
+ * Naturvårdsverket's official terrain maps (slope angle and aspect), through
+ * the worker so their servers are asked once per tile, not once per user.
+ */
+export type OfficialTerrain = "lutning" | "riktning";
+export const officialTerrainAvailable = Boolean(PROXY_BASE);
+const workerBase = () => (PROXY_BASE ?? "").replace(/\/$/, "");
+export const officialTerrainUrl = (layer: OfficialTerrain) => `${workerBase()}/terrain/${layer}/{z}/{x}/{y}.png`;
+export const officialTerrainLegendUrl = (layer: OfficialTerrain) => `${workerBase()}/terrain/${layer}/legend.png`;
+export const OFFICIAL_TERRAIN_ATTRIBUTION =
+  'Terrängkarta: <a href="https://www.lavinprognoser.se/">Naturvårdsverket</a>';

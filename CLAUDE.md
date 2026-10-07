@@ -213,6 +213,20 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   between download and display. Hidden where Cache Storage is missing
   (possibly iOS Capacitor's `capacitor://` scheme — untested) or without a
   worker URL.
+  **Official terrain maps (2026-10-07):** Petter (Naturvårdsverket) OK'd
+  showing their WMS layers `slope_inclination` / `slope_aspect` with them as
+  the source + their legends; he also warned of possible future rate limits
+  at peak times. So the app never calls their GeoServer: worker
+  `src/terrain.ts` serves `/terrain/{lutning|riktning}/{z}/{x}/{y}.png`
+  (WMS 1.1.1 GetMap, EPSG:3857 bbox per tile, only `fetchable()` tiles,
+  non-images → 502) and `/terrain/<layer>/legend.png` (GetLegendGraphic),
+  cached 30 days. App: "Naturvårdsverkets terrängkartor" fieldset in
+  Kartlager (Lutning / Sluttningsriktning, one at a time,
+  `OfficialTerrainLayer` opacity 0.6, `OfficialTerrainLegend` shows their
+  legend image), notice "visar terrängen, inte lavinfaran"; our own
+  ~30 m slope layer stays as "Terränglutning, egen beräkning". Not yet
+  checked against their live server (cloud can't reach it). Avalanche size
+  4/5 `size_meter_value` codes: asked Jan (NV) — unknown values still show no size.
   Slope: "Markhöjdmodell Visning" is paid; "Markhöjdmodell Nedladdning,
   grid 1+" is free (CC BY 4.0, STAC API, access must be applied for) but
   needs our own slope rendering — a later project.
@@ -697,5 +711,5 @@ the start, exact map point.
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
   (182 tests as of 2026-10-06, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 113 tests, including the
+  suite in `Svenska laviner/worker` (`npm test`, 115 tests, including the
   real-page fixtures).
