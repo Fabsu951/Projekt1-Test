@@ -410,6 +410,10 @@
   cursor: pointer;
 }
 
+.official-terrain-tiles {
+  mix-blend-mode: multiply;
+}
+
 .official-terrain {
   border: 0;
   margin: 0;

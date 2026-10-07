@@ -222,10 +222,11 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   non-images → 502) and `/terrain/<layer>/legend.png` (GetLegendGraphic),
   cached 30 days. App: "Naturvårdsverkets terrängkartor" fieldset in
   Kartlager (Lutning / Sluttningsriktning, one at a time,
-  `OfficialTerrainLayer` opacity 0.6, `OfficialTerrainLegend` shows their
+  `OfficialTerrainLayer` opacity 0.85 + CSS `mix-blend-mode: multiply` (their slope tiles draw < 25° as light grey; multiply keeps the topo map readable), `OfficialTerrainLegend` shows their
   legend image), notice "visar terrängen, inte lavinfaran"; our own
-  ~30 m slope layer stays as "Terränglutning, egen beräkning". Not yet
-  checked against their live server (cloud can't reach it). Avalanche size
+  ~30 m slope layer stays as "Terränglutning, egen beräkning". Fabian checked
+  their live server 2026-10-07: GetMap tile over Kebnekaise and the
+  slope legend (25–30° green … > 50° dark brown) both work. Avalanche size
   4/5 `size_meter_value` codes: asked Jan (NV) — unknown values still show no size.
   Slope: "Markhöjdmodell Visning" is paid; "Markhöjdmodell Nedladdning,
   grid 1+" is free (CC BY 4.0, STAC API, access must be applied for) but

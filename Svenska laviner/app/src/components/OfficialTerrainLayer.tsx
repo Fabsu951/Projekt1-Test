@@ -9,7 +9,10 @@ export default function OfficialTerrainLayer({ layer }: { layer: OfficialTerrain
   useEffect(() => {
     if (!layer) return;
     const tiles = L.tileLayer(officialTerrainUrl(layer), {
-      opacity: 0.6,
+      // Multiply: light parts (flat ground, which their map may draw light grey)
+      // all but vanish and the colours tint the topographic map instead of covering it.
+      className: "official-terrain-tiles",
+      opacity: 0.85,
       minZoom: 6,
       maxNativeZoom: 15,
       maxZoom: 18,
