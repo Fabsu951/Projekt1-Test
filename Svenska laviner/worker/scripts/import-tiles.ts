@@ -40,7 +40,8 @@ const WORKER = process.env.FJALLKOLL_WORKER_URL ?? "https://fjallkoll-worker.fab
 // 200 tiles per request hit "Worker exceeded resource limits" (1102) on 2026-10-07.
 const BATCH_TILES = 40;
 const BATCH_BYTES = 1024 * 1024;
-const PARALLEL = 4;
+// Uploads in flight at once; each is small, so more of them keep the line busy.
+const PARALLEL = 10;
 
 interface Options {
   files: string[];

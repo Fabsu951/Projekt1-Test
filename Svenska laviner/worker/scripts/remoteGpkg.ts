@@ -157,12 +157,26 @@ export class RemoteGpkg {
   }
 
   /** The tiles for the given keys (in rowid order), read in chunks whose pages are fetched in merged requests. */
-  async *tiles(table: string, keys: Array<{ level: number; col: number; row: number; rowid: number }>, chunk = 200): AsyncGenerator<GpkgTile> {
+  async *tiles(
+    table: string,
+    keys: Array<{ level: number; col: number; row: number; rowid: number }>,
+    chunk = 200,
+    ahead = 3
+  ): AsyncGenerator<GpkgTile> {
     const index = this.tileIndex(table);
-    for (let i = 0; i < keys.length; i += chunk) {
-      const part = keys.slice(i, i + chunk);
-      await this.db.prefetchRows(index.tableRoot, part.map((k) => k.rowid));
-      for (const k of part) {
+    const parts: Array<typeof keys> = [];
+    for (let i = 0; i < keys.length; i += chunk) parts.push(keys.slice(i, i + chunk));
+    // Fetch the next few chunks' pages while this one is handed out and uploaded.
+    const pending: Array<Promise<void>> = [];
+    const queue = (n: number) => {
+      const p = this.db.prefetchRows(index.tableRoot, parts[n].map((k) => k.rowid));
+      p.catch(() => {}); // awaited below; this only keeps an early failure from being "unhandled"
+      pending.push(p);
+    };
+    for (let n = 0; n < parts.length; n++) {
+      while (pending.length < ahead && n + pending.length < parts.length) queue(n + pending.length);
+      await pending.shift();
+      for (const k of parts[n]) {
         const values = await this.db.row(index.tableRoot, k.rowid);
         const data = values?.[index.dataAt];
         yield { level: k.level, col: k.col, row: k.row, data: data instanceof Uint8Array ? data : new Uint8Array() };
