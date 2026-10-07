@@ -709,7 +709,9 @@ the start, exact map point.
   directly contacted services (SMHI, Mapterhorn, OSM, Turnstile), full
   retention incl. ≤ 30-day backups, all GDPR rights. Open questions for a
   lawyer (liability/insurance, private person vs company, DSA, health data
-  art. 9, age, DPAs, transfers, trademark) in `Svenska laviner/JURIDIK.md`.
+  art. 9, age, DPAs, transfers) in `Svenska laviner/JURIDIK.md`. Name
+  check 2026-10-07: no "Snöläge"/"Snolage" trademarks at PRV or TMview
+  (only an unrelated vehicle patent) — free to use; registering is optional.
 - **Known gaps**: no email verification until a domain + Resend are set
   up; not yet reviewed by a lawyer (see JURIDIK.md); only observations can
   be reported (DSA).

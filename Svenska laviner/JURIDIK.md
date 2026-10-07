@@ -69,8 +69,11 @@ Ungefär i prioritetsordning:
    kartpunkt för alla. Vanligen ingen personuppgift, men kombinerat med
    användarnamn och tid kan det avslöja var någon var. Räcker informationen
    i policyn?
-9. **Namnet "Snöläge".** Gör en varumärkessökning hos PRV och EUIPO innan du
-   marknadsför brett.
+9. **Namnet "Snöläge".** Sökt 7 oktober 2026: inga varumärken "Snöläge",
+   "Snolage" eller liknande hos PRV eller i TMview. Den enda träffen var
+   ett fordonspatent, som inte spelar någon roll. Namnet är fritt att
+   använda. Registrera det själv (PRV, klass 9 och eventuellt 41 och 42)
+   innan bred lansering om du vill skydda det.
 10. **Licenser för data.** Lantmäteriet (CC BY 4.0, källa angiven),
     Naturvårdsverket (öppna API:er, terränglager godkända av Petter
     Palmgren 2026-10-07; spara mejlet), SMHI (öppna data), Mapterhorn
