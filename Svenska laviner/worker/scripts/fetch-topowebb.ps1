@@ -10,6 +10,7 @@
 #   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -DryRun     # provkör import direkt från Lantmäteriet
 #   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -Import     # importera fjällrutorna till R2
 #   ... -Import -Skip 120000                                                         # fortsätt en avbruten import
+#   ... -MarkImported                                                                # registrera att aktuell version redan är importerad
 #   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -Download   # (alternativ) ladda ner hela filen
 #
 # -DryRun / -Import read only the needed parts of the ~145 GB file with HTTP
@@ -25,6 +26,7 @@ param(
   [switch]$DryRun,
   [switch]$Import,
   [int]$Skip = 0,
+  [switch]$MarkImported,
   [string]$Collection = "",
   [string]$OutDir = (Join-Path $env:USERPROFILE "Downloads\topowebb")
 )
@@ -122,7 +124,12 @@ foreach ($it in $items.Values) {
     $epsg = $a.'proj:epsg'
     if (-not $epsg) { $epsg = $it.properties.'proj:epsg' }
     if (-not $epsg -and $name -match "-(\d{4,5})\.gpkg$") { $epsg = [int]$Matches[1] }
-    $files += [pscustomobject]@{ Item = $it.id; Name = $name; Epsg = $epsg; Size = $a.'file:size'; Href = $a.href }
+    # Which edition: Lantmäteriet updates the product about every three months.
+    $version = $a.updated
+    if (-not $version) { $version = $it.properties.updated }
+    if (-not $version) { $version = $it.properties.datetime }
+    if (-not $version) { $version = $it.properties.created }
+    $files += [pscustomobject]@{ Item = $it.id; Name = $name; Epsg = $epsg; Size = $a.'file:size'; Href = $a.href; Version = "$version" }
   }
 }
 
@@ -140,6 +147,25 @@ if ($pick.Count -ne 1) {
 $file = $pick[0]
 $target = Join-Path $OutDir $file.Name
 Write-Host ("Väljer: {0} (färglagd, Web Mercator). De andra behövs inte." -f $file.Name) -ForegroundColor Green
+
+# Has Lantmäteriet published a newer edition since the last import?
+$versionFile = Join-Path $OutDir "senast-importerad.txt"
+$lastImported = if (Test-Path $versionFile) { (Get-Content $versionFile -Raw).Trim() } else { "" }
+$current = if ($file.Version) { $file.Version } else { "okänd" }
+Write-Host ("Kartans version hos Lantmäteriet: {0}" -f $current)
+if (-not $lastImported) {
+  Write-Host "Senast importerad: (ingen import registrerad på den här datorn)"
+} elseif ($lastImported -eq $current) {
+  Write-Host ("Senast importerad: {0} – ingen ny version, ingen import behövs." -f $lastImported) -ForegroundColor Green
+} else {
+  Write-Host ("Senast importerad: {0} – NY VERSION finns. Kör med -Import för att uppdatera kartan." -f $lastImported) -ForegroundColor Yellow
+}
+if ($MarkImported) {
+  # For an import that finished with an older version of this script.
+  Set-Content -Path $versionFile -Value $current -Encoding UTF8
+  Write-Host ("Registrerade version {0} som importerad." -f $current) -ForegroundColor Green
+  exit 0
+}
 
 # Does the server allow resuming (HTTP Range)? Matters for a file this size.
 $hdrFile = Join-Path $env:TEMP ("snolage-auth-{0}.txt" -f [guid]::NewGuid())
@@ -176,6 +202,11 @@ try {
       Pop-Location
     }
     if ($importExit -ne 0) { Write-Host "Importen avbröts (kod $importExit). Skicka utskriften till Claude." -ForegroundColor Red; exit 1 }
+    if ($Import) {
+      # Remember the edition, so the next run can say whether there's anything new.
+      Set-Content -Path $versionFile -Value $current -Encoding UTF8
+      Write-Host ("Sparade versionen ({0}) i {1}" -f $current, $versionFile)
+    }
     exit 0
   }
 

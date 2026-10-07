@@ -82,6 +82,34 @@ npx tsx scripts/import-tiles.ts C:\Users\fabia\Downloads\topowebb\topowebb-3857.
 
 ## 3. Efter importen
 
-Kartan kommer nu från vår egen lagring. Lantmäteriet uppdaterar produkten
-var tredje månad; kör om steg 1–2 någon gång per säsong för att få med
-ändringar (nya leder, stugor m.m.).
+Kartan kommer nu från vår egen lagring. Efter den allra första importen
+(gjord innan versionskontrollen fanns), registrera versionen en gång:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1 -MarkImported
+```
+
+## 4. Uppdatera kartan varje säsong (ca en timme)
+
+Lantmäteriet ger ut en ny version ungefär var tredje månad (nya leder,
+stugor, vägar). Två gånger per år räcker: **början av november** (inför
+säsongen) och **början av februari**.
+
+1. Kolla om det finns något nytt (laddar inget):
+
+   ```powershell
+   cd "C:\Users\fabia\Documents\fjallvarning-repo\Svenska laviner\worker"
+   git pull
+   powershell -ExecutionPolicy Bypass -File scripts\fetch-topowebb.ps1
+   ```
+
+   Raden **"Senast importerad: … – NY VERSION finns"** betyder att det är
+   dags. Står det "ingen ny version" är du klar.
+2. Uppdatera: samma kommando med `-Import`. Kartbitarna skrivs över på
+   plats, så kartan fungerar hela tiden. Versionen sparas automatiskt.
+3. Nya kartbitar syns för alla inom en vecka (så länge Cloudflare sparar en
+   kartbit). En användare som sparat en karta offline får den nya när hen
+   sparar om området.
+
+En påminnelse om det här kommer från Claude i början av november och
+februari.
