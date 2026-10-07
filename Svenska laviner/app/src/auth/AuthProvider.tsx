@@ -82,7 +82,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         await start(
           await api("/auth/register", {
             method: "POST",
-            json: { email, password, displayName, turnstileToken: turnstileToken ?? undefined },
+            // Only reachable after ticking "Jag godkänner användarvillkoren" on the form.
+            json: { email, password, displayName, turnstileToken: turnstileToken ?? undefined, acceptTerms: true },
           })
         );
       },

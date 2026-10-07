@@ -697,8 +697,22 @@ the start, exact map point.
   level, tap → day + problems), bars per level (danger colours, counts as
   text), problems bars (accent), "Visa som lista" table view.
   `fetchSeason` goes through `cached()` (offline). Months without any daily forecast are left out and a line gives the first–last level day: Kebnekaisefjällen only had "Försäsongstips" 25 Nov–19 Feb 2026, dailies from 20 Feb (not a bug).
+- **Terms + privacy review (2026-10-07):** new "Användarvillkor" section
+  `/om-appen#villkor` (operator = Fabian as a private person, decision
+  support not a guarantee, age ≥ 13, content rules, limited licence,
+  reports/removal, liability "to the extent the law allows", Swedish law);
+  signup needs the "godkänner användarvillkoren och är minst 13 år"
+  checkbox — the worker refuses without `acceptTerms: true` and stores
+  `users.terms_accepted_at` (migration `0016`). Privacy policy now names
+  the controller, has an "updated" date, 6.1 f for security/Turnstile/
+  reports, all recipients (Cloudflare, Resend, Google/Firebase, Apple),
+  directly contacted services (SMHI, Mapterhorn, OSM, Turnstile), full
+  retention incl. ≤ 30-day backups, all GDPR rights. Open questions for a
+  lawyer (liability/insurance, private person vs company, DSA, health data
+  art. 9, age, DPAs, transfers, trademark) in `Svenska laviner/JURIDIK.md`.
 - **Known gaps**: no email verification until a domain + Resend are set
-  up; not reviewed by a lawyer.
+  up; not yet reviewed by a lawyer (see JURIDIK.md); only observations can
+  be reported (DSA).
 
  (context for why some code looks the way it does)
 
@@ -752,6 +766,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (188 tests as of 2026-10-07, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 121 tests, including the
+  (189 tests as of 2026-10-07, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 122 tests, including the
   real-page fixtures).

@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -27,6 +28,10 @@ export default function RegisterPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!acceptedTerms) {
+      setError("Du behöver godkänna användarvillkoren för att skapa ett konto.");
+      return;
+    }
     if (TURNSTILE_SITE_KEY && !turnstileToken) {
       setError("Vänta tills robotkontrollen är klar, eller klicka i rutan.");
       return;
@@ -83,6 +88,12 @@ export default function RegisterPage() {
           konto från profilsidan, och då tas allt du delat bort. Läs mer i vår{" "}
           <Link to="/om-appen#integritet">integritetspolicy</Link>.
         </p>
+        <label className="form__field form__field--checkbox">
+          <input type="checkbox" required checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} />
+          <span>
+            Jag har läst och godkänner <Link to="/om-appen#villkor">användarvillkoren</Link> och är minst 13 år.
+          </span>
+        </label>
         {TURNSTILE_SITE_KEY && (
           <TurnstileWidget
             siteKey={TURNSTILE_SITE_KEY}

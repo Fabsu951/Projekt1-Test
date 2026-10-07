@@ -269,6 +269,8 @@ interface RegisterBody {
   password?: string;
   displayName?: string;
   turnstileToken?: string;
+  /** Ticked "Jag godkänner användarvillkoren och är minst 13 år". */
+  acceptTerms?: boolean;
 }
 
 export async function register(request: Request, env: CommunityEnv) {
@@ -282,6 +284,7 @@ export async function register(request: Request, env: CommunityEnv) {
     throw new HttpError(400, "Användarnamnet ska vara 3–30 tecken: bokstäver, siffror, mellanslag, punkt, bindestreck eller understreck.");
   if (password.length < MIN_PASSWORD_LENGTH || password.length > 200)
     throw new HttpError(400, `Lösenordet måste vara minst ${MIN_PASSWORD_LENGTH} tecken.`);
+  if (body.acceptTerms !== true) throw new HttpError(400, "Du behöver godkänna användarvillkoren för att skapa ett konto.");
 
   const store = d1Store(env.DB);
   const registerKey = `register-ip:${clientIp(request)}`;
@@ -303,9 +306,9 @@ export async function register(request: Request, env: CommunityEnv) {
   }
 
   const result = await env.DB.prepare(
-    "INSERT INTO users (email, display_name, password_hash, created_at) VALUES (?, ?, ?, ?)"
+    "INSERT INTO users (email, display_name, password_hash, created_at, terms_accepted_at) VALUES (?, ?, ?, ?, ?)"
   )
-    .bind(email, displayName, await hashPassword(password), nowIso())
+    .bind(email, displayName, await hashPassword(password), nowIso(), nowIso())
     .run();
   const userId = Number(result.meta.last_row_id);
   await record(store, [registerKey]);

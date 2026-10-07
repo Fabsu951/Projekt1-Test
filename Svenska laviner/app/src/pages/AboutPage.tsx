@@ -113,8 +113,84 @@ export default function AboutPage() {
         </ul>
       </section>
 
+      <section className="section terms" id="villkor">
+        <h2>Användarvillkor</h2>
+        <p className="muted">Senast uppdaterade 7 oktober 2026.</p>
+        <p>
+          Snöläge drivs av Fabian Sund som privatperson
+          {PRIVACY_CONTACT_EMAIL && (
+            <>
+              {" "}
+              (<a href={`mailto:${PRIVACY_CONTACT_EMAIL}`}>{PRIVACY_CONTACT_EMAIL}</a>)
+            </>
+          )}
+          . Appen är gratis. Prognoser, väder, karta och säkerhetsguide kan du använda utan konto. Villkoren nedan
+          gäller när du skapar ett konto och delar innehåll.
+        </p>
+
+        <h3>Ditt ansvar i fjällen</h3>
+        <p>
+          Allt i Snöläge är information som stöd för dina egna beslut, ingen garanti. Farograder hämtas automatiskt och
+          kan vara fördröjda eller fel. Lutningskartor och ruttanalys bygger på grov höjddata och missar korta branter.
+          Observationer och turer kommer från andra användare och kan vara felaktiga eller inaktuella. Läs alltid den
+          officiella prognosen på lavinprognoser.se och bedöm förhållandena på plats. Du ansvarar själv för din
+          säkerhet och för de beslut du fattar i terrängen.
+        </p>
+
+        <h3>Konto</h3>
+        <ul>
+          <li>Du måste vara minst 13 år för att skapa ett konto.</li>
+          <li>Ett konto per person. Håll lösenordet för dig själv. Du ansvarar för det som görs från ditt konto.</li>
+          <li>Ditt användarnamn får inte vara stötande eller utge sig för att vara någon annan.</li>
+        </ul>
+
+        <h3>Det du publicerar</h3>
+        <ul>
+          <li>
+            Publicera bara sådant du själv har sett, tagit eller skrivit, och beskriv det så sant du kan. Observationer
+            används av andra för säkerhetsbeslut.
+          </li>
+          <li>
+            Inget olagligt, kränkande, hotfullt eller reklam. Lägg inte upp bilder där andra personer kan kännas igen
+            utan deras lov, och inga personuppgifter om andra.
+          </li>
+          <li>
+            Du behåller rätten till det du publicerar. Du ger Snöläge rätt att utan ersättning lagra, visa och
+            anpassa det (till exempel förminska bilder och dölja början och slutet av turer) i appen, så länge det
+            ligger kvar. Raderar du det, eller ditt konto, upphör rätten.
+          </li>
+        </ul>
+
+        <h3>Anmälan och borttagning</h3>
+        <p>
+          Alla kan anmäla en observation som bryter mot villkoren. Efter tre anmälningar döljs den tills en
+          administratör har granskat den. Vi får ta bort innehåll som bryter mot villkoren eller mot lag, och stänga
+          av konton som gör det upprepade gånger. Tycker du att något tagits bort felaktigt, eller vill du anmäla
+          något annat än en observation, mejla oss.
+        </p>
+
+        <h3>Ansvar och ändringar</h3>
+        <p>
+          Snöläge tillhandahålls i befintligt skick, utan löfte om att tjänsten alltid fungerar eller att
+          informationen är fullständig. I den utsträckning lagen tillåter ansvarar vi inte för skador som uppstår av
+          att du använder appen eller litar på information i den. Vi kan ändra eller lägga ner tjänsten och ändra
+          villkoren. Vid större ändringar meddelar vi det i appen. Svensk lag gäller.
+        </p>
+      </section>
+
       <section className="section privacy" id="integritet">
         <h2>Integritetspolicy</h2>
+        <p className="muted">Senast uppdaterad 7 oktober 2026.</p>
+        <p>
+          <strong>Personuppgiftsansvarig</strong> är Fabian Sund, som driver Snöläge som privatperson
+          {PRIVACY_CONTACT_EMAIL && (
+            <>
+              {" "}
+              (<a href={`mailto:${PRIVACY_CONTACT_EMAIL}`}>{PRIVACY_CONTACT_EMAIL}</a>)
+            </>
+          )}
+          .
+        </p>
         <p>
           Den här delen beskriver vilka personuppgifter Snöläge behandlar när du skapar ett
           konto och delar observationer och turer, och vilka rättigheter du har enligt dataskyddsförordningen
@@ -201,6 +277,12 @@ export default function AboutPage() {
             annonsering och ingen analys av hur du använder appen.
           </li>
           <li>
+            <strong>Tjänster som appen hämtar från direkt:</strong> för väder hämtar appen data direkt från SMHI, för
+            höjder och lutning från Mapterhorn, och utanför fjällen kan kartan hämtas från OpenStreetMap. Vid
+            registrering kontrollerar Cloudflare Turnstile att du inte är en robot. De tjänsterna ser då din
+            IP-adress, som vid vanlig surfning, men inget om ditt konto.
+          </li>
+          <li>
             <strong>Tekniska uppgifter:</strong> vår leverantör Cloudflare behandlar din IP-adress
             tillfälligt för att kunna leverera sidan och skydda den mot attacker. Vi sparar den inte
             tillsammans med ditt konto.
@@ -209,10 +291,16 @@ export default function AboutPage() {
 
         <h3>Varför och med vilken rätt</h3>
         <p>
-          Uppgifterna behövs för att du ska kunna ha ett konto och dela observationer, alltså för att
-          fullgöra tjänsten du bett om (artikel 6.1 b i GDPR). E-postadressen används bara för
-          bekräftelse, återställning av lösenord och viktiga meddelanden om ditt konto. Den säljs
-          aldrig och används inte för marknadsföring.
+          Uppgifterna behövs för att du ska kunna ha ett konto, dela observationer och turer och få de notiser du
+          slagit på, alltså för att fullgöra tjänsten du bett om (artikel 6.1 b i GDPR). E-postadressen används bara
+          för bekräftelse, återställning av lösenord och viktiga meddelanden om ditt konto. Den säljs aldrig och
+          används inte för marknadsföring.
+        </p>
+        <p>
+          Räkningen av inloggningsförsök, robotkontrollen vid registrering och hanteringen av anmälningar sker med
+          stöd av vårt <strong>berättigade intresse</strong> av att skydda tjänsten och användarna mot intrång,
+          skräpkonton och olämpligt innehåll (artikel 6.1 f). Du kan invända mot det, men utan dessa skydd kan vi inte
+          erbjuda konton.
         </p>
 
         <h3>Vem som ser vad</h3>
@@ -242,7 +330,11 @@ export default function AboutPage() {
         <h3>Hur länge</h3>
         <p>
           Kontot, dina observationer, turer, rutter och kommentarer sparas tills du raderar dem. Inloggningar går ut efter 90 dagar,
-          länkar för att bekräfta e-post efter 24 timmar och länkar för lösenordsåterställning efter en timme.
+          länkar för att bekräfta e-post efter 24 timmar och länkar för lösenordsåterställning efter en timme. Notiser
+          raderas efter 90 dagar och räkningen av inloggningsförsök efter ett dygn. Uppgifter för push-notiser sparas
+          tills du stänger av notiserna, eller tills telefonen eller webbläsaren slutar ta emot dem. Anmälningar sparas
+          så länge den anmälda observationen finns. Raderade uppgifter kan finnas kvar i databasens automatiska
+          säkerhetskopior i upp till 30 dagar, och används inte under den tiden.
         </p>
 
         <h3 id="radera-konto">Radera ditt konto</h3>
@@ -262,8 +354,9 @@ export default function AboutPage() {
 
         <h3>Dina rättigheter</h3>
         <p>
-          Du har rätt att få veta vilka uppgifter vi har om dig, få dem rättade eller raderade, och
-          invända mot behandlingen. Du kan själv ta bort enskilda observationer, turer, rutter och kommentarer, och radera hela ditt
+          Du har rätt att få veta vilka uppgifter vi har om dig och få en kopia av dem, få dem rättade eller
+          raderade, få ut det du själv lämnat i ett maskinläsbart format (dataportabilitet), begära att behandlingen
+          begränsas och invända mot behandling som bygger på berättigat intresse. Vi svarar inom en månad. Du kan själv ta bort enskilda observationer, turer, rutter och kommentarer, och radera hela ditt
           konto, med allt du publicerat, från din profilsida. Raderingen sker direkt.
           {PRIVACY_CONTACT_EMAIL && (
             <>
