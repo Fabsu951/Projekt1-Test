@@ -675,8 +675,10 @@ the start, exact map point.
   fjallkoll.pages.dev (network policy), so deploys and live checks are
   done by Fabian locally; screenshots in-session use mocked SMHI data.
 - Fabian pasted a live `CLOUDFLARE_API_TOKEN` into chat earlier in this
-  project's history; he was advised to rotate it (Cloudflare dashboard → My
-  Profile → API Tokens). Unconfirmed whether he did.
+  project's history. **Resolved 2026-10-07:** he deleted both user API
+  tokens ("Edit Cloudflare Workers" and an auto-created "Cloudflare Agent
+  Token - 2026-09-23"), and no `CLOUDFLARE_API_TOKEN` env var is set;
+  wrangler uses its OAuth login (`npx wrangler login`).
 - `app/public/sw.js` (push since 2026-09-26, **offline app shell since
   2026-10-05** — replaces the old "push only, no caching" rule): the
   `offlineAppShell()` plugin in `vite.config.ts` writes a content-hash
