@@ -23,11 +23,17 @@ din egen telefon och lägger ut dem i Google Play och App Store.
 - **Radera konto:** en egen sida för butikernas krav finns på
   `https://fjallkoll.pages.dev/om-appen#radera-konto`.
 
-- **Health Connect (Android):** hämtar pass med GPS-spår från klockans app
-  som privata turer. Kräver Android 8 eller senare.
+- **Health Connect (Android) och Apple Hälsa (iPhone):** hämtar pass med
+  GPS-spår från klockans app som privata turer. Med "Lägg till nya skidpass
+  automatiskt" sker det varje gång appen öppnas eller kommer tillbaka i
+  förgrunden. Kräver Android 8 eller senare.
+- **Push-notiser** (farograd i dina områden och notiser för ditt konto) via
+  Firebase. Koden är klar, men den kräver engångsstegen i `NOTISER.md`.
 
-**Fungerar inte i apparna än:** push-notiser. De kräver Firebase för Android
-och ett Apple-konto för iPhone. Klockan med notiser i appen fungerar.
+**Inte byggt än:** import av pass *i bakgrunden* när appen är stängd. Det
+kräver inbyggd Android-kod (WorkManager) och iOS-kod (HKObserverQuery) som
+måste kompileras och testas på riktiga telefoner. Det görs bäst tillsammans
+med Claude när du sitter med Android Studio eller Xcode.
 
 ## App-id
 
@@ -105,9 +111,18 @@ cd "Svenska laviner/app"
 npm install
 npm run app:ios
 ```
-I Xcode: välj ditt utvecklarteam under Signing & Capabilities, testa på din
-iPhone och ladda sedan upp via Product → Archive. Fyll i butikssidan och
+I Xcode, under målet **App → Signing & Capabilities**:
+- välj ditt utvecklarteam
+- **+ Capability → HealthKit**, för "Hämta från Apple Hälsa". Texterna som
+  förklarar varför finns redan i `Info.plist`.
+- **+ Capability → Push Notifications**, se `NOTISER.md`.
+
+Testa sedan på din iPhone och ladda sedan upp via Product → Archive. Fyll i butikssidan och
 integritetsfrågorna i App Store Connect med samma svar som för Google Play.
+Under **App Privacy** anger du dessutom **Health & Fitness → Fitness** (bara
+träningspass och rutter, kopplat till användaren, används för appens
+funktion, inte för spårning). Apple granskar HealthKit-appar extra noga och
+kräver att integritetspolicyn nämner Apple Hälsa. Det gör den redan.
 Har du ingen Mac finns molntjänster som bygger iPhone-appen åt dig, till
 exempel Ionic Appflow eller Codemagic.
 

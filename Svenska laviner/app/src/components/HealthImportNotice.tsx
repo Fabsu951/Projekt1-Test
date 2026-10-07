@@ -1,13 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
-import { checkForNewWorkouts, healthConnected, healthImportSupported, type AutoImportResult } from "../services/healthImport";
+import { App } from "@capacitor/app";
+import {
+  checkForNewWorkouts,
+  healthConnected,
+  healthImportSupported,
+  HEALTH_STORE_NAME,
+  type AutoImportResult,
+} from "../services/healthImport";
 
 /**
- * In the Android app once Health Connect is connected: adds new ski sessions
- * as private tours when automatic import is on, and says what happened or
- * what waits ("3 nya pass från klockan"). Before connecting, `invite` shows
- * an invitation instead. Nothing on the web or in the iPhone app.
+ * In the Android/iPhone app once Health Connect / Apple Hälsa is connected:
+ * adds new ski sessions as private tours when automatic import is on — when
+ * the app opens and each time it comes back to the foreground — and says
+ * what happened or what waits ("3 nya pass från klockan"). Before
+ * connecting, `invite` shows an invitation instead. Nothing on the web.
  */
 export default function HealthImportNotice({ invite = false }: { invite?: boolean }) {
   const { user, token } = useAuth();
@@ -17,18 +25,23 @@ export default function HealthImportNotice({ invite = false }: { invite?: boolea
   useEffect(() => {
     if (!user || !token || !healthImportSupported()) return;
     let live = true;
-    healthConnected()
-      .then(async (on) => {
-        if (!live) return;
-        setConnected(on);
-        if (on) {
-          const r = await checkForNewWorkouts(token);
-          if (live) setResult(r);
-        }
-      })
-      .catch(() => live && setResult(null));
+    const check = () =>
+      healthConnected()
+        .then(async (on) => {
+          if (!live) return;
+          setConnected(on);
+          if (on) {
+            const r = await checkForNewWorkouts(token);
+            if (live) setResult(r);
+          }
+        })
+        .catch(() => live && setResult(null));
+    void check();
+    // Back from the watch's app (or after a tour): look again.
+    const resumed = App.addListener("resume", () => void check());
     return () => {
       live = false;
+      void resumed.then((h) => h.remove());
     };
   }, [user, token]);
 
@@ -37,7 +50,7 @@ export default function HealthImportNotice({ invite = false }: { invite?: boolea
   if (connected === false && invite) {
     return (
       <Link to="/turer/halsa" className="health-notice health-notice--invite">
-        <strong>Hämta turer från Health Connect</strong>
+        <strong>Hämta turer från {HEALTH_STORE_NAME}</strong>
         <span>Pass med GPS-spår från klockan, utan att ladda upp filer →</span>
       </Link>
     );

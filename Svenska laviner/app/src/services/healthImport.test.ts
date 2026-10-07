@@ -29,6 +29,16 @@ const base = {
 };
 
 describe("toHealthWorkout", () => {
+  it("understands Apple Hälsa's type names as well as Health Connect's", () => {
+    const of = (workoutType: string) => toHealthWorkout({ ...base, id: workoutType, workoutType, route: route(50) })!;
+    expect(of("downhillSkiing")).toMatchObject({ label: "Skidtur", suggested: true });
+    expect(of("crossCountrySkiing")).toMatchObject({ label: "Längdskidor", suggested: true });
+    expect(of("snowboarding")).toMatchObject({ label: "Snowboard", suggested: true });
+    expect(of("running")).toMatchObject({ label: "Löpning", suggested: false });
+    expect(of("MOUNTAIN_BIKING")).toMatchObject({ label: "Mountainbike", suggested: false });
+    expect(of("other")).toMatchObject({ label: "Pass", suggested: true });
+  });
+
   it("turns a session with a route into track points, with time and height", () => {
     const w = toHealthWorkout({ ...base, id: "a", workoutType: "SKIING", route: route(50) })!;
     expect(w.label).toBe("Skidtur");

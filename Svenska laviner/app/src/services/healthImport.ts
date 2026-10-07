@@ -5,36 +5,51 @@ import { distanceM, simplify, type TrackPoint } from "../utils/trackImport";
 import { createTour, fetchImportedSources } from "./tourService";
 import type { Tour } from "../types/tour";
 
-// Tours from Android's Health Connect: exercise sessions with a GPS route,
-// written there by the watch's own app. We only read when the user opens the
-// import or has turned it on, never anything but sessions and routes, and
-// imported tours start out private so nobody's home or car shows up by
-// accident.
+// Tours from the phone's health store: Health Connect on Android, Apple
+// Hälsa (HealthKit) on iPhone. Exercise sessions with a GPS route, written
+// there by the watch's own app. We only read when the user opens the import
+// or has turned it on, never anything but sessions and routes, and imported
+// tours start out private so nobody's home or car shows up by accident.
 
 const IMPORTED_KEY = "fjallkoll:health-imported";
 const CONNECTED_KEY = "fjallkoll:health-connected";
 const AUTO_KEY = "fjallkoll:health-auto";
-const SOURCE_PREFIX = "hc";
+/** Prefix of the source ref stored with each imported tour: "hc:<id>" (Health Connect) or "ah:<uuid>" (Apple Hälsa). */
+const SOURCE_PREFIX = Capacitor.getPlatform() === "ios" ? "ah" : "hc";
+
+/** What the phone's health store is called, for the texts. */
+export const HEALTH_STORE_NAME = Capacitor.getPlatform() === "ios" ? "Apple Hälsa" : "Health Connect";
 const MAX_REMEMBERED = 500;
 /** Health Connect only lets apps read about a month back without a separate history permission. */
 export const LOOKBACK_DAYS = 30;
 const MIN_POINTS = 10;
 const MIN_DISTANCE_M = 300;
 
-/** Health Connect's exercise types, in Swedish; anything else is "Pass". */
+/**
+ * Exercise types in Swedish; anything else is "Pass". Keys are normalised
+ * (lower case, no "_"), since Health Connect says "SKIING" and HealthKit
+ * "downhillSkiing".
+ */
 const TYPE_LABELS: Record<string, string> = {
-  SKIING: "Skidtur",
-  SNOWBOARDING: "Snowboard",
-  SNOWSHOEING: "Snöskor",
-  HIKING: "Vandring",
-  WALKING: "Promenad",
-  RUNNING: "Löpning",
-  BIKING: "Cykeltur",
-  MOUNTAIN_BIKING: "Mountainbike",
+  skiing: "Skidtur",
+  downhillskiing: "Skidtur",
+  crosscountryskiing: "Längdskidor",
+  snowsports: "Skidtur",
+  snowboarding: "Snowboard",
+  snowshoeing: "Snöskor",
+  hiking: "Vandring",
+  walking: "Promenad",
+  running: "Löpning",
+  biking: "Cykeltur",
+  cycling: "Cykeltur",
+  mountainbiking: "Mountainbike",
+  climbing: "Klättring",
 };
 
 /** Types that are probably ski tours, preselected in the list. */
-const WINTER_TYPES = new Set(["SKIING", "SNOWBOARDING", "SNOWSHOEING", "HIKING", "OTHER"]);
+const WINTER_TYPES = new Set(["skiing", "downhillskiing", "crosscountryskiing", "snowsports", "snowboarding", "snowshoeing", "hiking", "other"]);
+
+const typeKey = (type: string) => type.toLowerCase().replace(/[_\s-]/g, "");
 
 export interface HealthWorkout {
   id: string;
@@ -48,9 +63,9 @@ export interface HealthWorkout {
   suggested: boolean;
 }
 
-/** Only in the Android app. */
+/** Only in the Android app (Health Connect) and the iPhone app (Apple Hälsa). */
 export function healthImportSupported(): boolean {
-  return Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android";
+  return Capacitor.isNativePlatform() && ["android", "ios"].includes(Capacitor.getPlatform());
 }
 
 export async function healthConnectAvailable(): Promise<boolean> {
@@ -67,7 +82,8 @@ export async function openHealthConnectInstall(): Promise<void> {
 }
 
 export async function openHealthConnectSettings(): Promise<void> {
-  await Health.openHealthConnectSettings();
+  if (Capacitor.getPlatform() === "ios") await Health.openAppleHealthSettings();
+  else await Health.openHealthConnectSettings();
 }
 
 function granted(response: { permissions: Array<Record<string, boolean>> }, name: string): boolean {
@@ -118,16 +134,16 @@ export function toHealthWorkout(w: Workout): HealthWorkout | null {
   let length = 0;
   for (let i = 1; i < raw.length; i++) length += distanceM(raw[i - 1], raw[i]);
   if (length < MIN_DISTANCE_M) return null;
-  const type = w.workoutType || "OTHER";
+  const type = w.workoutType || "other";
   return {
     id: w.id ?? `${w.startDate}-${w.endDate}`,
     type,
-    label: TYPE_LABELS[type] ?? "Pass",
+    label: TYPE_LABELS[typeKey(type)] ?? "Pass",
     startDate: w.startDate,
     endDate: w.endDate,
     distanceM: Math.round(w.distance ?? length),
     points: simplify(raw),
-    suggested: WINTER_TYPES.has(type),
+    suggested: WINTER_TYPES.has(typeKey(type)),
   };
 }
 

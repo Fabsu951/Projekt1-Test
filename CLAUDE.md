@@ -619,6 +619,17 @@ the start, exact map point.
   privata" + "N pass väntar". dl.google.com is blocked in cloud sessions,
   so no Android SDK — true background import (WorkManager +
   READ_HEALTH_DATA_IN_BACKGROUND) is left until it can be compiled.
+  **Step 3 (2026-10-07): iPhone (Apple Hälsa) + resume.** Same code path on
+  iOS via capacitor-health's HealthKit side (`queryWorkouts` with
+  `includeRoute`, `openAppleHealthSettings`); `HEALTH_STORE_NAME`
+  ("Health Connect" / "Apple Hälsa") in the texts, source refs `ah:<uuid>`
+  on iOS (`hc:` on Android); type names normalised (`typeKey`: HealthKit's
+  `downhillSkiing`/`crossCountrySkiing`/`snowSports`… and HC's `SKIING`…).
+  `HealthImportNotice` also re-checks on `App` "resume". iOS needs the
+  HealthKit capability in Xcode (APPAR.md) — not compiled here. Background
+  import while the app is closed (Android WorkManager, iOS HKObserverQuery)
+  is still not built: needs native code compiled on real devices, to do
+  together with Fabian at Android Studio/Xcode.
 - **Official forecast API (2026-10-06):** Petter Palmgren
   (Lavinprognostjänsten, Naturvårdsverket) answered Fabian's API question
   with the PDF "Lavinprognoser – en guide till öppna API:er" (2026): open
@@ -741,6 +752,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (187 tests as of 2026-10-07, all passing). Worker has its own Vitest
+  (188 tests as of 2026-10-07, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 121 tests, including the
   real-page fixtures).

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
 import { useAuth } from "../auth/useAuth";
 import TrackSketch from "../components/TrackSketch";
 import {
@@ -10,6 +11,7 @@ import {
   healthConnectAvailable,
   healthConnected,
   healthImportSupported,
+  HEALTH_STORE_NAME,
   importWorkout,
   LOOKBACK_DAYS,
   openHealthConnectInstall,
@@ -22,8 +24,8 @@ import {
 import type { Tour } from "../types/tour";
 import { formatDistance } from "../utils/tourFormat";
 
-// "Hämta från Health Connect": lists sessions with a GPS route that the
-// watch's app has written to Health Connect, and imports the chosen ones as
+// "Hämta från Health Connect / Apple Hälsa": lists sessions with a GPS route
+// that the watch's app has written to the phone's health store, and imports the chosen ones as
 // private tours. Sharing is a separate, deliberate step on each tour.
 
 type State =
@@ -43,6 +45,8 @@ function duration(w: HealthWorkout): string {
   const minutes = Math.round((Date.parse(w.endDate) - Date.parse(w.startDate)) / 60_000);
   return minutes >= 60 ? `${Math.floor(minutes / 60)} h ${minutes % 60} min` : `${minutes} min`;
 }
+
+const ios = Capacitor.getPlatform() === "ios";
 
 export default function HealthImportPage() {
   const { user, token, loading } = useAuth();
@@ -64,7 +68,7 @@ export default function HealthImportPage() {
       setSelected(new Set(workouts.filter((w) => w.suggested).map((w) => w.id)));
       setState({ kind: "list", workouts });
     } catch (err) {
-      setState({ kind: "error", message: err instanceof Error ? err.message : "Kunde inte läsa från Health Connect." });
+      setState({ kind: "error", message: err instanceof Error ? err.message : `Kunde inte läsa från ${HEALTH_STORE_NAME}.` });
     }
   }, [token]);
 
@@ -135,9 +139,9 @@ export default function HealthImportPage() {
         <Link to="/turer" className="back-link">
           ← Turer
         </Link>
-        <h1>Hämta från Health Connect</h1>
+        <h1>Hämta från {HEALTH_STORE_NAME}</h1>
         <p className="page__lead">
-          Pass med GPS-spår som klockans app sparat i Health Connect blir turer i din turdagbok. De sparas som{" "}
+          Pass med GPS-spår som klockans app sparat i {HEALTH_STORE_NAME} blir turer i din turdagbok. De sparas som{" "}
           <strong>privata</strong>, och du väljer själv om och hur varje tur ska delas.
         </p>
       </header>
@@ -157,11 +161,15 @@ export default function HealthImportPage() {
       {failed && <p className="error">{failed}</p>}
 
       {state.kind === "checking" || state.kind === "loading" ? (
-        <p>{state.kind === "loading" ? "Läser pass från Health Connect…" : "Kollar Health Connect…"}</p>
+        <p>{state.kind === "loading" ? `Läser pass från ${HEALTH_STORE_NAME}…` : `Kollar ${HEALTH_STORE_NAME}…`}</p>
       ) : state.kind === "unsupported" ? (
         <div className="notice">
-          Health Connect finns bara i Snöläges Android-app. Här kan du i stället{" "}
+          Klockans pass kan hämtas i Snöläges app för Android (Health Connect) och iPhone (Apple Hälsa). Här kan du i stället{" "}
           <Link to="/turer/ny">ladda upp en GPX- eller FIT-fil</Link> från klockan.
+        </div>
+      ) : state.kind === "missing" && ios ? (
+        <div className="health-step">
+          <p>Apple Hälsa finns inte på den här enheten (till exempel en iPad). Hämta passen från en iPhone i stället.</p>
         </div>
       ) : state.kind === "missing" ? (
         <div className="health-step">
@@ -174,19 +182,31 @@ export default function HealthImportPage() {
         <div className="health-step">
           <p>Snöläge läser bara dina <strong>träningspass och deras GPS-rutter</strong>, aldrig puls, vikt eller annan hälsodata, och bara medan du har appen öppen.</p>
           <ol>
-            <li>Kontrollera att klockans app (till exempel Garmin Connect, Suunto, Polar eller Samsung Health) skickar pass till Health Connect.</li>
-            <li>Tryck nedan och tillåt <strong>Träning</strong> och <strong>Träningsrutter</strong>. Välj gärna "Tillåt alltid" för rutterna.</li>
+            {ios ? (
+              <>
+                <li>Kontrollera att klockans app (till exempel Garmin Connect, Suunto eller Polar) skriver pass till Apple Hälsa. Apple Watch gör det själv.</li>
+                <li>Tryck nedan och slå på <strong>Träningspass</strong> och <strong>Träningsrutter</strong> i rutan som visas.</li>
+              </>
+            ) : (
+              <>
+                <li>Kontrollera att klockans app (till exempel Garmin Connect, Suunto, Polar eller Samsung Health) skickar pass till Health Connect.</li>
+                <li>Tryck nedan och tillåt <strong>Träning</strong> och <strong>Träningsrutter</strong>. Välj gärna "Tillåt alltid" för rutterna.</li>
+              </>
+            )}
           </ol>
           {state.routesDenied && (
             <p className="notice">
-              Utan åtkomst till träningsrutter finns inga spår att hämta. Du kan ändra det i Health Connect under Appbehörigheter → Snöläge.{" "}
+              Utan åtkomst till träningsrutter finns inga spår att hämta.{" "}
+              {ios
+                ? "Du kan ändra det i Inställningar → Hälsa → Dataåtkomst och enheter → Snöläge."
+                : "Du kan ändra det i Health Connect under Appbehörigheter → Snöläge."}{" "}
               <button type="button" className="link-button" onClick={() => void openHealthConnectSettings()}>
-                Öppna Health Connect
+                Öppna {HEALTH_STORE_NAME}
               </button>
             </p>
           )}
           <button type="button" className="button button--primary" disabled={busy} onClick={() => void connect()}>
-            Koppla Health Connect
+            Koppla {HEALTH_STORE_NAME}
           </button>
         </div>
       ) : state.kind === "error" ? (
@@ -200,7 +220,8 @@ export default function HealthImportPage() {
         <div className="health-step">
           <p>Inga nya pass med GPS-spår de senaste {LOOKBACK_DAYS} dagarna.</p>
           <p className="muted">
-            Syns inte din tur? Alla klockappar skickar inte GPS-rutten till Health Connect. Då kan du{" "}
+            Syns inte din tur? Alla klockappar skickar inte GPS-rutten till {HEALTH_STORE_NAME}
+            {ios ? ", och har du nekat Träningsrutter visas inga pass" : ""}. Då kan du{" "}
             <Link to="/turer/ny">ladda upp filen</Link> i stället.
           </p>
         </div>
@@ -271,9 +292,9 @@ export default function HealthImportPage() {
               setState({ kind: "not-connected" });
             }}
           >
-            Sluta hämta från Health Connect
+            Sluta hämta från {HEALTH_STORE_NAME}
           </button>{" "}
-          (ta även bort behörigheten i Health Connect om du vill).
+          (ta även bort behörigheten i {HEALTH_STORE_NAME} om du vill).
         </p>
       )}
     </div>
