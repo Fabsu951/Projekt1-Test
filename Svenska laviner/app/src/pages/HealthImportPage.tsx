@@ -7,7 +7,6 @@ import {
   autoImportEnabled,
   defaultTitle,
   disconnectHealth,
-  findNewWorkouts,
   healthConnectAvailable,
   healthConnected,
   healthImportSupported,
@@ -18,6 +17,7 @@ import {
   openHealthConnectSettings,
   rememberImported,
   requestHealthAccess,
+  scanWorkouts,
   setAutoImport,
   type HealthWorkout,
 } from "../services/healthImport";
@@ -34,7 +34,7 @@ type State =
   | { kind: "missing" }
   | { kind: "not-connected"; routesDenied?: boolean }
   | { kind: "loading" }
-  | { kind: "list"; workouts: HealthWorkout[] }
+  | { kind: "list"; workouts: HealthWorkout[]; withoutRoute: number }
   | { kind: "error"; message: string };
 
 function when(iso: string): string {
@@ -64,9 +64,9 @@ export default function HealthImportPage() {
   const load = useCallback(async () => {
     setState({ kind: "loading" });
     try {
-      const workouts = await findNewWorkouts(token);
+      const { workouts, withoutRoute } = await scanWorkouts(token);
       setSelected(new Set(workouts.filter((w) => w.suggested).map((w) => w.id)));
-      setState({ kind: "list", workouts });
+      setState({ kind: "list", workouts, withoutRoute });
     } catch (err) {
       setState({ kind: "error", message: err instanceof Error ? err.message : `Kunde inte läsa från ${HEALTH_STORE_NAME}.` });
     }
@@ -92,7 +92,7 @@ export default function HealthImportPage() {
     setBusy(true);
     try {
       const access = await requestHealthAccess();
-      if (access.workouts && access.routes) await load();
+      if (access.workouts) await load();
       else setState({ kind: "not-connected", routesDenied: true });
     } catch (err) {
       setState({ kind: "error", message: err instanceof Error ? err.message : "Kunde inte be om åtkomst." });
@@ -196,7 +196,7 @@ export default function HealthImportPage() {
           </ol>
           {state.routesDenied && (
             <p className="notice">
-              Utan åtkomst till träningsrutter finns inga spår att hämta.{" "}
+              Snöläge behöver åtkomst till dina träningspass.{" "}
               {ios
                 ? "Du kan ändra det i Inställningar → Hälsa → Dataåtkomst och enheter → Snöläge."
                 : "Du kan ändra det i Health Connect under Appbehörigheter → Snöläge."}{" "}
@@ -219,6 +219,7 @@ export default function HealthImportPage() {
       ) : state.workouts.length === 0 ? (
         <div className="health-step">
           <p>Inga nya pass med GPS-spår de senaste {LOOKBACK_DAYS} dagarna.</p>
+          <RoutelessNote count={state.withoutRoute} ios={ios} />
           <p className="muted">
             Syns inte din tur? Alla klockappar skickar inte GPS-rutten till {HEALTH_STORE_NAME}
             {ios ? ", och har du nekat Träningsrutter visas inga pass" : ""}. Då kan du{" "}
@@ -227,6 +228,7 @@ export default function HealthImportPage() {
         </div>
       ) : (
         <>
+          <RoutelessNote count={state.withoutRoute} ios={ios} />
           <ul className="health-list">
             {state.workouts.map((w) => (
               <li key={w.id} className="health-list__item">
@@ -298,5 +300,21 @@ export default function HealthImportPage() {
         </p>
       )}
     </div>
+  );
+}
+
+/** Sessions that came without a GPS route: say so, so an empty list isn't a mystery. */
+function RoutelessNote({ count, ios }: { count: number; ios: boolean }) {
+  if (count <= 0) return null;
+  return (
+    <p className="notice">
+      {count === 1 ? "1 pass" : `${count} pass`} hittades utan GPS-rutt.{" "}
+      {ios
+        ? "Kontrollera att Träningsrutter är påslaget i Inställningar → Hälsa → Dataåtkomst och enheter → Snöläge, och att klockans app sparar rutten i Apple Hälsa."
+        : "Kontrollera att klockans app sparar rutten i Health Connect och att Snöläge får läsa träningsrutter (Health Connect → Appbehörigheter → Snöläge)."}{" "}
+      <button type="button" className="link-button" onClick={() => void openHealthConnectSettings()}>
+        Öppna {HEALTH_STORE_NAME}
+      </button>
+    </p>
   );
 }

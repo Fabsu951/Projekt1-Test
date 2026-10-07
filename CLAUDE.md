@@ -547,6 +547,14 @@ the start, exact map point.
   First run found a real bug: capacitor-health's types say
   `permissions` is a list, but Android and iOS return one object →
   "e.permissions.some is not a function"; `permissionGranted()` reads both.
+  Second: the route permission never reads as granted on Android 14 (the
+  plugin asks for `READ_EXERCISE_ROUTE`; other apps' routes come per
+  session via HC's `ExerciseRouteRequestContract`, which capacitor-health
+  doesn't implement — it only returns routes when `ExerciseRouteResult.Data`).
+  So "connected" now needs only READ_WORKOUTS, and `scanWorkouts` reports
+  `withoutRoute` (shown as a notice). If watch routes still don't arrive,
+  the fix is native: a small plugin that launches the consent contract
+  per session — must be compiled on Fabian's PC.
 - **Offline (2026-10-05):** "Utan täckning" page `/offline`
   (`OfflinePage.tsx`: what works / needs a connection + what this device has
   saved + a before-the-tour checklist), `OfflineBanner` under the header
@@ -779,6 +787,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (192 tests as of 2026-10-07, all passing). Worker has its own Vitest
+  (193 tests as of 2026-10-07, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 122 tests, including the
   real-page fixtures).

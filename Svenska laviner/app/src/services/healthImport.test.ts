@@ -8,7 +8,7 @@ const { queryWorkouts, createTour, fetchImportedSources } = vi.hoisted(() => ({
 vi.mock("capacitor-health", () => ({ Health: { queryWorkouts } }));
 vi.mock("./tourService", () => ({ createTour, fetchImportedSources }));
 
-import { checkForNewWorkouts, defaultTitle, findNewWorkouts, permissionGranted, setAutoImport, toHealthWorkout } from "./healthImport";
+import { checkForNewWorkouts, defaultTitle, findNewWorkouts, permissionGranted, scanWorkouts, setAutoImport, toHealthWorkout } from "./healthImport";
 
 function route(n: number, stepDeg = 0.001) {
   return Array.from({ length: n }, (_, i) => ({
@@ -77,6 +77,14 @@ describe("finding and importing new sessions", () => {
   it("leaves out sessions already imported on another phone", async () => {
     fetchImportedSources.mockResolvedValue(["hc:ski-1"]);
     expect((await findNewWorkouts("token")).map((w) => w.id)).toEqual(["run-1"]);
+  });
+
+  it("counts new sessions that came without a GPS route", async () => {
+    const noRoute = { ...base, id: "walk-1", workoutType: "WALKING" };
+    queryWorkouts.mockResolvedValue({ workouts: [ski, run, noRoute] });
+    const r = await scanWorkouts("token");
+    expect(r.workouts.map((w) => w.id)).toEqual(["run-1", "ski-1"]);
+    expect(r.withoutRoute).toBe(1);
   });
 
   it("only lists, without importing, while automatic import is off", async () => {

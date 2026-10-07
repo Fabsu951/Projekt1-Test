@@ -97,11 +97,16 @@ export function permissionGranted(response: { permissions?: unknown } | null | u
   return list.some((p) => !!p && typeof p === "object" && (p as Record<string, unknown>)[name] === true);
 }
 
-/** Asks for sessions + routes. Returns whether routes may be read (without them there is nothing to import). */
+/**
+ * Asks for sessions + routes. Connected once sessions may be read: Health
+ * Connect on Android 14 never reports the route permission as granted (other
+ * apps' routes are released per session there), so whether routes really
+ * come through shows in the scan (`withoutRoute`), not here.
+ */
 export async function requestHealthAccess(): Promise<{ workouts: boolean; routes: boolean }> {
   const res = await Health.requestHealthPermissions({ permissions: ["READ_WORKOUTS", "READ_ROUTE"] });
   const result = { workouts: permissionGranted(res, "READ_WORKOUTS"), routes: permissionGranted(res, "READ_ROUTE") };
-  await Preferences.set({ key: CONNECTED_KEY, value: result.workouts && result.routes ? "1" : "0" });
+  await Preferences.set({ key: CONNECTED_KEY, value: result.workouts ? "1" : "0" });
   return result;
 }
 
@@ -161,6 +166,14 @@ export const sourceRefFor = (w: Pick<HealthWorkout, "id">) => `${SOURCE_PREFIX}:
  * newest first. With a token, tours imported from another phone count too.
  */
 export async function findNewWorkouts(token?: string | null, now = new Date()): Promise<HealthWorkout[]> {
+  return (await scanWorkouts(token, now)).workouts;
+}
+
+/** Like findNewWorkouts, plus how many new sessions came without a usable GPS route. */
+export async function scanWorkouts(
+  token?: string | null,
+  now = new Date()
+): Promise<{ workouts: HealthWorkout[]; withoutRoute: number }> {
   const start = new Date(now.getTime() - LOOKBACK_DAYS * 86_400_000);
   const { workouts } = await Health.queryWorkouts({
     startDate: start.toISOString(),
@@ -171,10 +184,15 @@ export async function findNewWorkouts(token?: string | null, now = new Date()): 
   });
   const done = new Set(await importedIds());
   const onServer = new Set(token ? await fetchImportedSources(token, SOURCE_PREFIX).catch(() => []) : []);
-  return workouts
-    .map(toHealthWorkout)
-    .filter((w): w is HealthWorkout => w !== null && !done.has(w.id) && !onServer.has(sourceRefFor(w)))
-    .sort((a, b) => (a.startDate < b.startDate ? 1 : -1));
+  const fresh = workouts.filter((w) => {
+    const id = w.id ?? `${w.startDate}-${w.endDate}`;
+    return !done.has(id) && !onServer.has(sourceRefFor({ id }));
+  });
+  const usable = fresh.map(toHealthWorkout).filter((w): w is HealthWorkout => w !== null);
+  return {
+    workouts: usable.sort((a, b) => (a.startDate < b.startDate ? 1 : -1)),
+    withoutRoute: fresh.length - usable.length,
+  };
 }
 
 /** "Skidtur 3 februari" – a starting title the user can change later. */
