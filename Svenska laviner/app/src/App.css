@@ -1065,8 +1065,10 @@
 }
 
 .privacy a,
-.form__privacy a {
+.form__privacy a,
+.form__field--checkbox a {
   color: var(--accent);
+  text-decoration: underline;
 }
 
 /* Today's avalanche problems (RegionDetail) */
