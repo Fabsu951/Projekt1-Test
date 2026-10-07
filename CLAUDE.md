@@ -315,6 +315,12 @@ the start, exact map point.
   for the Capacitor apps), put the site key in `.env.production`,
   `npx wrangler secret put TURNSTILE_SECRET_KEY`, deploy. Set both or
   neither — secret without site key blocks all signups.
+  **Widget created 2026-10-07** ("Snöläge registrering", Managed, no
+  pre-clearance, hostnames `fjallkoll.pages.dev` + `localhost`; add
+  `snolage.se` when the domain is live). Site key
+  `0x4AAAAAAFP30ifEeD290W8o` is in `app/.env.production` (public). Order:
+  deploy the site first, then `npx wrangler secret put TURNSTILE_SECRET_KEY`
+  (Fabian has the secret; never in chat) — confirm it's done.
 - **Web push (built, OFF until keys exist):** "Notis när farograden ändras i
   mina områden" checkbox under "Mina områden" (`PushToggle.tsx`,
   `services/push.ts`, `public/sw.js`), shown only in browsers with push
