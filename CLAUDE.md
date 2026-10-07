@@ -176,7 +176,7 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   viewed tiles survive the shutdown), else 302s to OpenStreetMap.
   Bulk import: `worker/scripts/import-tiles.ts` (run with `npx tsx`,
   uses `node:sqlite`, maps GeoPackage levels onto z/x/y via
-  `gpkgTiles.ts`, uploads 200-tile batches in `tileBatch.ts` format to
+  `gpkgTiles.ts`, uploads 40-tile / ≤ 1 MB batches (was 200: hit Cloudflare 1102 "Worker exceeded resource limits" on the free plan after ~25k tiles, 2026-10-07; a 1102/413 answer now splits the batch in half) in `tileBatch.ts` format to
   `POST /admin/tiles/topowebb`, authorised by a fresh random
   `TILE_UPLOAD_TOKEN` secret it sets each run). Fabian's step-by-step
   (~270k tiles ≈ 7 GB) is in `Svenska laviner/KARTBYTE.md`. **Ordered

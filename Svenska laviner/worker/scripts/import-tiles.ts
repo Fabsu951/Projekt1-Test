@@ -36,8 +36,10 @@ import {
 
 const WORKER = process.env.FJALLKOLL_WORKER_URL ?? "https://fjallkoll-worker.fabian-n-sund.workers.dev";
 // Well inside a Worker invocation's limits on the free plan.
-const BATCH_TILES = 200;
-const BATCH_BYTES = 8 * 1024 * 1024;
+// Small batches: on the free plan a Worker gets ~10 ms CPU per request, and
+// 200 tiles per request hit "Worker exceeded resource limits" (1102) on 2026-10-07.
+const BATCH_TILES = 40;
+const BATCH_BYTES = 1024 * 1024;
 const PARALLEL = 4;
 
 interface Options {
@@ -125,6 +127,9 @@ function describe(db: import("node:sqlite").DatabaseSync, wanted: string | null)
   return { tables, table, levels };
 }
 
+/** The Worker ran out of CPU/memory for this request (Cloudflare error 1102) – a smaller batch will do. */
+const tooBig = (status: number, text: string) => status === 413 || ((status === 503 || status === 500) && /1102|exceeded resource limits/i.test(text));
+
 async function upload(token: string, tiles: Tile[]): Promise<void> {
   const body = encodeTiles(tiles);
   for (let attempt = 1; ; attempt++) {
@@ -136,9 +141,22 @@ async function upload(token: string, tiles: Tile[]): Promise<void> {
       });
       if (res.ok) return;
       if (res.status === 401) throw Object.assign(new Error("Workern godkände inte uppladdningsnyckeln."), { fatal: true });
-      throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+      const text = await res.text();
+      if (tooBig(res.status, text) && tiles.length > 1) {
+        // Split in half and send each part on its own.
+        const half = Math.ceil(tiles.length / 2);
+        try {
+          await upload(token, tiles.slice(0, half));
+          await upload(token, tiles.slice(half));
+        } catch (err) {
+          // The halves already retried on their own.
+          throw Object.assign(err as Error, { fatal: true });
+        }
+        return;
+      }
+      throw new Error(`HTTP ${res.status}: ${text.length > 300 ? `${text.slice(0, 300)}…` : text}`);
     } catch (err) {
-      if ((err as { fatal?: boolean }).fatal || attempt >= 4) throw err;
+      if ((err as { fatal?: boolean }).fatal || attempt >= 6) throw err;
       await new Promise((r) => setTimeout(r, 2000 * attempt));
     }
   }
