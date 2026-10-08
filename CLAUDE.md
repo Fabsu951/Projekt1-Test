@@ -48,8 +48,11 @@
 > (Free) and its name servers switched to Cloudflare's the same day. Code
 > now uses `https://snolage.se` (`APP_URL`, `VITE_PUBLIC_SITE_URL`, Android
 > `privacy_policy_url`) — deploy only once the Pages custom domain works.
-> Still to do: Pages custom domains `snolage.se` + `www`, Turnstile hostname
-> `snolage.se`, Resend + `EMAIL_FROM`, the three other domains → redirect.
+> Turnstile hostnames `snolage.se` + `www` added; Resend domain `snolage.se`
+> (eu-west-1) created; `EMAIL_FROM = "Snöläge <noreply@snolage.se>"` is in
+> `wrangler.toml` (inert until the `RESEND_API_KEY` secret exists — set it
+> only after Resend says Verified). Still to do: Pages custom domains
+> `snolage.se` + `www`, Resend verify + key, the three other domains → redirect.
 
 Swedish avalanche forecast/safety app ("Snöläge") for backcountry skiers,
 inspired by Varsom, Rusk, and Skiguide. TypeScript, packaged as both a website
