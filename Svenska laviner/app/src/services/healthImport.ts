@@ -1,4 +1,4 @@
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, registerPlugin } from "@capacitor/core";
 import { Preferences } from "@capacitor/preferences";
 import { Health, type Workout } from "capacitor-health";
 import { distanceM, simplify, type TrackPoint } from "../utils/trackImport";
@@ -62,6 +62,32 @@ export interface HealthWorkout {
   /** Probably skiing or touring, so ticked by default. */
   suggested: boolean;
 }
+
+/** A session that came without a GPS route; on Android it can often be asked for one at a time. */
+export interface RoutelessWorkout {
+  id: string;
+  type: string;
+  label: string;
+  startDate: string;
+  endDate: string;
+  distanceM: number | null;
+  suggested: boolean;
+  /** Health Connect gave the session an id, so its route can be asked for. */
+  canAsk: boolean;
+}
+
+interface RoutePoint {
+  timestamp: string;
+  lat: number;
+  lng: number;
+  alt?: unknown;
+}
+
+/** Our own small Android plugin (android/app/.../HealthRoutesPlugin.java). */
+interface HealthRoutesPlugin {
+  requestRoute(options: { id: string }): Promise<{ granted: boolean; route: RoutePoint[] }>;
+}
+const HealthRoutes = registerPlugin<HealthRoutesPlugin>("HealthRoutes");
 
 /** Only in the Android app (Health Connect) and the iPhone app (Apple Hälsa). */
 export function healthImportSupported(): boolean {
@@ -136,12 +162,23 @@ export async function rememberImported(ids: string[]): Promise<void> {
   await Preferences.set({ key: IMPORTED_KEY, value: JSON.stringify(all) });
 }
 
+/**
+ * Height in metres. Our plugin sends a number; capacitor-health sends Health
+ * Connect's Length object as text, e.g. "812.4 meters".
+ */
+export function altitudeOf(alt: unknown): number | null {
+  if (typeof alt === "number") return Number.isFinite(alt) ? alt : null;
+  if (typeof alt !== "string") return null;
+  const m = /^\s*(-?\d+(?:\.\d+)?)\s*(?:m|meters?)\s*$/i.exec(alt);
+  return m ? Number(m[1]) : null;
+}
+
 /** Turns a Health Connect session into our track format, or null if it has no usable route. */
 export function toHealthWorkout(w: Workout): HealthWorkout | null {
-  const route = w.route ?? [];
+  const route = (w.route ?? []) as RoutePoint[];
   const raw: TrackPoint[] = route
     .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng))
-    .map((p) => [p.lat, p.lng, typeof p.alt === "number" && Number.isFinite(p.alt) ? p.alt : null, Date.parse(p.timestamp) || null]);
+    .map((p) => [p.lat, p.lng, altitudeOf(p.alt), Date.parse(p.timestamp) || null]);
   if (raw.length < MIN_POINTS) return null;
   let length = 0;
   for (let i = 1; i < raw.length; i++) length += distanceM(raw[i - 1], raw[i]);
@@ -173,7 +210,7 @@ export async function findNewWorkouts(token?: string | null, now = new Date()): 
 export async function scanWorkouts(
   token?: string | null,
   now = new Date()
-): Promise<{ workouts: HealthWorkout[]; withoutRoute: number }> {
+): Promise<{ workouts: HealthWorkout[]; withoutRoute: RoutelessWorkout[] }> {
   const start = new Date(now.getTime() - LOOKBACK_DAYS * 86_400_000);
   const { workouts } = await Health.queryWorkouts({
     startDate: start.toISOString(),
@@ -188,11 +225,57 @@ export async function scanWorkouts(
     const id = w.id ?? `${w.startDate}-${w.endDate}`;
     return !done.has(id) && !onServer.has(sourceRefFor({ id }));
   });
-  const usable = fresh.map(toHealthWorkout).filter((w): w is HealthWorkout => w !== null);
+  const newestFirst = <T extends { startDate: string }>(a: T, b: T) => (a.startDate < b.startDate ? 1 : -1);
+  const usable: HealthWorkout[] = [];
+  const routeless: RoutelessWorkout[] = [];
+  for (const w of fresh) {
+    const ready = toHealthWorkout(w);
+    if (ready) usable.push(ready);
+    else routeless.push(routelessOf(w));
+  }
+  return { workouts: usable.sort(newestFirst), withoutRoute: routeless.sort(newestFirst) };
+}
+
+function routelessOf(w: Workout): RoutelessWorkout {
+  const type = w.workoutType || "other";
   return {
-    workouts: usable.sort((a, b) => (a.startDate < b.startDate ? 1 : -1)),
-    withoutRoute: fresh.length - usable.length,
+    id: w.id ?? `${w.startDate}-${w.endDate}`,
+    type,
+    label: TYPE_LABELS[typeKey(type)] ?? "Pass",
+    startDate: w.startDate,
+    endDate: w.endDate,
+    distanceM: typeof w.distance === "number" && w.distance > 0 ? Math.round(w.distance) : null,
+    suggested: WINTER_TYPES.has(typeKey(type)),
+    canAsk: !!w.id,
   };
+}
+
+/** Whether this phone can ask Health Connect for a single workout's route (our Android plugin). */
+export function routeRequestAvailable(): boolean {
+  return Capacitor.getPlatform() === "android" && Capacitor.isPluginAvailable("HealthRoutes");
+}
+
+/**
+ * Opens Health Connect's dialog asking to share one workout's GPS route.
+ * Returns the workout ready to import, or null if the user said no or the
+ * workout has no usable route.
+ */
+export async function requestWorkoutRoute(w: RoutelessWorkout): Promise<HealthWorkout | null> {
+  if (!w.canAsk) return null;
+  const answer = await HealthRoutes.requestRoute({ id: w.id });
+  if (!answer.granted) return null;
+  return toHealthWorkout({
+    id: w.id,
+    workoutType: w.type,
+    startDate: w.startDate,
+    endDate: w.endDate,
+    distance: w.distanceM ?? undefined,
+    route: answer.route as Workout["route"],
+    sourceName: "",
+    sourceBundleId: "",
+    duration: 0,
+    calories: 0,
+  });
 }
 
 /** "Skidtur 3 februari" – a starting title the user can change later. */

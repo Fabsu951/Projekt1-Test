@@ -564,9 +564,18 @@ the start, exact map point.
   session via HC's `ExerciseRouteRequestContract`, which capacitor-health
   doesn't implement — it only returns routes when `ExerciseRouteResult.Data`).
   So "connected" now needs only READ_WORKOUTS, and `scanWorkouts` reports
-  `withoutRoute` (shown as a notice). If watch routes still don't arrive,
-  the fix is native: a small plugin that launches the consent contract
-  per session — must be compiled on Fabian's PC.
+  `withoutRoute`. **Per-session route consent (2026-10-08, not compiled
+  here):** own Capacitor plugin `HealthRoutesPlugin.java` (registered in
+  `MainActivity` before `super.onCreate`) opens HC's
+  `ExerciseRouteRequestContract` dialog via `startActivityForResult` +
+  `@ActivityCallback` and returns `{granted, route: [{timestamp, lat, lng,
+  alt}]}`; app module now depends on `connect-client:1.2.0-alpha01` (same as
+  capacitor-health). Manifest also declares `READ_EXERCISE_ROUTES` (Android
+  15 name). `scanWorkouts().withoutRoute` is now `RoutelessWorkout[]`;
+  `/turer/halsa` lists them ("Pass där rutten saknas") with "Hämta rutten"
+  (`requestWorkoutRoute`, Android + plugin present only) / "Hoppa över";
+  elsewhere the old settings hint. `altitudeOf()` also reads
+  capacitor-health's altitude, which arrives as Length text ("812.4 meters").
 - **Offline (2026-10-05):** "Utan täckning" page `/offline`
   (`OfflinePage.tsx`: what works / needs a connection + what this device has
   saved + a before-the-tour checklist), `OfflineBanner` under the header
@@ -811,6 +820,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (196 tests as of 2026-10-08, all passing). Worker has its own Vitest
+  (198 tests as of 2026-10-08, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 129 tests, including the
   real-page fixtures).

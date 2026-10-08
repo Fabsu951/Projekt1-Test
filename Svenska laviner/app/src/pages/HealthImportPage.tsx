@@ -17,9 +17,12 @@ import {
   openHealthConnectSettings,
   rememberImported,
   requestHealthAccess,
+  requestWorkoutRoute,
+  routeRequestAvailable,
   scanWorkouts,
   setAutoImport,
   type HealthWorkout,
+  type RoutelessWorkout,
 } from "../services/healthImport";
 import type { Tour } from "../types/tour";
 import { formatDistance } from "../utils/tourFormat";
@@ -34,7 +37,7 @@ type State =
   | { kind: "missing" }
   | { kind: "not-connected"; routesDenied?: boolean }
   | { kind: "loading" }
-  | { kind: "list"; workouts: HealthWorkout[]; withoutRoute: number }
+  | { kind: "list"; workouts: HealthWorkout[]; withoutRoute: RoutelessWorkout[] }
   | { kind: "error"; message: string };
 
 function when(iso: string): string {
@@ -122,6 +125,28 @@ export default function HealthImportPage() {
   async function skipSelected(workouts: HealthWorkout[]) {
     await rememberImported(workouts.filter((w) => selected.has(w.id)).map((w) => w.id));
     await load();
+  }
+
+  /** Asks Health Connect for one session's route; on success it joins the list above. */
+  async function fetchRoute(w: RoutelessWorkout): Promise<boolean> {
+    const ready = await requestWorkoutRoute(w);
+    if (!ready) return false;
+    setState((s) =>
+      s.kind === "list"
+        ? {
+            ...s,
+            workouts: [ready, ...s.workouts].sort((a, b) => (a.startDate < b.startDate ? 1 : -1)),
+            withoutRoute: s.withoutRoute.filter((x) => x.id !== w.id),
+          }
+        : s
+    );
+    if (ready.suggested) setSelected((sel) => new Set(sel).add(ready.id));
+    return true;
+  }
+
+  async function skipRouteless(w: RoutelessWorkout) {
+    await rememberImported([w.id]);
+    setState((s) => (s.kind === "list" ? { ...s, withoutRoute: s.withoutRoute.filter((x) => x.id !== w.id) } : s));
   }
 
   function toggle(id: string) {
@@ -228,7 +253,7 @@ export default function HealthImportPage() {
       ) : state.workouts.length === 0 ? (
         <div className="health-step">
           <p>Inga nya pass med GPS-spår de senaste {LOOKBACK_DAYS} dagarna.</p>
-          <RoutelessNote count={state.withoutRoute} ios={ios} />
+          <RoutelessList items={state.withoutRoute} onFetch={fetchRoute} onSkip={skipRouteless} />
           <p className="muted">
             Syns inte din tur? Alla klockappar skickar inte GPS-rutten till {HEALTH_STORE_NAME}
             {ios ? ", och har du nekat Träningsrutter visas inga pass" : ""}. Då kan du{" "}
@@ -237,7 +262,7 @@ export default function HealthImportPage() {
         </div>
       ) : (
         <>
-          <RoutelessNote count={state.withoutRoute} ios={ios} />
+          <RoutelessList items={state.withoutRoute} onFetch={fetchRoute} onSkip={skipRouteless} />
           <ul className="health-list">
             {state.workouts.map((w) => (
               <li key={w.id} className="health-list__item">
@@ -312,18 +337,76 @@ export default function HealthImportPage() {
   );
 }
 
-/** Sessions that came without a GPS route: say so, so an empty list isn't a mystery. */
-function RoutelessNote({ count, ios }: { count: number; ios: boolean }) {
-  if (count <= 0) return null;
+/**
+ * Sessions that came without a GPS route. In the Android app each one can be
+ * asked for (Health Connect shows its own dialog per session); elsewhere we
+ * explain where the route permission lives.
+ */
+function RoutelessList({
+  items,
+  onFetch,
+  onSkip,
+}: {
+  items: RoutelessWorkout[];
+  onFetch: (w: RoutelessWorkout) => Promise<boolean>;
+  onSkip: (w: RoutelessWorkout) => Promise<void>;
+}) {
+  const [status, setStatus] = useState<Record<string, "busy" | "none" | "error">>({});
+  if (items.length === 0) return null;
+  const canAsk = routeRequestAvailable();
+  if (!canAsk) {
+    return (
+      <p className="notice">
+        {items.length === 1 ? "1 pass" : `${items.length} pass`} hittades utan GPS-rutt.{" "}
+        {ios
+          ? "Kontrollera att Träningsrutter är påslaget i Inställningar → Hälsa → Dataåtkomst och enheter → Snöläge, och att klockans app sparar rutten i Apple Hälsa."
+          : "Kontrollera att klockans app sparar rutten i Health Connect och att Snöläge får läsa träningsrutter (Health Connect → Appbehörigheter → Snöläge)."}{" "}
+        <button type="button" className="link-button" onClick={() => void openHealthConnectSettings()}>
+          Öppna {HEALTH_STORE_NAME}
+        </button>
+      </p>
+    );
+  }
+
+  async function fetchOne(w: RoutelessWorkout) {
+    setStatus((s) => ({ ...s, [w.id]: "busy" }));
+    try {
+      const ok = await onFetch(w);
+      if (!ok) setStatus((s) => ({ ...s, [w.id]: "none" }));
+    } catch {
+      setStatus((s) => ({ ...s, [w.id]: "error" }));
+    }
+  }
+
   return (
-    <p className="notice">
-      {count === 1 ? "1 pass" : `${count} pass`} hittades utan GPS-rutt.{" "}
-      {ios
-        ? "Kontrollera att Träningsrutter är påslaget i Inställningar → Hälsa → Dataåtkomst och enheter → Snöläge, och att klockans app sparar rutten i Apple Hälsa."
-        : "Kontrollera att klockans app sparar rutten i Health Connect och att Snöläge får läsa träningsrutter (Health Connect → Appbehörigheter → Snöläge)."}{" "}
-      <button type="button" className="link-button" onClick={() => void openHealthConnectSettings()}>
-        Öppna {HEALTH_STORE_NAME}
-      </button>
-    </p>
+    <section className="health-routeless" aria-labelledby="health-routeless-title">
+      <h2 id="health-routeless-title">Pass där rutten saknas ({items.length})</h2>
+      <p className="muted">
+        Health Connect lämnar ut rutter från klockans app ett pass i taget. Tryck på <strong>Hämta rutten</strong> och
+        tillåt i rutan som visas. Väljer du <strong>Tillåt alltid</strong> där behöver du inte fråga igen.
+      </p>
+      <ul className="health-routeless__list">
+        {items.map((w) => (
+          <li key={w.id}>
+            <span>
+              <strong>{w.label}</strong> · {when(w.startDate)}
+              {w.distanceM ? ` · ${formatDistance(w.distanceM)}` : ""}
+              {status[w.id] === "none" && <span className="health-routeless__note">Ingen GPS-rutt i det här passet.</span>}
+              {status[w.id] === "error" && <span className="health-routeless__note">Health Connect svarade inte. Försök igen.</span>}
+            </span>
+            <span className="health-routeless__actions">
+              {w.canAsk && status[w.id] !== "none" && (
+                <button type="button" className="button" disabled={status[w.id] === "busy"} onClick={() => void fetchOne(w)}>
+                  {status[w.id] === "busy" ? "Väntar…" : "Hämta rutten"}
+                </button>
+              )}
+              <button type="button" className="link-button" onClick={() => void onSkip(w)}>
+                Hoppa över
+              </button>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

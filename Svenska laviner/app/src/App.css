@@ -3977,3 +3977,39 @@ h1 .admin-badge {
   flex-direction: column;
   gap: 8px;
 }
+
+/* Health Connect sessions whose route has to be asked for one at a time */
+.health-routeless {
+  margin: 16px 0;
+}
+
+.health-routeless__list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.health-routeless__list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.92rem;
+}
+
+.health-routeless__note {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.health-routeless__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

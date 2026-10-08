@@ -1,14 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { queryWorkouts, createTour, fetchImportedSources } = vi.hoisted(() => ({
+const { queryWorkouts, createTour, fetchImportedSources, requestRoute } = vi.hoisted(() => ({
   queryWorkouts: vi.fn(),
   createTour: vi.fn(),
   fetchImportedSources: vi.fn(),
+  requestRoute: vi.fn(),
 }));
 vi.mock("capacitor-health", () => ({ Health: { queryWorkouts } }));
+vi.mock("@capacitor/core", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@capacitor/core")>()),
+  registerPlugin: () => ({ requestRoute }),
+}));
 vi.mock("./tourService", () => ({ createTour, fetchImportedSources }));
 
-import { checkForNewWorkouts, defaultTitle, findNewWorkouts, permissionGranted, scanWorkouts, setAutoImport, toHealthWorkout } from "./healthImport";
+import { checkForNewWorkouts, defaultTitle, findNewWorkouts, permissionGranted, requestWorkoutRoute, scanWorkouts, setAutoImport, toHealthWorkout, altitudeOf } from "./healthImport";
 
 function route(n: number, stepDeg = 0.001) {
   return Array.from({ length: n }, (_, i) => ({
@@ -84,7 +89,21 @@ describe("finding and importing new sessions", () => {
     queryWorkouts.mockResolvedValue({ workouts: [ski, run, noRoute] });
     const r = await scanWorkouts("token");
     expect(r.workouts.map((w) => w.id)).toEqual(["run-1", "ski-1"]);
-    expect(r.withoutRoute).toBe(1);
+    expect(r.withoutRoute).toEqual([
+      expect.objectContaining({ id: "walk-1", label: "Promenad", canAsk: true, suggested: false }),
+    ]);
+  });
+
+  it("turns a route fetched for one session into an importable workout", async () => {
+    const walk = { id: "walk-1", type: "SKIING", label: "Skidtur", startDate: base.startDate, endDate: base.endDate, distanceM: null, suggested: true, canAsk: true };
+    requestRoute.mockResolvedValueOnce({ granted: true, route: route(50) });
+    expect(await requestWorkoutRoute(walk)).toMatchObject({ id: "walk-1", label: "Skidtur", suggested: true });
+    expect(requestRoute).toHaveBeenCalledWith({ id: "walk-1" });
+    requestRoute.mockResolvedValueOnce({ granted: false, route: [] });
+    expect(await requestWorkoutRoute(walk)).toBeNull();
+    requestRoute.mockClear();
+    expect(await requestWorkoutRoute({ ...walk, canAsk: false })).toBeNull();
+    expect(requestRoute).not.toHaveBeenCalled();
   });
 
   it("only lists, without importing, while automatic import is off", async () => {
@@ -121,5 +140,16 @@ describe("permissionGranted", () => {
     expect(permissionGranted({}, "READ_ROUTE")).toBe(false);
     expect(permissionGranted(null, "READ_ROUTE")).toBe(false);
     expect(permissionGranted({ permissions: "yes" }, "READ_ROUTE")).toBe(false);
+  });
+});
+
+describe("altitudeOf", () => {
+  it("reads numbers and Health Connect's Length text, nothing else", () => {
+    expect(altitudeOf(812.4)).toBe(812.4);
+    expect(altitudeOf("812.4 meters")).toBe(812.4);
+    expect(altitudeOf("-3 m")).toBe(-3);
+    expect(altitudeOf("2600 feet")).toBeNull();
+    expect(altitudeOf(null)).toBeNull();
+    expect(altitudeOf(Number.NaN)).toBeNull();
   });
 });
