@@ -47,8 +47,10 @@ export default function OfflineViewBox({ bounds, onShow }: { bounds: Bounds | nu
   }
 
   return (
-    <div className="offline-box map-layers__note">
-      <p className="offline-box__title">Karta utan täckning</p>
+    <section className="offline-box map-layers__group" aria-labelledby="offline-box-title">
+      <p id="offline-box-title" className="map-layers__title">
+        Karta utan täckning
+      </p>
       {progress ? (
         <div className="offline-box__row">
           <progress max={progress.total} value={progress.done} aria-label="Sparar kartan" />
@@ -72,8 +74,8 @@ export default function OfflineViewBox({ bounds, onShow }: { bounds: Bounds | nu
         </div>
       )}
       {error && <p className="error">{error}</p>}
-      <Link to="/offline" className="offline-box__hint">
-        Vad fungerar utan täckning?
+      <Link to="/offline" className="offline-box__link">
+        Vad fungerar utan täckning? →
       </Link>
       {views.length > 0 && (
         <ul className="offline-box__list">
@@ -101,6 +103,6 @@ export default function OfflineViewBox({ bounds, onShow }: { bounds: Bounds | nu
           ))}
         </ul>
       )}
-    </div>
+    </section>
   );
 }

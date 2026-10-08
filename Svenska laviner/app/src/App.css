@@ -184,6 +184,26 @@
   font-size: 0.88rem;
 }
 
+/* Text-only cards in the safety guide: heading above the text, so long
+   titles don't squeeze the text into a narrow column on phones. */
+.fact-card {
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+}
+
+.fact-card strong {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+}
+
+.fact-card p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
 .steepness-table {
   display: flex;
   flex-direction: column;
@@ -415,21 +435,16 @@
 }
 
 .official-terrain {
-  border: 0;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  margin-top: 4px;
 }
 
-.official-terrain legend {
-  padding: 0;
-  margin-bottom: 4px;
-  font-size: 0.8rem;
+.official-terrain__title {
+  margin: 0;
+  font-size: 0.82rem;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .official-terrain__legend {
@@ -1565,10 +1580,105 @@
 }
 
 .map-layers {
-  padding: 12px 14px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 4px 14px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--bg-elevated);
+}
+
+/* One block per kind of layer, with a small heading and a thin line between. */
+.map-layers__group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  min-width: 0;
+}
+
+.map-layers__group + .map-layers__group {
+  border-top: 1px solid var(--border);
+}
+
+.map-layers__group > .season-filter,
+.map-layers__group > .notice {
+  align-self: stretch;
+}
+
+.map-layers__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.map-layers__sub {
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+.offline-box__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.offline-box__row progress {
+  flex: 1 1 120px;
+}
+
+.offline-box__hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.offline-box__link {
+  font-size: 0.9rem;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.offline-box__link:hover,
+.offline-box__link:focus-visible {
+  text-decoration: underline;
+}
+
+.offline-box__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+}
+
+.offline-box__list li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+}
+
+.offline-box__actions {
+  display: flex;
+  gap: 14px;
+}
+
+@media (max-width: 600px) {
+  .offline-box__row .button {
+    width: 100%;
+  }
 }
 
 .map-layers__note {

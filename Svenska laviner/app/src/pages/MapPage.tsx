@@ -310,75 +310,87 @@ export default function MapPage() {
         </div>
 
         <div id="map-layers" className="map-toolbar map-layers" hidden={!layersOpen}>
-          <label className="map-toolbar__toggle">
-            <input
-              type="checkbox"
-              checked={showObservations}
-              onChange={(e) => setShowObservations(e.target.checked)}
-            />
-            <span className="observation-pin observation-pin--legend"><span /></span>
-            Observationer
-          </label>
-          <label className="map-toolbar__toggle">
-            <input type="checkbox" checked={showTours} onChange={(e) => setShowTours(e.target.checked)} />
-            <span className="tour-pin tour-pin--legend">
-              <span />
-            </span>
-            Turer
-          </label>
-          <label className="map-toolbar__toggle">
-            <input type="checkbox" checked={showHeatmap} onChange={(e) => setShowHeatmap(e.target.checked)} />
-            <span className="heat-legend" aria-hidden="true" />
-            Värmekarta över turer
-          </label>
-          {showHeatmap && <SeasonFilter selected={heatSeasons} onChange={setHeatSeasons} />}
-          <label className="map-toolbar__toggle">
-            <input
-              type="checkbox"
-              checked={showSlope}
-              onChange={(e) => setShowSlope(e.target.checked)}
-            />
-            Terränglutning, egen beräkning (zooma in för att se den)
-          </label>
-          {showSlope && (
-            <div className="slope-legend">
-              {SLOPE_LEGEND.map(([label, color]) => (
-                <span key={label} className="slope-legend__item">
-                  <span className="slope-legend__swatch" style={{ backgroundColor: color }} />
-                  {label}
-                </span>
-              ))}
-            </div>
-          )}
-          {officialTerrainAvailable && (
-            <fieldset className="official-terrain">
-              <legend>Naturvårdsverkets terrängkartor</legend>
-              {(
-                [
-                  ["lutning", "Lutning"],
-                  ["riktning", "Sluttningsriktning"],
-                ] as Array<[OfficialTerrain, string]>
-              ).map(([id, label]) => (
-                <label key={id} className="map-toolbar__toggle">
-                  <input
-                    type="checkbox"
-                    checked={officialTerrain === id}
-                    onChange={(e) => setOfficialTerrain(e.target.checked ? id : null)}
-                  />
-                  {label}
-                </label>
-              ))}
-              {officialTerrain && <OfficialTerrainLegend layer={officialTerrain} />}
-            </fieldset>
-          )}
-          {showHeatmap && (
-            <p className="notice map-layers__note">
-              Värmekartan visar turer som användare delat. Färgen och tjockleken visar hur många olika turer som gått
-              samma väg – tryck på en linje för att se vilka. Början och slutet av
-              turerna är dolda. Den säger inget om förhållandena i dag – kolla alltid lavinprognosen.
-              {heatLines.length === 0 && " Inga delade turer för det valda urvalet än."}
+          <div className="map-layers__group" role="group" aria-labelledby="layers-show">
+            <p id="layers-show" className="map-layers__title">
+              Visa på kartan
             </p>
-          )}
+            <label className="map-toolbar__toggle">
+              <input
+                type="checkbox"
+                checked={showObservations}
+                onChange={(e) => setShowObservations(e.target.checked)}
+              />
+              <span className="observation-pin observation-pin--legend"><span /></span>
+              Observationer
+            </label>
+            <label className="map-toolbar__toggle">
+              <input type="checkbox" checked={showTours} onChange={(e) => setShowTours(e.target.checked)} />
+              <span className="tour-pin tour-pin--legend">
+                <span />
+              </span>
+              Turer
+            </label>
+            <label className="map-toolbar__toggle">
+              <input type="checkbox" checked={showHeatmap} onChange={(e) => setShowHeatmap(e.target.checked)} />
+              <span className="heat-legend" aria-hidden="true" />
+              Värmekarta över turer
+            </label>
+            {showHeatmap && <SeasonFilter selected={heatSeasons} onChange={setHeatSeasons} />}
+            {showHeatmap && (
+              <p className="notice map-layers__note">
+                Värmekartan visar turer som användare delat. Färgen och tjockleken visar hur många olika turer som gått
+                samma väg – tryck på en linje för att se vilka. Början och slutet av
+                turerna är dolda. Den säger inget om förhållandena i dag – kolla alltid lavinprognosen.
+                {heatLines.length === 0 && " Inga delade turer för det valda urvalet än."}
+              </p>
+            )}
+          </div>
+          <div className="map-layers__group" role="group" aria-labelledby="layers-terrain">
+            <p id="layers-terrain" className="map-layers__title">
+              Terräng
+            </p>
+            <label className="map-toolbar__toggle">
+              <input
+                type="checkbox"
+                checked={showSlope}
+                onChange={(e) => setShowSlope(e.target.checked)}
+              />
+              <span>
+                Lutning, egen beräkning <span className="map-layers__sub">(zooma in för att se den)</span>
+              </span>
+            </label>
+            {showSlope && (
+              <div className="slope-legend">
+                {SLOPE_LEGEND.map(([label, color]) => (
+                  <span key={label} className="slope-legend__item">
+                    <span className="slope-legend__swatch" style={{ backgroundColor: color }} />
+                    {label}
+                  </span>
+                ))}
+              </div>
+            )}
+            {officialTerrainAvailable && (
+              <div className="official-terrain">
+                <p className="official-terrain__title">Från Naturvårdsverket</p>
+                {(
+                  [
+                    ["lutning", "Lutning"],
+                    ["riktning", "Sluttningsriktning"],
+                  ] as Array<[OfficialTerrain, string]>
+                ).map(([id, label]) => (
+                  <label key={id} className="map-toolbar__toggle">
+                    <input
+                      type="checkbox"
+                      checked={officialTerrain === id}
+                      onChange={(e) => setOfficialTerrain(e.target.checked ? id : null)}
+                    />
+                    {label}
+                  </label>
+                ))}
+                {officialTerrain && <OfficialTerrainLegend layer={officialTerrain} />}
+              </div>
+            )}
+          </div>
           <OfflineViewBox bounds={viewBounds} onShow={setFlyTarget} />
         </div>
 

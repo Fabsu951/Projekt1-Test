@@ -128,7 +128,7 @@ export default function SafetyGuide() {
         </p>
         <div className="avalanche-problems">
           {SNOWPACK_BASICS.map((item) => (
-            <div key={item.title} className="avalanche-problems__item">
+            <div key={item.title} className="avalanche-problems__item fact-card">
               <strong>{item.title}</strong>
               <p>{item.text}</p>
             </div>
@@ -144,7 +144,7 @@ export default function SafetyGuide() {
         </p>
         <div className="avalanche-problems">
           {WEATHER_FACTORS.map((item) => (
-            <div key={item.title} className="avalanche-problems__item">
+            <div key={item.title} className="avalanche-problems__item fact-card">
               <strong>{item.title}</strong>
               <p>{item.text}</p>
             </div>
