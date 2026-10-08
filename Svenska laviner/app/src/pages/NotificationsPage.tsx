@@ -64,7 +64,11 @@ export default function NotificationsPage() {
         {list?.map((n) => (
           <li key={n.id} className={n.read ? "notification" : "notification notification--unread"}>
             <Link to={n.url} className="notification__link">
-              <Avatar name={n.actor.displayName} avatarPath={people[n.actor.id]?.avatarPath} xp={people[n.actor.id]?.xp} size={40} />
+              {n.kind === "moderation" ? (
+                <Avatar name="Snöläge" avatarPath={null} xp={0} size={40} />
+              ) : (
+                <Avatar name={n.actor.displayName} avatarPath={people[n.actor.id]?.avatarPath} xp={people[n.actor.id]?.xp} size={40} />
+              )}
               <span>
                 <span className="notification__text">{n.text}</span>
                 <span className="notification__time">{when(n.createdAt)}</span>

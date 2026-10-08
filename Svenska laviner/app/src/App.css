@@ -3910,3 +3910,70 @@ h1 .admin-badge {
   max-height: 320px;
   overflow: auto;
 }
+
+/* "Anmäl" on tours, routes, comments and profiles */
+.report-row {
+  margin: 8px 0 0;
+  font-size: 0.88rem;
+}
+
+.report-button__done {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Admin: reported tours, routes, comments and profiles */
+.content-reports {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.content-report {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+}
+
+.content-report__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.content-report__type {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+.content-report__summary {
+  margin: 6px 0 4px;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.content-report__meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.content-report__reasons {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.content-report__actions {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

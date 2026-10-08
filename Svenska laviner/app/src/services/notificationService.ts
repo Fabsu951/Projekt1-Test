@@ -4,7 +4,7 @@ import type { Badge } from "../types/social";
 
 export interface AppNotification {
   id: number;
-  kind: "follow" | "comment" | "reply" | "like";
+  kind: "follow" | "comment" | "reply" | "like" | "moderation";
   actor: { id: number; displayName: string };
   /** Ready-made Swedish sentence from the server. */
   text: string;

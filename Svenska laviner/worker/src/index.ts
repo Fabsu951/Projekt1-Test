@@ -1,3 +1,4 @@
+import { dismissContentReports, listContentReports, removeReportedContent, reportContent } from "./reports";
 import { REGION_SOURCES } from "./regions";
 import { parseForecastHtml, type ParsedForecast } from "./parse";
 import {
@@ -279,6 +280,13 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
     if (pathname === "/observations" && method === "POST")
       return json(await createObservation(request, env), origin, 201);
     if (pathname === "/admin/reported" && method === "GET") return json(await listReported(request, env), origin);
+    if (pathname === "/reports" && method === "POST") return json(await reportContent(request, env), origin);
+    if (pathname === "/admin/content-reports" && method === "GET")
+      return json(await listContentReports(request, env), origin);
+    if (pathname === "/admin/content-reports/dismiss" && method === "POST")
+      return json(await dismissContentReports(request, env), origin);
+    if (pathname === "/admin/content-reports/remove" && method === "POST")
+      return json(await removeReportedContent(request, env, defer), origin);
 
     const obsMatch = pathname.match(/^\/observations\/(\d+)(\/report|\/restore)?$/);
     if (obsMatch) {

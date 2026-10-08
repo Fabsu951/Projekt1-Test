@@ -378,6 +378,14 @@ export async function deleteAccount(request: Request, env: CommunityEnv) {
   ];
   if (keys.length > 0) await env.IMAGES.delete(keys);
   await env.DB.batch([
+    // Reports made by the user, and reports about the user or their things.
+    env.DB.prepare(
+      `DELETE FROM content_reports WHERE user_id = ?1
+         OR (item_type = 'profile' AND item_id = ?1)
+         OR (item_type = 'tour' AND item_id IN (SELECT id FROM tours WHERE user_id = ?1))
+         OR (item_type = 'route' AND item_id IN (SELECT id FROM routes WHERE user_id = ?1))
+         OR (item_type = 'comment' AND item_id IN (SELECT id FROM comments WHERE user_id = ?1))`
+    ).bind(user.id),
     // Comments and likes on the user's things, then the user's own.
     ...(["tour", "observation", "route"] as const).flatMap((type) => {
       const table = type === "tour" ? "tours" : type === "observation" ? "observations" : "routes";

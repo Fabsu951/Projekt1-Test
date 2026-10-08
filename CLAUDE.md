@@ -743,9 +743,21 @@ the start, exact map point.
   art. 9, age, DPAs, transfers) in `Svenska laviner/JURIDIK.md`. Name
   check 2026-10-07: no "Snöläge"/"Snolage" trademarks at PRV or TMview
   (only an unrelated vehicle patent) — free to use; registering is optional.
-- **Known gaps**: no email verification until a domain + Resend are set
-  up; not yet reviewed by a lawyer (see JURIDIK.md); only observations can
-  be reported (DSA).
+- **Reporting everything else (DSA, 2026-10-08):** migration `0017`
+  `content_reports` (item_type tour|route|comment|profile, one row per
+  reporter), `comments.hidden`, `notifications.note`. `worker/src/reports.ts`:
+  `POST /reports` (requirePoster, not your own, only what you can see, 20/h),
+  comments hidden at 3 reports (`listComments` + counts skip hidden for
+  others); admin `GET /admin/content-reports` (drops reports on deleted
+  items), `/dismiss`, `/remove` {reason from `REMOVAL_REASONS`, note} —
+  deletes tour/route/comment, or resets a profile's name to "Användare <id>"
+  + removes the avatar — and sends the owner a "moderation" notification
+  with the reason (statement of reasons). Reports are cleaned up in
+  `socialCleanup`, `deleteComment` and account deletion. App: `ReportButton`
+  on TourPage, FeedCard routes, comments (Reactions) and PersonPage;
+  `ContentReports` section on `/admin`; terms text updated.
+- **Known gaps**: email verification waits for Resend + the key; not yet
+  reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
 
@@ -799,6 +811,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (193 tests as of 2026-10-07, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 123 tests, including the
+  (196 tests as of 2026-10-08, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 129 tests, including the
   real-page fixtures).

@@ -12,6 +12,7 @@ import { fetchTours } from "../services/tourService";
 import type { Person } from "../types/social";
 import type { Tour } from "../types/tour";
 import AdminBadge from "../components/AdminBadge";
+import ReportButton from "../components/ReportButton";
 
 /** Someone's public page: follow them and see the tours they share with you. */
 export default function PersonPage() {
@@ -62,6 +63,7 @@ export default function PersonPage() {
                 ) : (
                   <FollowButton personId={person.id} following={person.iFollow} onChange={(p) => setPerson({ ...person, ...p })} />
                 )}
+                {!person.isMe && <ReportButton type="profile" id={person.id} ownerId={person.id} className="button" />}
                 {user?.isAdmin && !person.isMe && person.avatarPath && token && (
                   <button
                     type="button"

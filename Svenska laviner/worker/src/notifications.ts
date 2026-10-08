@@ -11,7 +11,8 @@ import { isPushEndpoint, sendPush, vapidConfigured, type VapidEnv } from "./webp
 // the bell in the app; also sent as web push to browsers the user has
 // turned that on for.
 
-export type NotificationKind = "follow" | "comment" | "reply" | "like";
+/** "moderation": an admin removed something of yours after a report; `note` says what and why. */
+export type NotificationKind = "follow" | "comment" | "reply" | "like" | "moderation";
 export type NotifyEnv = CommunityEnv & VapidEnv & FcmEnv;
 /** Runs work after the response is sent (ctx.waitUntil in the worker). */
 export type Defer = (work: Promise<unknown>) => void;
@@ -22,6 +23,7 @@ interface NewNotification {
   actorId: number;
   itemType?: ItemType;
   itemId?: number;
+  note?: string;
 }
 
 /** Re-follows and repeated likes within this window don't notify again. */
@@ -50,9 +52,9 @@ export async function notify(env: NotifyEnv, list: NewNotification[], defer?: De
       if (recent) continue;
     }
     const r = await env.DB.prepare(
-      "INSERT INTO notifications (user_id, kind, actor_id, item_type, item_id, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+      "INSERT INTO notifications (user_id, kind, actor_id, item_type, item_id, note, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
     )
-      .bind(n.userId, n.kind, n.actorId, n.itemType ?? null, n.itemId ?? null, now)
+      .bind(n.userId, n.kind, n.actorId, n.itemType ?? null, n.itemId ?? null, n.note ?? null, now)
       .run();
     stored.push({ ...n, id: Number(r.meta.last_row_id) });
   }
@@ -93,6 +95,7 @@ interface Row {
   actorId: number;
   itemType?: ItemType | null;
   itemId?: number | null;
+  note?: string | null;
   created_at: string;
   read_at: string | null;
 }
@@ -147,7 +150,9 @@ async function describe(env: CommunityEnv, rows: Row[]): Promise<NotificationVie
           ? `rutten${title ? ` ”${title}”` : ""}`
           : "en observation";
     const text =
-      r.kind === "follow"
+      r.kind === "moderation"
+        ? (r.note ?? "Något du publicerat har tagits bort efter en anmälan.")
+        : r.kind === "follow"
         ? `${who} började följa dig`
         : r.kind === "comment"
           ? `${who} kommenterade ${thing}`
@@ -155,7 +160,9 @@ async function describe(env: CommunityEnv, rows: Row[]): Promise<NotificationVie
             ? `${who} svarade på ${where}`
             : `${who} gillade ${thing}`;
     const url =
-      r.kind === "follow"
+      r.kind === "moderation"
+        ? "/om-appen#villkor"
+        : r.kind === "follow"
         ? `/person/${r.actorId}`
         : r.itemType === "tour"
           ? `/turer/${r.itemId}`
@@ -165,7 +172,7 @@ async function describe(env: CommunityEnv, rows: Row[]): Promise<NotificationVie
     return {
       id: r.id,
       kind: r.kind,
-      actor: { id: r.actorId, displayName: who },
+      actor: r.kind === "moderation" ? { id: r.actorId, displayName: "Snöläge" } : { id: r.actorId, displayName: who },
       text,
       url,
       createdAt: r.created_at,
@@ -180,7 +187,7 @@ export async function listNotifications(request: Request, env: CommunityEnv) {
     .bind(me.id, new Date(Date.now() - KEEP_DAYS * 864e5).toISOString())
     .run();
   const rows = await env.DB.prepare(
-    `SELECT id, kind, actor_id AS actorId, item_type AS itemType, item_id AS itemId, created_at, read_at
+    `SELECT id, kind, actor_id AS actorId, item_type AS itemType, item_id AS itemId, note, created_at, read_at
        FROM notifications WHERE user_id = ? ORDER BY created_at DESC, id DESC LIMIT ?`
   )
     .bind(me.id, MAX_LIST)

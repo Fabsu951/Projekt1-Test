@@ -5,6 +5,7 @@ import { addComment, deleteComment, fetchComments, setLiked } from "../services/
 import type { Badge, Comment, ItemType } from "../types/social";
 import Avatar from "./Avatar";
 import AdminBadge from "./AdminBadge";
+import ReportButton from "./ReportButton";
 
 const when = (iso: string) =>
   new Date(iso).toLocaleString("sv-SE", {
@@ -138,6 +139,7 @@ export default function Reactions({
                       Ta bort
                     </button>
                   )}
+                  <ReportButton type="comment" id={c.id} ownerId={c.userId} className="comment__delete" />
                 </p>
                 <p className="comment__body">{c.body}</p>
               </div>

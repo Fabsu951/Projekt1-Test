@@ -13,6 +13,7 @@ import { deleteTour, fetchTour, updateTour } from "../services/tourService";
 import type { TourWithTrack } from "../types/tour";
 import { formatDistance, formatDuration, formatTourDate } from "../utils/tourFormat";
 import AdminBadge from "../components/AdminBadge";
+import ReportButton from "../components/ReportButton";
 
 export default function TourPage() {
   const { id = "" } = useParams();
@@ -155,6 +156,11 @@ export default function TourPage() {
             </button>
           </div>
         </section>
+      )}
+      {!isOwner && (
+        <p className="report-row">
+          <ReportButton type="tour" id={tour.id} ownerId={tour.userId} />
+        </p>
       )}
       {user?.isAdmin && !isOwner && (
         <div className="button-row">

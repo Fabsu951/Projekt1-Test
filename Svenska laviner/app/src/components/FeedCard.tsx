@@ -8,6 +8,7 @@ import { imageUrl } from "../services/api";
 import type { Badge, FeedItem } from "../types/social";
 import { formatDistance, formatDuration, formatTourDate } from "../utils/tourFormat";
 import AdminBadge from "./AdminBadge";
+import ReportButton from "./ReportButton";
 
 const ago = (iso: string) =>
   new Date(iso).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -105,7 +106,8 @@ function RouteBody({ item }: { item: Extract<FeedItem, { type: "route" }> }) {
         </ul>
         <Link to={`/karta?rutt=${r.id}`} className="feed-card__open">
           Öppna i kartan →
-        </Link>
+        </Link>{" "}
+        <ReportButton type="route" id={r.id} ownerId={item.author.id} />
       </div>
       <TrackSketch points={r.waypoints} label={`Rutten ${r.title}`} />
     </div>

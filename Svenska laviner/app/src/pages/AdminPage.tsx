@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
+import ContentReports from "../components/ContentReports";
 import ObservationCard from "../components/ObservationCard";
 import PageLoading from "../components/PageLoading";
 import { fetchReported } from "../services/observationService";
@@ -28,9 +29,15 @@ export default function AdminPage() {
       <header className="page__header">
         <h1>Anmälda inlägg</h1>
         <p className="page__lead">
-          Inlägg döljs automatiskt efter 3 anmälningar. Återställ dem som är okej, ta bort resten.
+          Observationer och kommentarer döljs automatiskt efter 3 anmälningar. Turer, rutter och profiler väntar på
+          dig. Den som får något borttaget får en notis med skälet.
         </p>
       </header>
+      <section className="section">
+        <h2>Turer, rutter, kommentarer och profiler</h2>
+        {token && <ContentReports token={token} />}
+      </section>
+      <h2>Observationer</h2>
       {error && <p className="error">{error}</p>}
       {!items && !error && <PageLoading label="Laddar…" />}
       {items && items.length === 0 && <p className="section__intro">Inga anmälda inlägg.</p>}

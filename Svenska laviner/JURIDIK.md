@@ -47,9 +47,11 @@ Ungefär i prioritetsordning:
    värdtjänst/onlineplattform för användarinnehåll. Mikroföretag är
    undantagna från mycket, men inte från "anmälan och åtgärd" (finns: tre
    anmälningar döljer en observation), motivering till den som får innehåll
-   borttaget, och en kontaktpunkt. **Saknas i dag:** anmälan av kommentarer,
-   turer och profiler, och ett automatiskt besked med skäl när något tas
-   bort.
+   borttaget, och en kontaktpunkt. **Byggt 8 oktober 2026:** turer, delade
+   rutter, kommentarer och profiler kan också anmälas (kommentarer döljs
+   efter tre anmälningar), och den som får något borttaget av admin får en
+   notis med skälet. Kvar att fråga: räcker det, och behövs ett sätt att
+   överklaga inne i appen (i dag via mejl)?
 4. **Hälsodata (GDPR art. 9).** Pass och GPS-rutter från Health Connect och
    Apple Hälsa: är det "uppgifter om hälsa"? Vi läser bara pass och rutter,
    aldrig puls eller vikt, och de blir privata turer. Om juristen anser att

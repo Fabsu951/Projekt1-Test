@@ -25,7 +25,7 @@ export function itemType(value: unknown): ItemType {
 }
 
 /** The item's owner, if the viewer may see it; otherwise a 404 that doesn't reveal it exists. */
-async function itemOwner(env: CommunityEnv, type: ItemType, id: number, viewer: User | null): Promise<number> {
+export async function itemOwner(env: CommunityEnv, type: ItemType, id: number, viewer: User | null): Promise<number> {
   const notFound = new HttpError(404, "Inlägget finns inte.");
   if (type === "tour") {
     const row = await env.DB.prepare("SELECT user_id, shared, followers_only FROM tours WHERE id = ?")
@@ -199,7 +199,7 @@ async function reactions(env: CommunityEnv, items: Array<{ type: ItemType; id: n
     .all<{ item_type: ItemType; item_id: number; n: number; mine: number }>();
   for (const r of likes.results) Object.assign(out.get(`${r.item_type}:${r.item_id}`)!, { likes: r.n, likedByMe: r.mine === 1 });
   const comments = await env.DB.prepare(
-    `SELECT item_type, item_id, COUNT(*) AS n FROM comments WHERE ${where} GROUP BY item_type, item_id`
+    `SELECT item_type, item_id, COUNT(*) AS n FROM comments WHERE hidden = 0 AND (${where}) GROUP BY item_type, item_id`
   )
     .bind(...binds)
     .all<{ item_type: ItemType; item_id: number; n: number }>();
@@ -303,9 +303,10 @@ export async function listComments(request: Request, env: CommunityEnv) {
   const owner = await itemOwner(env, type, id, viewer);
   const rows = await env.DB.prepare(
     `SELECT c.id, c.user_id, c.body, c.created_at, u.display_name FROM comments c JOIN users u ON u.id = c.user_id
-      WHERE c.item_type = ? AND c.item_id = ? ORDER BY c.created_at LIMIT 500`
+      WHERE c.item_type = ? AND c.item_id = ? AND (c.hidden = 0 OR c.user_id = ? OR ? = 1)
+      ORDER BY c.created_at LIMIT 500`
   )
-    .bind(type, id)
+    .bind(type, id, viewer?.id ?? -1, viewer?.isAdmin ? 1 : 0)
     .all<{ id: number; user_id: number; body: string; created_at: string; display_name: string }>();
   const counts = viewer ? (await reactions(env, [{ type, id }], viewer.id)).get(`${type}:${id}`)! : null;
   const likes = counts?.likes ?? ((await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE item_type = ? AND item_id = ?").bind(type, id).first<{ n: number }>())?.n ?? 0);
@@ -374,7 +375,10 @@ export async function deleteComment(request: Request, env: CommunityEnv, comment
     }
   }
   if (!allowed) throw new HttpError(403, "Du kan inte ta bort den här kommentaren.");
-  await env.DB.prepare("DELETE FROM comments WHERE id = ?").bind(commentId).run();
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM comments WHERE id = ?").bind(commentId),
+    env.DB.prepare("DELETE FROM content_reports WHERE item_type = 'comment' AND item_id = ?").bind(commentId),
+  ]);
   return { ok: true };
 }
 

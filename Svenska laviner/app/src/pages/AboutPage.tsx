@@ -163,10 +163,11 @@ export default function AboutPage() {
 
         <h3>Anmälan och borttagning</h3>
         <p>
-          Alla kan anmäla en observation som bryter mot villkoren. Efter tre anmälningar döljs den tills en
-          administratör har granskat den. Vi får ta bort innehåll som bryter mot villkoren eller mot lag, och stänga
-          av konton som gör det upprepade gånger. Tycker du att något tagits bort felaktigt, eller vill du anmäla
-          något annat än en observation, mejla oss.
+          Den som är inloggad kan anmäla observationer, turer, delade rutter, kommentarer och profiler som bryter mot
+          villkoren eller mot lag. Observationer och kommentarer döljs efter tre anmälningar tills en administratör har
+          granskat dem; övrigt granskas av en administratör. Vi får ta bort innehåll som bryter mot villkoren eller mot
+          lag, och stänga av konton som gör det upprepade gånger. Tar vi bort något du publicerat får du en notis om vad
+          som togs bort och varför. Tycker du att det blev fel, mejla oss.
         </p>
 
         <h3>Ansvar och ändringar</h3>
@@ -333,7 +334,7 @@ export default function AboutPage() {
           länkar för att bekräfta e-post efter 24 timmar och länkar för lösenordsåterställning efter en timme. Notiser
           raderas efter 90 dagar och räkningen av inloggningsförsök efter ett dygn. Uppgifter för push-notiser sparas
           tills du stänger av notiserna, eller tills telefonen eller webbläsaren slutar ta emot dem. Anmälningar sparas
-          så länge den anmälda observationen finns. Raderade uppgifter kan finnas kvar i databasens automatiska
+          tills de har hanterats, eller så länge det anmälda innehållet finns. Raderade uppgifter kan finnas kvar i databasens automatiska
           säkerhetskopior i upp till 30 dagar, och används inte under den tiden.
         </p>
 
