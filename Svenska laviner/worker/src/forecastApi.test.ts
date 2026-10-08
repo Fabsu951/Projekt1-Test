@@ -14,6 +14,7 @@ import {
   seasonSummary,
   mergeForecasts,
   seasonUrls,
+  toProblem,
   type ApiForecast,
 } from "./forecastApi";
 import { extractModel, readForecast } from "./model";
@@ -48,6 +49,12 @@ describe("forecast API answers", () => {
       expect(p.infoUrl).toMatch(/^https:\/\/www\.lavinprognoser\.se\/sa-laser-du-lavinprognosen\/lavinproblem\/[a-z-]+\/$/);
       expect(p.sensitivity ?? "").not.toMatch(/<|&nbsp;/);
     }
+  });
+
+  it("knows all five avalanche sizes and shows none for unknown codes", () => {
+    const sizeOf = (code: number) => toProblem({ title: "Drevsnöflak", size_meter_value: code })?.size;
+    expect([5, 40, 85, 130, 165].map((c) => sizeOf(c)?.match(/storlek (\d)/)?.[1])).toEqual(["1", "2", "3", "4", "5"]);
+    expect(sizeOf(60)).toBeNull();
   });
 
   it("uses the morning correction, not the evening forecast it replaced", () => {

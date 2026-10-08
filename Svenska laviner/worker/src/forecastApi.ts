@@ -202,14 +202,19 @@ const ALTITUDES: Array<[string, Elevation]> = [
 ];
 
 /**
- * The API gives avalanche size as a slider position. These three values are
- * the only ones seen in the 2025/26 season, each matched against the size
- * text on the same day's page. Other values show no size rather than a guess.
+ * The API gives avalanche size as a slider position. Jan Granlund
+ * (Naturvårdsverket) confirmed the codes on 2026-10-08: 5, 40, 85, 130, 165 =
+ * size 1–5. Sizes 1–3 use the exact text from the same day's forecast page;
+ * 4 and 5 never appeared in the 2025/26 archive, so their wording follows the
+ * EAWS size definitions (swap in the site's text if it ever shows up). Any
+ * other value shows no size rather than a guess.
  */
-const SIZE_TEXTS: Record<number, string> = {
+export const SIZE_TEXTS: Record<number, string> = {
   5: "Små laviner som i allmänhet är ofarliga men som på fel plats kan skada dig allvarligt (storlek 1).",
   40: "Laviner kan bli stora nog att begrava och döda dig (storlek 2).",
   85: "Laviner kan bli stora nog att bryta träd och ha kraft att förstöra en bil. Risken att du skadas eller dör om du dras med i en lavin av den storleken är mycket stor. (storlek 3).",
+  130: "Mycket stora laviner som kan förstöra flera byggnader och större skogsområden (storlek 4).",
+  165: "Extremt stora laviner som kan förändra landskapet och orsaka mycket omfattande förstörelse (storlek 5).",
 };
 
 export function toProblem(raw: unknown): ParsedProblem | null {

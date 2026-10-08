@@ -244,7 +244,9 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   ~30 m slope layer stays as "Terränglutning, egen beräkning". Fabian checked
   their live server 2026-10-07: GetMap tile over Kebnekaise and the
   slope legend (25–30° green … > 50° dark brown) both work. Avalanche size
-  4/5 `size_meter_value` codes: asked Jan (NV) — unknown values still show no size.
+  codes confirmed by Jan Granlund (NV) 2026-10-08: `size_meter_value` 5/40/85/130/165
+  = size 1–5 (`SIZE_TEXTS`; 4–5 worded from EAWS since the archive never had them);
+  other values still show no size.
   Slope: "Markhöjdmodell Visning" is paid; "Markhöjdmodell Nedladdning,
   grid 1+" is free (CC BY 4.0, STAC API, access must be applied for) but
   needs our own slope rendering — a later project.
@@ -694,7 +696,7 @@ the start, exact map point.
   `published_forecasts` layer's own dates can be bogus (a "Måttlig" record
   "valid" 1 Jan–2 Mar), so the interval layer is primary. Problems:
   title → site slug, `sensitivity_spread_content` → text, size slider
-  5/40/85 → the site's size 1/2/3 texts (other values → no size). Asks with
+  5/40/85/130/165 → size 1–5 texts (other values → no size). Asks with
   `propertyName` (no polygons); retries without it, and falls back to the
   page scraper per area if the API fails (`source: "api" | "page"` in
   `/forecasts`). Recent days from the API also backfill `forecast_history`
@@ -798,5 +800,5 @@ the start, exact map point.
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
   (193 tests as of 2026-10-07, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 122 tests, including the
+  suite in `Svenska laviner/worker` (`npm test`, 123 tests, including the
   real-page fixtures).
