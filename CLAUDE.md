@@ -810,7 +810,7 @@ the start, exact map point.
   it, moduleResolution bundler). Pages serves `karta.html` at `/karta`;
   static files beat the `_redirects` SPA rule. `pageHead.test.ts` runs every
   sitemap path against the real index.html.
-  Area pages have a share icon next to the star (`ShareButton.tsx`,
+  Area pages (and public tours) have a share icon next to the star (`ShareButton.tsx`,
   `sharePage()` in `services/native.ts`: Capacitor Share in the apps,
   `navigator.share` in browsers that have it, else copies the link and
   says "Länken är kopierad"); the shared text never includes a level.

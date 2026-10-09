@@ -14,6 +14,7 @@ import type { TourWithTrack } from "../types/tour";
 import { formatDistance, formatDuration, formatTourDate } from "../utils/tourFormat";
 import AdminBadge from "../components/AdminBadge";
 import ReportButton from "../components/ReportButton";
+import ShareButton from "../components/ShareButton";
 
 export default function TourPage() {
   const { id = "" } = useParams();
@@ -79,7 +80,18 @@ export default function TourPage() {
         ← Alla turer
       </Link>
       <header className="page__header">
-        <h1>{tour.title}</h1>
+        <div className="page__title-row">
+          <h1>{tour.title}</h1>
+          {/* Only public tours: a followers-only link wouldn't open for others. */}
+          {tourVisibility(tour) === "public" && (
+            <ShareButton
+              path={`/turer/${tour.id}`}
+              title={tour.title}
+              text={`${tour.title} – en tur på Snöläge`}
+              what={`turen ${tour.title}`}
+            />
+          )}
+        </div>
         <p className="page__lead">
           {formatTourDate(tour.startedAt)}
           {region ? (
