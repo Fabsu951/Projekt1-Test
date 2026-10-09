@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../auth/useAuth";
 
 /**
@@ -7,9 +7,25 @@ import { useAuth } from "../auth/useAuth";
  * no email was sent then, so the reminder would be wrong.
  */
 export default function VerifyEmailNotice() {
-  const { user, resendVerification } = useAuth();
+  const { user, resendVerification, refreshUser } = useAuth();
   const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
+  const waiting = !!user && !user.canPost;
+
+  // The link in the email usually opens in another tab; check again when
+  // the person comes back here, so the notice goes away without a reload.
+  useEffect(() => {
+    if (!waiting) return;
+    const check = () => {
+      if (document.visibilityState === "visible") void refreshUser().catch(() => undefined);
+    };
+    document.addEventListener("visibilitychange", check);
+    window.addEventListener("focus", check);
+    return () => {
+      document.removeEventListener("visibilitychange", check);
+      window.removeEventListener("focus", check);
+    };
+  }, [waiting, refreshUser]);
 
   if (!user || user.canPost) return null;
 
