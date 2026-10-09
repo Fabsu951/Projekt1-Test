@@ -516,8 +516,8 @@ the start, exact map point.
   comment thread, also on TourPage), `FollowButton`, visibility select
   (`data/tourVisibility.ts`) on new/edit tour, "Följer"/"Följare" on
   `/profil`, author names link to `/person/:id`. Route "Dela" now also
-  puts the route in followers' feeds. No notifications for new comments
-  yet; comments can't be reported (owners/authors/admins delete instead).
+  puts the route in followers' feeds. Comment notifications and comment
+  reports came later (see Notifications and Reporting below).
 - **Profile pictures + experience frames (2026-10-05, "lite som
   Overwatch"):** migration `0012` `users.avatar_key` (R2 `avatar/<uuid>`,
   served by `/images/` like observation photos). `worker/src/profile.ts`:
@@ -802,7 +802,14 @@ the start, exact map point.
   (accounts, people, tours, feed, forms stay out of search). Static
   `public/sitemap.xml` (public pages + every `/omrade/<id>` and `/sasong`;
   `pageMeta.test.ts` checks it against `REGIONS`) and `public/robots.txt`.
-  Social scrapers don't run JS, so shared links all show the home card.
+  Social scrapers don't run JS, so the `pageHeads()` plugin in
+  `vite.config.ts` (2026-10-10) writes `dist/<path>.html` (e.g. `karta.html`,
+  `omrade/<id>.html`, `omrade/<id>/sasong.html`) for every sitemap page —
+  index.html with that page's title/description/canonical/og tags from
+  `components/pageHead.ts` (pure, shared with Layout; tsconfig.node includes
+  it, moduleResolution bundler). Pages serves `karta.html` at `/karta`;
+  static files beat the `_redirects` SPA rule. `pageHead.test.ts` runs every
+  sitemap path against the real index.html.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -857,6 +864,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (205 tests as of 2026-10-09, all passing). Worker has its own Vitest
+  (208 tests as of 2026-10-10, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 129 tests, including the
   real-page fixtures).

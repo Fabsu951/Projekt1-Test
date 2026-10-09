@@ -14,36 +14,4 @@ export function usePageTitle(title: string | null | undefined) {
   }, [set, title]);
 }
 
-const TITLES: Array<[RegExp, string]> = [
-  [/^\/$/, "Idag"],
-  [/^\/omrade\/[^/]+\/sasong/, "Säsongen"],
-  [/^\/omrade\//, "Område"],
-  [/^\/karta/, "Karta"],
-  [/^\/observationer\/ny/, "Ny observation"],
-  [/^\/observationer/, "Observationer"],
-  [/^\/turer\/ny/, "Ny tur"],
-  [/^\/turer\/halsa/, "Hämta från klockan"],
-  [/^\/turer\/\d/, "Tur"],
-  [/^\/turer/, "Turer"],
-  [/^\/flode/, "Flöde"],
-  [/^\/notiser/, "Notiser"],
-  [/^\/person\//, "Person"],
-  [/^\/sakerhetsguide/, "Säkerhetsguide"],
-  [/^\/om-appen/, "Om Snöläge"],
-  [/^\/offline/, "Utan täckning"],
-  [/^\/logga-in/, "Logga in"],
-  [/^\/registrera/, "Skapa konto"],
-  [/^\/profil/, "Min profil"],
-  [/^\/admin/, "Anmälda inlägg"],
-  [/^\/glomt-losenord/, "Glömt lösenord"],
-  [/^\/aterstall-losenord/, "Nytt lösenord"],
-  [/^\/verifiera/, "Bekräfta e-post"],
-];
-
-export function defaultTitle(pathname: string): string | null {
-  return TITLES.find(([re]) => re.test(pathname))?.[1] ?? null;
-}
-
-export function fullTitle(title: string | null): string {
-  return title ? `${title} – Snöläge` : "Snöläge – lavinprognos och turer";
-}
+export { defaultTitle, fullTitle } from "./pageHead";
