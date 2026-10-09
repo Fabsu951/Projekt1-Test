@@ -1,0 +1,88 @@
+# Builds a test version of the Android app (APK) whenever the app changes,
+# and puts it on the release "android-senaste" so it can be downloaded
+# straight to the phone:
+#   https://github.com/Fabsu951/Projekt1-Test/releases/tag/android-senaste
+# Steps for installing it: "Svenska laviner/APPAR.md" (§ "Ny version utan dator").
+#
+# Optional repository secret GOOGLE_SERVICES_JSON (the whole content of
+# google-services.json from Firebase): without it the app works, but push
+# notifications in the app don't.
+
+name: Android-app
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha, svenska-laviner]
+    paths:
+      - "Svenska laviner/app/**"
+      - ".github/workflows/android.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: android-apk
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The version number is the number of commits.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Svenska laviner/app/package-lock.json
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Web app – install, build, copy into Android
+        working-directory: Svenska laviner/app
+        run: |
+          npm ci
+          npm run build
+          npx cap sync android
+
+      - name: Firebase settings (push notifications)
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON" > "Svenska laviner/app/android/app/google-services.json"
+          else
+            echo "::warning::GOOGLE_SERVICES_JSON is not set; the app is built without push notifications."
+          fi
+
+      - name: Build the APK
+        working-directory: Svenska laviner/app/android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/snolage.apk"
+
+      - name: Publish as "android-senaste"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(git rev-list --count HEAD)
+          gh release delete android-senaste --yes --cleanup-tag || true
+          gh release create android-senaste "$RUNNER_TEMP/snolage.apk" \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Snöläge för Android (testversion $version)" \
+            --notes "Byggd från $(git log -1 --format='%h %s'). Öppna den här sidan i telefonens webbläsare och tryck på snolage.apk för att installera."
+          {
+            echo "### Android-app"
+            echo "- Version $version: https://github.com/${GITHUB_REPOSITORY}/releases/tag/android-senaste"
+          } >> "$GITHUB_STEP_SUMMARY"

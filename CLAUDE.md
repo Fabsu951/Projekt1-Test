@@ -167,7 +167,14 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   `Svenska laviner/AUTODEPLOY.md`); account id is in the workflow (not
   secret). A new cloud session on another branch must add its branch to the
   workflow's `branches` list (or push to `svenska-laviner` with Fabian's OK).
-  Native apps are still built on Fabian's PC.
+  **Android APK in CI (2026-10-10):** `.github/workflows/android.yml` builds
+  `assembleDebug` on every app push and replaces the prerelease
+  `android-senaste` (asset `snolage.apk`; Fabian installs it from the phone,
+  steps in APPAR.md "Ny version utan dator"). Debug builds are signed with
+  `android/app/snolage-debug.keystore` (committed, password `android`, test
+  builds only — never for Play) so CI and Android Studio builds replace each
+  other; `versionCode` = git commit count. Optional secret
+  `GOOGLE_SERVICES_JSON` (else no push). iOS still needs a Mac.
 - **One-command deploy:** `Svenska laviner/deploy.ps1` (pull, worker npm
   install + D1 migrations + deploy, app build + Pages deploy; stops at the
   first failing step). Fabian runs it with

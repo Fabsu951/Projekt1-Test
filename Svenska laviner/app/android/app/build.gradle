@@ -1,5 +1,16 @@
 apply plugin: 'com.android.application'
 
+// Every commit gets a higher version number, so a new build always installs
+// over the previous one (GitHub's build and Android Studio alike).
+static int gitCommitCount(File dir) {
+    try {
+        def out = ['git', 'rev-list', '--count', 'HEAD'].execute(null, dir).text.trim()
+        return out.isInteger() ? out.toInteger() : 1
+    } catch (ignored) {
+        return 1
+    }
+}
+
 android {
     namespace = "se.snolage.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,7 +18,7 @@ android {
         applicationId "se.snolage.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        versionCode gitCommitCount(rootDir)
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
@@ -16,7 +27,22 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        // One debug key for every test build, kept in the repo, so the APK
+        // GitHub builds (.github/workflows/android.yml) and one built in
+        // Android Studio can replace each other on the phone. Only for test
+        // builds: the Play Store release gets its own key, never in git.
+        debug {
+            storeFile file('snolage-debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

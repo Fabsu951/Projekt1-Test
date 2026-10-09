@@ -87,6 +87,31 @@ Kör `npm run app:android` igen varje gång koden har ändrats.
   Programvaruinformation).
 - Uppgradera inte AGP/Gradle/Kotlin när Android Studio föreslår det.
 
+## Ny version utan dator
+
+GitHub bygger en ny testversion av Android-appen varje gång appens kod
+ändras (`.github/workflows/android.yml`, tar cirka 10 minuter).
+
+1. Öppna på telefonen, i Chrome och inloggad på GitHub:
+   <https://github.com/Fabsu951/Projekt1-Test/releases/tag/android-senaste>
+2. Tryck på **snolage.apk** → **Ladda ner** → öppna filen → **Installera**.
+3. Första gången frågar telefonen om Chrome får installera appar: tillåt det
+   (Inställningar → Appar → Chrome → Installera okända appar). Om Samsung säger
+   att **Automatisk blockering** stoppar installationen: Inställningar →
+   Säkerhet och integritet → Automatisk blockering → av, installera, slå på
+   igen.
+4. **Bara första gången:** avinstallera den gamla appen först. Den byggdes med
+   en annan nyckel på datorn, så den nya kan inte ersätta den. Därefter
+   ersätter varje ny version den förra, och inloggning och sparade kartor
+   finns kvar. Android Studio använder samma nyckel
+   (`android/app/snolage-debug.keystore`), så båda sätten fungerar om vartannat.
+
+Notiser i appen kräver att innehållet i `google-services.json` ligger som
+hemlighet `GOOGLE_SERVICES_JSON` på
+<https://github.com/Fabsu951/Projekt1-Test/settings/secrets/actions>
+(**New repository secret**, klistra in hela filens innehåll). Utan den
+fungerar allt utom notiserna. Klistra aldrig in den i chatten.
+
 ## 2. Google Play
 
 1. Skapa ett utvecklarkonto på
