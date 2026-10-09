@@ -63,6 +63,17 @@ describe("MapPage layer menu", () => {
     expect(screen.getByRole("button", { name: /Kartlager/ })).toHaveAttribute("aria-expanded", "false");
   });
 
+  it("starts with the layer menu closed on a phone", () => {
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) => ({ matches: query.includes("max-width"), media: query })) as never;
+    try {
+      render(<MemoryRouter><MapPage /></MemoryRouter>);
+      expect(screen.getByRole("button", { name: /Kartlager/ })).toHaveAttribute("aria-expanded", "false");
+    } finally {
+      window.matchMedia = original;
+    }
+  });
+
   it("opens the map in full screen and leaves it with Escape", () => {
     render(<MemoryRouter><MapPage /></MemoryRouter>);
     fireEvent.click(screen.getByRole("button", { name: "Helskärm" }));

@@ -126,6 +126,15 @@
   margin-bottom: 16px;
 }
 
+/* Links in running text: links inherit the text colour site-wide, so
+   without this they can't be told apart from the words around them. */
+.notice a:not(.button),
+.page__lead a:not(.button),
+.section__intro a:not(.button) {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .notice--danger {
   background: #2a1414;
   border: 1px solid #7a2c2c;
@@ -3915,6 +3924,13 @@ h1 .admin-badge {
 .report-row {
   margin: 8px 0 0;
   font-size: 0.88rem;
+}
+
+/* The report link for a whole page (a tour), set apart from the comment box above. */
+.report-row--page {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }
 
 .report-button__done {

@@ -32,8 +32,9 @@ export default function NotificationsPage() {
         if (cancelled) return;
         setList(r.notifications);
         setPeople(r.people);
-        // Shown once as unread, then marked read.
-        if (r.unread > 0) void markAllRead(token);
+        // Shown once as unread, then marked read. Offline (saved list) this
+        // fails quietly and is tried again next time.
+        if (r.unread > 0) markAllRead(token).catch(() => {});
       })
       .catch((err: Error) => !cancelled && setError(err.message));
     return () => {

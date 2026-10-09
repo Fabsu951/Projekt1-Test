@@ -15,10 +15,12 @@ interface Props {
   /** Hidden for the owner: you can't report your own things. */
   ownerId: number;
   className?: string;
+  /** Button text; "Anmäl" unless the place needs it spelled out. */
+  label?: string;
 }
 
 /** "Anmäl": asks for an optional reason and sends the report. */
-export default function ReportButton({ type, id, ownerId, className = "link-button" }: Props) {
+export default function ReportButton({ type, id, ownerId, className = "link-button", label = "Anmäl" }: Props) {
   const { user, token } = useAuth();
   const [state, setState] = useState<"idle" | "busy" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export default function ReportButton({ type, id, ownerId, className = "link-butt
   return (
     <>
       <button type="button" className={className} disabled={state === "busy"} onClick={() => void onClick()}>
-        Anmäl
+        {label}
       </button>
       {error && (
         <span className="error" role="alert">

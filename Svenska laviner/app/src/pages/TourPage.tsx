@@ -158,8 +158,8 @@ export default function TourPage() {
         </section>
       )}
       {!isOwner && (
-        <p className="report-row">
-          <ReportButton type="tour" id={tour.id} ownerId={tour.userId} />
+        <p className="report-row report-row--page">
+          <ReportButton type="tour" id={tour.id} ownerId={tour.userId} label="Anmäl turen" />
         </p>
       )}
       {user?.isAdmin && !isOwner && (

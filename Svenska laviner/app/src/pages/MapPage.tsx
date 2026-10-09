@@ -93,13 +93,18 @@ function downloadGpx(analysis: RouteAnalysis, title: string) {
 
 const LAYERS_OPEN_KEY = "fjallkoll:map-layers-open";
 
-/** Whether the layer menu was left open last time (open on first visit). */
+/** Whether the layer menu was left open last time. On a first visit it
+ * starts open on wide screens and closed on phones, where it would push
+ * the map below the fold. */
 function readLayersOpen(): boolean {
+  let saved: string | null = null;
   try {
-    return localStorage.getItem(LAYERS_OPEN_KEY) !== "0";
+    saved = localStorage.getItem(LAYERS_OPEN_KEY);
   } catch {
-    return true;
+    // Not available, e.g. in a private window.
   }
+  if (saved !== null) return saved !== "0";
+  return typeof window.matchMedia !== "function" || !window.matchMedia("(max-width: 640px)").matches;
 }
 
 function saveLayersOpen(open: boolean) {

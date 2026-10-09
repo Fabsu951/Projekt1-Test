@@ -450,7 +450,7 @@ the start, exact map point.
   zoom), bands 1 / 2–3 / 4–9 / 10+ in one orange hue light→dark plus
   thicker lines, legend `HeatLegend` bottom left; tapping a line lists the
   tours there (up to 5, links). Season chips
-  (`SeasonFilter.tsx`); `/karta?turer=varmekarta` opens it directly. The layer toggles on `/karta` sit in a foldable "Kartlager (n på)" panel (open/closed remembered in localStorage `fjallkoll:map-layers-open`); the slope disclaimer stays outside it on purpose. "Helskärm" makes the map cover the whole window (fixed, above the site header; Esc or "Stäng helskärm" leaves) with the buttons, layer panel and notices floating on top; icon-only buttons under 600 px; `FitToContainer` calls `invalidateSize()` on the switch.
+  (`SeasonFilter.tsx`); `/karta?turer=varmekarta` opens it directly. The layer toggles on `/karta` sit in a foldable "Kartlager (n på)" panel (open/closed remembered in localStorage `fjallkoll:map-layers-open`; first visit: open on wide screens, closed ≤ 640 px); the slope disclaimer stays outside it on purpose. "Helskärm" makes the map cover the whole window (fixed, above the site header; Esc or "Stäng helskärm" leaves) with the buttons, layer panel and notices floating on top; icon-only buttons under 600 px; `FitToContainer` calls `invalidateSize()` on the switch.
   Later (native only, needs plugins/Apple account): Health Connect /
   Apple Health import.
 - **Ruttplanering (route planning, step 1, 2026-10-05):** "Planera rutt" on
@@ -864,6 +864,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (208 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  (209 tests as of 2026-10-10, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 129 tests, including the
   real-page fixtures).

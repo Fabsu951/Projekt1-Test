@@ -37,13 +37,15 @@ export default function AdminPage() {
         <h2>Turer, rutter, kommentarer och profiler</h2>
         {token && <ContentReports token={token} />}
       </section>
-      <h2>Observationer</h2>
-      {error && <p className="error">{error}</p>}
-      {!items && !error && <PageLoading label="Laddar…" />}
-      {items && items.length === 0 && <p className="section__intro">Inga anmälda inlägg.</p>}
-      <div className="observation-list">
-        {items?.map((o) => <ObservationCard key={o.id} observation={o} onChanged={load} showAdminActions />)}
-      </div>
+      <section className="section">
+        <h2>Observationer</h2>
+        {error && <p className="error">{error}</p>}
+        {!items && !error && <PageLoading label="Laddar…" />}
+        {items && items.length === 0 && <p className="section__intro">Inga anmälda observationer.</p>}
+        <div className="observation-list">
+          {items?.map((o) => <ObservationCard key={o.id} observation={o} onChanged={load} showAdminActions />)}
+        </div>
+      </section>
     </div>
   );
 }
