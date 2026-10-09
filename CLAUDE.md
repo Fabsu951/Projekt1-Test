@@ -51,8 +51,12 @@
 > Turnstile hostnames `snolage.se` + `www` added; Resend domain `snolage.se`
 > (eu-west-1) created; `EMAIL_FROM = "Snöläge <noreply@snolage.se>"` is in
 > `wrangler.toml` (inert until the `RESEND_API_KEY` secret exists — set it
-> only after Resend says Verified). Still to do: Pages custom domains
-> `snolage.se` + `www`, Resend verify + key, the three other domains → redirect.
+> only after Resend says Verified). **Live 2026-10-09:** Pages custom domains
+> `snolage.se` + `www` active; Resend domain verified (eu-west-1, `rsend-euw1`;
+> a first try landed in Tokyo `apne1` and was redone); `RESEND_API_KEY` set as an
+> encrypted worker secret (a first key was pasted as a plain-text var, shown
+> in chat, then revoked in Resend and deleted); verification emails work and
+> are now enforced. Still to do: the three other domains → redirect.
 
 Swedish avalanche forecast/safety app ("Snöläge") for backcountry skiers,
 inspired by Varsom, Rusk, and Skiguide. TypeScript, packaged as both a website
@@ -781,8 +785,7 @@ the start, exact map point.
   `socialCleanup`, `deleteComment` and account deletion. App: `ReportButton`
   on TourPage, FeedCard routes, comments (Reactions) and PersonPage;
   `ContentReports` section on `/admin`; terms text updated.
-- **Known gaps**: email verification waits for Resend + the key; not yet
-  reviewed by a lawyer (see JURIDIK.md).
+- **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
 
