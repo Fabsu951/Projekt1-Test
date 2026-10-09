@@ -56,7 +56,13 @@
 > a first try landed in Tokyo `apne1` and was redone); `RESEND_API_KEY` set as an
 > encrypted worker secret (a first key was pasted as a plain-text var, shown
 > in chat, then revoked in Resend and deleted); verification emails work and
-> are now enforced. Still to do: the three other domains → redirect.
+> are now enforced. **Redirect domains (2026-10-09):** `snolage.online`,
+> `snöläge.online` (`xn--snlge-ira8j.online`) and `snöläge.se` (`xn--snlge-ira8j.se`)
+> added to Cloudflare (Free), name servers switched at Loopia (the .online
+> ones first needed Loopia's registrant e-mail verification). Each zone: A `@`
+> and `www` → 192.0.2.1 proxied, TXT `v=spf1 -all`, `_dmarc` `p=reject`,
+> Redirect Rule "Till snolage.se" (all requests → `concat("https://snolage.se",
+> http.request.uri.path)`, 301, keep query). Works once each zone is Active.
 
 Swedish avalanche forecast/safety app ("Snöläge") for backcountry skiers,
 inspired by Varsom, Rusk, and Skiguide. TypeScript, packaged as both a website
