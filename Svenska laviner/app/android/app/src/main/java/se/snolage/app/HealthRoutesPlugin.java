@@ -62,7 +62,7 @@ public class HealthRoutesPlugin extends Plugin {
                 point.put("lat", location.getLatitude());
                 point.put("lng", location.getLongitude());
                 Length altitude = location.getAltitude();
-                if (altitude != null) point.put("alt", altitude.getInMeters());
+                if (altitude != null) point.put("alt", altitude.getMeters());
                 points.put(point);
             }
         }
