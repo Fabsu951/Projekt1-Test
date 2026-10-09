@@ -785,6 +785,18 @@ the start, exact map point.
   `socialCleanup`, `deleteComment` and account deletion. App: `ReportButton`
   on TourPage, FeedCard routes, comments (Reactions) and PersonPage;
   `ContentReports` section on `/admin`; terms text updated.
+- **Search engines + share previews (2026-10-09):** `index.html` has the
+  site description, canonical `https://snolage.se/`, Open Graph/Twitter tags
+  with `public/og-image.png` (1200×630, rendered from HTML with Playwright —
+  brand mark, Barlow Condensed, ridgeline) and WebSite JSON-LD.
+  `components/pageMeta.ts` (called from Layout next to the tab title) sets
+  per-page description (area pages by name), canonical = snolage.se + path
+  (so fjallkoll.pages.dev / www count as snolage.se), og:title/url, and
+  `robots` noindex for everything but the public pages and real area pages
+  (accounts, people, tours, feed, forms stay out of search). Static
+  `public/sitemap.xml` (public pages + every `/omrade/<id>` and `/sasong`;
+  `pageMeta.test.ts` checks it against `REGIONS`) and `public/robots.txt`.
+  Social scrapers don't run JS, so shared links all show the home card.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -839,6 +851,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (200 tests as of 2026-10-09, all passing). Worker has its own Vitest
+  (205 tests as of 2026-10-09, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 129 tests, including the
   real-page fixtures).

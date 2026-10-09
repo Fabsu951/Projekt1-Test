@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Public pages of snolage.se. Keep in step with src/data/regions.ts (pageMeta.test.ts checks it). -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://snolage.se/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://snolage.se/karta</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://snolage.se/observationer</loc><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://snolage.se/turer</loc><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://snolage.se/sakerhetsguide</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://snolage.se/om-appen</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://snolage.se/offline</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://snolage.se/omrade/kebnekaisefjallen</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://snolage.se/omrade/kebnekaisefjallen/sasong</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://snolage.se/omrade/riksgransfjallen</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://snolage.se/omrade/riksgransfjallen/sasong</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://snolage.se/omrade/vastra-vindelfjallen</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://snolage.se/omrade/vastra-vindelfjallen/sasong</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://snolage.se/omrade/sodra-lapplandsfjallen</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://snolage.se/omrade/sodra-lapplandsfjallen/sasong</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://snolage.se/omrade/sodra-jamtlandsfjallen</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://snolage.se/omrade/sodra-jamtlandsfjallen/sasong</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://snolage.se/omrade/vastra-harjedalsfjallen</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://snolage.se/omrade/vastra-harjedalsfjallen/sasong</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+</urlset>

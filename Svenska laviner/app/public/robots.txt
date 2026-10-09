@@ -1,0 +1,9 @@
+# snolage.se – personal pages and accounts are kept out of search results
+User-agent: *
+Disallow: /admin
+Disallow: /profil
+Disallow: /notiser
+Disallow: /verifiera
+Disallow: /aterstall-losenord
+
+Sitemap: https://snolage.se/sitemap.xml

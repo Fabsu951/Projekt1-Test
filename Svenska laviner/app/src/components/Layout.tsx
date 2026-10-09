@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import NativePushBridge from "./NativePushBridge";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { defaultTitle, fullTitle, PageTitleContext } from "./pageTitle";
+import { applyPageMeta } from "./pageMeta";
 import ErrorBoundary from "./ErrorBoundary";
 import Avatar from "./Avatar";
 import NotificationBell from "./NotificationBell";
@@ -75,7 +76,9 @@ export default function Layout() {
   }
 
   useEffect(() => {
-    document.title = fullTitle(pageTitle ?? defaultTitle(location.pathname));
+    const title = fullTitle(pageTitle ?? defaultTitle(location.pathname));
+    document.title = title;
+    applyPageMeta(location.pathname, title);
   }, [pageTitle, location.pathname]);
 
   return (
