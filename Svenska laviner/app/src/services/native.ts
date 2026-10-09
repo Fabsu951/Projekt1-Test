@@ -17,6 +17,33 @@ export function shareableUrl(path: string): string {
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+export type ShareOutcome = "shared" | "copied" | "cancelled" | "failed";
+
+/**
+ * Shares a link to a page in the app: the phone's share sheet in the apps
+ * and in browsers that have one, otherwise the link is copied.
+ */
+export async function sharePage(path: string, title: string, text: string): Promise<ShareOutcome> {
+  const url = shareableUrl(path);
+  try {
+    if (isNativeApp()) {
+      const { Share } = await import("@capacitor/share");
+      await Share.share({ title, text, url, dialogTitle: "Dela" });
+      return "shared";
+    }
+    if (typeof navigator.share === "function") {
+      await navigator.share({ title, text, url });
+      return "shared";
+    }
+    await navigator.clipboard.writeText(url);
+    return "copied";
+  } catch (err) {
+    // Closing the share sheet counts as an error in both APIs.
+    const message = err instanceof Error ? `${err.name} ${err.message}` : String(err);
+    return /abort|cancel/i.test(message) ? "cancelled" : "failed";
+  }
+}
+
 /**
  * Saves a text file for the user. On the web it downloads; in the apps
  * (where downloads don't work in the web view) it writes the file to the

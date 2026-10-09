@@ -810,6 +810,10 @@ the start, exact map point.
   it, moduleResolution bundler). Pages serves `karta.html` at `/karta`;
   static files beat the `_redirects` SPA rule. `pageHead.test.ts` runs every
   sitemap path against the real index.html.
+  Area pages have a share icon next to the star (`ShareButton.tsx`,
+  `sharePage()` in `services/native.ts`: Capacitor Share in the apps,
+  `navigator.share` in browsers that have it, else copies the link and
+  says "Länken är kopierad"); the shared text never includes a level.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -864,6 +868,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (209 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  (212 tests as of 2026-10-10, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 129 tests, including the
   real-page fixtures).

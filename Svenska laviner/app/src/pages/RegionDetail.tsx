@@ -4,6 +4,7 @@ import { getRegionById } from "../data/regions";
 import { fetchForecastHistory, loadForecasts, type HistoryDay } from "../services/avalancheService";
 import DangerHistory from "../components/DangerHistory";
 import FavoriteButton from "../components/FavoriteButton";
+import ShareButton from "../components/ShareButton";
 import OfflineMapCard from "../components/OfflineMapCard";
 import TourCard from "../components/TourCard";
 import { fetchTours } from "../services/tourService";
@@ -111,6 +112,12 @@ export default function RegionDetail() {
         <div className="page__title-row">
           <h1>{region.name}</h1>
           <FavoriteButton regionId={region.id} regionName={region.name} />
+          <ShareButton
+            path={`/omrade/${region.id}`}
+            title={`Lavinprognos ${region.name}`}
+            text={`Dagens lavinprognos för ${region.name} på Snöläge`}
+            what={`prognosen för ${region.name}`}
+          />
         </div>
         <p className="page__lead">{region.subAreas.join(" · ")}</p>
         {forecast ? (

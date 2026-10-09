@@ -1283,6 +1283,35 @@
   outline-offset: 2px;
 }
 
+.share-button svg path {
+  stroke-linecap: round;
+}
+
+.share-button-wrap {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+}
+
+/* "Länken är kopierad": floats under the button so the title row keeps its size. */
+.share-button__status {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 5;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.share-button__status:empty {
+  display: none;
+}
+
 .page__title-row {
   display: flex;
   align-items: center;
