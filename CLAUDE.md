@@ -142,6 +142,22 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
     (`DangerHistory.tsx`), hidden until at least one day has a level. Needs
     `npx wrangler d1 migrations apply fjallkoll --remote` + `wrangler
     deploy` before it records anything; history only exists from then on.
+- **Automatic deploy (GitHub Actions, 2026-10-09):** `.github/workflows/deploy.yml`
+  runs on every push to `claude/bold-lamport-juktha` or `svenska-laviner`
+  that touches `Svenska laviner/app|worker/**` (and on manual dispatch):
+  worker typecheck + tests, app tests + build, then
+  `wrangler d1 migrations apply fjallkoll --remote`, `wrangler deploy`,
+  `wrangler pages deploy dist --project-name=fjallkoll --branch=production`.
+  Fabian asked (2026-10-09) that Claude handle all code + deploys so he never
+  opens VS Code: pushing a finished, tested change **is** the deploy — check
+  the run at github.com/Fabsu951/Projekt1-Test/actions (via `gh api
+  repos/Fabsu951/Projekt1-Test/actions/runs`) and fix any red run. Needs
+  repo secret `CLOUDFLARE_API_TOKEN` (custom token: Workers Scripts, D1,
+  Pages, R2 Edit + Account Settings, User Details Read; steps in
+  `Svenska laviner/AUTODEPLOY.md`); account id is in the workflow (not
+  secret). A new cloud session on another branch must add its branch to the
+  workflow's `branches` list (or push to `svenska-laviner` with Fabian's OK).
+  Native apps are still built on Fabian's PC.
 - **One-command deploy:** `Svenska laviner/deploy.ps1` (pull, worker npm
   install + D1 migrations + deploy, app build + Pages deploy; stops at the
   first failing step). Fabian runs it with
