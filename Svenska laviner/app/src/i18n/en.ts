@@ -1224,4 +1224,13 @@ export const EN: Record<string, string> = {
   "Lutning och ruttplanering": "Slope and route planning",
   "Var andra har åkt": "Where others have skied",
   "Kartläge": "Map mode",
+  "Din tur idag": "Your tour today",
+  "Din tur imorgon": "Your tour tomorrow",
+  "Imorgon": "Tomorrow",
+  "Prognosen för imorgon publiceras runt kl 18 i kväll. Du får en notis när den kommer.": "Tomorrow's forecast is published around 18:00 tonight. You'll get a notification when it's out.",
+  "Rutt:": "Route:",
+  "Med dig:": "With you:",
+  "Kartan är sparad för användning utan täckning.": "The map is saved for use without coverage.",
+  "Kartan är inte sparad offline än.": "The map isn't saved offline yet.",
+  "Öppna turdagen": "Open the tour day",
 };

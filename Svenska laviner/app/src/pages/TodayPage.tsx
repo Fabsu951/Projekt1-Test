@@ -10,6 +10,7 @@ import { useFavorites } from "../favorites/useFavorites";
 import AreaForecastCard from "../components/today/AreaForecastCard";
 import OverviewMap from "../components/today/OverviewMap";
 import QuickActions from "../components/today/QuickActions";
+import TodayTrip from "../components/today/TodayTrip";
 import RecentObservations from "../components/today/RecentObservations";
 import NearestRegion from "../components/NearestRegion";
 import PushToggle from "../components/PushToggle";
@@ -106,6 +107,7 @@ export default function TodayPage() {
 
       <div className="today__grid">
         <div className="today__main">
+          <TodayTrip forecasts={forecasts} now={now} />
           <section aria-labelledby="today-mine">
             <h2 id="today-mine" className="today__label">
               {t("Mina områden")}
