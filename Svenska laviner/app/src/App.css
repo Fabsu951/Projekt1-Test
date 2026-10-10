@@ -4367,3 +4367,66 @@ h1 .admin-badge {
   color: var(--text-muted);
   font-weight: 600;
 }
+
+/* SMHI weather warnings: the chip carries an icon and a word, colour only adds to it. */
+.warning-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  white-space: nowrap;
+}
+.warning-chip--yellow {
+  background: #f5d000;
+}
+.warning-chip--orange {
+  background: #ff9a3c;
+}
+.warning-chip--red {
+  background: #e5484d;
+  color: #fff;
+}
+.warning-chip--message {
+  background: var(--bg-raised);
+  color: var(--text);
+}
+.warning-lines {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+.weather-warnings__list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px;
+  display: grid;
+  gap: 10px;
+}
+.weather-warning {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  border-left: 4px solid var(--bg-raised);
+}
+.weather-warning--yellow {
+  border-left-color: #f5d000;
+}
+.weather-warning--orange {
+  border-left-color: #ff9a3c;
+}
+.weather-warning--red {
+  border-left-color: #e5484d;
+}
+.weather-warning p {
+  margin: 0 0 4px;
+}
+.weather-warning__text {
+  white-space: pre-line;
+}

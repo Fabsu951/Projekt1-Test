@@ -17,6 +17,7 @@ import type { WeatherPoint } from "../types/weather";
 import ForecastBadge from "../components/ForecastBadge";
 import OfficialForecast from "../components/OfficialForecast";
 import ForecastNotes from "../components/ForecastNotes";
+import WeatherWarnings from "../components/WeatherWarnings";
 import ObservationCard from "../components/ObservationCard";
 import { fetchObservations } from "../services/observationService";
 import type { Observation } from "../types/observation";
@@ -135,6 +136,7 @@ export default function RegionDetail() {
       )}
       {forecast && <OfficialForecast forecast={forecast} />}
       {forecast && <ForecastNotes forecast={forecast} />}
+      <WeatherWarnings regionId={region.id} />
 
       {history.some((d) => d.dangerLevel !== null) && (
         <section className="section">

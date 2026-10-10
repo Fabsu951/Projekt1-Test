@@ -1,0 +1,66 @@
+[
+  {
+    "id": 101,
+    "normalProbability": true,
+    "event": { "sv": "Vind", "en": "Wind", "code": "WIND" },
+    "descriptions": [],
+    "warningAreas": [
+      {
+        "id": 1,
+        "approximateStart": "2026-02-13T18:00:00.000Z",
+        "approximateEnd": "2026-02-15T06:00:00.000Z",
+        "published": "2026-02-13T09:00:00.000Z",
+        "normalProbability": true,
+        "pushNotice": true,
+        "areaName": { "sv": "Fjällen i Norrbotten", "en": "The mountains of Norrbotten" },
+        "warningLevel": { "sv": "Gul", "en": "Yellow", "code": "YELLOW" },
+        "eventDescription": { "sv": "Mycket hård vind", "en": "Very strong wind", "code": "WIND" },
+        "affectedAreas": [{ "id": 25, "sv": "Norrbottens län", "en": "Norrbotten County" }],
+        "descriptions": [
+          { "title": { "sv": "Händelsebeskrivning", "en": "Description of incident", "code": "INCIDENT" }, "text": { "sv": "Västlig vind 25 m/s i byarna på fjället.", "en": "Westerly wind, gusts 25 m/s in the mountains." } }
+        ],
+        "area": {
+          "type": "FeatureCollection",
+          "features": [
+            { "type": "Feature", "properties": {}, "geometry": { "type": "Polygon", "coordinates": [[[17.0, 67.3], [20.5, 67.3], [20.5, 68.8], [17.0, 68.8], [17.0, 67.3]]] } }
+          ]
+        }
+      },
+      {
+        "id": 2,
+        "approximateStart": "2026-02-13T18:00:00.000Z",
+        "approximateEnd": "2026-02-14T06:00:00.000Z",
+        "published": "2026-02-13T09:00:00.000Z",
+        "areaName": { "sv": "Norrbottens kust", "en": "Norrbotten coast" },
+        "warningLevel": { "sv": "Gul", "en": "Yellow", "code": "YELLOW" },
+        "eventDescription": { "sv": "Hård vind", "en": "Strong wind", "code": "WIND" },
+        "affectedAreas": [{ "id": 25, "sv": "Norrbottens län", "en": "Norrbotten County" }],
+        "descriptions": [],
+        "area": { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[21.0, 65.3], [24.0, 65.3], [24.0, 66.2], [21.0, 66.2], [21.0, 65.3]]] } }
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "event": { "sv": "Snö", "en": "Snow", "code": "SNOW" },
+    "warningAreas": [
+      {
+        "id": 3,
+        "approximateStart": "2026-02-14T00:00:00.000Z",
+        "published": "2026-02-13T09:00:00.000Z",
+        "warningLevel": { "sv": "Orange", "en": "Orange", "code": "ORANGE" },
+        "eventDescription": { "sv": "Snöfall", "en": "Snowfall", "code": "SNOW" },
+        "affectedAreas": [{ "id": 23, "sv": "Jämtlands län", "en": "Jämtland County" }],
+        "descriptions": []
+      },
+      {
+        "id": 4,
+        "approximateStart": "2026-02-01T00:00:00.000Z",
+        "approximateEnd": "2026-02-02T00:00:00.000Z",
+        "warningLevel": { "sv": "Gul", "en": "Yellow", "code": "YELLOW" },
+        "eventDescription": { "sv": "Snöfall", "en": "Snowfall", "code": "SNOW" },
+        "affectedAreas": [{ "id": 24, "sv": "Västerbottens län", "en": "Västerbotten County" }]
+      }
+    ]
+  }
+]

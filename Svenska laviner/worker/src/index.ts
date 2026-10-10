@@ -49,6 +49,7 @@ import type { NotifyEnv } from "./notifications";
 import { createTrip, deleteTrip, listTrips, notifyTrips, type PublishedDay } from "./trips";
 import { adminStats } from "./adminStats";
 import { checkForecastHealth } from "./health";
+import { fetchWarnings, WARNINGS_PAGE } from "./warnings";
 import { fcmConfigured, type FcmEnv } from "./fcm";
 import { stockholmDate } from "./model";
 import type { VapidEnv } from "./webpush";
@@ -431,9 +432,30 @@ async function recordAll(env: Env, results: RegionResult[]): Promise<void> {
       }));
       return [{ regionId: row.regionId, date: row.date, danger: row.danger, problems }];
     });
-    await notifyTrips(env as unknown as NotifyEnv, published);
+    await notifyTrips(env as unknown as NotifyEnv, published, new Date(), undefined, () => fetchWarnings());
   } catch (err) {
     console.error("Could not send trip forecasts", err);
+  }
+}
+
+const WARNINGS_CACHE_TTL_SECONDS = 60 * 10;
+
+/** GET /warnings: SMHI's weather warnings per forecast area, cached ten minutes. */
+async function warningsResponse(request: Request, ctx: ExecutionContext, origin: string): Promise<Response> {
+  const cache = caches.default;
+  const key = new Request(new URL("/warnings", request.url).toString());
+  const hit = await cache.match(key);
+  if (hit) return new Response(hit.body, { headers: { ...corsHeaders(origin), "Content-Type": "application/json" } });
+  try {
+    const regions = await fetchWarnings();
+    const response = new Response(JSON.stringify({ regions, source: WARNINGS_PAGE, fetchedAt: new Date().toISOString() }), {
+      headers: { ...corsHeaders(origin), "Content-Type": "application/json", "Cache-Control": `public, max-age=${WARNINGS_CACHE_TTL_SECONDS}` },
+    });
+    ctx.waitUntil(cache.put(key, response.clone()));
+    return response;
+  } catch (err) {
+    console.error("SMHI warnings failed", err);
+    return error("SMHI:s varningar kunde inte hämtas just nu.", origin, 502);
   }
 }
 
@@ -538,6 +560,8 @@ export default {
       await cache.put(cacheKey, response.clone());
       return response;
     }
+
+    if (url.pathname === "/warnings" && request.method === "GET") return warningsResponse(request, ctx, origin);
 
     const tile = request.method === "GET" ? parseTilePath(url.pathname) : null;
     if (tile) return serveTile(request, env, ctx, origin, tile);

@@ -187,4 +187,26 @@ describe("planned tours", () => {
       );
     });
   });
+
+  it("adds SMHI's warnings for the day to the notice", async () => {
+    await plan("anna", "kebnekaisefjallen", "2026-02-14");
+    const wind = {
+      id: "1-1",
+      level: "yellow" as const,
+      event: { sv: "Mycket hård vind", en: "Very strong wind" },
+      area: { sv: "Fjällen", en: "The mountains" },
+      start: "2026-02-13T18:00:00.000Z",
+      end: "2026-02-15T06:00:00.000Z",
+      text: { sv: "", en: "" },
+    };
+    await notifyTrips(
+      env as never,
+      [{ regionId: "kebnekaisefjallen", date: "2026-02-14", danger: 2, problems: [] }],
+      fridayEvening,
+      undefined,
+      async () => ({ kebnekaisefjallen: [wind] })
+    );
+    const [notice] = await texts("anna");
+    expect(notice.text).toMatch(/Läs hela prognosen innan du går ut\. SMHI varnar: Gul varning – Mycket hård vind\.$/);
+  });
 });

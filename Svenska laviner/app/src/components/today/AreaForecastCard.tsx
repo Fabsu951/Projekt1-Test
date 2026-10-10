@@ -7,6 +7,7 @@ import { problemWhere, recentDays, trendSinceYesterday } from "../../utils/today
 import FavoriteButton from "../FavoriteButton";
 import ProblemIcon from "../ProblemIcon";
 import ForecastTrendLine from "../ForecastTrendLine";
+import { WarningLines } from "../WeatherWarnings";
 import { t } from "../../i18n";
 
 interface Props {
@@ -47,6 +48,7 @@ export default function AreaForecastCard({ region, forecast, history, now }: Pro
       </p>
 
       {message && <p className="area-card__message">{message}</p>}
+      <WarningLines regionId={region.id} />
 
       {forecast?.trend && (
         <div className="area-card__trendline">

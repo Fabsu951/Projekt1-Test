@@ -5,6 +5,7 @@ import { stockholmDate } from "./model";
 import { notify, type Defer, type NotifyEnv } from "./notifications";
 import { REGION_SOURCES } from "./regions";
 import { compass, dangerText, dayName, problemName, toLang, type Lang } from "./lang";
+import { coversDay, warningSentence, type Warning } from "./warnings";
 
 // "Prognos inför turen": a user plans a day in an area; when the forecast
 // for that day is published (normally 18:00 the evening before) they get it
@@ -288,7 +289,14 @@ function stockholmHour(at: Date): number {
  * tour on a day that now has a published level, and on the morning of a
  * tour day without one, says so. Each plan is notified once.
  */
-export async function notifyTrips(env: NotifyEnv, published: PublishedDay[], now = new Date(), defer?: Defer): Promise<void> {
+export async function notifyTrips(
+  env: NotifyEnv,
+  published: PublishedDay[],
+  now = new Date(),
+  defer?: Defer,
+  /** SMHI's warnings per area, fetched only when there is something to send. */
+  warnings?: () => Promise<Record<string, Warning[]> | null>
+): Promise<void> {
   const today = stockholmDate(now);
   await env.DB.prepare("DELETE FROM trip_plans WHERE date < ?").bind(addDays(today, -KEEP_PAST_DAYS)).run();
   const sent = nowIso();
@@ -317,6 +325,11 @@ export async function notifyTrips(env: NotifyEnv, published: PublishedDay[], now
     }
   }
   if (due.length === 0) return;
+  const warned = warnings ? await warnings().catch(() => null) : null;
+  const withWarnings = (trip: Due, text: string) => {
+    const list = (warned?.[trip.region_id] ?? []).filter((w) => coversDay(w, trip.date));
+    return text + warningSentence(list, toLang(trip.lang));
+  };
 
   await env.DB.batch(due.map(({ trip }) => env.DB.prepare("UPDATE trip_plans SET notified_at = ? WHERE id = ?").bind(sent, trip.id)));
   await notify(
@@ -325,7 +338,7 @@ export async function notifyTrips(env: NotifyEnv, published: PublishedDay[], now
       userId: trip.user_id,
       kind: "trip" as const,
       actorId: trip.user_id,
-      note: text,
+      note: withWarnings(trip, text),
       url: `/omrade/${trip.region_id}`,
     })),
     defer
