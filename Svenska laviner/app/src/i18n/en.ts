@@ -1218,4 +1218,10 @@ export const EN: Record<string, string> = {
   "Hoppa till": "Jump to",
   "Prognos": "Forecast",
   "Turdag": "Tour day",
+  "Läget nu": "Right now",
+  "Prognoser och observationer": "Forecasts and observations",
+  "Planera tur": "Plan a tour",
+  "Lutning och ruttplanering": "Slope and route planning",
+  "Var andra har åkt": "Where others have skied",
+  "Kartläge": "Map mode",
 };

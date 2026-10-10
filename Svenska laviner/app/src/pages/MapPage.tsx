@@ -252,6 +252,31 @@ export default function MapPage() {
       window.removeEventListener("keydown", onKey);
     };
   }, [fullscreen]);
+  type Preset = "now" | "plan" | "tours";
+  const planSlope: "detailed" | "official" | "own" = detailedSlope ? "detailed" : officialTerrainAvailable ? "official" : "own";
+  const applyPreset = (preset: Preset) => {
+    setShowObservations(preset !== "tours");
+    setShowTours(preset === "tours");
+    setShowHeatmap(preset === "tours");
+    setShowSlope(preset === "plan" && planSlope === "own");
+    setShowDetailedSlope(preset === "plan" && planSlope === "detailed");
+    setOfficialTerrain(preset === "plan" && planSlope === "official" ? "lutning" : null);
+    setPlanning(preset === "plan");
+  };
+  const slopeOn = showSlope || showDetailedSlope || officialTerrain === "lutning";
+  const currentPreset: Preset | null =
+    showObservations && !showTours && !showHeatmap && !slopeOn && officialTerrain === null && !planning
+      ? "now"
+      : showObservations && !showTours && !showHeatmap && slopeOn && planning
+        ? "plan"
+        : !showObservations && showTours && showHeatmap && !slopeOn && officialTerrain === null && !planning
+          ? "tours"
+          : null;
+  const PRESETS: Array<[Preset, string, string]> = [
+    ["now", t("Läget nu"), t("Prognoser och observationer")],
+    ["plan", t("Planera tur"), t("Lutning och ruttplanering")],
+    ["tours", t("Turer"), t("Var andra har åkt")],
+  ];
   const activeLayers = [showObservations, showTours, showHeatmap, showSlope, showDetailedSlope, officialTerrain !== null].filter(Boolean).length;
   const [positionStatus, setPositionStatus] = useState<string | null>(null);
   const onPositionStatus = useCallback((message: string | null) => setPositionStatus(message), []);
@@ -279,6 +304,20 @@ export default function MapPage() {
       )}
 
       <div className="map-controls">
+        <div className="map-presets" role="group" aria-label={t("Kartläge")}>
+          {PRESETS.map(([id, label, hint]) => (
+            <button
+              key={id}
+              type="button"
+              className="map-presets__button"
+              aria-pressed={currentPreset === id}
+              onClick={() => applyPreset(id)}
+            >
+              <span className="map-presets__label">{label}</span>
+              <span className="map-presets__hint">{hint}</span>
+            </button>
+          ))}
+        </div>
         <div className="map-toolbar">
           <button
             type="button"

@@ -132,4 +132,19 @@ describe("MapPage layer menu", () => {
     expect(draft.title).toBe("Sydtoppen");
     expect(draft.id).toBeNull(); // someone else's route: an unsaved copy
   });
+
+  it("switches between ready-made map modes", () => {
+    const { container } = render(<MemoryRouter><MapPage /></MemoryRouter>);
+    const plan = () => container.querySelector(".map-toolbar__plan");
+    const now = screen.getByRole("button", { name: /Läget nu/ });
+    expect(now).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(screen.getByRole("button", { name: /Planera tur/ }));
+    expect(screen.getByRole("button", { name: /Planera tur/ })).toHaveAttribute("aria-pressed", "true");
+    expect(plan()).toHaveAttribute("aria-pressed", "true");
+    expect(now).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(screen.getByRole("button", { name: /Var andra har åkt/ }));
+    expect(screen.getByRole("checkbox", { name: "Värmekarta över turer" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Observationer" })).not.toBeChecked();
+    expect(plan()).toHaveAttribute("aria-pressed", "false");
+  });
 });
