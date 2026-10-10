@@ -55,7 +55,9 @@ export function fetchable(z: number, x: number, y: number): boolean {
 }
 const MAX_BATCH_TILES = 1000;
 
-export const tileKey = (z: number, x: number, y: number) => `maptiles/topowebb/${z}/${x}/${y}`;
+export type TileLayer = "topowebb" | "slope";
+
+export const tileKey = (z: number, x: number, y: number, layer: TileLayer = "topowebb") => `maptiles/${layer}/${z}/${x}/${y}`;
 
 export function parseTilePath(pathname: string): { z: number; x: number; y: number } | null {
   const m = pathname.match(/^\/tiles\/topowebb\/(\d{1,2})\/(\d{1,6})\/(\d{1,6})\.png$/);
@@ -143,8 +145,8 @@ async function sameSecret(a: string, b: string): Promise<boolean> {
   return diff === 0;
 }
 
-/** POST /admin/tiles/topowebb: stores a batch of tiles (see tileBatch.ts). */
-export async function uploadTiles(request: Request, env: TilesEnv, origin: string): Promise<Response> {
+/** POST /admin/tiles/<layer>: stores a batch of tiles (see tileBatch.ts). */
+export async function uploadTiles(request: Request, env: TilesEnv, origin: string, layer: TileLayer = "topowebb"): Promise<Response> {
   const json = (data: unknown, status = 200) =>
     new Response(JSON.stringify(data), { status, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } });
 
@@ -171,10 +173,72 @@ export async function uploadTiles(request: Request, env: TilesEnv, origin: strin
           skipped++;
           return;
         }
-        await env.IMAGES.put(tileKey(t.z, t.x, t.y), t.data, { httpMetadata: { contentType: type } });
+        await env.IMAGES.put(tileKey(t.z, t.x, t.y, layer), t.data, { httpMetadata: { contentType: type } });
         stored++;
       })
     );
   }
   return json({ stored, skipped });
+}
+
+// The detailed slope map ("Lutning, detaljerad"), made from Lantmäteriet's
+// height model by scripts/import-slope.ts. Only tiles with ground of 30° or
+// more are stored; everything else is an empty (transparent) tile.
+
+const SLOPE_MIN_ZOOM = 12;
+const SLOPE_MAX_ZOOM = 15;
+const SLOPE_META_KEY = "maptiles/slope/_meta.json";
+/** A 1×1 transparent PNG, scaled up by the map. */
+const EMPTY_PNG = Uint8Array.from(
+  atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="),
+  (c) => c.charCodeAt(0)
+);
+
+export function parseSlopePath(pathname: string): { z: number; x: number; y: number } | null {
+  const m = pathname.match(/^\/tiles\/slope\/(\d{1,2})\/(\d{1,6})\/(\d{1,6})\.png$/);
+  if (!m) return null;
+  const [z, x, y] = m.slice(1).map(Number);
+  return z >= SLOPE_MIN_ZOOM && z <= SLOPE_MAX_ZOOM && validTile(z, x, y) ? { z, x, y } : null;
+}
+
+export async function serveSlopeTile(
+  request: Request,
+  env: TilesEnv,
+  ctx: ExecutionContext,
+  origin: string,
+  tile: { z: number; x: number; y: number }
+): Promise<Response> {
+  const { z, x, y } = tile;
+  const cache = caches.default;
+  const cacheKey = new Request(new URL(`/tiles/slope/${z}/${x}/${y}.png`, request.url).toString());
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+  const stored = await env.IMAGES.get(tileKey(z, x, y, "slope"));
+  const response = stored ? tileResponse(stored.body, "image/png", origin) : tileResponse(EMPTY_PNG, "image/png", origin);
+  ctx.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
+}
+
+/** GET /tiles/slope/meta: when the slope map was made, or 404 before it exists (the app then hides the layer). */
+export async function slopeMeta(env: TilesEnv, origin: string): Promise<Response> {
+  const stored = await env.IMAGES.get(SLOPE_META_KEY);
+  const headers = { ...corsHeaders(origin), "Content-Type": "application/json", "Cache-Control": "public, max-age=3600" };
+  if (!stored) return new Response(JSON.stringify({ error: "Ingen detaljerad lutningskarta än." }), { status: 404, headers });
+  return new Response(stored.body, { headers });
+}
+
+/** POST /admin/tiles/slope/meta (upload token): marks the slope map as present. */
+export async function saveSlopeMeta(request: Request, env: TilesEnv, origin: string): Promise<Response> {
+  const json = (data: unknown, status = 200) =>
+    new Response(JSON.stringify(data), { status, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } });
+  const token = request.headers.get("Authorization")?.match(/^Bearer\s+(\S+)$/)?.[1] ?? "";
+  if (!env.TILE_UPLOAD_TOKEN || !token || !(await sameSecret(token, env.TILE_UPLOAD_TOKEN))) return json({ error: "Inte behörig." }, 401);
+  let meta: unknown;
+  try {
+    meta = await request.json();
+  } catch {
+    return json({ error: "Ogiltig JSON." }, 400);
+  }
+  await env.IMAGES.put(SLOPE_META_KEY, JSON.stringify(meta), { httpMetadata: { contentType: "application/json" } });
+  return json({ ok: true });
 }

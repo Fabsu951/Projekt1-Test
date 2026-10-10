@@ -298,8 +298,28 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   = size 1–5 (`SIZE_TEXTS`; 4–5 worded from EAWS since the archive never had them);
   other values still show no size.
   Slope: "Markhöjdmodell Visning" is paid; "Markhöjdmodell Nedladdning,
-  grid 1+" is free (CC BY 4.0, STAC API, access must be applied for) but
-  needs our own slope rendering — a later project.
+  grid 1+" is free (CC BY 4.0, STAC API, access must be applied for).
+  **Detailed slope map built 2026-10-10, waiting for Fabian's access
+  (`Svenska laviner/LUTNING.md`):** `worker/scripts/fetch-hojd.ps1` (STAC
+  base default `https://api.lantmateriet.se/stac-hojd/v1` — a guess, `-Base`
+  overrides; picks the grid 1+ collection or `-Collection`; items for the
+  three `MOUNTAIN_BOXES` → `Downloads\hojd\stac-items-hojd.json`; `-DryRun`
+  / `-Import` / `-Skip` / `-Box`; login only in env `LM_AUTH` for the child)
+  → `import-slope.ts` (z12 blocks; `dem.ts` `HeightModel` fetches each
+  GeoTIFF whole with the login, `geotiff` + `proj4` EPSG:3006, ≤ 24 files in
+  memory, bilinear; `slopeRender.ts` z15 tiles: projection on a 17×17 grid,
+  slope from heights ±max(2 m, pixel) apart, bands 30/35/40/45 = app
+  `SLOPE_BANDS` colours, < 30° transparent, palette PNG via node:zlib;
+  z14–12 = steepest of each 2×2; tiles with nothing ≥ 30° are skipped) →
+  `uploadClient.ts` (shared with import-tiles.ts) `POST /admin/tiles/slope`
+  → R2 `maptiles/slope/z/x/y`, then `POST /admin/tiles/slope/meta`
+  (`maptiles/slope/_meta.json`). Worker: `GET /tiles/slope/{z}/{x}/{y}.png`
+  (z 12–15; missing → 1×1 transparent PNG), `GET /tiles/slope/meta` (404
+  until imported). App: "Lutning, detaljerad" in Kartlager → Terräng only
+  when the meta exists (`detailedSlopeAvailable()`), `DetailedSlopeLayer`
+  opacity 0.7, minZoom 12, maxNativeZoom 15, legend + notice ("visar
+  terrängen, inte lavinfaran"), About credits Lantmäteriet. Dry run on a
+  synthetic 2.5 km cone: 2 z12 blocks in 2.5 s, bands correct.
   **Min position (2026-09-26):** "Visa min position" on `/karta` turns on
   `MyPosition.tsx` (Capacitor `Geolocation.watchPosition`, blue dot +
   accuracy circle ≤ 2 km, jumps to zoom ≥ 13 on the first fix only, stops
@@ -979,6 +999,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (237 tests as of 2026-10-10, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 137 tests, including the
+  (238 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 150 tests, including the
   real-page fixtures).

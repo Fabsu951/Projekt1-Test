@@ -105,6 +105,14 @@ export default function AboutPage() {
             . Kartbilderna visas obearbetade.
           </li>
           <li>
+            Detaljerad lutning (när den finns): beräknad av Snöläge från Lantmäteriets höjdmodell (Markhöjdmodell
+            Nedladdning, grid 1+), ©Lantmäteriet,{" "}
+            <a href="https://creativecommons.org/licenses/by/4.0/deed.sv" target="_blank" rel="noreferrer">
+              CC BY 4.0
+            </a>
+            . Bearbetad: lutningen är uträknad och indelad i steg.
+          </li>
+          <li>
             Terränglutning: höjddata (SRTM/NASADEM, ~30 m upplösning) från{" "}
             <a href="https://mapterhorn.com/attribution/" target="_blank" rel="noreferrer">
               Mapterhorn

@@ -42,7 +42,7 @@ import {
   unfollow,
 } from "./social";
 import { parseTerrainPath, serveTerrain } from "./terrain";
-import { parseTilePath, serveTile, uploadTiles, type TilesEnv } from "./tiles";
+import { parseSlopePath, parseTilePath, saveSlopeMeta, serveSlopeTile, serveTile, slopeMeta, uploadTiles, type TilesEnv } from "./tiles";
 import { notifyChanges, publicKey, subscribe, unsubscribe, type PushEnv } from "./push";
 import { notifyNativeChanges, registerDevice, unregisterDevice, type NativeEnv } from "./nativePush";
 import type { NotifyEnv } from "./notifications";
@@ -519,6 +519,11 @@ export default {
     if (url.pathname === "/admin/tiles/topowebb" && request.method === "POST") {
       return uploadTiles(request, env, origin);
     }
+    if (url.pathname === "/admin/tiles/slope" && request.method === "POST") return uploadTiles(request, env, origin, "slope");
+    if (url.pathname === "/admin/tiles/slope/meta" && request.method === "POST") return saveSlopeMeta(request, env, origin);
+    if (url.pathname === "/tiles/slope/meta" && request.method === "GET") return slopeMeta(env, origin);
+    const slopeTile = request.method === "GET" ? parseSlopePath(url.pathname) : null;
+    if (slopeTile) return serveSlopeTile(request, env, ctx, origin, slopeTile);
 
     if (url.pathname === "/native/status" && request.method === "GET") {
       return json({ enabled: fcmConfigured(env) }, origin);

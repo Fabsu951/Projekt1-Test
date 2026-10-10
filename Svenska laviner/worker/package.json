@@ -12,6 +12,8 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260922.1",
     "@types/node": "^22.20.4",
+    "geotiff": "^3.0.5",
+    "proj4": "^2.22.0",
     "tsx": "^4.23.15",
     "typescript": "~5.9.3",
     "vitest": "^5.0.1",

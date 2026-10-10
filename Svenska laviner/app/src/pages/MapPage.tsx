@@ -10,8 +10,9 @@ import { loadForecasts } from "../services/avalancheService";
 import type { AvalancheForecast } from "../types/avalanche";
 import SlopeLayer from "../components/SlopeLayer";
 import OfficialTerrainLayer from "../components/OfficialTerrainLayer";
+import DetailedSlopeLayer from "../components/DetailedSlopeLayer";
 import OfficialTerrainLegend from "../components/OfficialTerrainLegend";
-import { officialTerrainAvailable, type OfficialTerrain } from "../services/mapTiles";
+import { detailedSlopeAvailable, officialTerrainAvailable, type OfficialTerrain } from "../services/mapTiles";
 import TopoLayer from "../components/TopoLayer";
 import MyPosition from "../components/MyPosition";
 import { fetchObservations } from "../services/observationService";
@@ -118,6 +119,15 @@ function saveLayersOpen(open: boolean) {
 export default function MapPage() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
   const [showSlope, setShowSlope] = useState(false);
+  const [showDetailedSlope, setShowDetailedSlope] = useState(false);
+  const [detailedSlope, setDetailedSlope] = useState(false);
+  useEffect(() => {
+    let live = true;
+    void detailedSlopeAvailable().then((ok) => live && setDetailedSlope(ok));
+    return () => {
+      live = false;
+    };
+  }, []);
   const [officialTerrain, setOfficialTerrain] = useState<OfficialTerrain | null>(null);
   const [showObservations, setShowObservations] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -241,7 +251,7 @@ export default function MapPage() {
       window.removeEventListener("keydown", onKey);
     };
   }, [fullscreen]);
-  const activeLayers = [showObservations, showTours, showHeatmap, showSlope, officialTerrain !== null].filter(Boolean).length;
+  const activeLayers = [showObservations, showTours, showHeatmap, showSlope, showDetailedSlope, officialTerrain !== null].filter(Boolean).length;
   const [positionStatus, setPositionStatus] = useState<string | null>(null);
   const onPositionStatus = useCallback((message: string | null) => setPositionStatus(message), []);
 
@@ -374,6 +384,30 @@ export default function MapPage() {
                 ))}
               </div>
             )}
+            {detailedSlope && (
+              <>
+                <label className="map-toolbar__toggle">
+                  <input
+                    type="checkbox"
+                    checked={showDetailedSlope}
+                    onChange={(e) => setShowDetailedSlope(e.target.checked)}
+                  />
+                  <span>
+                    Lutning, detaljerad <span className="map-layers__sub">(Lantmäteriets höjddata, zooma in)</span>
+                  </span>
+                </label>
+                {showDetailedSlope && (
+                  <div className="slope-legend">
+                    {SLOPE_LEGEND.slice(1).map(([label, color]) => (
+                      <span key={label} className="slope-legend__item">
+                        <span className="slope-legend__swatch" style={{ backgroundColor: color }} />
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
             {officialTerrainAvailable && (
               <div className="official-terrain">
                 <p className="official-terrain__title">Från Naturvårdsverket</p>
@@ -419,6 +453,14 @@ export default function MapPage() {
           </p>
         )}
 
+        {showDetailedSlope && (
+          <p className="notice notice--stale">
+            Den detaljerade lutningen är beräknad från Lantmäteriets höjdmodell med 1 m upplösning, i steg om ett par
+            meter. Under 30° visas ingenting. Den visar terrängen, inte lavinfaran, och snö och skavlar kan ändra den
+            verkliga lutningen.
+          </p>
+        )}
+
         {showSlope && (
           <p className="notice notice--stale">
             Terränglutningen är beräknad från öppen höjddata med ~30 m upplösning
@@ -446,6 +488,7 @@ export default function MapPage() {
           <TopoLayer />
           <SlopeLayer enabled={showSlope} />
           <OfficialTerrainLayer layer={officialTerrain} />
+          <DetailedSlopeLayer enabled={showDetailedSlope} />
           <MyPosition enabled={showPosition} onStatus={onPositionStatus} />
           {showHeatmap && <TourHeatmap lines={heatLines} />}
           {showObservations && <ObservationMarkers observations={observations} />}

@@ -38,6 +38,12 @@ vi.mock("../services/routeService", () => ({
     Promise.resolve({ id: 7, title: "Sydtoppen", waypoints: [[67.85, 18.6], [67.9, 18.52]], mine: false, shared: true }),
 }));
 vi.mock("../auth/useAuth", () => ({ useAuth: () => ({ user: null, token: null, loading: false }) }));
+const slopeMap = vi.hoisted(() => ({ available: false }));
+vi.mock("../services/mapTiles", async (orig) => ({
+  ...(await orig<typeof import("../services/mapTiles")>()),
+  detailedSlopeAvailable: () => Promise.resolve(slopeMap.available),
+}));
+vi.mock("../components/DetailedSlopeLayer", () => ({ default: () => null }));
 vi.mock("../components/TopoLayer", () => ({ default: () => null }));
 vi.mock("../components/SlopeLayer", () => ({ default: () => null }));
 vi.mock("../components/MyPosition", () => ({ default: () => null }));
@@ -72,6 +78,21 @@ describe("MapPage layer menu", () => {
     } finally {
       window.matchMedia = original;
     }
+  });
+
+  it("offers the detailed slope map only once it exists", async () => {
+    slopeMap.available = false;
+    const { unmount } = render(<MemoryRouter><MapPage /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByRole("button", { name: /Kartlager/ })).toBeInTheDocument());
+    expect(screen.queryByLabelText(/Lutning, detaljerad/)).toBeNull();
+    unmount();
+
+    slopeMap.available = true;
+    render(<MemoryRouter><MapPage /></MemoryRouter>);
+    const box = await screen.findByLabelText(/Lutning, detaljerad/);
+    fireEvent.click(box);
+    expect(screen.getByText(/beräknad från Lantmäteriets höjdmodell med 1 m upplösning/)).toBeInTheDocument();
+    slopeMap.available = false;
   });
 
   it("opens the map in full screen and leaves it with Escape", () => {

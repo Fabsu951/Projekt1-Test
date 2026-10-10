@@ -19,9 +19,8 @@
 // Lantmäteriet ships all of Sweden in one ~145 GB file. By default only the
 // three mountain boxes (MOUNTAIN_BOXES) are read, plus every tile up to zoom
 // OVERVIEW_MAX_ZOOM, via the tile table's index, so the rest is never touched.
-import { spawnSync } from "node:child_process";
-import { randomBytes } from "node:crypto";
-import { encodeTiles, imageType, validTile, type Tile } from "../src/tileBatch";
+import { imageType, validTile, type Tile } from "../src/tileBatch";
+import { createUploadToken, uploadTiles } from "./uploadClient";
 import { RemoteGpkg } from "./remoteGpkg";
 import { httpReader } from "./remoteSqlite";
 import {
@@ -34,7 +33,6 @@ import {
   type TileMatrixSet,
 } from "../src/gpkgTiles";
 
-const WORKER = process.env.FJALLKOLL_WORKER_URL ?? "https://fjallkoll-worker.fabian-n-sund.workers.dev";
 // Well inside a Worker invocation's limits on the free plan.
 // Small batches: on the free plan a Worker gets ~10 ms CPU per request, and
 // 200 tiles per request hit "Worker exceeded resource limits" (1102) on 2026-10-07.
@@ -128,57 +126,6 @@ function describe(db: import("node:sqlite").DatabaseSync, wanted: string | null)
   return { tables, table, levels };
 }
 
-/** The Worker ran out of CPU/memory for this request (Cloudflare error 1102) – a smaller batch will do. */
-const tooBig = (status: number, text: string) => status === 413 || ((status === 503 || status === 500) && /1102|exceeded resource limits/i.test(text));
-
-async function upload(token: string, tiles: Tile[]): Promise<void> {
-  const body = encodeTiles(tiles);
-  for (let attempt = 1; ; attempt++) {
-    try {
-      const res = await fetch(`${WORKER}/admin/tiles/topowebb`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/octet-stream" },
-        body: body as Uint8Array<ArrayBuffer>,
-        signal: AbortSignal.timeout(120_000),
-      });
-      if (res.ok) return;
-      if (res.status === 401) throw Object.assign(new Error("Workern godkände inte uppladdningsnyckeln."), { fatal: true });
-      const text = await res.text();
-      if (tooBig(res.status, text) && tiles.length > 1) {
-        // Split in half and send each part on its own.
-        const half = Math.ceil(tiles.length / 2);
-        try {
-          await upload(token, tiles.slice(0, half));
-          await upload(token, tiles.slice(half));
-        } catch (err) {
-          // The halves already retried on their own.
-          throw Object.assign(err as Error, { fatal: true });
-        }
-        return;
-      }
-      throw new Error(`HTTP ${res.status}: ${text.length > 300 ? `${text.slice(0, 300)}…` : text}`);
-    } catch (err) {
-      if ((err as { fatal?: boolean }).fatal || attempt >= 6) throw err;
-      await new Promise((r) => setTimeout(r, 2000 * attempt));
-    }
-  }
-}
-
-/** A fresh random upload token, stored as a worker secret for this run. */
-function createUploadToken(): string {
-  if (process.env.TILE_UPLOAD_TOKEN) return process.env.TILE_UPLOAD_TOKEN;
-  const token = randomBytes(32).toString("base64url");
-  const result = spawnSync("npx", ["wrangler", "secret", "put", "TILE_UPLOAD_TOKEN"], {
-    input: token,
-    stdio: ["pipe", "inherit", "inherit"],
-    shell: true,
-  });
-  if (result.status !== 0) {
-    console.error("Kunde inte spara uppladdningsnyckeln på workern. Är du inloggad (npx wrangler login)?");
-    process.exit(1);
-  }
-  return token;
-}
 
 const SELECT_TILES = (table: string) =>
   `SELECT zoom_level AS level, tile_column AS col, tile_row AS row, tile_data AS data FROM "${table.replace(/"/g, '""')}"`;
@@ -349,7 +296,7 @@ async function main() {
       batch = [];
       batchBytes = 0;
       if (opts.dryRun) return;
-      const p = upload(token, tiles).finally(() => inFlight.delete(p));
+      const p = uploadTiles(token, "topowebb", tiles).finally(() => inFlight.delete(p));
       inFlight.add(p);
       if (inFlight.size >= PARALLEL) await Promise.race(inFlight);
     };

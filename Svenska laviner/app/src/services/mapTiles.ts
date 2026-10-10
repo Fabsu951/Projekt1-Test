@@ -37,3 +37,25 @@ export const officialTerrainUrl = (layer: OfficialTerrain) => `${workerBase()}/t
 export const officialTerrainLegendUrl = (layer: OfficialTerrain) => `${workerBase()}/terrain/${layer}/legend.png`;
 export const OFFICIAL_TERRAIN_ATTRIBUTION =
   'Terrängkarta: <a href="https://www.lavinprognoser.se/">Naturvårdsverket</a>';
+
+/**
+ * The detailed slope map, made from Lantmäteriet's 1 m height model by
+ * worker/scripts/import-slope.ts and hosted by the worker. Only offered once
+ * the worker says it exists (GET /tiles/slope/meta).
+ */
+export const DETAILED_SLOPE_URL = `${workerBase()}/tiles/slope/{z}/{x}/{y}.png`;
+export const DETAILED_SLOPE_ATTRIBUTION =
+  'Lutning beräknad från &copy; Lantmäteriet Markhöjdmodell, <a href="https://creativecommons.org/licenses/by/4.0/deed.sv">CC BY 4.0</a>';
+
+let slopeMetaCheck: Promise<boolean> | null = null;
+
+export function detailedSlopeAvailable(): Promise<boolean> {
+  if (!PROXY_BASE) return Promise.resolve(false);
+  slopeMetaCheck ??= fetch(`${workerBase()}/tiles/slope/meta`)
+    .then((res) => res.ok)
+    .catch(() => {
+      slopeMetaCheck = null; // try again next time, e.g. when back online
+      return false;
+    });
+  return slopeMetaCheck;
+}
