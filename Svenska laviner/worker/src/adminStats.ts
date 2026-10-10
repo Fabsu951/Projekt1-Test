@@ -1,4 +1,5 @@
 import { forecastHealth } from "./health";
+import { backupStatus } from "./backup";
 import { requireUser, type CommunityEnv } from "./auth";
 import { HttpError } from "./http";
 import { addDays } from "./history";
@@ -106,5 +107,11 @@ export async function adminStats(request: Request, env: CommunityEnv, now = new 
     tours: toursBy.get(r.id) ?? 0,
   }));
 
-  return { totals, weeks, regions, forecastHealth: await forecastHealth(env.DB) };
+  return {
+    totals,
+    weeks,
+    regions,
+    forecastHealth: await forecastHealth(env.DB),
+    backup: await backupStatus(env).catch(() => null),
+  };
 }

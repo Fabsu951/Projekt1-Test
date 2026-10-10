@@ -1189,4 +1189,6 @@ export const EN: Record<string, string> = {
   "Skicka inbjudan": "Send invitation",
   "De får en notis och kan gå med eller tacka nej. Går de med får de också prognosen för dagen.": "They get a notification and can join or decline. If they join, they get the forecast for the day too.",
   "Notisen syns under klockan i menyn. Vill du få den i telefonen, slå på det under": "The notification shows under the bell in the menu. To get it on your phone, turn that on under",
+  "Senaste säkerhetskopian: {time} ({size}, {n} sparade).": "Latest backup: {time} ({size}, {n} kept).",
+  "Ingen säkerhetskopia än – den första görs natten mot måndag.": "No backup yet – the first one is made on the night to Monday.",
 };

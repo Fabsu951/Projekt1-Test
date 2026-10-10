@@ -4,6 +4,7 @@ import { useAuth } from "../auth/useAuth";
 import PageLoading from "../components/PageLoading";
 import { fetchAdminStats, type AdminStats } from "../services/adminService";
 import { t, locale, plural } from "../i18n";
+import { formatMegabytes } from "../services/offlineMap";
 
 /** "1 okt" for the Monday a week starts on. */
 function weekLabel(monday: string): string {
@@ -116,6 +117,17 @@ export default function AdminStatsPage() {
                 </>
               )}
             </div>
+          )}
+          {stats.backup && (
+            <p className="muted admin-backup">
+              {stats.backup.latestAt
+                ? t("Senaste säkerhetskopian: {time} ({size}, {n} sparade).", {
+                    time: new Date(stats.backup.latestAt).toLocaleString(locale(), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }),
+                    size: formatMegabytes(stats.backup.bytes ?? 0),
+                    n: stats.backup.count,
+                  })
+                : t("Ingen säkerhetskopia än – den första görs natten mot måndag.")}
+            </p>
           )}
           {totals!.openReports > 0 && (
             <p className="notice">

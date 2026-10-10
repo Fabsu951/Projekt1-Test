@@ -51,6 +51,7 @@ import { answerInvitation, inviteToTrip } from "./tripInvites";
 import { adminStats } from "./adminStats";
 import { checkForecastHealth } from "./health";
 import { seasonStartReport } from "./seasonReport";
+import { runBackup } from "./backup";
 import { fetchWarnings, WARNINGS_PAGE } from "./warnings";
 import { fcmConfigured, type FcmEnv } from "./fcm";
 import { stockholmDate } from "./model";
@@ -470,6 +471,9 @@ async function warningsResponse(request: Request, ctx: ExecutionContext, origin:
   }
 }
 
+/** The weekly backup's cron in wrangler.toml; the others fetch forecasts. */
+const BACKUP_CRON = "37 2 * * 1";
+
 const HISTORY_CACHE_TTL_SECONDS = 60 * 10;
 /** Finished seasons never change; the current one grows twice a day. */
 const PAST_SEASON_TTL_SECONDS = 60 * 60 * 24 * 7;
@@ -536,7 +540,11 @@ export default {
    * time, see wrangler.toml) so history builds up even on days nobody
    * opens the app.
    */
-  async scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+  async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    if (controller.cron === BACKUP_CRON) {
+      ctx.waitUntil(runBackup(env).catch((err) => console.error("Backup failed", err)));
+      return;
+    }
     ctx.waitUntil(fetchAllRegions().then((results) => recordAll(env, results)));
   },
 
