@@ -887,6 +887,17 @@ the start, exact map point.
   earlier (±12 h). `cached("snow-depth:<region>")` for offline.
   `SnowDepthCard` (section "Snödjup" after Väder on area pages, hidden when
   nothing fresh; 0 cm → "Barmark"; note that valley stations ≠ mountain).
+- **Snabbobservation (2026-10-10):** `/observationer/snabb`
+  (`QuickObservationPage`, lazy): big toggle buttons from
+  `data/quickObservation.ts` (`QUICK_CHOICES`: Färsk lavin → lavin,
+  Skjutsprickor → sprickor, Wumpf → kollaps, Snödrev / Mycket nysnö /
+  Värme eller regn → ovrigt, plus "Inga varningstecken", which never
+  combines with a sign); type = first chosen in that order, description
+  "Snabbobservation: <signs>. <note>" (meets the worker's ≥ 10 chars), time
+  now, position from `Geolocation.getCurrentPosition` (map
+  `LocationPicker` shown if it fails or accuracy > 500 m). Start page
+  "Ny observation" and the primary button on `/observationer` go here; the
+  full form stays at `/observationer/ny` ("+ Utförlig observation").
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -941,6 +952,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (225 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  (230 tests as of 2026-10-10, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 134 tests, including the
   real-page fixtures).

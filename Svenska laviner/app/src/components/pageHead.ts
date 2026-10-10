@@ -13,6 +13,7 @@ const TITLES: Array<[RegExp, string]> = [
   [/^\/omrade\//, "Område"],
   [/^\/karta/, "Karta"],
   [/^\/observationer\/ny/, "Ny observation"],
+  [/^\/observationer\/snabb/, "Snabbobservation"],
   [/^\/observationer/, "Observationer"],
   [/^\/turer\/ny/, "Ny tur"],
   [/^\/turer\/halsa/, "Hämta från klockan"],

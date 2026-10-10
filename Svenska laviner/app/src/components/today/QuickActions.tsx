@@ -12,7 +12,7 @@ export default function QuickActions() {
         </svg>
         Planera rutt
       </Link>
-      <Link to="/observationer/ny" className="quick-actions__item">
+      <Link to="/observationer/snabb" className="quick-actions__item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
           <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" />
           <path d="M12 7v6M9 10h6" />

@@ -35,8 +35,11 @@ export default function ObservationsPage() {
           Lavinobservationer från andra åkare: laviner, sprickor, kollapser och annat värt att veta.
         </p>
         <div className="button-row">
-          <Link to={user ? "/observationer/ny" : "/logga-in?next=/observationer/ny"} className="button button--primary">
-            + Dela en observation
+          <Link to={user ? "/observationer/snabb" : "/logga-in?next=/observationer/snabb"} className="button button--primary">
+            Snabbobservation
+          </Link>
+          <Link to={user ? "/observationer/ny" : "/logga-in?next=/observationer/ny"} className="button">
+            + Utförlig observation
           </Link>
         </div>
       </header>

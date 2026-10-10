@@ -24,6 +24,7 @@ import "./App.css";
 const MapPage = lazy(() => import("./pages/MapPage"));
 // Also Leaflet-heavy (location picker).
 const NewObservationPage = lazy(() => import("./pages/NewObservationPage"));
+const QuickObservationPage = lazy(() => import("./pages/QuickObservationPage"));
 // Leaflet (track map) and, for FIT files, Garmin's FIT SDK.
 const NewTourPage = lazy(() => import("./pages/NewTourPage"));
 const TourPage = lazy(() => import("./pages/TourPage"));
@@ -64,6 +65,14 @@ function App() {
           element={
             <Suspense fallback={<PageLoading />}>
               <NewObservationPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/observationer/snabb"
+          element={
+            <Suspense fallback={<PageLoading />}>
+              <QuickObservationPage />
             </Suspense>
           }
         />
