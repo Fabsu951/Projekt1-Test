@@ -21,7 +21,7 @@ din egen telefon och lägger ut dem i Google Play och App Store.
 - **Adresser:** appen hämtar allt från workern, och adressen är inbyggd via
   `app/.env.production`.
 - **Radera konto:** en egen sida för butikernas krav finns på
-  `https://fjallkoll.pages.dev/om-appen#radera-konto`.
+  `https://snolage.se/om-appen#radera-konto`.
 
 - **Health Connect (Android) och Apple Hälsa (iPhone):** hämtar pass med
   GPS-spår från klockans app som privata turer. Med "Lägg till nya skidpass
@@ -118,21 +118,46 @@ fungerar allt utom notiserna. Klistra aldrig in den i chatten.
    [play.google.com/console](https://play.google.com/console). Det kostar 25 USD
    en gång. Som privatperson måste nya konton låta minst 12 testare prova appen
    i 14 dagar innan den kan publiceras öppet, till exempel familj och kompisar.
-2. **Signera appen:** i Android Studio, välj Build → Generate Signed App
-   Bundle → Android App Bundle → skapa en ny nyckel ("keystore").
-   **Spara keystore-filen och lösenordet säkert**, till exempel i en
-   lösenordshanterare och en kopia på ett USB-minne. Lägg dem aldrig i Git och
-   klistra aldrig in lösenordet i en chatt.
-3. I Play Console: skapa appen, ladda upp `.aab`-filen under Testing →
-   Internal testing och fyll i butikssidan med texterna nedan.
-4. **Dataskydd ("Data safety")**, svara så här:
+2. **Skapa uppladdningsnyckeln (en gång, på din dator):** öppna PowerShell och
+   kör (Java följer med Android Studio):
+   ```powershell
+   & "C:\Program Files\Android\Android Studio\jbr\bin\keytool.exe" -genkeypair -v -keystore "$HOME\snolage-upload.jks" -alias upload -keyalg RSA -keysize 2048 -validity 10000
+   ```
+   Välj ett starkt lösenord (samma för filen och nyckeln går bra) och svara på
+   frågorna (namn räcker). **Spara filen `snolage-upload.jks` och lösenordet
+   säkert**, till exempel i en lösenordshanterare och en kopia på ett
+   USB-minne. Lägg dem aldrig i Git och klistra aldrig in dem i en chatt –
+   inte heller här.
+3. **Lägg nyckeln på GitHub** (Settings → Secrets and variables → Actions →
+   New repository secret), fyra secrets:
+   - `ANDROID_UPLOAD_KEYSTORE_BASE64` – filen som text. Ta fram den med
+     `[Convert]::ToBase64String([IO.File]::ReadAllBytes("$HOME\snolage-upload.jks")) | Set-Clipboard`
+     och klistra in direkt i GitHub-rutan.
+   - `ANDROID_UPLOAD_STORE_PASSWORD` och `ANDROID_UPLOAD_KEY_PASSWORD` – lösenordet.
+   - `ANDROID_UPLOAD_KEY_ALIAS` – `upload`.
+4. **Bygg appen för Play:** Actions → "Android-app för Google Play" → Run
+   workflow, skriv versionsnamnet (t.ex. `1.0.0`). När körningen är klar finns
+   `.aab`-filen under **Artifacts** längst ner på körningens sida.
+5. **Första uppladdningen gör du själv:** i Play Console skapar du appen
+   (`se.snolage.app`), slår på **Play App Signing** (Google håller den riktiga
+   signeringsnyckeln, din nyckel är bara för uppladdning – tappar du den kan
+   Google byta den) och laddar upp `.aab`-filen under Testing → Internal
+   testing. Fyll i butikssidan med texterna nedan.
+6. **Valfritt, uppladdning direkt från GitHub:** skapa ett tjänstekonto i
+   Google Cloud med åtkomst till appen i Play Console (Users and permissions →
+   bjud in tjänstekontots e-post, "Release to testing tracks") och lägg hela
+   JSON-nyckeln som secret `PLAY_SERVICE_ACCOUNT_JSON`. Kryssa sedan i "Ladda
+   upp till intern testning" när du kör workflowen.
+   Testversionen från "Android-app" (snolage.apk) är signerad med en
+   testnyckel och kan aldrig laddas upp till Play.
+7. **Dataskydd ("Data safety")**, svara så här:
    - Samlar in: e-post, namn (användarnamn), ungefärlig och exakt plats (bara
      när användaren själv lägger upp en observation, tur eller rutt), foton,
      användargenererat innehåll (observationer, turer, kommentarer).
    - Delas inte med tredje part för reklam. Krypteras under överföring.
      Användare kan begära radering: ange
-     `https://fjallkoll.pages.dev/om-appen#radera-konto`.
-5. **Health Connect:** appen kan hämta träningspass med GPS-rutt från Health
+     `https://snolage.se/om-appen#radera-konto`.
+8. **Health Connect:** appen kan hämta träningspass med GPS-rutt från Health
    Connect (sidan "Hämta från Health Connect" under Turer). Google kräver då
    en deklaration i Play Console under **App content → Health apps / Health
    Connect permissions**: ange att appen läser **Exercise** och **Exercise
@@ -143,7 +168,7 @@ fungerar allt utom notiserna. Klistra aldrig in den i chatten.
    koll ungefär en gång i timmen som bara visar en notis, påslagen av
    användaren, och som inte skickar något från telefonen. Lägg också till "Health and fitness" i
    Data safety. Granskningen kan ta några dagar extra.
-6. **Integritetspolicy:** `https://fjallkoll.pages.dev/om-appen#integritet`
+9. **Integritetspolicy:** `https://snolage.se/om-appen#integritet`
 
 ## 3. iPhone (TestFlight och App Store, utan egen Mac)
 

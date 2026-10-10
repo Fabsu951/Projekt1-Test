@@ -1,0 +1,136 @@
+# Builds the Android app for Google Play (a signed .aab) when asked:
+# Actions → "Android-app för Google Play" → Run workflow, with the version
+# name to show in the store (e.g. 1.0.0). The version code is the number
+# of commits, so every build is higher than the one before.
+#
+# Needs repository secrets (steps: "Svenska laviner/APPAR.md", § 2):
+#   ANDROID_UPLOAD_KEYSTORE_BASE64  the upload key file, base64
+#   ANDROID_UPLOAD_STORE_PASSWORD   its password
+#   ANDROID_UPLOAD_KEY_ALIAS        the key's alias (e.g. "upload")
+#   ANDROID_UPLOAD_KEY_PASSWORD     the key's password
+# Optional:
+#   GOOGLE_SERVICES_JSON            push notifications (as in android.yml)
+#   PLAY_SERVICE_ACCOUNT_JSON       uploads to Play's internal testing track
+#                                   (only after the first upload by hand)
+# The .aab is always kept as a download on the run's page.
+
+name: Android-app för Google Play
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: "Versionsnamn i Play Butik (t.ex. 1.0.0)"
+        required: true
+        default: "1.0.0"
+      upload_to_play:
+        description: "Ladda upp till intern testning i Play Console (kräver PLAY_SERVICE_ACCOUNT_JSON)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: android-release
+  cancel-in-progress: false
+
+jobs:
+  aab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      VERSION_NAME: ${{ inputs.version_name }}
+      HAS_KEY: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 != '' && secrets.ANDROID_UPLOAD_STORE_PASSWORD != '' && secrets.ANDROID_UPLOAD_KEY_ALIAS != '' && secrets.ANDROID_UPLOAD_KEY_PASSWORD != '' }}
+      HAS_PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
+    steps:
+      - name: Check the upload key
+        if: env.HAS_KEY != 'true'
+        run: |
+          echo "::error::Uppladdningsnyckeln saknas. Lägg in ANDROID_UPLOAD_KEYSTORE_BASE64, ANDROID_UPLOAD_STORE_PASSWORD, ANDROID_UPLOAD_KEY_ALIAS och ANDROID_UPLOAD_KEY_PASSWORD som secrets (APPAR.md § 2)."
+          exit 1
+
+      - name: Check the version name
+        run: |
+          if ! printf '%s' "$VERSION_NAME" | grep -Eq '^[0-9]+(\.[0-9]+){0,3}$'; then
+            echo "::error::Versionsnamnet ska vara siffror med punkter, t.ex. 1.0.0."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Svenska laviner/app/package-lock.json
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Web app – install, test, build, copy into Android
+        working-directory: Svenska laviner/app
+        run: |
+          npm ci
+          npm run test -- --run
+          npm run build
+          npx cap sync android
+
+      - name: Firebase settings (push notifications)
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON" > "Svenska laviner/app/android/app/google-services.json"
+          else
+            echo "::warning::GOOGLE_SERVICES_JSON is not set; the release is built without push notifications."
+          fi
+
+      - name: Build the signed app bundle
+        working-directory: Svenska laviner/app/android
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+          SNOLAGE_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_STORE_PASSWORD }}
+          SNOLAGE_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          SNOLAGE_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+          SNOLAGE_VERSION_NAME: ${{ env.VERSION_NAME }}
+        run: |
+          export SNOLAGE_UPLOAD_STORE_FILE="$RUNNER_TEMP/upload.keystore"
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$SNOLAGE_UPLOAD_STORE_FILE"
+          chmod +x gradlew
+          ./gradlew --no-daemon bundleRelease
+          rm -f "$SNOLAGE_UPLOAD_STORE_FILE"
+          code=$(git rev-list --count HEAD)
+          cp app/build/outputs/bundle/release/app-release.aab "$RUNNER_TEMP/snolage-$VERSION_NAME-$code.aab"
+          echo "AAB=$RUNNER_TEMP/snolage-$VERSION_NAME-$code.aab" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=$code" >> "$GITHUB_ENV"
+
+      - name: Keep the bundle as a download
+        uses: actions/upload-artifact@v4
+        with:
+          name: snolage-${{ env.VERSION_NAME }}-${{ env.VERSION_CODE }}
+          path: ${{ env.AAB }}
+          retention-days: 90
+
+      - name: Upload to Play (internal testing)
+        if: inputs.upload_to_play && env.HAS_PLAY == 'true'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: se.snolage.app
+          releaseFiles: ${{ env.AAB }}
+          track: internal
+          status: completed
+
+      - name: Summary
+        env:
+          UPLOAD: ${{ inputs.upload_to_play }}
+        run: |
+          {
+            echo "### Android-app för Google Play"
+            echo "- Version $VERSION_NAME (versionskod $VERSION_CODE) – ladda ner .aab-filen under Artifacts nedan."
+            if [ "$UPLOAD" = "true" ] && [ "$HAS_PLAY" = "true" ]; then echo "- Uppladdad till intern testning i Play Console."; fi
+            if [ "$UPLOAD" = "true" ] && [ "$HAS_PLAY" != "true" ]; then echo "- Inte uppladdad: PLAY_SERVICE_ACCOUNT_JSON saknas."; fi
+          } >> "$GITHUB_STEP_SUMMARY"

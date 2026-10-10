@@ -22,7 +22,8 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode gitCommitCount(rootDir)
-        versionName "1.0"
+        // The Play release build sets the version name (.github/workflows/android-release.yml).
+        versionName System.getenv("SNOLAGE_VERSION_NAME") ?: "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -41,12 +42,23 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        // The upload key for Google Play: only on GitHub, from repository
+        // secrets (android-release.yml). Never in git, never in chat.
+        if (System.getenv("SNOLAGE_UPLOAD_STORE_FILE")) {
+            release {
+                storeFile file(System.getenv("SNOLAGE_UPLOAD_STORE_FILE"))
+                storePassword System.getenv("SNOLAGE_UPLOAD_STORE_PASSWORD")
+                keyAlias System.getenv("SNOLAGE_UPLOAD_KEY_ALIAS")
+                keyPassword System.getenv("SNOLAGE_UPLOAD_KEY_PASSWORD")
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
+            if (System.getenv("SNOLAGE_UPLOAD_STORE_FILE")) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
