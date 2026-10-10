@@ -497,7 +497,7 @@ export default function MapPage() {
 
         {showSlope && (
           <p className="notice notice--stale">
-            {t("Terränglutningen är beräknad från öppen höjddata med ~30 m upplösning (SRTM/NASADEM) och är en grov approximation — inte tillräckligt exakt för att ensam avgöra om en specifik sluttning är säker.")}
+            {t("Terränglutningen är beräknad från öppen höjddata med ~30 m upplösning (SRTM/NASADEM) och är en grov approximation – inte tillräckligt exakt för att ensam avgöra om en specifik sluttning är säker.")}
           </p>
         )}
       </div>

@@ -11,7 +11,9 @@ import AreaForecastCard from "../components/today/AreaForecastCard";
 import OverviewMap from "../components/today/OverviewMap";
 import QuickActions from "../components/today/QuickActions";
 import TodayTrip from "../components/today/TodayTrip";
-import WelcomeGuide, { welcomeDone } from "../components/WelcomeGuide";
+import Contours from "../components/Contours";
+import WelcomeGuide from "../components/WelcomeGuide";
+import { welcomeDone } from "../services/welcome";
 import { useAuth } from "../auth/useAuth";
 import RecentObservations from "../components/today/RecentObservations";
 import NearestRegion from "../components/NearestRegion";
@@ -20,6 +22,7 @@ import ForecastBadge from "../components/ForecastBadge";
 import FavoriteButton from "../components/FavoriteButton";
 import HealthImportNotice from "../components/HealthImportNotice";
 import { t, locale } from "../i18n";
+import Icon from "../components/Icon";
 
 // The start page, "Idag i fjällen": today's forecast for your starred areas
 // first, then quick actions, fresh observations, an overview map and the
@@ -98,11 +101,10 @@ export default function TodayPage() {
     <div className="page page--wide today">
       {showWelcome && <WelcomeGuide onClose={closeWelcome} />}
       <header className="today__hello">
+        <Contours />
+        <p className="today__date">{todayText(now)}</p>
         <h1>{t("Idag i fjällen")}</h1>
-        <p>
-          {todayText(now)}
-          {published && t(" · prognosen publicerad {time}", { time: published })}
-        </p>
+        {published && <p className="today__published">{t("Prognosen publicerad {time}", { time: published })}</p>}
       </header>
 
       {stale && <p className="notice notice--stale">{t("Ingen kontakt just nu. Visar senast sparade prognoser.")}</p>}
@@ -155,7 +157,7 @@ export default function TodayPage() {
             <h2 id="today-obs" className="today__label">
               {favorites.length > 0 ? t("Observationer i dina områden") : t("Senaste observationerna")}
               <Link to="/observationer" className="today__label-link">
-                {t("Alla →")}
+                {t("Alla")}<Icon name="arrowRight" size={16} className="icon--link" />
               </Link>
             </h2>
             <RecentObservations
@@ -173,7 +175,7 @@ export default function TodayPage() {
             <h2 id="today-map" className="today__label">
               {t("Översikt")}
               <Link to="/karta" className="today__label-link">
-                {t("Öppna kartan →")}
+                {t("Öppna kartan")}<Icon name="arrowRight" size={16} className="icon--link" />
               </Link>
             </h2>
             <OverviewMap forecasts={forecasts} favorites={favorites} />

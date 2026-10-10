@@ -13,6 +13,7 @@ import {
 } from "../services/offlineMap";
 import { offlineMapsAvailable, topoTileUrl } from "../services/mapTiles";
 import { t, locale } from "../i18n";
+import Icon from "./Icon";
 
 /** "Spara kartan offline": keeps what's on screen for use without coverage. */
 export default function OfflineViewBox({ bounds, onShow }: { bounds: Bounds | null; onShow: (b: Bounds) => void }) {
@@ -76,7 +77,7 @@ export default function OfflineViewBox({ bounds, onShow }: { bounds: Bounds | nu
       )}
       {error && <p className="error">{error}</p>}
       <Link to="/offline" className="offline-box__link">
-        {t("Vad fungerar utan täckning? →")}
+        {t("Vad fungerar utan täckning?")}<Icon name="arrowRight" size={16} className="icon--link" />
       </Link>
       {views.length > 0 && (
         <ul className="offline-box__list">

@@ -81,7 +81,7 @@ export default function WindRose({ readings, sourceLabel, tableCaption }: Props)
   const summary = !calm
     ? t("Vind från {from} → mest vindlastat: {sector}-vända sluttningar.", { from: compass(windFrom ?? ""), sector: compass(top.sector) })
     : raw
-      ? t("Ingen betydande vindtransport i {source} — högsta vinden var {speed} m/s ({direction}), under transportgränsen på {limit} m/s.", { source: sourceLabel, speed: raw.maxSpeed.toFixed(1), direction: windCompass(raw.maxSpeedDirection), limit: TRANSPORT_THRESHOLD_MS })
+      ? t("Ingen betydande vindtransport i {source} – högsta vinden var {speed} m/s ({direction}), under transportgränsen på {limit} m/s.", { source: sourceLabel, speed: raw.maxSpeed.toFixed(1), direction: windCompass(raw.maxSpeedDirection), limit: TRANSPORT_THRESHOLD_MS })
       : t("Ingen betydande vindtransport i {source}.", { source: sourceLabel });
 
   return (
@@ -165,7 +165,7 @@ export default function WindRose({ readings, sourceLabel, tableCaption }: Props)
       )}
       {nearThreshold && (
         <p className="wind-rose__near">
-          {t("Nära transportgränsen — lös snö kan ändå börja driva, särskilt i byar och på krön.")}
+          {t("Nära transportgränsen – lös snö kan ändå börja driva, särskilt i byar och på krön.")}
         </p>
       )}
 

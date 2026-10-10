@@ -10,6 +10,7 @@ import { formatDistance, formatDuration, formatTourDate } from "../utils/tourFor
 import AdminBadge from "./AdminBadge";
 import ReportButton from "./ReportButton";
 import { t, locale } from "../i18n";
+import Icon from "./Icon";
 
 const ago = (iso: string) =>
   new Date(iso).toLocaleString(locale(), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -106,7 +107,7 @@ function RouteBody({ item }: { item: Extract<FeedItem, { type: "route" }> }) {
           {r.ascentM !== null && <li>↑ {r.ascentM} m</li>}
         </ul>
         <Link to={`/karta?rutt=${r.id}`} className="feed-card__open">
-          {t("Öppna i kartan →")}
+          {t("Öppna i kartan")}<Icon name="arrowRight" size={16} className="icon--link" />
         </Link>{" "}
         <ReportButton type="route" id={r.id} ownerId={item.author.id} />
       </div>

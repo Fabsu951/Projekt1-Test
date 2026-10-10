@@ -6,6 +6,7 @@ import ProblemIcon from "./ProblemIcon";
 import { PROBLEM_LABELS } from "../data/avalancheProblems";
 import { PROBLEM_ADVICE } from "../data/dangerAdvice";
 import { t, compass } from "../i18n";
+import Icon from "./Icon";
 
 function elevationText(problem: ForecastProblem): string {
   const parts = [problem.elevations.map((e) => ELEVATION_LABELS[e]).join(", ")];
@@ -74,7 +75,7 @@ export default function ForecastProblems({ problems }: Props) {
 
           {problem.infoUrl && (
             <a className="forecast-problem__more" href={problem.infoUrl} target="_blank" rel="noreferrer">
-              {t("Mer om")}{" "}{problem.name.toLowerCase()}{" "}{t("på lavinprognoser.se →")}
+              {t("Mer om")}{" "}{problem.name.toLowerCase()}{" "}{t("på lavinprognoser.se")}<Icon name="arrowRight" size={16} className="icon--link" />
             </a>
           )}
         </article>

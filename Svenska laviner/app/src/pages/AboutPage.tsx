@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { PRIVACY_CONTACT_EMAIL } from "../data/contact";
 import { t, isEnglish } from "../i18n";
 import LanguageSwitch from "../components/LanguageSwitch";
+import AppearanceSettings from "../components/AppearanceSettings";
 
 export default function AboutPage() {
   const { hash } = useLocation();
@@ -69,7 +70,7 @@ export default function AboutPage() {
         <ul>
           <li>{t("Ersätter inte lavinutbildning eller erfarenhet i fjällterräng")}</li>
           <li>{t("Ersätter inte ett dagligt beslut baserat på den officiella lavinprognosen")}</li>
-          <li>{t("Fattar inga beslut åt dig — du ansvarar alltid själv för din säkerhet")}</li>
+          <li>{t("Fattar inga beslut åt dig – du ansvarar alltid själv för din säkerhet")}</li>
         </ul>
       </section>
 
@@ -79,6 +80,11 @@ export default function AboutPage() {
           {t("Snöläge finns på svenska och engelska. Lavinprognosernas texter från Naturvårdsverket, inlägg från andra åkare, notiser och mejl är på svenska.")}
         </p>
         <LanguageSwitch className="button" />
+      </section>
+
+      <section className="section" id="utseende">
+        <h2>{t("Utseende")}</h2>
+        <AppearanceSettings />
       </section>
 
       <section className="section">

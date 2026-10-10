@@ -16,6 +16,7 @@ import AdminBadge from "../components/AdminBadge";
 import ReportButton from "../components/ReportButton";
 import ShareButton from "../components/ShareButton";
 import { t } from "../i18n";
+import Icon from "../components/Icon";
 
 export default function TourPage() {
   const { id = "" } = useParams();
@@ -40,7 +41,7 @@ export default function TourPage() {
     return (
       <div className="page">
         <p className="error">{error}</p>
-        <Link to="/turer">{t("← Alla turer")}</Link>
+        <Link to="/turer"><Icon name="arrowLeft" size={16} className="icon--link" />{t("Alla turer")}</Link>
       </div>
     );
   }
@@ -78,7 +79,7 @@ export default function TourPage() {
   return (
     <div className="page">
       <Link to="/turer" className="back-link">
-        {t("← Alla turer")}
+        <Icon name="arrowLeft" size={16} className="icon--link" />{t("Alla turer")}
       </Link>
       <header className="page__header">
         <div className="page__title-row">

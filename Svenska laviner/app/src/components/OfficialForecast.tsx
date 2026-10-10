@@ -1,6 +1,7 @@
 import type { AvalancheForecast, ForecastStatus } from "../types/avalanche";
 import ForecastTrendLine from "./ForecastTrendLine";
 import { t, isEnglish } from "../i18n";
+import Icon from "./Icon";
 
 interface Props {
   forecast: AvalancheForecast;
@@ -52,7 +53,8 @@ export default function OfficialForecast({ forecast }: Props) {
         </>
       )}
       <a className="official-forecast__link" href={forecast.sourceUrl} target="_blank" rel="noreferrer">
-        {published ? t("Läs hela prognosen på lavinprognoser.se →") : t("Öppna lavinprognoser.se →")}
+        {published ? t("Läs hela prognosen på lavinprognoser.se") : t("Öppna lavinprognoser.se")}
+        <Icon name="external" size={16} className="icon--link" />
       </a>
     </div>
   );

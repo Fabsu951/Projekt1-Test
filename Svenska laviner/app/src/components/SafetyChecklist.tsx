@@ -2,7 +2,7 @@ import SourceList from "./SourceList";
 import { t } from "../i18n";
 
 const ITEMS = [
-  t("Lavinsändare (ARVA/transceiver) — testad och laddad"),
+  t("Lavinsändare (ARVA/transceiver) – testad och laddad"),
   t("Lavinspade"),
   t("Lavinsond"),
   t("Åk aldrig ensam i lavinterräng"),

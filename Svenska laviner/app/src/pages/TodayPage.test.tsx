@@ -75,7 +75,7 @@ describe("TodayPage", () => {
     mockLoad.mockResolvedValue(forecasts("published", 2));
     renderPage();
     await waitFor(() => expect(screen.getAllByText(/Måttlig fara/)).toHaveLength(REGIONS.length));
-    expect(screen.getByText(/prognosen publicerad 5 februari 2027, 08:00/)).toBeInTheDocument();
+    expect(screen.getByText(/Prognosen publicerad 5 februari 2027, 08:00/)).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Översiktskarta över prognosområdena" })).toBeInTheDocument();
   });
 

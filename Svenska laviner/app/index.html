@@ -6,7 +6,15 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icons/icon-192.webp" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" content="#10161d" />
+    <meta name="theme-color" content="#0f1418" />
+    <script>
+      // Light/dark and field mode before the first paint (see src/services/appearance.ts).
+      try {
+        var t = localStorage.getItem("fjallkoll:theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+        if (localStorage.getItem("fjallkoll:field-mode") === "1") document.documentElement.dataset.field = "on";
+      } catch (e) {}
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta
       name="description"

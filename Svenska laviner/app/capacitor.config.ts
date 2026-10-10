@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   appName: 'Snöläge',
   webDir: 'dist',
   // Dark like the app, so there's no white flash while it starts.
-  backgroundColor: '#10161d',
+  backgroundColor: '#0f1418',
   ios: {
     // The page handles the notch itself (viewport-fit=cover + safe-area padding).
     contentInset: 'never',

@@ -30,9 +30,7 @@
 
         <!-- Health Connect (capacitor-health): shows our privacy policy when the user asks why
              we want access. Android 13 and older use the activity, 14+ the alias. -->
-        <activity
-            android:name="com.fit_up.health.capacitor.PermissionsRationaleActivity"
-            android:exported="true">
+        <activity android:name="com.fit_up.health.capacitor.PermissionsRationaleActivity" android:exported="true">
             <intent-filter>
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
             </intent-filter>
@@ -50,10 +48,12 @@
         <!-- Push notifications: a white mountain on transparent, as Android wants for the status bar. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_stat_snolage" />
+            android:resource="@drawable/ic_stat_snolage"
+        />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/notification_accent" />
+            android:resource="@color/notification_accent"
+        />
     </application>
 
     <!-- Permissions -->

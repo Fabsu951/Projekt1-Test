@@ -31,6 +31,7 @@ import { WindArrow } from "../components/CompassIcons";
 import PageLoading from "../components/PageLoading";
 import CollapsibleSection from "../components/CollapsibleSection";
 import JumpNav from "../components/JumpNav";
+import Contours from "../components/Contours";
 import { usePageTitle } from "../components/pageTitle";
 import { formatTime, symbolLabel, windCompass } from "../utils/weatherFormat";
 import { withCache } from "../services/cache";
@@ -41,6 +42,7 @@ import {
   type WindSample,
 } from "../services/windStationService";
 import { t } from "../i18n";
+import Icon from "../components/Icon";
 
 export default function RegionDetail() {
   const { id = "" } = useParams();
@@ -112,9 +114,10 @@ export default function RegionDetail() {
   return (
     <div className="page">
       <Link to="/" className="back-link">
-        {t("← Alla områden")}
+        <Icon name="arrowLeft" size={16} className="icon--link" />{t("Alla områden")}
       </Link>
-      <header className="page__header" id="prognos">
+      <header className="page__header page__header--area" id="prognos">
+        <Contours />
         <div className="page__title-row">
           <h1>{region.name}</h1>
           <FavoriteButton regionId={region.id} regionName={region.name} />
@@ -145,7 +148,7 @@ export default function RegionDetail() {
       />
 
       {forecastStale && (
-        <p className="notice notice--stale">{t("Ingen kontakt just nu — visar senast sparade prognos.")}</p>
+        <p className="notice notice--stale">{t("Ingen kontakt just nu – visar senast sparade prognos.")}</p>
       )}
       {forecast && <OfficialForecast forecast={forecast} />}
       {forecast?.status === "published" && forecast.dangerLevel !== null && <DangerAdvice level={forecast.dangerLevel} />}
@@ -172,7 +175,7 @@ export default function RegionDetail() {
 
       <Link to={`/omrade/${region.id}/sasong`} className="season-link">
         <strong>{t("Säsongen dag för dag")}</strong>
-        <span>{t("Farograder och lavinproblem för hela vintern, även tidigare säsonger →")}</span>
+        <span>{t("Farograder och lavinproblem för hela vintern, även tidigare säsonger")}<Icon name="arrowRight" size={16} className="icon--link" /></span>
       </Link>
 
       <CollapsibleSection id="region-trip" anchor="turdag" title={t("Prognos inför din tur")}>
@@ -200,7 +203,7 @@ export default function RegionDetail() {
         )}
         {weatherStale && (
           <p className="notice notice--stale">
-            {t("Ingen kontakt just nu — visar sparad väderdata från")}{" "}
+            {t("Ingen kontakt just nu – visar sparad väderdata från")}{" "}
             {weatherCachedAt ? formatTime(weatherCachedAt) : t("tidigare")}.
           </p>
         )}
@@ -233,7 +236,7 @@ export default function RegionDetail() {
         <section className="section">
           <h2>{t("Vindanalys")}</h2>
           <p className="section__intro">
-            {t("Beräknad vindlast per väderstreck — vilken sida snön väntas läggas på av vinden. Ett förenklat mått (linjärt ovanför transportgränsen), inte en fysikalisk modell.")}
+            {t("Beräknad vindlast per väderstreck – vilken sida snön väntas läggas på av vinden. Ett förenklat mått (linjärt ovanför transportgränsen), inte en fysikalisk modell.")}
           </p>
 
           <div className="wind-subsection">
@@ -287,7 +290,7 @@ export default function RegionDetail() {
         </div>
         <p>
           <Link to="/observationer" className="back-link">
-            {t("Alla observationer →")}
+            {t("Alla observationer")}<Icon name="arrowRight" size={16} className="icon--link" />
           </Link>{" "}
           <Link to="/observationer/ny" className="back-link">
             {t("+ Dela en observation")}
@@ -303,7 +306,7 @@ export default function RegionDetail() {
         <div className="tour-list">{tours?.map((tour) => <TourCard key={tour.id} tour={tour} />)}</div>
         <p>
           <Link to="/turer" className="back-link">
-            {t("Alla turer →")}
+            {t("Alla turer")}<Icon name="arrowRight" size={16} className="icon--link" />
           </Link>{" "}
           <Link to="/turer/ny" className="back-link">
             {t("+ Lägg till en tur")}

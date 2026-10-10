@@ -12,6 +12,7 @@ import { forecastLabel } from "../utils/forecastLabel";
 import { formatDistance } from "../utils/tourFormat";
 import AdminBadge from "./AdminBadge";
 import { t, locale } from "../i18n";
+import Icon from "./Icon";
 
 // The map's pins, kept apart from the map page and memoised: the page
 // re-renders on every pan (the visible area feeds "spara det som syns") and
@@ -73,7 +74,7 @@ export const RegionMarkers = memo(function RegionMarkers({ forecasts }: { foreca
               </>
             )}
             <br />
-            <Link to={`/omrade/${region.id}`}>{t("Visa detaljer →")}</Link>
+            <Link to={`/omrade/${region.id}`}>{t("Visa detaljer")}<Icon name="arrowRight" size={16} className="icon--link" /></Link>
           </Popup>
         </Marker>
       ))}
@@ -93,7 +94,7 @@ const ObservationMarker = memo(function ObservationMarker({ o }: { o: Observatio
         <br />
         {o.description.length > 140 ? `${o.description.slice(0, 140)}…` : o.description}
         <br />
-        <Link to="/observationer">{t("Alla observationer →")}</Link>
+        <Link to="/observationer">{t("Alla observationer")}<Icon name="arrowRight" size={16} className="icon--link" /></Link>
       </Popup>
     </Marker>
   );
@@ -118,7 +119,7 @@ const TourMarker = memo(function TourMarker({ tour }: { tour: Tour }) {
         {new Date(tour.startedAt).toLocaleDateString(locale(), { day: "numeric", month: "short", year: "numeric" })} ·{" "}
         {formatDistance(tour.distanceM)} · ↑ {tour.ascentM} m
         <br />
-        <Link to={`/turer/${tour.id}`}>{t("Visa turen →")}</Link>
+        <Link to={`/turer/${tour.id}`}>{t("Visa turen")}<Icon name="arrowRight" size={16} className="icon--link" /></Link>
       </Popup>
     </Marker>
   );

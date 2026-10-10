@@ -45,7 +45,7 @@ const WEATHER_FACTORS = [
   },
   {
     title: t("Vind"),
-    text: t("Vind flyttar snö även utan nederbörd. På läsidor byggs hårda, spröda vindflak upp — ofta den enskilt vanligaste orsaken till skidåkarutlösta laviner. Ju hårdare vind, desto snabbare och mer omfattande omlagring."),
+    text: t("Vind flyttar snö även utan nederbörd. På läsidor byggs hårda, spröda vindflak upp – ofta den enskilt vanligaste orsaken till skidåkarutlösta laviner. Ju hårdare vind, desto snabbare och mer omfattande omlagring."),
   },
   {
     title: t("Temperatur"),
@@ -60,7 +60,7 @@ const SNOWPACK_BASICS = [
   },
   {
     title: t("Kantkorn och djuprimfrost (depth hoar)"),
-    text: t("Uppstår genom en process som kallas temperaturgradient-metamorfos: stor temperaturskillnad mellan markvärme och kall yta får vattenånga att vandra genom snötäcket och bygga om kristallerna till lösa, kantiga korn med svag sammanhållning — vanligast vid tunt, tidigt snötäcke."),
+    text: t("Uppstår genom en process som kallas temperaturgradient-metamorfos: stor temperaturskillnad mellan markvärme och kall yta får vattenånga att vandra genom snötäcket och bygga om kristallerna till lösa, kantiga korn med svag sammanhållning – vanligast vid tunt, tidigt snötäcke."),
   },
 ];
 
@@ -101,11 +101,11 @@ const TERRAIN_TRAPS = [
 ];
 
 const GOLDEN_RULES = [
-  t("Ett i taget i brant terräng — övriga väntar på säker plats och observerar"),
+  t("Ett i taget i brant terräng – övriga väntar på säker plats och observerar"),
   t("Håll avstånd i uppförsbacke och nedförsbacke i lavinterräng"),
   t("Undvik att korsa under någon annan i brant terräng"),
   t("Ändra plan om observationer inte stämmer med prognosen"),
-  t("Enklaste vägen ner är ofta den säkraste — inte alltid den roligaste"),
+  t("Enklaste vägen ner är ofta den säkraste – inte alltid den roligaste"),
 ];
 
 export default function SafetyGuide() {
@@ -114,14 +114,14 @@ export default function SafetyGuide() {
       <header className="page__header">
         <h1>{t("Säkerhetsguide")}</h1>
         <p className="page__lead">
-          {t("Grunderna i att läsa terräng och undvika lavinolyckor. Ersätter inte en lavinkurs — se den som en repetition, inte en utbildning.")}
+          {t("Grunderna i att läsa terräng och undvika lavinolyckor. Ersätter inte en lavinkurs – se den som en repetition, inte en utbildning.")}
         </p>
       </header>
 
       <section className="section">
         <h2>{t("Hur bildas laviner?")}</h2>
         <p>
-          {t("Snötäcket byggs upp av lager som faller vid olika tillfällen och under olika väder. En lavin sker när ett övre lager inte längre håller ihop med det som ligger under — ofta på grund av ett svagt lager djupt nere som kan ligga kvar i veckor eller hela vintern.")}
+          {t("Snötäcket byggs upp av lager som faller vid olika tillfällen och under olika väder. En lavin sker när ett övre lager inte längre håller ihop med det som ligger under – ofta på grund av ett svagt lager djupt nere som kan ligga kvar i veckor eller hela vintern.")}
         </p>
         <div className="avalanche-problems">
           {SNOWPACK_BASICS.map((item) => (
@@ -221,7 +221,7 @@ export default function SafetyGuide() {
           </li>
         </ul>
         <p className="section__intro">
-          {t("Farograden ensam säger inte var faran finns — det gör lavinproblemet. Läs alltid hela prognosen, inte bara siffran.")}
+          {t("Farograden ensam säger inte var faran finns – det gör lavinproblemet. Läs alltid hela prognosen, inte bara siffran.")}
         </p>
         <SourceList sources={[LAVINPROGNOSER_LAS_FORST, LAVINPROGNOSER_PROBLEM]} />
         <DangerScaleGuide />

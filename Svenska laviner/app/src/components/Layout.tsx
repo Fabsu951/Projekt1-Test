@@ -8,6 +8,7 @@ import { applyPageMeta } from "./pageMeta";
 import ErrorBoundary from "./ErrorBoundary";
 import Avatar from "./Avatar";
 import LanguageSwitch from "./LanguageSwitch";
+import ThemeButton from "./ThemeButton";
 import NotificationBell from "./NotificationBell";
 import OfflineBanner from "./OfflineBanner";
 import { useAuth } from "../auth/useAuth";
@@ -39,29 +40,13 @@ const NAV_GROUPS = [
   },
 ];
 
-function BrandMark() {
+/** A peak with the stepped crown of a slab avalanche cut across it. */
+function BrandMark({ className = "app-shell__mark" }: { className?: string }) {
   return (
-    <svg className="app-shell__mark" viewBox="0 0 32 32" aria-hidden="true">
-      <circle cx="23" cy="9" r="4" fill="var(--signal)" />
-      <path d="M2 28 L12 10 L17 18 L20 14 L30 28 Z" fill="var(--accent)" />
-      <path d="M12 10 L15.2 15.8 L13.2 14.6 L11.4 16.4 L9.6 14.6 Z" fill="var(--snow)" />
-    </svg>
-  );
-}
-
-/** Two layered ridgelines along the bottom edge of the header. */
-function Ridgeline() {
-  return (
-    <svg className="app-shell__ridge" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
-      <path
-        d="M0 60 L0 38 L90 22 L160 34 L260 8 L340 30 L420 18 L520 36 L610 12 L700 32 L790 20 L880 38 L980 14 L1070 30 L1140 22 L1200 32 L1200 60 Z"
-        fill="var(--accent)"
-        opacity="0.12"
-      />
-      <path
-        d="M0 60 L0 48 L120 36 L210 50 L320 30 L430 46 L540 34 L650 50 L760 38 L870 52 L990 32 L1100 48 L1200 40 L1200 60 Z"
-        fill="var(--bg)"
-      />
+    <svg className={className} viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="8" fill="var(--accent)" />
+      <path d="M4 25 L13.2 8.5 L18 16.6 L20.6 12.6 L28 25 Z" fill="var(--on-accent)" />
+      <path d="M6.6 20.6 L11.4 18.4 L13.4 19.9 L17.6 17.4 L19.6 18.9 L25.2 16.8" fill="none" stroke="var(--accent)" strokeWidth="1.7" strokeLinejoin="miter" />
     </svg>
   );
 }
@@ -140,6 +125,7 @@ export default function Layout() {
           ))}
           <div className="app-shell__nav-group app-shell__nav-group--me">
             <LanguageSwitch />
+            <ThemeButton />
             {user && token && <NotificationBell token={token} />}
             <NavLink
               to={user ? "/profil" : "/logga-in"}
@@ -166,7 +152,6 @@ export default function Layout() {
             </NavLink>
           </div>
         </nav>
-        <Ridgeline />
       </header>
       <OfflineBanner />
       <ObservationQueueBanner />

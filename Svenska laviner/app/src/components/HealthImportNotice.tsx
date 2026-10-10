@@ -10,6 +10,7 @@ import {
   type AutoImportResult,
 } from "../services/healthImport";
 import { t, plural } from "../i18n";
+import Icon from "./Icon";
 
 /**
  * In the Android/iPhone app once Health Connect / Apple Hälsa is connected:
@@ -52,7 +53,7 @@ export default function HealthImportNotice({ invite = false }: { invite?: boolea
     return (
       <Link to="/turer/halsa" className="health-notice health-notice--invite">
         <strong>{t("Hämta turer från")}{" "}{HEALTH_STORE_NAME}</strong>
-        <span>{t("Pass med GPS-spår från klockan, utan att ladda upp filer →")}</span>
+        <span>{t("Pass med GPS-spår från klockan, utan att ladda upp filer")}<Icon name="arrowRight" size={16} className="icon--link" /></span>
       </Link>
     );
   }
@@ -67,7 +68,7 @@ export default function HealthImportNotice({ invite = false }: { invite?: boolea
             {plural(imported.length, "1 ny tur från klockan har lagts till som privat", "{n} nya turer från klockan har lagts till som privata")}
           </strong>
           <Link to={imported.length === 1 ? `/turer/${imported[0].id}` : "/profil"}>
-            {imported.length === 1 ? t("Granska och dela \"{title}\" →", { title: imported[0].title }) : t("Granska och dela under Mina turer →")}
+            {imported.length === 1 ? t("Granska och dela \"{title}\"", { title: imported[0].title }) : t("Granska och dela under Mina turer")}
           </Link>
         </>
       )}

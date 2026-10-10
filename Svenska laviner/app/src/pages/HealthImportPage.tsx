@@ -28,6 +28,7 @@ import {
 import type { Tour } from "../types/tour";
 import { formatDistance } from "../utils/tourFormat";
 import { t, locale, plural } from "../i18n";
+import Icon from "../components/Icon";
 
 // "Hämta från Health Connect / Apple Hälsa": lists sessions with a GPS route
 // that the watch's app has written to the phone's health store, and imports the chosen ones as
@@ -164,7 +165,7 @@ export default function HealthImportPage() {
     <div className="page">
       <header className="page__header">
         <Link to="/turer" className="back-link">
-          {t("← Turer")}
+          <Icon name="arrowLeft" size={16} className="icon--link" />{t("Turer")}
         </Link>
         <h1>{t("Hämta från")}{" "}{HEALTH_STORE_NAME}</h1>
         <p className="page__lead">

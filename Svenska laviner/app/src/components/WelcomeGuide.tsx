@@ -4,25 +4,7 @@ import { useFavorites } from "../favorites/useFavorites";
 import { lang, setLang, t } from "../i18n";
 import Icon, { type IconName } from "./Icon";
 import PushToggle from "./PushToggle";
-
-const DONE_KEY = "fjallkoll:welcome-done";
-
-/** Whether this device has been through (or skipped) the welcome guide. */
-export function welcomeDone(): boolean {
-  try {
-    return localStorage.getItem(DONE_KEY) === "1";
-  } catch {
-    return true;
-  }
-}
-
-function markDone() {
-  try {
-    localStorage.setItem(DONE_KEY, "1");
-  } catch {
-    // Not remembered: the guide shows again next time, nothing worse.
-  }
-}
+import { markWelcomeDone as markDone } from "../services/welcome";
 
 const POINTS: Array<[IconName, string, string]> = [
   ["mountain", t("Dagens lavinprognos"), t("Farograd och lavinproblem från Naturvårdsverket, för de områden du åker i.")],

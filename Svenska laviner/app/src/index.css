@@ -6,29 +6,167 @@
   --safe-right: max(env(safe-area-inset-right, 0px), var(--safe-area-inset-right, 0px));
   --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
   --safe-left: max(env(safe-area-inset-left, 0px), var(--safe-area-inset-left, 0px));
-  /* "Granite & ice": dark granite surfaces, ice-blue for links/interactive
-     elements, a trail-marker orange for emphasis, and a snow white used as
-     a ring around danger level colors so every level (including the black
-     EAWS level 5) stands out against the dark background. */
-  --bg: #10161d;
-  --bg-elevated: #1b242e;
-  --bg-raised: #232e3a;
-  --text: #eef3f7;
-  --text-muted: #a2b0be;
-  --accent: #7cc7ec;
-  --signal: #ff9f43;
+
+  --font-display: "Familjen Grotesk Variable", "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Instrument Sans Variable", "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --tap: 44px;
+
+  /* Night on the fell (default). Ink-blue surfaces, a lake-blue for
+     anything you can press, and a snow-white ring around danger colours so
+     every level, the black 5 included, stands out. */
+  --bg: #0f1418;
+  --bg-elevated: #161d23;
+  --bg-raised: #1f2830;
+  --header-bg: #0f1418;
+  --text: #edf1f3;
+  --text-soft: #cfd8df;
+  --text-muted: #9ba8b3;
+  --accent: #8ec5f0;
+  --accent-strong: #b8dbf6;
+  --on-accent: #0b1620;
+  --signal: #f2a65a;
+  --on-signal: #1a1205;
   --snow: #e9eff4;
-  --border: #2e3b49;
-  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --border: #2a353f;
+  --divider: rgba(255, 255, 255, 0.1);
+  --hover-bg: rgba(255, 255, 255, 0.05);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --contour: rgba(142, 197, 240, 0.09);
+
+  --warn-bg: #2a2210;
+  --warn-border: #6b5420;
+  --warn-text: #f0d488;
+  --danger-bg: #2a1515;
+  --danger-border: #7a2c2c;
+  --danger-text: #ffb4a8;
+  --danger-text-soft: #f0c4bc;
+  --error: #ff8a80;
+  --ok: #7ee0a0;
+  --ok-bg: #14291d;
+  --ok-bg-strong: #1f4d2e;
+  --ok-border: #2f6b45;
+  --ok-text: #c4f0d2;
+  --info-bg: #15222d;
+  --up: #ffb36b;
+  --down: #9fe0b0;
+  --sign-bg: #3a1f12;
+  --sign-border: #6b3a1c;
+  --sign-text: #ffc59a;
+
   color-scheme: dark;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-body);
+  font-size: 100%;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Day: a paper map. Warm off-white, ink text, lake-blue links. */
+:root[data-theme="light"] {
+  --bg: #f5f3ee;
+  --bg-elevated: #ffffff;
+  --bg-raised: #ece8e0;
+  --header-bg: #fbfaf7;
+  --text: #18212a;
+  --text-soft: #2f3a44;
+  --text-muted: #56626d;
+  --accent: #1c5d99;
+  --accent-strong: #134a7c;
+  --on-accent: #ffffff;
+  --signal: #b4530f;
+  --on-signal: #ffffff;
+  --snow: rgba(24, 33, 42, 0.85);
+  --border: #dcd6cb;
+  --divider: rgba(24, 33, 42, 0.1);
+  --hover-bg: rgba(24, 33, 42, 0.04);
+  --shadow: 0 8px 24px rgba(24, 33, 42, 0.12);
+  --contour: rgba(28, 93, 153, 0.08);
+
+  --warn-bg: #fbf1d6;
+  --warn-border: #e3c977;
+  --warn-text: #5c4300;
+  --danger-bg: #fce8e6;
+  --danger-border: #e5a49c;
+  --danger-text: #8a1f14;
+  --danger-text-soft: #6e2a22;
+  --error: #b42318;
+  --ok: #1f7a3a;
+  --ok-bg: #e5f4ea;
+  --ok-bg-strong: #cdebd6;
+  --ok-border: #9ccdad;
+  --ok-text: #1e5631;
+  --info-bg: #e8eff5;
+  --up: #b4530f;
+  --down: #1f7a3a;
+  --sign-bg: #fdeee2;
+  --sign-border: #eab48a;
+  --sign-text: #7a3510;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f5f3ee;
+    --bg-elevated: #ffffff;
+    --bg-raised: #ece8e0;
+    --header-bg: #fbfaf7;
+    --text: #18212a;
+    --text-soft: #2f3a44;
+    --text-muted: #56626d;
+    --accent: #1c5d99;
+    --accent-strong: #134a7c;
+    --on-accent: #ffffff;
+    --signal: #b4530f;
+    --on-signal: #ffffff;
+    --snow: rgba(24, 33, 42, 0.85);
+    --border: #dcd6cb;
+    --divider: rgba(24, 33, 42, 0.1);
+    --hover-bg: rgba(24, 33, 42, 0.04);
+    --shadow: 0 8px 24px rgba(24, 33, 42, 0.12);
+    --contour: rgba(28, 93, 153, 0.08);
+
+    --warn-bg: #fbf1d6;
+    --warn-border: #e3c977;
+    --warn-text: #5c4300;
+    --danger-bg: #fce8e6;
+    --danger-border: #e5a49c;
+    --danger-text: #8a1f14;
+    --danger-text-soft: #6e2a22;
+    --error: #b42318;
+    --ok: #1f7a3a;
+    --ok-bg: #e5f4ea;
+    --ok-bg-strong: #cdebd6;
+    --ok-border: #9ccdad;
+    --ok-text: #1e5631;
+    --info-bg: #e8eff5;
+    --up: #b4530f;
+    --down: #1f7a3a;
+    --sign-bg: #fdeee2;
+    --sign-border: #eab48a;
+    --sign-text: #7a3510;
+
+    color-scheme: light;
+  }
+}
+
+/* Fältläge: bigger text and targets for gloves, cold fingers and sun glare. */
+:root[data-field="on"] {
+  font-size: 112.5%;
+  --tap: 52px;
+  --text-muted: var(--text-soft);
 }
 
 h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  letter-spacing: 0.01em;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  text-wrap: balance;
 }
 
 * {
@@ -50,4 +188,18 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+:root[data-field="on"] :focus-visible {
+  outline-width: 3px;
+}
+
+.icon {
+  flex: none;
+  vertical-align: middle;
 }
