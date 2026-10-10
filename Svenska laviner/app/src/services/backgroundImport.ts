@@ -1,9 +1,10 @@
 import { Capacitor, registerPlugin, type PluginListenerHandle } from "@capacitor/core";
 
-// "Påminn mig om nya skidpass" (Android app only): about once an hour, also
-// when the app is closed, the phone checks Health Connect for new winter
-// sessions and shows a notification that opens /turer/halsa. The native side
-// is BackgroundImport.kt; it never sends anything anywhere by itself.
+// "Påminn mig om nya skidpass" (the apps): the phone looks for new winter
+// sessions also when the app is closed and shows a notification that opens
+// /turer/halsa. Android checks Health Connect about once an hour
+// (BackgroundImport.kt); on iPhone Apple Hälsa wakes the app when a workout
+// is saved (HealthReminder.swift). Neither sends anything anywhere by itself.
 
 export interface BackgroundCheckStatus {
   /** Health Connect on this phone can read in the background at all. */
@@ -25,10 +26,11 @@ interface BackgroundImportPlugin {
 const BackgroundImport = registerPlugin<BackgroundImportPlugin>("BackgroundImport");
 
 export function backgroundCheckAvailable(): boolean {
-  return Capacitor.getPlatform() === "android" && Capacitor.isPluginAvailable("BackgroundImport");
+  const platform = Capacitor.getPlatform();
+  return (platform === "android" || platform === "ios") && Capacitor.isPluginAvailable("BackgroundImport");
 }
 
-/** Null where there is no background check (web, iPhone, older app builds) or it can't be read. */
+/** Null where there is no background check (web, older app builds) or it can't be read. */
 export async function backgroundCheckStatus(): Promise<BackgroundCheckStatus | null> {
   if (!backgroundCheckAvailable()) return null;
   try {

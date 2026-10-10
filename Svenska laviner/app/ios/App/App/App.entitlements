@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Push notifications (APNs, through Firebase). Xcode switches this to
+	     "production" when the app is exported for TestFlight / App Store. -->
+	<key>aps-environment</key>
+	<string>development</string>
+	<!-- Reading workouts and their routes from Apple Hälsa (tour import). -->
+	<key>com.apple.developer.healthkit</key>
+	<true/>
+	<key>com.apple.developer.healthkit.access</key>
+	<array/>
+	<!-- "Påminn mig om nya skidpass": woken when a new workout is saved (HealthReminder.swift). -->
+	<key>com.apple.developer.healthkit.background-delivery</key>
+	<true/>
+</dict>
+</plist>

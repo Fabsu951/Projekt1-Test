@@ -28,21 +28,24 @@ sönder.
 4. Hoppa över stegen om att lägga till SDK:n. Det är redan gjort.
 5. Bygg och kör appen som vanligt (`npm run app:android`).
 
-## 3. iPhone (kräver Mac och Apple-utvecklarkonto)
+## 3. iPhone (kräver Apple-utvecklarkonto, men ingen Mac)
+
+Gör först APPAR.md § 3 (utvecklarkonto och TestFlight).
 
 1. Välj **Lägg till app → iOS** i Firebase. **Bundle-id:** `se.snolage.app`.
-2. Ladda ner **`GoogleService-Info.plist`**. Dra in den i Xcode under
-   `App/App`, och kryssa i **Copy items if needed** och målet **App**.
+2. Ladda ner **`GoogleService-Info.plist`**. Öppna den i Anteckningar och
+   lägg hela innehållet som GitHub-hemligheten **`GOOGLE_SERVICE_INFO_PLIST`**
+   på <https://github.com/Fabsu951/Projekt1-Test/settings/secrets/actions>.
+   Hoppa över Firebase-stegen om att lägga till SDK:n. Det är redan gjort.
 3. Gå till Apple Developer → **Certificates, IDs & Profiles → Keys → +**:
    - Namn: `Snöläge APNs`
    - Kryssa i **Apple Push Notifications service (APNs)**
    - Skapa och ladda ner `.p8`-filen. Den går bara att ladda ner en gång.
 4. Gå till Firebase → ⚙️ **Projektinställningar → Cloud Messaging → Apple
    app configuration**. Ladda upp `.p8`-filen med **Key ID** och **Team ID**.
-5. I Xcode: välj målet **App → Signing & Capabilities → + Capability →
-   Push Notifications**. "Remote notifications" under Background Modes är
-   redan påslaget i `Info.plist`.
-6. Kör `npx cap sync ios` på Macen innan du bygger.
+   Radera filen från datorn efteråt.
+5. Push-behörigheten och "Remote notifications" finns redan i projektet.
+   Nästa iPhone-bygge på GitHub får med push.
 
 ## 4. Låt workern skicka (görs en gång)
 

@@ -7,7 +7,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Apple Hälsa may launch the app in the background for a new workout;
+        // the observer must be in place before launching finishes.
+        HealthReminder.shared.startIfEnabled()
         return true
     }
 

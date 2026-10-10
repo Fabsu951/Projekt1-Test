@@ -34,6 +34,9 @@ describe("reminders about new sessions from the watch", () => {
     expect(await backgroundCheckStatus()).toEqual({ supported: true, on: false });
     plugin.status.mockRejectedValue(new Error("x"));
     expect(await backgroundCheckStatus()).toBeNull();
+    env.platform = "ios";
+    plugin.status.mockResolvedValue({ supported: true, enabled: true, backgroundPermission: true, notifications: true });
+    expect(await backgroundCheckStatus()).toEqual({ supported: true, on: true });
     env.platform = "web";
     expect(await backgroundCheckStatus()).toBeNull();
   });

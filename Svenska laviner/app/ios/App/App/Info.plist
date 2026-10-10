@@ -25,7 +25,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Snöläge kan hämta dina träningspass med GPS-rutt från Hälsa, så att du kan lägga in dem i din turdagbok. Inget annat läses.</string>
+	<string>Snöläge kan hämta dina träningspass med GPS-rutt från Hälsa, så att du kan lägga in dem i din turdagbok, och påminna dig om nya skidpass om du slår på det. Inget annat läses.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Snöläge sparar ingenting i Hälsa.</string>
 	<key>NSCameraUsageDescription</key>
@@ -61,7 +61,7 @@
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
-		<string>armv7</string>
+		<string>arm64</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>

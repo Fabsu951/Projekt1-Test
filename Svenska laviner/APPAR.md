@@ -145,33 +145,64 @@ fungerar allt utom notiserna. Klistra aldrig in den i chatten.
    Data safety. Granskningen kan ta några dagar extra.
 6. **Integritetspolicy:** `https://fjallkoll.pages.dev/om-appen#integritet`
 
-## 3. App Store (iPhone)
+## 3. iPhone (TestFlight och App Store, utan egen Mac)
 
-Det här kräver:
-- en **Mac** med Xcode
-- ett **Apple Developer-konto** för 99 USD per år, på
-  [developer.apple.com](https://developer.apple.com).
+GitHub bygger iPhone-appen på sina Mac-datorer (`.github/workflows/ios.yml`)
+varje gång iPhone-koden ändras. HealthKit, bakgrundsleverans från Apple Hälsa
+och push är redan inlagda i Xcode-projektet (`ios/App/App/App.entitlements`).
+För att appen ska komma in på din iPhone krävs Apples testapp **TestFlight**,
+och för den behövs ett utvecklarkonto. Gör så här en gång:
 
-På Macen:
-```bash
-cd "Svenska laviner/app"
-npm install
-npm run app:ios
-```
-I Xcode, under målet **App → Signing & Capabilities**:
-- välj ditt utvecklarteam
-- **+ Capability → HealthKit**, för "Hämta från Apple Hälsa". Texterna som
-  förklarar varför finns redan i `Info.plist`.
-- **+ Capability → Push Notifications**, se `NOTISER.md`.
+1. **Gå med i Apple Developer Program** (99 USD per år) på
+   <https://developer.apple.com/programs/enroll/>. Logga in med ditt Apple-ID
+   och välj **Individual**. Det kan ta upp till två dygn innan kontot är
+   godkänt.
+2. **Registrera appens id.** På <https://developer.apple.com/account> →
+   **Certificates, IDs & Profiles → Identifiers → +** → **App IDs → App**:
+   - Description: `Snöläge`
+   - Bundle ID: **Explicit**, `se.snolage.app`
+   - Kryssa i **HealthKit** och **Push Notifications** → **Continue → Register**.
+3. **Skapa appen i App Store Connect.** <https://appstoreconnect.apple.com> →
+   **Appar → + → Ny app**: plattform iOS, namn `Snöläge`, språk svenska,
+   bundle-id `se.snolage.app`, SKU `snolage`. Du behöver inte fylla i något
+   mer just nu.
+4. **Skapa en nyckel åt GitHub.** App Store Connect → **Användare och åtkomst →
+   Integreringar → App Store Connect API → Teamnycklar → +**: namn
+   `GitHub Snöläge`, åtkomst **Admin** (krävs för att GitHub ska kunna signera
+   appen). Ladda ner `.p8`-filen. Den går bara att ladda ner en gång. Skriv upp
+   **Nyckel-ID** och **Utfärdar-ID** (Issuer ID) som står på sidan.
+5. **Ditt Team ID** står på <https://developer.apple.com/account> under
+   **Membership details** (tio tecken, till exempel `AB12CD34EF`).
+6. **Lägg in fyra hemligheter på GitHub:**
+   <https://github.com/Fabsu951/Projekt1-Test/settings/secrets/actions> →
+   **New repository secret**, en i taget:
 
-Testa sedan på din iPhone och ladda sedan upp via Product → Archive. Fyll i butikssidan och
-integritetsfrågorna i App Store Connect med samma svar som för Google Play.
-Under **App Privacy** anger du dessutom **Health & Fitness → Fitness** (bara
-träningspass och rutter, kopplat till användaren, används för appens
-funktion, inte för spårning). Apple granskar HealthKit-appar extra noga och
-kräver att integritetspolicyn nämner Apple Hälsa. Det gör den redan.
-Har du ingen Mac finns molntjänster som bygger iPhone-appen åt dig, till
-exempel Ionic Appflow eller Codemagic.
+   | Name | Secret |
+   |---|---|
+   | `ASC_KEY_ID` | Nyckel-ID från steg 4 |
+   | `ASC_ISSUER_ID` | Utfärdar-ID från steg 4 |
+   | `ASC_KEY_P8` | Hela innehållet i `.p8`-filen (öppna den i Anteckningar) |
+   | `APPLE_TEAM_ID` | Team ID från steg 5 |
+
+   Radera `.p8`-filen från datorn efteråt. **Klistra aldrig in den i chatten.**
+7. **Säg till Claude**, som startar ett bygge. Efter cirka 30 minuter finns
+   appen i App Store Connect under **TestFlight**. Lägg till dig själv under
+   **Intern testning → +** (grupp `Jag`, kryssa i automatisk distribution).
+8. **Installera TestFlight** från App Store på iPhonen, logga in med samma
+   Apple-ID och tryck **Installera** vid Snöläge. Nya versioner kommer sedan
+   automatiskt i TestFlight.
+
+Push på iPhone kräver dessutom stegen i `NOTISER.md` § 3.
+
+När appen ska ut i App Store: fyll i butikssidan och integritetsfrågorna i App
+Store Connect med samma svar som för Google Play. Under **App Privacy** anger
+du dessutom **Health & Fitness → Fitness** (bara träningspass och rutter,
+kopplat till användaren, används för appens funktion, inte för spårning).
+Apple granskar HealthKit-appar extra noga och kräver att integritetspolicyn
+nämner Apple Hälsa. Det gör den redan.
+
+Har du en Mac kan du också bygga själv: `npm run app:ios` öppnar Xcode, välj
+ditt team under **Signing & Capabilities** och kör på telefonen.
 
 ## Butikstexter (förslag)
 

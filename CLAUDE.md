@@ -174,7 +174,20 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   `android/app/snolage-debug.keystore` (committed, password `android`, test
   builds only — never for Play) so CI and Android Studio builds replace each
   other; `versionCode` = git commit count. Optional secret
-  `GOOGLE_SERVICES_JSON` (else no push). iOS still needs a Mac.
+  `GOOGLE_SERVICES_JSON` (else no push).
+  **iPhone in CI (2026-10-10):** `.github/workflows/ios.yml` (macos-15, only
+  on `ios/**`, package.json/lock, capacitor.config.ts changes or manual run —
+  macOS minutes count 10×): `cap sync ios` + unsigned simulator
+  `xcodebuild -scheme App` as a compile check; when secrets `ASC_KEY_ID`,
+  `ASC_ISSUER_ID`, `ASC_KEY_P8` (App Store Connect API key, Admin) and
+  `APPLE_TEAM_ID` exist it also archives with automatic cloud signing and
+  uploads to TestFlight (build number = commit count). Optional
+  `GOOGLE_SERVICE_INFO_PLIST` → the "Copy Firebase settings" build phase
+  copies `App/App/GoogleService-Info.plist` (gitignored) into the bundle if
+  present. `App.entitlements` (HealthKit + background delivery, aps)
+  is wired via `CODE_SIGN_ENTITLEMENTS`; `UIRequiredDeviceCapabilities` is
+  arm64. Fabian's steps (Apple Developer Program, App ID, App Store Connect
+  app, API key, secrets, TestFlight) in APPAR.md § 3; not done yet.
 - **One-command deploy:** `Svenska laviner/deploy.ps1` (pull, worker npm
   install + D1 migrations + deploy, app build + Pages deploy; stops at the
   first failing step). Fabian runs it with
@@ -720,6 +733,16 @@ the start, exact map point.
   `services/backgroundImport.ts`, `BackgroundCheckToggle` on `/turer/halsa`
   ("Påminn mig om nya skidpass"), taps routed in `NativePushBridge`.
   Privacy policy (updated 10 Oct) + APPAR.md Play declaration mention it.
+  **iPhone version (same day, compiled only by CI):** `ios/App/App/`
+  `HealthReminder.swift` (HKObserverQuery + `enableBackgroundDelivery`
+  `.immediate` for workouts, started from `AppDelegate`
+  `didFinishLaunching`; UserDefaults `snolage.background.*`, skips ids in
+  `CapacitorStorage.fjallkoll:health-imported`; local notification with
+  userInfo `path`), `BackgroundImportPlugin.swift` (same JS API, registered
+  in `MainViewController.capacitorDidLoad`; it is the bridge's
+  `notificationRouter.localNotificationHandler`, taps → retained `openPath`
+  event; `takeLaunchPath` returns nothing on iOS). On iPhone HealthKit gives
+  the route directly, so no per-session consent is needed.
 - **Official forecast API (2026-10-06):** Petter Palmgren
   (Lavinprognostjänsten, Naturvårdsverket) answered Fabian's API question
   with the PDF "Lavinprognoser – en guide till öppna API:er" (2026): open

@@ -1,0 +1,104 @@
+# Builds the iPhone app on one of GitHub's Macs whenever its native code or
+# plugins change, so Swift errors show up without a Mac at home.
+#
+# Once the App Store Connect secrets exist (steps: "Svenska laviner/APPAR.md",
+# § 3), the same run also signs the app and uploads it to TestFlight, where
+# it can be installed on the iPhone. Until then only the check runs.
+#
+# macOS minutes count ten times on a private repository, so this does not run
+# for every web change; "Run workflow" on the Actions page builds on demand.
+
+name: iPhone-app
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha, svenska-laviner]
+    paths:
+      - "Svenska laviner/app/ios/**"
+      - "Svenska laviner/app/package.json"
+      - "Svenska laviner/app/package-lock.json"
+      - "Svenska laviner/app/capacitor.config.ts"
+      - ".github/workflows/ios.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ios-app
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The build number is the number of commits.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Svenska laviner/app/package-lock.json
+
+      - name: Web app – install, build, copy into iOS
+        working-directory: Svenska laviner/app
+        run: |
+          npm ci
+          npm run build
+          npx cap sync ios
+
+      - name: Firebase settings (push notifications)
+        env:
+          GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+        run: |
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
+            printf '%s' "$GOOGLE_SERVICE_INFO_PLIST" > "Svenska laviner/app/ios/App/App/GoogleService-Info.plist"
+          fi
+
+      - name: Check that the app builds (simulator, unsigned)
+        working-directory: Svenska laviner/app/ios/App
+        run: |
+          xcodebuild -project App.xcodeproj -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build | tail -n 80
+          exit "${PIPESTATUS[0]}"
+
+      - name: TestFlight – sign and upload
+        if: env.ASC_KEY_ID != '' && env.ASC_ISSUER_ID != '' && env.APPLE_TEAM_ID != ''
+        working-directory: Svenska laviner/app/ios/App
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          key="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
+          printf '%s' "$ASC_KEY_P8" > "$key"
+          auth=(-allowProvisioningUpdates -authenticationKeyPath "$key" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+          build=$(git rev-list --count HEAD)
+          xcodebuild -project App.xcodeproj -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic CURRENT_PROJECT_VERSION="$build" \
+            "${auth[@]}" archive | tail -n 80
+          test "${PIPESTATUS[0]}" -eq 0
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" \
+            "${auth[@]}"
+          rm -f "$key"
+          echo "### iPhone-app" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Version 1.0 ($build) uppladdad till TestFlight. Den syns i TestFlight-appen när Apple har behandlat den (oftast 5–30 min)." >> "$GITHUB_STEP_SUMMARY"

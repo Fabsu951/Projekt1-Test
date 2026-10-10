@@ -14,3 +14,6 @@ App/App/config.xml
 
 # Made by `npx cap sync` (Firebase plugin, symlink option); absolute path, machine-specific.
 App/CapApp-SPM/symlinks/
+
+# Firebase settings for push; copied into the app by a build phase if present (see NOTISER.md).
+App/App/GoogleService-Info.plist
