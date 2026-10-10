@@ -703,6 +703,23 @@ the start, exact map point.
   import while the app is closed (Android WorkManager, iOS HKObserverQuery)
   is still not built: needs native code compiled on real devices, to do
   together with Fabian at Android Studio/Xcode.
+  **Step 4 (2026-10-10): Android background reminder** (compiled by the CI
+  APK build, not yet tried on a phone). On Android 14 another app's route
+  needs a per-session yes, so the background part only *notifies*: Kotlin in
+  `android/app/src/main/java/se/snolage/app/` — `BackgroundImport.kt`
+  (prefs `snolage-background`, WorkManager unique periodic work 1 h,
+  winter types = JS `WINTER_TYPES`, skips ids in its own list and in
+  Capacitor Preferences `fjallkoll:health-imported`, only sessions ending
+  after it was turned on; notification channel `watch-tours`, tap →
+  MainActivity extra `se.snolage.app.PATH` = `/turer/halsa`),
+  `HealthCheckWorker.kt`, `BackgroundImportPlugin.kt` (`status`, `enable` =
+  POST_NOTIFICATIONS then HC `READ_HEALTH_DATA_IN_BACKGROUND` via
+  `PermissionController.createRequestPermissionResultContract()`, `disable`,
+  `takeLaunchPath`, event `openPath`). App module now applies Kotlin
+  (2.2.20, same as capacitor-health; JVM 21) + `work-runtime-ktx`. JS:
+  `services/backgroundImport.ts`, `BackgroundCheckToggle` on `/turer/halsa`
+  ("Påminn mig om nya skidpass"), taps routed in `NativePushBridge`.
+  Privacy policy (updated 10 Oct) + APPAR.md Play declaration mention it.
 - **Official forecast API (2026-10-06):** Petter Palmgren
   (Lavinprognostjänsten, Naturvårdsverket) answered Fabian's API question
   with the PDF "Lavinprognoser – en guide till öppna API:er" (2026): open
@@ -875,6 +892,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (212 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  (218 tests as of 2026-10-10, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 129 tests, including the
   real-page fixtures).

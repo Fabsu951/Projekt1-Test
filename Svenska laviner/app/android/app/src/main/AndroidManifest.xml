@@ -75,6 +75,8 @@
     <!-- Android 15+ name for reading other apps' routes ("always allow"); older
          versions ask per workout via HealthRoutesPlugin. -->
     <uses-permission android:name="android.permission.health.READ_EXERCISE_ROUTES" />
+    <!-- "Påminn mig om nya skidpass": the hourly check while the app is closed (BackgroundImport.kt). -->
+    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
     <queries>
         <package android:name="com.google.android.apps.healthdata" />
     </queries>

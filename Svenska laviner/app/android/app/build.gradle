@@ -1,4 +1,7 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 // Every commit gets a higher version number, so a new build always installs
 // over the previous one (GitHub's build and Android Studio alike).
@@ -50,6 +53,14 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_21
+        // Health Connect's feature check is marked experimental in some versions.
+        freeCompilerArgs.add("-opt-in=androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi")
+    }
+}
+
 repositories {
     flatDir{
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
@@ -65,6 +76,8 @@ dependencies {
     // HealthRoutesPlugin (asks for one workout's GPS route). Keep the same
     // version as node_modules/capacitor-health/android/build.gradle.
     implementation 'androidx.health.connect:connect-client:1.2.0-alpha01'
+    // The hourly check for new sessions from the watch (HealthCheckWorker).
+    implementation 'androidx.work:work-runtime-ktx:2.10.1'
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

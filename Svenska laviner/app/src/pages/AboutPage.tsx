@@ -181,7 +181,7 @@ export default function AboutPage() {
 
       <section className="section privacy" id="integritet">
         <h2>Integritetspolicy</h2>
-        <p className="muted">Senast uppdaterad 7 oktober 2026.</p>
+        <p className="muted">Senast uppdaterad 10 oktober 2026.</p>
         <p>
           <strong>Personuppgiftsansvarig</strong> är Fabian Sund, som driver Snöläge som privatperson
           {PRIVACY_CONTACT_EMAIL && (
@@ -224,7 +224,9 @@ export default function AboutPage() {
             träningspass och deras GPS-rutter från den senaste månaden, aldrig puls, vikt eller annan hälsodata.
             Läsningen sker på telefonen. Bara de pass du själv väljer att importera skickas till oss, och de sparas
             som privata turer tills du väljer att dela dem. Slår du på automatisk import läggs nya skidpass till som
-            privata turer när du öppnar appen eller går tillbaka till den. Vi sparar passets id hos turen så att samma pass inte importeras två
+            privata turer när du öppnar appen eller går tillbaka till den. Slår du på "Påminn mig om nya skidpass"
+            (bara i Android-appen) kollar telefonen ungefär en gång i timmen, även när appen är stängd, om det finns
+            nya pass, och visar då en notis. Den kollen sker helt på telefonen och skickar ingenting till oss. Vi sparar passets id hos turen så att samma pass inte importeras två
             gånger. Uppgifter från Apple Hälsa används aldrig för reklam och lämnas inte vidare till någon annan. Du kan
             sluta när som helst, i appen, i Health Connect eller i Apple Hälsa (Inställningar → Hälsa → Dataåtkomst och
             enheter).

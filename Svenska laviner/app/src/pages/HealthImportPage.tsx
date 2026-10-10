@@ -3,6 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import { useAuth } from "../auth/useAuth";
 import TrackSketch from "../components/TrackSketch";
+import BackgroundCheckToggle from "../components/BackgroundCheckToggle";
 import {
   autoImportEnabled,
   defaultTitle,
@@ -317,6 +318,8 @@ export default function HealthImportPage() {
           </span>
         </label>
       )}
+
+      {(state.kind === "list" || state.kind === "error") && <BackgroundCheckToggle />}
 
       {(state.kind === "list" || state.kind === "error") && (
         <p className="muted health-disconnect">

@@ -138,7 +138,10 @@ fungerar allt utom notiserna. Klistra aldrig in den i chatten.
    Connect permissions**: ange att appen läser **Exercise** och **Exercise
    route**, för att användaren ska kunna importera sina skidturer till
    turdagboken, att datan bara läses när användaren ber om det och att inget
-   säljs eller används för reklam. Lägg också till "Health and fitness" i
+   säljs eller används för reklam. Appen ber också om **läsning i bakgrunden**
+   (`READ_HEALTH_DATA_IN_BACKGROUND`) för "Påminn mig om nya skidpass": en
+   koll ungefär en gång i timmen som bara visar en notis, påslagen av
+   användaren, och som inte skickar något från telefonen. Lägg också till "Health and fitness" i
    Data safety. Granskningen kan ta några dagar extra.
 6. **Integritetspolicy:** `https://fjallkoll.pages.dev/om-appen#integritet`
 

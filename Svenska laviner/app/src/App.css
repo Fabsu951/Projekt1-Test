@@ -4058,3 +4058,7 @@ h1 .admin-badge {
   align-items: center;
   gap: 12px;
 }
+
+.health-background-note {
+  margin-top: 18px;
+}
