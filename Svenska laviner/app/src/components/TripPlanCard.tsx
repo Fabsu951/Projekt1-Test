@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
-import { fetchTrips, planTrip, removeTrip, type TripPlan, type TripRoute } from "../services/tripService";
+import { fetchTripsAndInvitations, planTrip, removeTrip, type TripInvitation, type TripPlan, type TripRoute } from "../services/tripService";
+import { TripInviteBox, TripInvitations } from "./TripCompany";
 import { fetchMyRoutes } from "../services/routeService";
 import type { PlannedRoute } from "../types/route";
 import { ElevationSampler } from "../utils/elevation";
@@ -48,6 +49,8 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [routes, setRoutes] = useState<PlannedRoute[]>([]);
+  const [invitations, setInvitations] = useState<TripInvitation[]>([]);
+  const [reload, setReload] = useState(0);
   const [routeBusy, setRouteBusy] = useState(false);
   const [autoOffline, setAutoOffline] = useState(tripOfflineAuto);
   const [offline, setOffline] = useState<
@@ -63,8 +66,12 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
   useEffect(() => {
     if (!token) return;
     let live = true;
-    fetchTrips(token)
-      .then((list) => live && setTrips(list))
+    fetchTripsAndInvitations(token)
+      .then((r) => {
+        if (!live) return;
+        setTrips(r.trips);
+        setInvitations(r.invitations);
+      })
       .catch(() => live && setTrips([]));
     fetchMyRoutes(token)
       .then((list) => live && setRoutes(list))
@@ -72,7 +79,7 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
     return () => {
       live = false;
     };
-  }, [token]);
+  }, [token, reload]);
 
   if (!user || !token) {
     return (
@@ -156,6 +163,12 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
 
   return (
     <div className="trip-plan">
+      <TripInvitations
+        token={token}
+        invitations={invitations.filter((inv) => inv.regionId === regionId)}
+        dayLabel={(date) => (date <= addDays(today, 1) ? dayLabel(date, today).toLowerCase() : dayLabel(date, today))}
+        onAnswered={() => setReload((n) => n + 1)}
+      />
       <p className="trip-plan__intro">
         {t("Välj dagen för din tur i")}{" "}{regionName}{t(". Du får prognosen för den dagen som notis när Naturvårdsverket publicerar den, oftast kl 18 kvällen före. Finns ingen farograd på morgonen får du veta det också.")}
       </p>
@@ -245,13 +258,25 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
         </p>
       )}
       {here.length > 0 && (
-        <p className="muted trip-plan__status" role="status">
-          {here
-            .map((trip) => `${dayLabel(trip.date, today)}: ${trip.notified ? t("prognosen är skickad") : t("väntar på prognosen")}`)
-            .join(" · ")}
-          {t(". Notisen syns under klockan i menyn. Vill du få den i telefonen, slå på det under")}{" "}
-          <Link to="/notiser">{t("Notiser")}</Link>.
-        </p>
+        <div className="trip-plan__status" role="status">
+          <ul className="trip-plan__planned">
+            {here.map((trip) => (
+              <li key={trip.id}>
+                <strong>{dayLabel(trip.date, today)}</strong>{": "}
+                {trip.notified ? t("prognosen är skickad") : t("väntar på prognosen")}
+                <TripInviteBox
+                  token={token}
+                  trip={trip}
+                  onChange={(next) => setTrips((list) => (list ?? []).map((x) => (x.id === next.id ? next : x)))}
+                />
+              </li>
+            ))}
+          </ul>
+          <p className="muted">
+            {t("Notisen syns under klockan i menyn. Vill du få den i telefonen, slå på det under")}{" "}
+            <Link to="/notiser">{t("Notiser")}</Link>.
+          </p>
+        </div>
       )}
     </div>
   );

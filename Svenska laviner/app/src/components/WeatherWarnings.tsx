@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { fetchWarnings, SMHI_WARNINGS_PAGE, type WarningLevel, type WeatherWarning } from "../services/warningService";
+import { SMHI_WARNINGS_PAGE, type WarningLevel, type WeatherWarning } from "../services/warningService";
+import { useWarnings } from "../hooks/useWarnings";
 import { lang, locale, t } from "../i18n";
 
 const LEVEL_LABEL: Record<WarningLevel, string> = {
@@ -8,21 +8,6 @@ const LEVEL_LABEL: Record<WarningLevel, string> = {
   red: t("Röd varning"),
   message: t("Meddelande"),
 };
-
-/** An area's current SMHI warnings, or null while loading / when there are none. */
-export function useWarnings(regionId: string): WeatherWarning[] | null {
-  const [list, setList] = useState<WeatherWarning[] | null>(null);
-  useEffect(() => {
-    let live = true;
-    fetchWarnings()
-      .then((all) => live && setList(all[regionId] ?? []))
-      .catch(() => live && setList([]));
-    return () => {
-      live = false;
-    };
-  }, [regionId]);
-  return list;
-}
 
 function when(w: WeatherWarning): string {
   const fmt = (iso: string) =>

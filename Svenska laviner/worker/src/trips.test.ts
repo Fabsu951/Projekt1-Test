@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { deleteAccount, type CommunityEnv } from "./auth";
 import { HttpError } from "./http";
 import { listNotifications } from "./notifications";
+import { answerInvitation, inviteToTrip } from "./tripInvites";
 import { checkRoute, createTrip, deleteTrip, listTrips, notifyTrips, swedishDay, type PublishedProblem, type SteepPiece } from "./trips";
 import { migratedD1 } from "./testing/sqliteD1";
 
@@ -79,7 +80,7 @@ describe("planned tours", () => {
     expect(await status(plan("anna", "kebnekaisefjallen", "2026-03-10"))).toBe(400);
     expect(await status(createTrip(req("/trips", undefined, { regionId: "kebnekaisefjallen", date: "2026-02-14" }), env, fridayEvening))).toBe(401);
     expect((await listTrips(req("/trips", "anna"), env, fridayEvening)).trips).toEqual([
-      { id: first.trip.id, regionId: "kebnekaisefjallen", date: "2026-02-14", notified: false, routeId: null, routeTitle: null },
+      { id: first.trip.id, regionId: "kebnekaisefjallen", date: "2026-02-14", notified: false, routeId: null, routeTitle: null, invites: [], company: [] },
     ]);
     expect((await listTrips(req("/trips", "bertil"), env, fridayEvening)).trips).toEqual([]);
     expect(await status(deleteTrip(req(`/trips/${first.trip.id}`, "bertil", undefined, "DELETE"), env, first.trip.id))).toBe(404);
@@ -208,5 +209,67 @@ describe("planned tours", () => {
     );
     const [notice] = await texts("anna");
     expect(notice.text).toMatch(/Läs hela prognosen innan du går ut\. SMHI varnar: Gul varning – Mycket hård vind\.$/);
+  });
+
+  describe("together", () => {
+    const steep: SteepPiece[] = [[1, 1200, 300]];
+    const follows = (a: Who, b: Who) =>
+      env.DB.prepare("INSERT INTO follows (follower_id, followee_id, created_at) VALUES (?, ?, '2026-01-01')").bind(people[a], people[b]).run();
+    const invite = (tripId: number, ...who: Who[]) =>
+      inviteToTrip(req(`/trips/${tripId}/invites`, "anna", { userIds: who.map((w) => people[w]) }), env as never, tripId, undefined, fridayEvening);
+
+    it("invites people you follow; a yes plans the same day for them, with the route comparison", async () => {
+      const r = await env.DB.prepare(
+        "INSERT INTO routes (user_id, title, waypoints, distance_m, created_at, updated_at) VALUES (?, 'Sydtoppen', '[]', 1000, '2026-01-01', '2026-01-01')"
+      )
+        .bind(people.anna)
+        .run();
+      const { trip } = await createTrip(
+        req("/trips", "anna", { regionId: "kebnekaisefjallen", date: "2026-02-14", routeId: Number(r.meta.last_row_id), steep }),
+        env,
+        fridayEvening
+      );
+      // Not following Bertil yet: nobody is invited.
+      expect((await invite(trip.id, "bertil")).invites).toEqual([]);
+      await follows("anna", "bertil");
+      expect((await invite(trip.id, "bertil")).invites).toMatchObject([{ status: "pending", user: { displayName: "bertil" } }]);
+      expect((await texts("bertil"))[0]).toMatchObject({ kind: "trip_invite", text: "anna bjuder in dig till en tur lördag 14 feb i Kebnekaisefjällen." });
+      // Someone else can't invite to Anna's day.
+      expect(
+        await status(inviteToTrip(req(`/trips/${trip.id}/invites`, "bertil", { userIds: [people.anna] }), env as never, trip.id, undefined, fridayEvening))
+      ).toBe(404);
+
+      const { invitations } = await listTrips(req("/trips", "bertil"), env, fridayEvening);
+      expect(invitations).toMatchObject([{ from: { displayName: "anna" }, regionId: "kebnekaisefjallen", date: "2026-02-14", routeTitle: "Sydtoppen" }]);
+      expect(await status(answerInvitation(req("/x", "anna", { accept: true }), env as never, invitations[0].id, undefined, fridayEvening))).toBe(404);
+      await answerInvitation(req("/x", "bertil", { accept: true }), env as never, invitations[0].id, undefined, fridayEvening);
+
+      const bertil = await listTrips(req("/trips", "bertil"), env, fridayEvening);
+      expect(bertil.invitations).toEqual([]);
+      expect(bertil.trips).toMatchObject([{ regionId: "kebnekaisefjallen", date: "2026-02-14", routeTitle: "Sydtoppen", company: [{ displayName: "anna" }] }]);
+      expect((await listTrips(req("/trips", "anna"), env, fridayEvening)).trips[0].invites).toMatchObject([{ status: "accepted" }]);
+      expect((await texts("anna"))[0].text).toBe("bertil hänger med på din tur lördag 14 feb i Kebnekaisefjällen.");
+
+      // Both get the forecast, and Bertil's notice compares Anna's route too.
+      const windSlab = problem("drevsnoflak", "Drevsnöflak", { aspects: ["NO"] });
+      await notifyTrips(env as never, [{ regionId: "kebnekaisefjallen", date: "2026-02-14", danger: 3, problems: [windSlab] }], fridayEvening);
+      expect((await texts("bertil"))[0].text).toContain("Din rutt ”Sydtoppen” går över brant mark");
+      expect((await texts("anna"))[0].kind).toBe("trip");
+
+      // Leaving the day counts as a no.
+      await deleteTrip(req(`/trips/${bertil.trips[0].id}`, "bertil", undefined, "DELETE"), env, bertil.trips[0].id);
+      expect((await listTrips(req("/trips", "anna"), env, fridayEvening)).trips[0].invites).toMatchObject([{ status: "declined" }]);
+    });
+
+    it("can be declined, and goes away with the account", async () => {
+      const { trip } = await plan("anna", "kebnekaisefjallen", "2026-02-14");
+      await follows("anna", "bertil");
+      await invite(trip.id, "bertil");
+      const [inv] = (await listTrips(req("/trips", "bertil"), env, fridayEvening)).invitations;
+      expect(await answerInvitation(req("/x", "bertil", { accept: false }), env as never, inv.id, undefined, fridayEvening)).toEqual({ accepted: false });
+      expect((await listTrips(req("/trips", "bertil"), env, fridayEvening)).trips).toEqual([]);
+      await deleteAccount(req("/auth/account", "anna", {}), { ...env, IMAGES: { delete: async () => {} } } as never);
+      expect((await env.DB.prepare("SELECT COUNT(*) AS n FROM trip_invites").first<{ n: number }>())?.n).toBe(0);
+    });
   });
 });

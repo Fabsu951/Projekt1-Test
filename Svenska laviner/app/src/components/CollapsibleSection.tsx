@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { t } from "../i18n";
 
 const storageKey = (id: string) => `fjallkoll:section-open:${id}`;
@@ -22,6 +22,7 @@ export default function CollapsibleSection({
   title,
   count,
   defaultOpen = false,
+  anchor,
   children,
 }: {
   /** Stable name used to remember the state, e.g. "profile-tours". */
@@ -30,9 +31,16 @@ export default function CollapsibleSection({
   /** Shown beside the title once known. */
   count?: number | null;
   defaultOpen?: boolean;
+  /** An #address that opens the section and scrolls to it (links from notifications). */
+  anchor?: string;
   children: ReactNode;
 }) {
-  const [open, setOpen] = useState(() => readOpen(id, defaultOpen));
+  const linked = anchor !== undefined && typeof window !== "undefined" && window.location.hash === `#${anchor}`;
+  const [open, setOpen] = useState(() => linked || readOpen(id, defaultOpen));
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (linked) ref.current?.scrollIntoView?.();
+  }, [linked]);
   const bodyId = useId();
 
   const toggle = () =>
@@ -46,7 +54,7 @@ export default function CollapsibleSection({
     });
 
   return (
-    <section className="section collapsible">
+    <section className="section collapsible" id={anchor} ref={ref}>
       <h2 className="collapsible__heading">
         <button type="button" className="collapsible__toggle" aria-expanded={open} aria-controls={bodyId} onClick={toggle}>
           {title}

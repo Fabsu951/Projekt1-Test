@@ -3,7 +3,13 @@ import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const auth = vi.hoisted(() => ({ value: { user: { id: 1 }, token: "tok" } as { user: unknown; token: string | null } }));
-const service = vi.hoisted(() => ({ fetchTrips: vi.fn(), planTrip: vi.fn(), removeTrip: vi.fn() }));
+const service = vi.hoisted(() => ({
+  fetchTripsAndInvitations: vi.fn(),
+  planTrip: vi.fn(),
+  removeTrip: vi.fn(),
+  inviteToTrip: vi.fn(),
+  answerInvitation: vi.fn(),
+}));
 vi.mock("../auth/useAuth", () => ({ useAuth: () => auth.value }));
 vi.mock("../services/tripService", () => service);
 
@@ -26,9 +32,10 @@ describe("TripPlanCard", () => {
   });
 
   it("plans and unplans a day, and shows what is planned here", async () => {
-    service.fetchTrips.mockResolvedValue([
-      { id: 7, regionId: "riksgransfjallen", date: "2026-02-14", notified: false },
-    ]);
+    service.fetchTripsAndInvitations.mockResolvedValue({
+      trips: [{ id: 7, regionId: "riksgransfjallen", date: "2026-02-14", notified: false }],
+      invitations: [],
+    });
     service.planTrip.mockResolvedValue({ id: 8, regionId: "kebnekaisefjallen", date: "2026-02-14", notified: false });
     show();
     const tomorrow = await screen.findByRole("button", { name: "I morgon" });
@@ -44,5 +51,26 @@ describe("TripPlanCard", () => {
     fireEvent.click(tomorrow);
     await waitFor(() => expect(tomorrow).toHaveAttribute("aria-pressed", "false"));
     expect(service.removeTrip).toHaveBeenCalledWith("tok", 8);
+  });
+
+  it("shows an invitation to someone's day here, and accepting reloads the plans", async () => {
+    service.fetchTripsAndInvitations.mockResolvedValueOnce({
+      trips: [],
+      invitations: [
+        { id: 3, from: { id: 2, displayName: "Bertil" }, regionId: "kebnekaisefjallen", date: "2026-02-14", routeTitle: "Sydtoppen" },
+        { id: 4, from: { id: 2, displayName: "Bertil" }, regionId: "riksgransfjallen", date: "2026-02-15", routeTitle: null },
+      ],
+    });
+    service.fetchTripsAndInvitations.mockResolvedValueOnce({
+      trips: [{ id: 9, regionId: "kebnekaisefjallen", date: "2026-02-14", notified: false, company: [{ id: 2, displayName: "Bertil" }] }],
+      invitations: [],
+    });
+    service.answerInvitation.mockResolvedValue({ accepted: true, tripId: 9 });
+    show();
+    expect(await screen.findByText("Bertil bjuder in dig till en tur i morgon. Rutt: Sydtoppen.")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Gå med" })).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Gå med" }));
+    expect(await screen.findByText("Med på turen: Bertil")).toBeInTheDocument();
+    expect(service.answerInvitation).toHaveBeenCalledWith("tok", 3, true);
   });
 });

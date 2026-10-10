@@ -15,8 +15,9 @@ import { userLang, type Lang } from "./lang";
 /**
  * "moderation": an admin removed something of yours after a report; `note` says what and why.
  * "trip": the forecast for a tour you planned ("Prognos inför turen", trips.ts); `note` is the text.
+ * "trip_invite" / "trip_join": an invitation to someone's tour day, or someone joining yours (tripInvites.ts); `note` is the text.
  */
-export type NotificationKind = "follow" | "comment" | "reply" | "like" | "moderation" | "trip";
+export type NotificationKind = "follow" | "comment" | "reply" | "like" | "moderation" | "trip" | "trip_invite" | "trip_join";
 export type NotifyEnv = CommunityEnv & VapidEnv & FcmEnv;
 /** Runs work after the response is sent (ctx.waitUntil in the worker). */
 export type Defer = (work: Promise<unknown>) => void;
@@ -172,6 +173,10 @@ async function describe(env: CommunityEnv, rows: Row[], lang: Lang = "sv"): Prom
     const text =
       r.kind === "trip"
         ? (r.note ?? (en ? "The forecast for your planned tour is published." : "Prognosen för din planerade tur är publicerad."))
+        : r.kind === "trip_invite"
+          ? (r.note ?? (en ? `${who} invites you on a tour` : `${who} bjuder in dig till en tur`))
+          : r.kind === "trip_join"
+            ? (r.note ?? (en ? `${who} is joining your tour` : `${who} hänger med på din tur`))
         : r.kind === "moderation"
           ? (r.note ?? (en ? "Something you published was removed after a report." : "Något du publicerat har tagits bort efter en anmälan."))
           : r.kind === "follow"

@@ -154,7 +154,7 @@ export default function RegionDetail() {
         <span>{t("Farograder och lavinproblem för hela vintern, även tidigare säsonger →")}</span>
       </Link>
 
-      <CollapsibleSection id="region-trip" title={t("Prognos inför din tur")}>
+      <CollapsibleSection id="region-trip" anchor="turdag" title={t("Prognos inför din tur")}>
         <TripPlanCard regionId={region.id} regionName={region.name} />
       </CollapsibleSection>
 

@@ -47,6 +47,7 @@ import { notifyChanges, publicKey, setPushLanguage, subscribe, unsubscribe, type
 import { notifyNativeChanges, registerDevice, setDeviceLanguage, unregisterDevice, type NativeEnv } from "./nativePush";
 import type { NotifyEnv } from "./notifications";
 import { createTrip, deleteTrip, listTrips, notifyTrips, type PublishedDay } from "./trips";
+import { answerInvitation, inviteToTrip } from "./tripInvites";
 import { adminStats } from "./adminStats";
 import { checkForecastHealth } from "./health";
 import { fetchWarnings, WARNINGS_PAGE } from "./warnings";
@@ -335,6 +336,10 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
     if (pathname === "/trips" && method === "POST") return json(await createTrip(request, env), origin, 201);
     const tripMatch = pathname.match(/^\/trips\/(\d+)$/);
     if (tripMatch && method === "DELETE") return json(await deleteTrip(request, env, Number(tripMatch[1])), origin);
+    const inviteMatch = pathname.match(/^\/trips\/(\d+)\/invites$/);
+    if (inviteMatch && method === "POST") return json(await inviteToTrip(request, env, Number(inviteMatch[1]), defer), origin);
+    const answerMatch = pathname.match(/^\/trips\/invitations\/(\d+)$/);
+    if (answerMatch && method === "POST") return json(await answerInvitation(request, env, Number(answerMatch[1]), defer), origin);
 
     if (pathname === "/routes" && method === "GET") return json(await listMyRoutes(request, env), origin);
     if (pathname === "/routes" && method === "POST") return json(await createRoute(request, env), origin, 201);

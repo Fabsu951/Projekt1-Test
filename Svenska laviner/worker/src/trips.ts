@@ -6,6 +6,7 @@ import { notify, type Defer, type NotifyEnv } from "./notifications";
 import { REGION_SOURCES } from "./regions";
 import { compass, dangerText, dayName, problemName, toLang, type Lang } from "./lang";
 import { coversDay, warningSentence, type Warning } from "./warnings";
+import { companyOf, invitesOf, pendingInvitations, type Person, type TripInvite } from "./tripInvites";
 
 // "Prognos inför turen": a user plans a day in an area; when the forecast
 // for that day is published (normally 18:00 the evening before) they get it
@@ -36,6 +37,10 @@ export interface TripPlan {
   /** A saved route to compare with the forecast, if one was chosen. */
   routeId?: number | null;
   routeTitle?: string | null;
+  /** People you invited to this day, and whether they said yes. */
+  invites?: TripInvite[];
+  /** On a day you were invited to: who else is going. */
+  company?: Person[];
 }
 
 interface TripRow {
@@ -58,13 +63,20 @@ const toPlan = (r: TripRow): TripPlan => ({
   routeTitle: r.route_title,
 });
 
-/** GET /trips: your plans from today on, soonest first. */
+/** GET /trips: your plans from today on, soonest first, and invitations waiting for an answer. */
 export async function listTrips(request: Request, env: CommunityEnv, now = new Date()) {
   const me = await requireUser(request, env);
+  const today = stockholmDate(now);
   const rows = await env.DB.prepare("SELECT * FROM trip_plans WHERE user_id = ? AND date >= ? ORDER BY date, id")
-    .bind(me.id, stockholmDate(now))
+    .bind(me.id, today)
     .all<TripRow>();
-  return { trips: rows.results.map(toPlan) };
+  const ids = rows.results.map((r) => r.id);
+  const invites = await invitesOf(env, ids);
+  const company = await companyOf(env, me.id, ids);
+  return {
+    trips: rows.results.map((r) => ({ ...toPlan(r), invites: invites[r.id] ?? [], company: company[r.id] ?? [] })),
+    invitations: await pendingInvitations(env, me.id, today),
+  };
 }
 
 /** Steep ground under a route: [aspect sector 0–7 (N, NO, O … NV), height in m, metres of route]. */
@@ -147,8 +159,14 @@ export async function createTrip(request: Request, env: CommunityEnv, now = new 
 /** DELETE /trips/:id (your own). */
 export async function deleteTrip(request: Request, env: CommunityEnv, id: number) {
   const me = await requireUser(request, env);
-  const r = await env.DB.prepare("DELETE FROM trip_plans WHERE id = ? AND user_id = ?").bind(id, me.id).run();
-  if (r.meta.changes === 0) throw new HttpError(404, "Turen finns inte.");
+  const own = await env.DB.prepare("SELECT id FROM trip_plans WHERE id = ? AND user_id = ?").bind(id, me.id).first();
+  if (!own) throw new HttpError(404, "Turen finns inte.");
+  // Your invitations go with the day; leaving a day you were invited to counts as a no.
+  await env.DB.batch([
+    env.DB.prepare("UPDATE trip_invites SET status = 'declined', joined_trip_id = NULL WHERE joined_trip_id = ?").bind(id),
+    env.DB.prepare("DELETE FROM trip_invites WHERE trip_id = ?").bind(id),
+    env.DB.prepare("DELETE FROM trip_plans WHERE id = ?").bind(id),
+  ]);
   return { ok: true };
 }
 
@@ -271,7 +289,8 @@ export function noLevelMessage(regionId: string, date: string, lang: Lang = "sv"
 }
 
 function routeOf(trip: TripRow): { title: string; steep: SteepPiece[] } | undefined {
-  if (trip.route_id === null || !trip.route_steep || !trip.route_title) return undefined;
+  // A route of your own (route_id), or the inviter's comparison copied along.
+  if (!trip.route_steep || !trip.route_title) return undefined;
   try {
     const steep = readSteep(JSON.parse(trip.route_steep));
     return steep ? { title: trip.route_title, steep } : undefined;
@@ -298,7 +317,12 @@ export async function notifyTrips(
   warnings?: () => Promise<Record<string, Warning[]> | null>
 ): Promise<void> {
   const today = stockholmDate(now);
-  await env.DB.prepare("DELETE FROM trip_plans WHERE date < ?").bind(addDays(today, -KEEP_PAST_DAYS)).run();
+  const old = addDays(today, -KEEP_PAST_DAYS);
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM trip_invites WHERE trip_id IN (SELECT id FROM trip_plans WHERE date < ?)").bind(old),
+    env.DB.prepare("UPDATE trip_invites SET joined_trip_id = NULL WHERE joined_trip_id IN (SELECT id FROM trip_plans WHERE date < ?)").bind(old),
+    env.DB.prepare("DELETE FROM trip_plans WHERE date < ?").bind(old),
+  ]);
   const sent = nowIso();
 
   type Due = TripRow & { lang: string };

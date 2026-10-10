@@ -4440,3 +4440,41 @@ h1 .admin-badge {
 .trip-plan__offline p {
   margin: 0;
 }
+
+.trip-plan__planned {
+  list-style: none;
+  margin: 12px 0 8px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.trip-company {
+  display: grid;
+  gap: 4px;
+  margin-top: 4px;
+}
+.trip-company p {
+  margin: 0;
+}
+.trip-company__pick {
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--bg-raised);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.trip-invitations {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.trip-invitation {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg-raised);
+}
+.trip-invitation p {
+  margin: 0 0 8px;
+}
