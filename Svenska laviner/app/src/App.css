@@ -4687,3 +4687,190 @@ h1 .admin-badge {
 .today-trip__open {
   display: inline-block;
 }
+
+/* Welcome guide, first visit only. */
+.welcome {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom)) calc(16px + var(--safe-left));
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(8px);
+  overflow-y: auto;
+}
+.welcome__panel {
+  width: min(520px, 100%);
+  padding: 22px 22px 18px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+.welcome__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.welcome__steps {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.welcome__dot {
+  width: 28px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+}
+.welcome__dot--done {
+  background: var(--accent);
+}
+.welcome__skip {
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 6px;
+}
+.welcome__skip:hover {
+  color: var(--text);
+}
+.welcome h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  outline: none;
+}
+.welcome__lead {
+  margin: 8px 0 18px;
+  color: var(--text-muted);
+}
+.welcome__points {
+  display: grid;
+  gap: 14px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+.welcome__points li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.welcome__points strong {
+  display: block;
+  margin-bottom: 2px;
+}
+.welcome__points li > span:last-child {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+.welcome__points li > span:last-child strong {
+  color: var(--text);
+}
+.welcome__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--bg-raised);
+  color: var(--accent);
+}
+.welcome__lang {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.welcome__lang button {
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.welcome__lang button[aria-pressed="true"] {
+  background: var(--bg-raised);
+  color: var(--text);
+  font-weight: 600;
+}
+.welcome__areas {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.welcome__areas button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.welcome__areas button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.welcome__areas strong {
+  display: block;
+}
+.welcome__areas small {
+  color: var(--text-muted);
+}
+.welcome__check {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  color: var(--bg);
+}
+.welcome__areas button[aria-pressed="true"] .welcome__check {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.welcome__note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 16px 0 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+.welcome__note .icon {
+  flex: none;
+  margin-top: 2px;
+}
+.welcome__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 22px;
+}
+.welcome__actions .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

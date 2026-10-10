@@ -48,6 +48,7 @@ const kebnekaise = REGIONS.find((r) => r.id === "kebnekaisefjallen")!;
 describe("TodayPage", () => {
   beforeEach(() => {
     localStorage.clear();
+    localStorage.setItem("fjallkoll:welcome-done", "1");
     mockHistory.mockResolvedValue([]);
     mockObservations.mockResolvedValue([]);
   });
@@ -98,5 +99,32 @@ describe("TodayPage", () => {
     expect(await screen.findByText(/Lavin i Kebne/)).toBeInTheDocument();
     expect(screen.getByText("Skjutsprickor")).toBeInTheDocument();
     expect(screen.queryByText(/Lavin i Härjedalen/)).not.toBeInTheDocument();
+  });
+
+  it("welcomes a first-time visitor: areas picked in the guide land on the start page", async () => {
+    localStorage.removeItem("fjallkoll:welcome-done");
+    mockLoad.mockResolvedValue(forecasts("published", 2));
+    renderPage();
+    const dialog = await screen.findByRole("dialog", { name: "Välkommen till Snöläge" });
+    fireEvent.click(within(dialog).getByRole("button", { name: /Kom igång/ }));
+    fireEvent.click(within(dialog).getByRole("button", { name: new RegExp(kebnekaise.name) }));
+    fireEvent.click(within(dialog).getByRole("button", { name: /Nästa/ }));
+    expect(within(dialog).getByRole("heading", { name: "Vill du få en notis?" })).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole("button", { name: /Klar/ }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(localStorage.getItem("fjallkoll:welcome-done")).toBe("1");
+    expect(await screen.findByRole("link", { name: kebnekaise.name })).toBeInTheDocument();
+  });
+
+  it("can skip the guide, and it stays away", async () => {
+    localStorage.removeItem("fjallkoll:welcome-done");
+    mockLoad.mockResolvedValue(forecasts("published", 2));
+    const first = renderPage();
+    fireEvent.click(await screen.findByRole("button", { name: "Hoppa över" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    first.unmount();
+    renderPage();
+    await screen.findByText(/Tryck på/);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });

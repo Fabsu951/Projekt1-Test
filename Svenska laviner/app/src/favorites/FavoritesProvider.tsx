@@ -98,8 +98,8 @@ export default function FavoritesProvider({ children }: { children: ReactNode })
   );
 
   const value = useMemo<FavoritesState>(
-    () => ({ favorites, isFavorite: (id) => favorites.includes(id), toggleFavorite }),
-    [favorites, toggleFavorite]
+    () => ({ favorites, loaded: localLoaded, isFavorite: (id) => favorites.includes(id), toggleFavorite }),
+    [favorites, localLoaded, toggleFavorite]
   );
 
   return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;

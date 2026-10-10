@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { REGIONS } from "../data/regions";
 import { fetchForecastHistory, loadForecasts, type HistoryDay } from "../services/avalancheService";
@@ -11,6 +11,8 @@ import AreaForecastCard from "../components/today/AreaForecastCard";
 import OverviewMap from "../components/today/OverviewMap";
 import QuickActions from "../components/today/QuickActions";
 import TodayTrip from "../components/today/TodayTrip";
+import WelcomeGuide, { welcomeDone } from "../components/WelcomeGuide";
+import { useAuth } from "../auth/useAuth";
 import RecentObservations from "../components/today/RecentObservations";
 import NearestRegion from "../components/NearestRegion";
 import PushToggle from "../components/PushToggle";
@@ -32,7 +34,17 @@ function todayText(now: Date): string {
 }
 
 export default function TodayPage() {
-  const { favorites } = useFavorites();
+  const { favorites, loaded: favoritesLoaded } = useFavorites();
+  const { user, loading: authLoading } = useAuth();
+  // First visit on this device, nothing starred and not signed in: the
+  // welcome guide. Decided once, so picking areas in it doesn't close it.
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [welcomeDecided, setWelcomeDecided] = useState(false);
+  if (!welcomeDecided && favoritesLoaded === true && !authLoading) {
+    setWelcomeDecided(true);
+    setShowWelcome(!welcomeDone() && favorites.length === 0 && !user);
+  }
+  const closeWelcome = useCallback(() => setShowWelcome(false), []);
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
   const [loaded, setLoaded] = useState(false);
   const [stale, setStale] = useState(false);
@@ -84,6 +96,7 @@ export default function TodayPage() {
 
   return (
     <div className="page page--wide today">
+      {showWelcome && <WelcomeGuide onClose={closeWelcome} />}
       <header className="today__hello">
         <h1>{t("Idag i fjällen")}</h1>
         <p>
