@@ -184,7 +184,9 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   uploads to TestFlight (build number = commit count). Optional
   `GOOGLE_SERVICE_INFO_PLIST` → the "Copy Firebase settings" build phase
   copies `App/App/GoogleService-Info.plist` (gitignored) into the bundle if
-  present. `App.entitlements` (HealthKit + background delivery, aps)
+  present. A non-blocking step then boots an iPhone simulator, launches
+  the app for 45 s and prints its console (first run 2026-10-10: starts fine,
+  BackgroundImport plugin answers, Firebase skips without the plist). `App.entitlements` (HealthKit + background delivery, aps)
   is wired via `CODE_SIGN_ENTITLEMENTS`; `UIRequiredDeviceCapabilities` is
   arm64. Fabian's steps (Apple Developer Program, App ID, App Store Connect
   app, API key, secrets, TestFlight) in APPAR.md § 3; not done yet.
@@ -273,9 +275,11 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   (`fjallkoll:offline-maps`). `TopoLayer` uses `OfflineTileLayer`
   (`offlineTileLayer.ts`), which shows a saved tile before hitting the
   network. Tile URLs live in `services/mapTiles.ts` and must match exactly
-  between download and display. Hidden where Cache Storage is missing
-  (possibly iOS Capacitor's `capacitor://` scheme — untested) or without a
-  worker URL.
+  between download and display. Hidden where Cache Storage is missing or
+  without a worker URL. **iOS app checked 2026-10-10:** the `capacitor://`
+  web view does have `caches` (simulator smoke test in ios.yml logs
+  "[Snöläge] start ios, offline-kartor: ja"); saving tiles there not yet
+  tried on a real iPhone.
   **Official terrain maps (2026-10-07):** Petter (Naturvårdsverket) OK'd
   showing their WMS layers `slope_inclination` / `slope_aspect` with them as
   the source + their legends; he also warned of possible future rate limits
