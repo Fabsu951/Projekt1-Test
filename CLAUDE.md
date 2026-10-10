@@ -1084,7 +1084,7 @@ the start, exact map point.
   welcome guide on the first visit (`WelcomeGuide.tsx`, only on `/` when
   nothing is starred, not signed in and `fjallkoll:welcome-done` unset —
   helpers in `services/welcome.ts`; steps: what Snöläge is + Svenska/English,
-  pick areas (stars), `PushToggle`; "Hoppa över"/Esc mark it done; decided
+  pick areas (stars), notifications ticked by default and turned on by "Klar" (the browser permission needs that tap; `hooks/useRegionPush.ts` shared with `PushToggle`, stays open with the reason if refused); "Hoppa över"/Esc mark it done; decided
   once per visit so starring inside it doesn't close it; `FavoritesState.loaded`).
   "Vad betyder det för mig?" (`data/dangerAdvice.ts` `LEVEL_ADVICE` per
   published level, `DangerAdvice.tsx` under the official forecast; never
@@ -1177,6 +1177,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (262 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  (265 tests as of 2026-10-10, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 177 tests, including the
   real-page fixtures).

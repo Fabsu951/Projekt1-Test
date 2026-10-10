@@ -3,7 +3,7 @@ import { REGIONS } from "../data/regions";
 import { useFavorites } from "../favorites/useFavorites";
 import { lang, setLang, t } from "../i18n";
 import Icon, { type IconName } from "./Icon";
-import PushToggle from "./PushToggle";
+import { useRegionPush } from "../hooks/useRegionPush";
 import { markWelcomeDone as markDone } from "../services/welcome";
 
 const POINTS: Array<[IconName, string, string]> = [
@@ -20,11 +20,21 @@ const POINTS: Array<[IconName, string, string]> = [
 export default function WelcomeGuide({ onClose }: { onClose: () => void }) {
   const { isFavorite, toggleFavorite, favorites } = useFavorites();
   const [step, setStep] = useState(0);
+  const push = useRegionPush({ sync: false });
+  // Ticked from the start; the browser only asks for permission when "Klar" is pressed.
+  const [wantPush, setWantPush] = useState(true);
+  const canPush = push.available && favorites.length > 0;
   const heading = useRef<HTMLHeadingElement>(null);
 
   const close = () => {
     markDone();
     onClose();
+  };
+
+  // Turns notifications on (or off) as ticked; stays open if that failed, to show why.
+  const finish = async () => {
+    if (canPush && wantPush !== push.enabled && !(await push.set(wantPush))) return;
+    close();
   };
 
   useEffect(() => {
@@ -132,7 +142,20 @@ export default function WelcomeGuide({ onClose }: { onClose: () => void }) {
                 ? t("Snöläge kan säga till när farograden ändras i dina områden. Det går att stänga av när du vill.")
                 : t("När du har valt områden kan Snöläge säga till när farograden ändras där.")}
             </p>
-            <PushToggle />
+            {canPush && (
+              <label className="push-toggle__label welcome__push">
+                <input type="checkbox" checked={wantPush} disabled={push.busy} onChange={(e) => setWantPush(e.target.checked)} />
+                {t("Notis när farograden ändras i mina områden")}
+              </label>
+            )}
+            {push.checked && !push.available && (
+              <p className="welcome__note">{t("Notiser går inte att slå på här just nu. Du kan göra det senare under Mina områden på startsidan.")}</p>
+            )}
+            {push.message && (
+              <p className="push-toggle__message" role="alert">
+                {push.message}
+              </p>
+            )}
             <p className="welcome__note">
               <Icon name="info" size={16} />
               {t("Notiserna ersätter aldrig prognosen. Läs alltid hela prognosen innan du ger dig ut.")}
@@ -153,7 +176,7 @@ export default function WelcomeGuide({ onClose }: { onClose: () => void }) {
               <Icon name="arrowRight" size={18} />
             </button>
           ) : (
-            <button type="button" className="button button--primary" onClick={close}>
+            <button type="button" className="button button--primary" disabled={push.busy} onClick={() => void finish()}>
               {t("Klar")}
               <Icon name="check" size={18} />
             </button>
