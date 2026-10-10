@@ -76,6 +76,9 @@ export async function saveTextFile(fileName: string, text: string, mimeType: str
  */
 export async function initNativeApp(): Promise<void> {
   if (!isNativeApp()) return;
+  // Shows in Xcode's console and in the iPhone check on GitHub (ios.yml):
+  // "Karta offline" needs Cache Storage in the app's web view.
+  console.info(`[Snöläge] start ${Capacitor.getPlatform()}, offline-kartor: ${"caches" in window ? "ja" : "nej"}`);
   const { App } = await import("@capacitor/app");
   await App.addListener("backButton", ({ canGoBack }) => {
     if (canGoBack) window.history.back();

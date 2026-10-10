@@ -68,6 +68,28 @@ jobs:
             CODE_SIGNING_ALLOWED=NO build | tail -n 80
           exit "${PIPESTATUS[0]}"
 
+      - name: Start the app in an iPhone simulator
+        # A smoke test: does it start without crashing, and does the web view
+        # have Cache Storage ("Karta offline")? Reported, never blocks.
+        continue-on-error: true
+        run: |
+          udid=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')))")
+          xcrun simctl boot "$udid" || true
+          xcrun simctl bootstatus "$udid" -b
+          app=$(find ~/Library/Developer/Xcode/DerivedData -type d -path "*Debug-iphonesimulator/App.app" | head -1)
+          xcrun simctl install "$udid" "$app"
+          xcrun simctl launch --console-pty "$udid" se.snolage.app > "$RUNNER_TEMP/console.txt" 2>&1 &
+          sleep 45
+          running=$(xcrun simctl spawn "$udid" launchctl list | grep -c "se.snolage.app" || true)
+          xcrun simctl terminate "$udid" se.snolage.app || true
+          echo "--- console ---"
+          grep -v "^\s*$" "$RUNNER_TEMP/console.txt" | head -n 150
+          {
+            echo "### iPhone-simulator"
+            if [ "$running" -gt 0 ]; then echo "- Appen startade och körde i 45 s."; else echo "- **Appen kördes inte efter 45 s (krasch?)**"; fi
+            echo "- $(grep -o '\[Snöläge\][^\"]*' "$RUNNER_TEMP/console.txt" | head -1)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: TestFlight – sign and upload
         if: env.ASC_KEY_ID != '' && env.ASC_ISSUER_ID != '' && env.APPLE_TEAM_ID != ''
         working-directory: Svenska laviner/app/ios/App
