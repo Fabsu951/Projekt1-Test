@@ -1,3 +1,4 @@
+import { tellAdminsAboutReport } from "./reportMail";
 import { type CommunityEnv, type User, requirePoster, requireUser } from "./auth";
 import { HttpError, nowIso } from "./http";
 import { socialCleanup } from "./socialCleanup";
@@ -291,7 +292,7 @@ async function getRow(env: CommunityEnv, id: number): Promise<ObservationRow> {
   return row;
 }
 
-export async function reportObservation(request: Request, env: CommunityEnv, id: number) {
+export async function reportObservation(request: Request, env: CommunityEnv, id: number, defer?: (work: Promise<unknown>) => void) {
   const user = await requirePoster(request, env);
   const row = await getRow(env, id);
   if (row.user_id === user.id) throw new HttpError(400, "Du kan inte anmäla din egen observation.");
@@ -317,6 +318,12 @@ export async function reportObservation(request: Request, env: CommunityEnv, id:
     )
       .bind(REPORTS_TO_HIDE, id)
       .run();
+    const now = await env.DB.prepare("SELECT hidden FROM observations WHERE id = ?").bind(id).first<{ hidden: number }>();
+    const work = tellAdminsAboutReport(env, { type: "observation", hidden: row.hidden === 0 && now?.hidden === 1, reason, reporterId: user.id }).catch((err) =>
+      console.error("Could not email the admins about a report", err)
+    );
+    if (defer) defer(work);
+    else await work;
   }
   return { ok: true };
 }

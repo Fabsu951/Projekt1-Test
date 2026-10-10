@@ -971,6 +971,29 @@ the start, exact map point.
   every 24 h, and "fungerar igen" when it clears; a single bad fetch that
   fixes itself sends nothing. `/admin/stats` returns `forecastHealth`, shown
   at the top of `/admin/oversikt`.
+- **Admin emails (2026-10-10):** `worker/src/adminMail.ts` `mailAdmins(env,
+  subject, lines, {footer, except})` → every verified `is_admin` user (used by
+  health, season report, backup, reports). **Season's first forecasts:**
+  `seasonReport.ts` `seasonStartReport` (from `recordAll`) emails once per
+  season (`service_alerts` row `season-report-<year>`, claimed with
+  `ON CONFLICT DO NOTHING`) when the first level 1–5 appears: per area what
+  was read (level/label, API or page, valid until, headline, problems, trend)
+  + the lavinprognoser.se link to compare by eye. Routine
+  `trig_01GcbHBWKLYsHBRMxwxiUAAG` (one-shot 16 Dec 2026 07:47 UTC, fresh
+  session, push + email) reminds Fabian to check. **Reports:**
+  `reportMail.ts` `tellAdminsAboutReport` (via `defer` from
+  `reportObservation` / `reportContent`): ≤ 1 email per 30 min (row
+  `report-mail`), always when something was just auto-hidden; never to the
+  admin who reported; includes the open-report count + `/admin` link.
+- **Weekly D1 backup (2026-10-10):** cron `37 2 * * 1` (`BACKUP_CRON` in
+  `index.ts` `scheduled`) → `backup.ts` `runBackup`: every table except
+  d1_migrations/sessions/email_tokens/rate_limit_events/service_alerts,
+  paged by rowid, gzipped JSON in R2 `IMAGES` at `backups/d1/<date>.json.gz`,
+  kept 28 days; failure emails the admins. `/admin/stats` `backup`
+  {latestAt, bytes, count} shown on `/admin/oversikt`. Restore:
+  `worker/scripts/restore-backup.ts` → SQL (`PRAGMA defer_foreign_keys`);
+  steps (Time Travel first) in `Svenska laviner/BACKUP.md`. Not yet run live
+  (free-plan CPU limits are the risk; a failure emails).
 - **Route on a tour day (2026-10-10):** migration `0021` trip_plans
   `route_id/route_title/route_steep`. `TripPlanCard` has "Jämför en sparad
   rutt med prognosen" (your saved routes, this area's first); the app runs
@@ -1113,5 +1136,5 @@ the start, exact map point.
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
   (252 tests as of 2026-10-10, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 170 tests, including the
+  suite in `Svenska laviner/worker` (`npm test`, 177 tests, including the
   real-page fixtures).

@@ -1,3 +1,4 @@
+import { tellAdminsAboutReport } from "./reportMail";
 import { userLang, type Lang } from "./lang";
 import { requirePoster, requireUser, type CommunityEnv, type User } from "./auth";
 import { HttpError, nowIso, readJson } from "./http";
@@ -71,7 +72,7 @@ async function ownerOf(env: CommunityEnv, type: ReportType, id: number, viewer: 
 }
 
 /** POST /reports {type, id, reason} */
-export async function reportContent(request: Request, env: CommunityEnv) {
+export async function reportContent(request: Request, env: CommunityEnv, defer?: (work: Promise<unknown>) => void) {
   const me = await requirePoster(request, env);
   const body = await readJson<{ type?: unknown; id?: unknown; reason?: unknown }>(request);
   const type = reportType(body.type);
@@ -90,10 +91,19 @@ export async function reportContent(request: Request, env: CommunityEnv) {
     .run();
   if (inserted.meta.changes > 0) {
     await record(store, [key]);
+    let hidden = false;
     if (type === "comment") {
       const n = await countReports(env, type, id);
-      if (n >= COMMENT_REPORTS_TO_HIDE) await env.DB.prepare("UPDATE comments SET hidden = 1 WHERE id = ?").bind(id).run();
+      if (n >= COMMENT_REPORTS_TO_HIDE) {
+        const r = await env.DB.prepare("UPDATE comments SET hidden = 1 WHERE id = ? AND hidden = 0").bind(id).run();
+        hidden = r.meta.changes > 0;
+      }
     }
+    const work = tellAdminsAboutReport(env, { type, hidden, reason, reporterId: me.id }).catch((err) =>
+      console.error("Could not email the admins about a report", err)
+    );
+    if (defer) defer(work);
+    else await work;
   }
   return { ok: true };
 }

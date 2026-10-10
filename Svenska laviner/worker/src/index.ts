@@ -291,7 +291,7 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
       return json(await createObservation(request, env), origin, 201);
     if (pathname === "/admin/stats" && method === "GET") return json(await adminStats(request, env), origin);
     if (pathname === "/admin/reported" && method === "GET") return json(await listReported(request, env), origin);
-    if (pathname === "/reports" && method === "POST") return json(await reportContent(request, env), origin);
+    if (pathname === "/reports" && method === "POST") return json(await reportContent(request, env, defer), origin);
     if (pathname === "/admin/content-reports" && method === "GET")
       return json(await listContentReports(request, env), origin);
     if (pathname === "/admin/content-reports/dismiss" && method === "POST")
@@ -302,7 +302,7 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
     const obsMatch = pathname.match(/^\/observations\/(\d+)(\/report|\/restore)?$/);
     if (obsMatch) {
       const id = Number(obsMatch[1]);
-      if (obsMatch[2] === "/report" && method === "POST") return json(await reportObservation(request, env, id), origin);
+      if (obsMatch[2] === "/report" && method === "POST") return json(await reportObservation(request, env, id, defer), origin);
       if (obsMatch[2] === "/restore" && method === "POST")
         return json(await restoreObservation(request, env, id), origin);
       if (!obsMatch[2] && method === "DELETE") return json(await deleteObservation(request, env, id), origin);
