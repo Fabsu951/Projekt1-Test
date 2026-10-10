@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import ObservationCard from "../components/ObservationCard";
 import PageLoading from "../components/PageLoading";
+import QueuedObservationList from "../components/QueuedObservationList";
 import { REGIONS } from "../data/regions";
 import { OBSERVATION_TYPES } from "../data/observationTypes";
 import { fetchObservations } from "../services/observationService";
+import { QUEUE_CHANGED_EVENT } from "../services/observationQueue";
 import type { Observation } from "../types/observation";
 
 export default function ObservationsPage() {
@@ -27,6 +29,15 @@ export default function ObservationsPage() {
 
   useEffect(load, [load]);
 
+  // An observation that waited for coverage has just been sent: show it.
+  useEffect(() => {
+    const changed = (e: Event) => {
+      if (((e as CustomEvent<{ sent?: number }>).detail?.sent ?? 0) > 0) load();
+    };
+    window.addEventListener(QUEUE_CHANGED_EVENT, changed);
+    return () => window.removeEventListener(QUEUE_CHANGED_EVENT, changed);
+  }, [load]);
+
   return (
     <div className="page">
       <header className="page__header">
@@ -43,6 +54,8 @@ export default function ObservationsPage() {
           </Link>
         </div>
       </header>
+
+      <QueuedObservationList />
 
       <p className="notice">
         Observationerna delas av användare och granskas inte i förväg. De ersätter inte den officiella

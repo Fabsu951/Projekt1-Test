@@ -181,8 +181,27 @@ function field(form: FormData, name: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+/** The app's own id for an observation (a UUID), so a resend after lost coverage isn't stored twice. */
+const CLIENT_ID = /^[A-Za-z0-9-]{8,64}$/;
+
 export async function createObservation(request: Request, env: CommunityEnv) {
   const user = await requirePoster(request, env);
+
+  let form: FormData;
+  try {
+    form = await request.formData();
+  } catch {
+    throw new HttpError(400, "Ogiltig förfrågan.");
+  }
+
+  const clientIdField = field(form, "clientId");
+  const clientId = CLIENT_ID.test(clientIdField) ? clientIdField : null;
+  if (clientId) {
+    const existing = await env.DB.prepare(`${SELECT} WHERE o.user_id = ? AND o.client_id = ?`)
+      .bind(user.id, clientId)
+      .first<ObservationRow>();
+    if (existing) return { observation: toObservation(existing), duplicate: true };
+  }
 
   const since = new Date(Date.now() - 3600 * 1000).toISOString();
   const recent = await env.DB.prepare("SELECT COUNT(*) AS n FROM observations WHERE user_id = ? AND created_at > ?")
@@ -190,13 +209,6 @@ export async function createObservation(request: Request, env: CommunityEnv) {
     .first<{ n: number }>();
   if ((recent?.n ?? 0) >= MAX_PER_HOUR) {
     throw new HttpError(429, "Du har skickat många observationer den senaste timmen. Försök igen senare.");
-  }
-
-  let form: FormData;
-  try {
-    form = await request.formData();
-  } catch {
-    throw new HttpError(400, "Ogiltig förfrågan.");
   }
 
   const type = field(form, "type") as ObservationType;
@@ -248,8 +260,8 @@ export async function createObservation(request: Request, env: CommunityEnv) {
 
   const result = await env.DB.prepare(
     `INSERT INTO observations
-       (user_id, type, lat, lon, region_id, observed_at, created_at, description, image_key, danger_signs, snow_depth_cm)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       (user_id, type, lat, lon, region_id, observed_at, created_at, description, image_key, danger_signs, snow_depth_cm, client_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       user.id,
@@ -262,7 +274,8 @@ export async function createObservation(request: Request, env: CommunityEnv) {
       description,
       imageKey,
       JSON.stringify(dangerSigns),
-      snowDepthCm
+      snowDepthCm,
+      clientId
     )
     .run();
 

@@ -42,6 +42,8 @@ export interface NewObservation {
   dangerSigns: string[];
   /** Whole centimetres, or null when not given. */
   snowDepthCm: number | null;
+  /** The app's own id, so sending again after lost coverage doesn't store it twice. */
+  clientId?: string;
 }
 
 export async function createObservation(token: string, obs: NewObservation): Promise<Observation> {
@@ -55,6 +57,7 @@ export async function createObservation(token: string, obs: NewObservation): Pro
   if (obs.image) form.set("image", obs.image, "bild.jpg");
   for (const sign of obs.dangerSigns) form.append("dangerSigns", sign);
   if (obs.snowDepthCm !== null) form.set("snowDepthCm", String(obs.snowDepthCm));
+  if (obs.clientId) form.set("clientId", obs.clientId);
   return (await api<{ observation: Observation }>("/observations", { method: "POST", token, form })).observation;
 }
 

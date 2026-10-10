@@ -209,7 +209,8 @@ export default function AboutPage() {
           <li>
             <strong>Observationer:</strong> det du själv publicerar, alltså typ, plats på kartan, tidpunkt,
             beskrivning och eventuell bild. Innan bilden laddas upp tar appen bort den inbäddade
-            informationen, till exempel GPS-position och kameramodell.
+            informationen, till exempel GPS-position och kameramodell. Saknas täckning när du skickar sparas
+            observationen bara på din telefon tills den kan skickas, och du kan ta bort den där innan dess.
           </li>
           <li>
             <strong>Turer:</strong> GPS-spår du laddar upp (positioner, höjd och tidpunkter), med den

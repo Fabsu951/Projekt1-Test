@@ -7,7 +7,7 @@ import PageLoading from "../components/PageLoading";
 import VerifyEmailNotice from "../components/VerifyEmailNotice";
 import { QUICK_CHOICES, quickObservation, toggleChoice, type QuickChoice } from "../data/quickObservation";
 import { REGIONS } from "../data/regions";
-import { createObservation } from "../services/observationService";
+import { submitObservation } from "../services/observationQueue";
 import { nearestRegionId } from "../utils/geo";
 
 type Fix = { kind: "locating" } | { kind: "found"; point: Point; accuracyM: number } | { kind: "failed" };
@@ -71,7 +71,7 @@ export default function QuickObservationPage() {
     setBusy(true);
     setError(null);
     try {
-      await createObservation(token!, {
+      await submitObservation(token!, user!.id, {
         type: observation.type,
         lat: point.lat,
         lon: point.lon,
@@ -84,14 +84,7 @@ export default function QuickObservationPage() {
       });
       navigate("/observationer", { replace: true });
     } catch (err) {
-      const offline = typeof navigator !== "undefined" && navigator.onLine === false;
-      setError(
-        offline
-          ? "Ingen täckning just nu. Låt sidan vara öppen och tryck Skicka igen när du har täckning."
-          : err instanceof Error
-            ? err.message
-            : "Kunde inte skicka observationen."
-      );
+      setError(err instanceof Error ? err.message : "Kunde inte skicka observationen.");
       setBusy(false);
     }
   }

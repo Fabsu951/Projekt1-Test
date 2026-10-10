@@ -898,6 +898,24 @@ the start, exact map point.
   `LocationPicker` shown if it fails or accuracy > 500 m). Start page
   "Ny observation" and the primary button on `/observationer` go here; the
   full form stays at `/observationer/ny` ("+ Utförlig observation").
+- **Observations without coverage (2026-10-10):** `services/observationQueue.ts`
+  — `submitObservation()` (both forms) sends with a fresh `clientId`; on a
+  connection error (ApiError status 0 / no ApiError) the observation is
+  kept in Preferences `fjallkoll:observation-queue` (per user, ≤ 20, image
+  as data URL, original `observedAt`). `flushObservationQueue()` (single
+  run at a time) sends oldest first: offline/401/429/5xx → stop and retry
+  later; other 4xx → `failed` message, kept until the user removes it.
+  `ObservationQueueBridge` (Layout) flushes at start, on `online`, on
+  `visibilitychange` → visible and every 60 s while something waits;
+  `ObservationQueueBanner` under the header ("N observation(er) väntar på
+  täckning…", then "Din observation är skickad." for 6 s);
+  `QueuedObservationList` (`/observationer#vantar`, "Ta bort", "Försök
+  skicka nu"); the list reloads on `QUEUE_CHANGED_EVENT` with sent > 0.
+  Worker: migration `0019` `observations.client_id` + unique
+  (user_id, client_id); a resend returns the stored one with
+  `duplicate: true` before the rate limit and image upload. Checked in a
+  browser (offline send → banner → online → sent once). Privacy policy
+  mentions it.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -952,6 +970,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (230 tests as of 2026-10-10, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 134 tests, including the
+  (235 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 135 tests, including the
   real-page fixtures).

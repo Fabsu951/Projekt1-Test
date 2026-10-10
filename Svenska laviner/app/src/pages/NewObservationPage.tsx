@@ -8,7 +8,7 @@ import VerifyEmailNotice from "../components/VerifyEmailNotice";
 import { OBSERVATION_TYPES } from "../data/observationTypes";
 import { DANGER_SIGNS } from "../data/dangerSigns";
 import { REGIONS } from "../data/regions";
-import { createObservation } from "../services/observationService";
+import { submitObservation } from "../services/observationQueue";
 import type { DangerSign, ObservationType } from "../types/observation";
 import { nearestRegionId } from "../utils/geo";
 import { prepareImage } from "../utils/image";
@@ -82,7 +82,7 @@ export default function NewObservationPage() {
 
     setBusy(true);
     try {
-      await createObservation(token!, {
+      await submitObservation(token!, user!.id, {
         type,
         lat: point.lat,
         lon: point.lon,
