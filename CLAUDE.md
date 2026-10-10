@@ -332,8 +332,7 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   photorealistic) with simple SVG graphics, no photos. Implemented:
   - "Granite & ice" palette tokens in `index.css` (`--bg`, `--bg-elevated`,
     `--bg-raised`, `--accent` ice-blue, `--signal` orange, `--snow`).
-  - Barlow Condensed via `@fontsource/barlow-condensed` (self-hosted, so it
-    works offline in the native app) for headings, brand, nav.
+  - (Fonts and palette replaced 2026-10-10 — see "Design + themes" below.)
   - Header with SVG brand mark + ridgeline silhouette (`Layout.tsx`).
   - Original SVG pictograms per avalanche problem (`ProblemIcon.tsx`) —
     deliberately NOT copies of EAWS's own artwork.
@@ -1081,6 +1080,49 @@ the start, exact map point.
   stray Swedish in English. Fixed: warning line placement on start-page
   cards, bold helper text, heading hidden under the sticky header after a
   notification link, a lint warning in `ObservationQueueBanner`.
+- **Usability round (2026-10-10, Fabian picked 1, 2, 4, 5, 6, 7):**
+  welcome guide on the first visit (`WelcomeGuide.tsx`, only on `/` when
+  nothing is starred, not signed in and `fjallkoll:welcome-done` unset —
+  helpers in `services/welcome.ts`; steps: what Snöläge is + Svenska/English,
+  pick areas (stars), `PushToggle`; "Hoppa över"/Esc mark it done; decided
+  once per visit so starring inside it doesn't close it; `FavoritesState.loaded`).
+  "Vad betyder det för mig?" (`data/dangerAdvice.ts` `LEVEL_ADVICE` per
+  published level, `DangerAdvice.tsx` under the official forecast; never
+  says safe — tested) and per problem "Vad är …? / Så hanterar du det"
+  (`PROBLEM_ADVICE`, `<details>` in `ForecastProblems`). Area pages: sticky
+  `JumpNav` (Prognos · Lavinproblem · Turdag · Väder · Observationer ·
+  Turer; `--header-h` set by Layout's ResizeObserver; opening a folded
+  section via `OPEN_SECTION_EVENT`), problems moved right under the forecast,
+  observations before tours, Om området/Karta offline near the end. Map
+  presets (`map-presets` on `/karta`: Läget nu / Planera tur — slope:
+  detailed if imported, else NV's lutning, else our own — / Turer; pressed
+  state derived from the layer state). Start page `TodayTrip` leads with a
+  planned day today or tomorrow (`cached(USER_SCOPE + "trips")`; tomorrow's
+  level only from `/forecasts/history`, else "publiceras runt kl 18").
+- **Design + themes (2026-10-10, "så att man inte ser att den är gjord av
+  Claude"):** fonts Familjen Grotesk (headings, Swedish foundry) + Instrument
+  Sans (text), `@fontsource-variable/*` (Barlow removed; Atkinson tried and
+  dropped — slashed zeros; Familjen as body dropped — i-dots vanish).
+  Tokens in `index.css`: night theme default, paper-map light theme under
+  `[data-theme="light"]` and `prefers-color-scheme: light` unless
+  `[data-theme="dark"]`; status colours as tokens (`--warn-*`, `--danger-*`,
+  `--ok-*`, `--info-bg`, `--up/--down`, `--sign-*`) — no hard-coded UI colours
+  in App.css except map/danger/warning chips. `services/appearance.ts`
+  (`fjallkoll:theme` auto|light|dark, `fjallkoll:field-mode`; sets
+  `data-theme`/`data-field` on `<html>`, theme-color meta, Capacitor
+  `SystemBars.setStyle`; an inline script in index.html applies them before
+  first paint). `ThemeButton` (sun/moon) in the menu, `AppearanceSettings` on
+  `/om-appen#utseende`. Fältläge: root font 112.5 %, `--tap` 52 px, muted
+  text brighter. Style rules: sentence-case headings (no uppercase except tiny
+  labels), no coloured left/top stripes on cards, `--radius` 8 / `--radius-lg`
+  12, text links without "→"/"←" — use `<Icon name="arrowRight|arrowLeft|external"
+  className="icon--link">` (`components/Icon.tsx`, own 24 px line icons),
+  Swedish spaced en dash " – " in UI text (never " — "), `Contours.tsx`
+  height-curve backdrop on the start page and area headers. New mark: a peak
+  with a stepped slab crown (`BrandMark` in Layout; blue #1c5d99 square in the
+  icons). Icons/splash/og-image regenerated (scratchpad scripts: sharp for
+  `assets/*.png` + `public/icons/*.webp` + `favicon.svg`, then
+  `npm run app:icons` with the new colours; og-image rendered with Playwright).
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -1135,6 +1177,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (252 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  (262 tests as of 2026-10-10, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 177 tests, including the
   real-page fixtures).
