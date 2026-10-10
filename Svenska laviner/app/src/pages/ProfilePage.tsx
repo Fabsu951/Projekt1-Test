@@ -121,6 +121,11 @@ export default function ProfilePage() {
               Anmälda inlägg
             </Link>
           )}
+          {user.isAdmin && (
+            <Link to="/admin/oversikt" className="button">
+              Översikt
+            </Link>
+          )}
           <button type="button" className="button" onClick={() => void logout()}>
             Logga ut
           </button>

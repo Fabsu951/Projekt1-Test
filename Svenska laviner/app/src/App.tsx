@@ -11,6 +11,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ObservationsPage from "./pages/ObservationsPage";
 import ToursPage from "./pages/ToursPage";
 import AdminPage from "./pages/AdminPage";
+import AdminStatsPage from "./pages/AdminStatsPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
@@ -129,6 +130,7 @@ function App() {
         <Route path="/registrera" element={<RegisterPage />} />
         <Route path="/profil" element={<ProfilePage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin/oversikt" element={<AdminStatsPage />} />
         <Route path="/glomt-losenord" element={<ForgotPasswordPage />} />
         <Route path="/aterstall-losenord" element={<ResetPasswordPage />} />
         <Route path="/verifiera" element={<VerifyEmailPage />} />

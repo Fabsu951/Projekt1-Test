@@ -47,6 +47,7 @@ import { notifyChanges, publicKey, subscribe, unsubscribe, type PushEnv } from "
 import { notifyNativeChanges, registerDevice, unregisterDevice, type NativeEnv } from "./nativePush";
 import type { NotifyEnv } from "./notifications";
 import { createTrip, deleteTrip, listTrips, notifyTrips, type PublishedDay } from "./trips";
+import { adminStats } from "./adminStats";
 import { fcmConfigured, type FcmEnv } from "./fcm";
 import { stockholmDate } from "./model";
 import type { VapidEnv } from "./webpush";
@@ -281,6 +282,7 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
     if (pathname === "/observations" && method === "GET") return json(await listObservations(request, env), origin);
     if (pathname === "/observations" && method === "POST")
       return json(await createObservation(request, env), origin, 201);
+    if (pathname === "/admin/stats" && method === "GET") return json(await adminStats(request, env), origin);
     if (pathname === "/admin/reported" && method === "GET") return json(await listReported(request, env), origin);
     if (pathname === "/reports" && method === "POST") return json(await reportContent(request, env), origin);
     if (pathname === "/admin/content-reports" && method === "GET")

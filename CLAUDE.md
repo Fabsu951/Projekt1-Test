@@ -916,6 +916,15 @@ the start, exact map point.
   `duplicate: true` before the rate limit and image upload. Checked in a
   browser (offline send → banner → online → sent once). Privacy policy
   mentions it.
+- **Admin overview (2026-10-10):** `GET /admin/stats` (`worker/src/adminStats.ts`,
+  admin only, counts only): totals (users, verified, active last week via
+  sessions, observations/hidden, tours/shared, routes, comments, follows,
+  upcoming trip plans, web push, app devices, open reports), 12 Swedish
+  weeks (Mon-first) of new users/observations/tours, per area stars (from
+  `users.favorites`), observations, tours. App `/admin/oversikt`
+  (`AdminStatsPage`, button "Översikt" on `/profil` for admins): tiles,
+  three single-series weekly bar charts (accent, hover titles, aria label
+  with all values, "Visa som tabell"), area table.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -970,6 +979,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (235 tests as of 2026-10-10, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 135 tests, including the
+  (237 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 137 tests, including the
   real-page fixtures).

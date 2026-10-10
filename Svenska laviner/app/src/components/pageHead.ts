@@ -28,6 +28,7 @@ const TITLES: Array<[RegExp, string]> = [
   [/^\/logga-in/, "Logga in"],
   [/^\/registrera/, "Skapa konto"],
   [/^\/profil/, "Min profil"],
+  [/^\/admin\/oversikt/, "Översikt"],
   [/^\/admin/, "Anmälda inlägg"],
   [/^\/glomt-losenord/, "Glömt lösenord"],
   [/^\/aterstall-losenord/, "Nytt lösenord"],
