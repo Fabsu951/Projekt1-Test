@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { t } from "../i18n";
+import { OPEN_SECTION_EVENT } from "./JumpNav";
 
 const storageKey = (id: string) => `fjallkoll:section-open:${id}`;
 
@@ -41,6 +42,14 @@ export default function CollapsibleSection({
   useEffect(() => {
     if (linked) ref.current?.scrollIntoView?.();
   }, [linked]);
+  useEffect(() => {
+    if (!anchor) return;
+    const onOpen = (e: Event) => {
+      if ((e as CustomEvent<string>).detail === anchor) setOpen(true);
+    };
+    window.addEventListener(OPEN_SECTION_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_SECTION_EVENT, onOpen);
+  }, [anchor]);
   const bodyId = useId();
 
   const toggle = () =>

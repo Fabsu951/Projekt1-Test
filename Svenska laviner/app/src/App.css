@@ -4536,3 +4536,46 @@ h1 .admin-badge {
 .forecast-problem__explain p {
   margin: 8px 0 0;
 }
+
+/* Jump links on area pages: stay under the sticky header. */
+.jump-nav {
+  position: sticky;
+  top: var(--header-h, 72px);
+  z-index: 5;
+  margin: 8px -16px 12px;
+  padding: 8px 16px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border);
+}
+.jump-nav ul {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.jump-nav ul::-webkit-scrollbar {
+  display: none;
+}
+.jump-nav a {
+  display: block;
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.jump-nav a:hover {
+  color: var(--text);
+}
+.jump-nav a[aria-current="location"] {
+  background: var(--bg-raised);
+  color: var(--text);
+  font-weight: 600;
+}
+.page [id] {
+  scroll-margin-top: calc(var(--header-h, 72px) + 60px);
+}

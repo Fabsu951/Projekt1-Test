@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import NativePushBridge from "./NativePushBridge";
 import ObservationQueueBanner from "./ObservationQueueBanner";
 import ObservationQueueBridge from "./ObservationQueueBridge";
@@ -71,6 +71,18 @@ export default function Layout() {
   const { user, token } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [pageTitle, setPageTitle] = useState<string | null>(null);
+  const headerRef = useRef<HTMLElement>(null);
+
+  // Sticky things below the header (the jump links) need its height.
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() =>
+      document.documentElement.style.setProperty("--header-h", `${Math.round(el.getBoundingClientRect().height)}px`)
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Close the phone menu after choosing a page.
   const [menuPath, setMenuPath] = useState(location.pathname);
@@ -87,7 +99,7 @@ export default function Layout() {
 
   return (
     <div className="app-shell">
-      <header className="app-shell__header">
+      <header className="app-shell__header" ref={headerRef}>
         <NavLink to="/" className="app-shell__brand">
           <BrandMark />
           Snöläge

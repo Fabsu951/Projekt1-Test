@@ -1215,4 +1215,7 @@ export const EN: Record<string, string> = {
   "Allmänna råd för {level}. De ersätter inte prognosen eller din egen bedömning på plats.": "General advice for {level}. It doesn't replace the forecast or your own judgement on site.",
   "Vad är {name}?": "What is {name}?",
   "Så hanterar du det:": "How to handle it:",
+  "Hoppa till": "Jump to",
+  "Prognos": "Forecast",
+  "Turdag": "Tour day",
 };

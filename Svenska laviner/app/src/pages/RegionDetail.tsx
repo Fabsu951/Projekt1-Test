@@ -30,6 +30,7 @@ import WindRose from "../components/WindRose";
 import { WindArrow } from "../components/CompassIcons";
 import PageLoading from "../components/PageLoading";
 import CollapsibleSection from "../components/CollapsibleSection";
+import JumpNav from "../components/JumpNav";
 import { usePageTitle } from "../components/pageTitle";
 import { formatTime, symbolLabel, windCompass } from "../utils/weatherFormat";
 import { withCache } from "../services/cache";
@@ -113,7 +114,7 @@ export default function RegionDetail() {
       <Link to="/" className="back-link">
         {t("← Alla områden")}
       </Link>
-      <header className="page__header">
+      <header className="page__header" id="prognos">
         <div className="page__title-row">
           <h1>{region.name}</h1>
           <FavoriteButton regionId={region.id} regionName={region.name} />
@@ -132,11 +133,29 @@ export default function RegionDetail() {
         )}
       </header>
 
+      <JumpNav
+        targets={[
+          { id: "prognos", label: t("Prognos") },
+          ...(forecast && forecast.problems.length > 0 ? [{ id: "lavinproblem", label: t("Lavinproblem") }] : []),
+          { id: "turdag", label: t("Turdag") },
+          { id: "vader", label: t("Väder") },
+          { id: "observationer", label: t("Observationer") },
+          { id: "turer", label: t("Turer") },
+        ]}
+      />
+
       {forecastStale && (
         <p className="notice notice--stale">{t("Ingen kontakt just nu — visar senast sparade prognos.")}</p>
       )}
       {forecast && <OfficialForecast forecast={forecast} />}
       {forecast?.status === "published" && forecast.dangerLevel !== null && <DangerAdvice level={forecast.dangerLevel} />}
+      {forecast && forecast.problems.length > 0 && (
+        <section className="section" id="lavinproblem">
+          <h2>{t("Lavinproblem")}</h2>
+          <ForecastProblems problems={forecast.problems} />
+        </section>
+      )}
+
       {forecast && <ForecastNotes forecast={forecast} />}
       <WeatherWarnings regionId={region.id} />
 
@@ -160,23 +179,7 @@ export default function RegionDetail() {
         <TripPlanCard regionId={region.id} regionName={region.name} />
       </CollapsibleSection>
 
-      {forecast && forecast.problems.length > 0 && (
-        <section className="section">
-          <h2>{t("Lavinproblem")}</h2>
-          <ForecastProblems problems={forecast.problems} />
-        </section>
-      )}
-
-      <CollapsibleSection id="region-about" title={t("Om området")}>
-        <p>{region.description}</p>
-        <SourceList sources={region.sources} />
-      </CollapsibleSection>
-
-      <CollapsibleSection id="region-offline" title={t("Karta offline")}>
-        <OfflineMapCard region={region} />
-      </CollapsibleSection>
-
-      <section className="section">
+      <section className="section" id="vader">
         <h2>{t("Väder")}</h2>
         {weatherError && (
           <p className="notice" role="status">
@@ -272,23 +275,7 @@ export default function RegionDetail() {
         </section>
       )}
 
-      <section className="section">
-        <h2>{t("Turer i området")}</h2>
-        <p className="section__intro">{t("Turer som andra åkare delat härifrån, senaste först.")}</p>
-        {!tours && <PageLoading label={t("Laddar turer…")} />}
-        {tours && tours.length === 0 && <p className="section__intro">{t("Inga delade turer från området än.")}</p>}
-        <div className="tour-list">{tours?.map((tour) => <TourCard key={tour.id} tour={tour} />)}</div>
-        <p>
-          <Link to="/turer" className="back-link">
-            {t("Alla turer →")}
-          </Link>{" "}
-          <Link to="/turer/ny" className="back-link">
-            {t("+ Lägg till en tur")}
-          </Link>
-        </p>
-      </section>
-
-      <section className="section">
+      <section className="section" id="observationer">
         <h2>{t("Observationer i området")}</h2>
         <p className="section__intro">{t("Senaste observationerna från andra åkare. Granskas inte i förväg.")}</p>
         {!observations && <PageLoading label={t("Laddar observationer…")} />}
@@ -307,6 +294,31 @@ export default function RegionDetail() {
           </Link>
         </p>
       </section>
+
+      <section className="section" id="turer">
+        <h2>{t("Turer i området")}</h2>
+        <p className="section__intro">{t("Turer som andra åkare delat härifrån, senaste först.")}</p>
+        {!tours && <PageLoading label={t("Laddar turer…")} />}
+        {tours && tours.length === 0 && <p className="section__intro">{t("Inga delade turer från området än.")}</p>}
+        <div className="tour-list">{tours?.map((tour) => <TourCard key={tour.id} tour={tour} />)}</div>
+        <p>
+          <Link to="/turer" className="back-link">
+            {t("Alla turer →")}
+          </Link>{" "}
+          <Link to="/turer/ny" className="back-link">
+            {t("+ Lägg till en tur")}
+          </Link>
+        </p>
+      </section>
+
+      <CollapsibleSection id="region-about" title={t("Om området")}>
+        <p>{region.description}</p>
+        <SourceList sources={region.sources} />
+      </CollapsibleSection>
+
+      <CollapsibleSection id="region-offline" title={t("Karta offline")}>
+        <OfflineMapCard region={region} />
+      </CollapsibleSection>
 
       <CollapsibleSection id="region-scale" title={t("Lavinskalan")}>
         <DangerScaleGuide showHeading={false} />
