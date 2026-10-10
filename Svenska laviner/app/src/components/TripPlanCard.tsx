@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { fetchTrips, planTrip, removeTrip, type TripPlan, type TripRoute } from "../services/tripService";
 import { fetchMyRoutes } from "../services/routeService";
 import type { PlannedRoute } from "../types/route";
 import { ElevationSampler } from "../utils/elevation";
-import { analyseRoute } from "../utils/routePlan";
+import { analyseRoute, type RouteAnalysis } from "../utils/routePlan";
+import { prepareTripOffline, setTripOfflineAuto, tripOfflineAuto, tripOfflineAvailable } from "../services/tripOffline";
+import { formatMegabytes, type DownloadProgress } from "../services/offlineMap";
 import { steepProfile } from "../utils/routeForecast";
 import { t, locale } from "../i18n";
 
@@ -47,6 +49,15 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
   const [error, setError] = useState<string | null>(null);
   const [routes, setRoutes] = useState<PlannedRoute[]>([]);
   const [routeBusy, setRouteBusy] = useState(false);
+  const [autoOffline, setAutoOffline] = useState(tripOfflineAuto);
+  const [offline, setOffline] = useState<
+    | { phase: "saving"; progress: DownloadProgress | null }
+    | { phase: "done"; route: boolean }
+    | { phase: "error"; message: string }
+    | null
+  >(null);
+  const abort = useRef<AbortController | null>(null);
+  useEffect(() => () => abort.current?.abort(), []);
   const today = stockholmToday(now);
 
   useEffect(() => {
@@ -77,21 +88,42 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
   // This area's routes first.
   const routeChoices = [...routes].sort((a, b) => Number(b.regionId === regionId) - Number(a.regionId === regionId));
 
-  /** The route's steep ground, worked out from elevation data (needs a connection). */
-  async function routeFor(id: number | null): Promise<TripRoute | null> {
+  /** The route, its analysis and steep ground, worked out from elevation data (needs a connection). */
+  async function analysed(id: number | null): Promise<{ route: PlannedRoute; analysis: RouteAnalysis; trip: TripRoute } | null> {
     const route = id === null ? undefined : routes.find((r) => r.id === id);
     if (!route) return null;
     const analysis = await analyseRoute(route.waypoints, new ElevationSampler());
-    return { routeId: route.id, steep: steepProfile(analysis.samples) };
+    return { route, analysis, trip: { routeId: route.id, steep: steepProfile(analysis.samples) } };
+  }
+
+  /** Saves the area's map (and the route's) on the device, if that is turned on. */
+  async function saveOffline(route: { route: PlannedRoute; analysis: RouteAnalysis } | null) {
+    if (!autoOffline || !tripOfflineAvailable()) return;
+    abort.current?.abort();
+    abort.current = new AbortController();
+    setOffline({ phase: "saving", progress: null });
+    try {
+      const result = await prepareTripOffline(
+        regionId,
+        route,
+        (progress) => setOffline({ phase: "saving", progress }),
+        abort.current.signal
+      );
+      setOffline({ phase: "done", route: result.route });
+    } catch (err) {
+      if (abort.current?.signal.aborted) setOffline(null);
+      else setOffline({ phase: "error", message: err instanceof Error ? err.message : t("Kunde inte spara kartan.") });
+    }
   }
 
   async function chooseRoute(id: number | null) {
     setRouteBusy(true);
     setError(null);
     try {
-      const route = await routeFor(id);
-      const updated = await Promise.all(here.map((trip) => planTrip(token!, regionId, trip.date, route)));
+      const route = await analysed(id);
+      const updated = await Promise.all(here.map((trip) => planTrip(token!, regionId, trip.date, route?.trip ?? null)));
       setTrips((list) => (list ?? []).map((trip) => updated.find((u) => u.id === trip.id) ?? trip));
+      if (route) void saveOffline(route);
     } catch (err) {
       setError(err instanceof Error ? err.message : t("Det gick inte att spara."));
     } finally {
@@ -108,8 +140,10 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
         await removeTrip(token!, existing.id);
         setTrips((list) => (list ?? []).filter((trip) => trip.id !== existing.id));
       } else {
-        const trip = await planTrip(token!, regionId, date, routeId === null ? undefined : await routeFor(routeId));
+        const route = routeId === null ? null : await analysed(routeId);
+        const trip = await planTrip(token!, regionId, date, route ? route.trip : undefined);
         setTrips((list) => [...(list ?? []), trip]);
+        void saveOffline(route);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : t("Det gick inte att spara."));
@@ -163,6 +197,47 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
               : t("Notisen säger då var rutten går över brant mark där prognosen anger lavinproblem. Ändrar du rutten senare, välj den igen här.")}
           </span>
         </label>
+      )}
+      {tripOfflineAvailable() && (
+        <div className="trip-plan__offline">
+          <label className="push-toggle__label">
+            <input
+              type="checkbox"
+              checked={autoOffline}
+              onChange={(e) => {
+                setAutoOffline(e.target.checked);
+                setTripOfflineAuto(e.target.checked);
+              }}
+            />
+            {t("Spara kartan offline när jag planerar en dag")}
+          </label>
+          {offline?.phase === "saving" && (
+            <p className="muted" role="status">
+              {offline.progress
+                ? t("Sparar kartan inför turen… {done} av {total} kartbitar", {
+                    done: offline.progress.done.toLocaleString(locale()),
+                    total: offline.progress.total.toLocaleString(locale()),
+                  })
+                : t("Sparar kartan inför turen…")}{" "}
+              <button type="button" className="link-button" onClick={() => abort.current?.abort()}>
+                {t("Avbryt")}
+              </button>
+            </p>
+          )}
+          {offline?.phase === "done" && (
+            <p className="muted" role="status">
+              {offline.route
+                ? t("✓ Kartan över området och längs rutten finns nu på enheten, även utan täckning.")
+                : t("✓ Kartan över området finns nu på enheten, även utan täckning.")}
+            </p>
+          )}
+          {offline?.phase === "error" && <p className="error">{offline.message}</p>}
+          {!offline && (
+            <p className="muted">
+              {t("Områdets översiktskarta, ca {size}, och din rutt. Gör det gärna på wifi.", { size: formatMegabytes(35e6) })}
+            </p>
+          )}
+        </div>
       )}
       {error && (
         <p className="error" role="alert">

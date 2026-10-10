@@ -1166,4 +1166,10 @@ export const EN: Record<string, string> = {
   "Mer från SMHI": "More from SMHI",
   "SMHI:s varningar": "SMHI's warnings",
   ". Vädervarningar säger inget om lavinfaran – läs alltid lavinprognosen också.": ". Weather warnings say nothing about the avalanche danger – always read the avalanche forecast too.",
+  "Spara kartan offline när jag planerar en dag": "Save the map offline when I plan a day",
+  "Sparar kartan inför turen… {done} av {total} kartbitar": "Saving the map for the tour… {done} of {total} map tiles",
+  "Sparar kartan inför turen…": "Saving the map for the tour…",
+  "✓ Kartan över området och längs rutten finns nu på enheten, även utan täckning.": "✓ The map of the area and along the route is now on this device, also without coverage.",
+  "✓ Kartan över området finns nu på enheten, även utan täckning.": "✓ The map of the area is now on this device, also without coverage.",
+  "Områdets översiktskarta, ca {size}, och din rutt. Gör det gärna på wifi.": "The area's overview map, about {size}, and your route. Preferably do it on wifi.",
 };

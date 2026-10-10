@@ -4430,3 +4430,13 @@ h1 .admin-badge {
 .weather-warning__text {
   white-space: pre-line;
 }
+
+.trip-plan__route,
+.trip-plan__offline {
+  display: grid;
+  gap: 4px;
+  margin-top: 12px;
+}
+.trip-plan__offline p {
+  margin: 0;
+}
