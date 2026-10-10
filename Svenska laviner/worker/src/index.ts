@@ -45,6 +45,8 @@ import { parseTerrainPath, serveTerrain } from "./terrain";
 import { parseTilePath, serveTile, uploadTiles, type TilesEnv } from "./tiles";
 import { notifyChanges, publicKey, subscribe, unsubscribe, type PushEnv } from "./push";
 import { notifyNativeChanges, registerDevice, unregisterDevice, type NativeEnv } from "./nativePush";
+import type { NotifyEnv } from "./notifications";
+import { createTrip, deleteTrip, listTrips, notifyTrips, type PublishedDay } from "./trips";
 import { fcmConfigured, type FcmEnv } from "./fcm";
 import { stockholmDate } from "./model";
 import type { VapidEnv } from "./webpush";
@@ -323,6 +325,11 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
     if (pathname === "/notifications/push/off" && method === "POST") return json(await unsubscribeUserPush(request, env), origin);
     if (pathname === "/notifications/push/status" && method === "POST") return json(await userPushStatus(request, env), origin);
 
+    if (pathname === "/trips" && method === "GET") return json(await listTrips(request, env), origin);
+    if (pathname === "/trips" && method === "POST") return json(await createTrip(request, env), origin, 201);
+    const tripMatch = pathname.match(/^\/trips\/(\d+)$/);
+    if (tripMatch && method === "DELETE") return json(await deleteTrip(request, env, Number(tripMatch[1])), origin);
+
     if (pathname === "/routes" && method === "GET") return json(await listMyRoutes(request, env), origin);
     if (pathname === "/routes" && method === "POST") return json(await createRoute(request, env), origin, 201);
     const routeMatch = pathname.match(/^\/routes\/(\d+)$/);
@@ -389,6 +396,15 @@ async function recordAll(env: Env, results: RegionResult[]): Promise<void> {
     await notifyNativeChanges(env as NativeEnv, changes, stockholmDate(now));
   } catch (err) {
     console.error("Could not record forecast history or send notifications", err);
+  }
+  try {
+    const published: PublishedDay[] = results.flatMap((r) => {
+      const row = historyRow(r.forecast.regionId, r.forecast);
+      return row ? [{ regionId: row.regionId, date: row.date, danger: row.danger, problemNames: r.forecast.problems.map((p) => p.name) }] : [];
+    });
+    await notifyTrips(env as unknown as NotifyEnv, published);
+  } catch (err) {
+    console.error("Could not send trip forecasts", err);
   }
 }
 

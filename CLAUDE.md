@@ -865,6 +865,20 @@ the start, exact map point.
   `sharePage()` in `services/native.ts`: Capacitor Share in the apps,
   `navigator.share` in browsers that have it, else copies the link and
   says "Länken är kopierad"); the shared text never includes a level.
+- **"Prognos inför din tur" (2026-10-10):** migration `0018` `trip_plans`
+  (user, region, date, notified_at; unique per user/region/date) +
+  `notifications.url`. `worker/src/trips.ts`: `GET/POST /trips`
+  (today … +14 days, ≤ 20 upcoming), `DELETE /trips/:id`; `notifyTrips()`
+  runs at the end of `recordAll` (cron 06/07/16/17:20 UTC + cache misses):
+  for each region whose newly fetched forecast has a level (`historyRow`),
+  plans for that date get a "trip" notification (bell + account web push +
+  native) with level + problem names, once; from 07:00 Swedish time on the
+  day itself, plans still without one get "inte publicerat någon farograd"
+  — never a guessed level. Plans older than 7 days are pruned; deleted with
+  the account. App: `TripPlanCard` (folding section "Prognos inför din tur"
+  on area pages: day chips today…+7, toggle = plan/unplan, log-in link when
+  signed out), `services/tripService.ts`; trip notices use the neutral
+  "Snöläge" avatar. Privacy policy lists it.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -919,6 +933,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (218 tests as of 2026-10-10, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 129 tests, including the
+  (220 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 134 tests, including the
   real-page fixtures).

@@ -4062,3 +4062,27 @@ h1 .admin-badge {
 .health-background-note {
   margin-top: 18px;
 }
+
+/* "Prognos inför din tur" on area pages */
+.trip-plan__intro {
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.trip-plan__days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.trip-plan__days .chip {
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.trip-plan__status {
+  margin-top: 10px;
+  font-size: 0.85rem;
+}

@@ -237,6 +237,11 @@ export default function AboutPage() {
             sitt flöde och den som har länken kan öppna den. Rutter som inte sparas finns bara på din enhet.
           </li>
           <li>
+            <strong>Planerade turdagar:</strong> om du väljer en dag under "Prognos inför din tur" sparar vi området
+            och datumet i ditt konto, för att kunna skicka dig prognosen för den dagen. De tas bort en vecka efter
+            dagen, eller när du tar bort dem eller ditt konto.
+          </li>
+          <li>
             <strong>Följare, kommentarer och gilla:</strong> vilka du följer, vilka som följer dig, och de
             kommentarer och gillamarkeringar du gör. Antalet följare syns för alla, men bara du ser vilka det
             är. Kommentarer syns för alla som kan se inlägget. Turer du delar med "Bara de som följer mig" syns

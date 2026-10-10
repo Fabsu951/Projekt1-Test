@@ -6,6 +6,7 @@ import DangerHistory from "../components/DangerHistory";
 import FavoriteButton from "../components/FavoriteButton";
 import ShareButton from "../components/ShareButton";
 import OfflineMapCard from "../components/OfflineMapCard";
+import TripPlanCard from "../components/TripPlanCard";
 import TourCard from "../components/TourCard";
 import { fetchTours } from "../services/tourService";
 import type { Tour } from "../types/tour";
@@ -148,6 +149,10 @@ export default function RegionDetail() {
         <strong>Säsongen dag för dag</strong>
         <span>Farograder och lavinproblem för hela vintern, även tidigare säsonger →</span>
       </Link>
+
+      <CollapsibleSection id="region-trip" title="Prognos inför din tur">
+        <TripPlanCard regionId={region.id} regionName={region.name} />
+      </CollapsibleSection>
 
       {forecast && forecast.problems.length > 0 && (
         <section className="section">
