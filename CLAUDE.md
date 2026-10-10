@@ -1002,6 +1002,62 @@ the start, exact map point.
   App: `ApiError.data`, `SimilarTourError` from `createTour`;
   `NewTourPage` shows "Visa den befintliga" / "Spara ändå"; health import
   marks such a workout imported and skips it silently.
+- **SMHI weather warnings (2026-10-10):** `worker/src/warnings.ts` reads
+  `https://opendata-download-warnings.smhi.se/ibww/api/version/1/warning.json`
+  (shape confirmed via an open-source reader; cloud sessions can't reach
+  SMHI — worth one live look at `/warnings` when SMHI has a warning out):
+  alerts → `warningAreas` (`warningLevel.code` YELLOW/ORANGE/RED/MESSAGE,
+  `eventDescription`, `areaName`, `approximateStart/End`, `descriptions`,
+  `affectedAreas`, `area` GeoJSON). An area is warned when an outline
+  covers its centre or a point ~20 km out, else (no outline) when its
+  county is named (`COUNTY`). Ended warnings dropped. `GET /warnings` →
+  `{regions: {id: Warning[]}}`, Cloudflare-cached 10 min, 502 on failure.
+  App: `services/warningService.ts` (one shared request, `cached()`, ended
+  ones filtered), `hooks/useWarnings.ts`, `WeatherWarnings` section after
+  the official forecast on area pages (chip with icon + words, period, area,
+  SMHI text, link, "säger inget om lavinfaran"), `WarningLines` on
+  start-page cards. Tour-day notices append `warningSentence()` for warnings
+  covering the day (`coversDay`). Test fixture `fixtures/smhi/warning-example.json`.
+- **Tour-day offline map (2026-10-10):** `services/tripOffline.ts`
+  `prepareTripOffline()`: planning a day (or choosing its route) saves the
+  area's "Översikt" map unless already saved and the route corridor +
+  analysis via `saveRouteOffline` when new or changed (`savedAt` vs
+  `updatedAt`). Switch "Spara kartan offline när jag planerar en dag"
+  (localStorage `fjallkoll:trip-offline`, default on), progress + Avbryt in
+  `TripPlanCard`.
+- **Google Play build (2026-10-10):** `.github/workflows/android-release.yml`
+  (manual "Run workflow", input version name validated `1.0.0`-style, passed
+  via env, never inlined): tests, build, `cap sync`, `bundleRelease` signed
+  with the upload key from secrets `ANDROID_UPLOAD_KEYSTORE_BASE64`,
+  `ANDROID_UPLOAD_STORE_PASSWORD`, `ANDROID_UPLOAD_KEY_ALIAS`,
+  `ANDROID_UPLOAD_KEY_PASSWORD` (build.gradle `signingConfigs.release` only
+  when `SNOLAGE_UPLOAD_STORE_FILE` is set; `SNOLAGE_VERSION_NAME`), .aab kept
+  as an artifact 90 days, optional upload to the internal track with
+  `PLAY_SERVICE_ACCOUNT_JSON` (first upload by hand). Steps in APPAR.md § 2.
+  Not run yet (no key).
+- **Tour days together (2026-10-10):** migration `0023` `trip_invites`
+  (trip_id, from_user, to_user, status pending/accepted/declined,
+  joined_trip_id). `worker/src/tripInvites.ts`: `POST /trips/:id/invites
+  {userIds}` (your own upcoming day, only people you follow, ≤ 20 per trip,
+  40/day; notification kind `trip_invite`), `POST /trips/invitations/:id
+  {accept}` (yes → plans the same day for the invitee with the inviter's
+  route snapshot (`route_title/steep`, `route_id` null), notifies the
+  inviter `trip_join`). `GET /trips` adds per trip `invites` and `company`
+  plus top-level `invitations`. Leaving a joined day → declined; invites go
+  with the day, pruning and the account. App: `components/TripCompany.tsx`
+  (`TripInvitations` Gå med/Tacka nej, `TripInviteBox` "Bjud in kompisar"
+  from your follows) in `TripPlanCard`; notification links go to
+  `/omrade/<id>#turdag` (`CollapsibleSection anchor` opens + scrolls).
+- **Review 2026-10-10:** worker routes checked for auth/ownership (tours,
+  routes, comments, images, admin, tiles, trips, invites, lang endpoints) —
+  no gaps; D1's 100-values-per-query limit now respected (`experienceOf`
+  in chunks of 90, invite lists capped), trip saves rate-limited 120/h.
+  Browser sweep (27 routes × signed in/out × 390/1280 px × sv/en, mocked
+  worker/SMHI; `pages-server.cjs`-style static server that serves
+  `x.html` for `/x`): no console errors, overflow, unlabelled controls or
+  stray Swedish in English. Fixed: warning line placement on start-page
+  cards, bold helper text, heading hidden under the sticky header after a
+  notification link, a lint warning in `ObservationQueueBanner`.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -1056,6 +1112,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (247 tests as of 2026-10-10, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 163 tests, including the
+  (252 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 170 tests, including the
   real-page fixtures).

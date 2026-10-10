@@ -4478,3 +4478,24 @@ h1 .admin-badge {
 .trip-invitation p {
   margin: 0 0 8px;
 }
+
+.area-card .warning-lines {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+}
+.trip-plan__route .muted {
+  font-weight: normal;
+}
+
+/* Opened from a notification link: keep the heading clear of the sticky header. */
+.collapsible[id] {
+  scroll-margin-top: 90px;
+}
+.trip-plan__offline p,
+.trip-company p,
+.trip-plan__status > p {
+  font-size: 0.9rem;
+}
+.trip-company .link-button {
+  justify-self: start;
+}

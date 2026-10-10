@@ -34,7 +34,12 @@ export function experiencePoints(tours: number, ascentM: number, observations: n
 export async function experienceOf(env: CommunityEnv, ids: number[]): Promise<Map<number, Experience>> {
   const unique = [...new Set(ids)];
   const out = new Map<number, Experience>();
-  if (unique.length === 0) return out;
+  // D1 takes at most 100 values per query, so long lists go in pieces.
+  for (let i = 0; i < unique.length; i += 90) await addExperience(env, unique.slice(i, i + 90), out);
+  return out;
+}
+
+async function addExperience(env: CommunityEnv, unique: number[], out: Map<number, Experience>): Promise<void> {
   const rows = await env.DB.prepare(
     `SELECT u.id, u.avatar_key, u.is_admin,
             (SELECT COUNT(*) FROM tours WHERE user_id = u.id) AS tours,
@@ -54,7 +59,6 @@ export async function experienceOf(env: CommunityEnv, ids: number[]): Promise<Ma
       observations: r.observations,
     });
   }
-  return out;
 }
 
 /** Just picture and points, as an object for JSON responses. */

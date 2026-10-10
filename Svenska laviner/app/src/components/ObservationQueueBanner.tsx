@@ -16,11 +16,7 @@ export default function ObservationQueueBanner() {
   const userId = user?.id;
 
   useEffect(() => {
-    if (!userId) {
-      setWaiting(0);
-      setFailed(0);
-      return;
-    }
+    if (!userId) return;
     let live = true;
     let hide: number | undefined;
     const refresh = async (justSent = 0) => {
@@ -44,7 +40,8 @@ export default function ObservationQueueBanner() {
     };
   }, [userId]);
 
-  if (!waiting && !failed && !sent) return null;
+  // Signed out: nothing waits for this person (the counts may be someone else's).
+  if (!userId || (!waiting && !failed && !sent)) return null;
   const onList = location.pathname === "/observationer";
 
   return (

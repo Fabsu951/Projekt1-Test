@@ -59,6 +59,7 @@ export async function inviteToTrip(request: Request, env: NotifyEnv, tripId: num
   const body = await readJson<{ userIds?: unknown }>(request);
   const wanted = Array.isArray(body.userIds) ? [...new Set(body.userIds.map(Number))].filter((id) => Number.isInteger(id) && id !== me.id) : [];
   if (wanted.length === 0) throw new HttpError(400, "Välj vem du vill bjuda in.");
+  if (wanted.length > MAX_INVITES_PER_TRIP) throw new HttpError(400, `Du kan bjuda in högst ${MAX_INVITES_PER_TRIP} personer till en tur.`);
 
   // Only people you follow, and not twice.
   const placeholders = wanted.map(() => "?").join(", ");

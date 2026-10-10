@@ -4,6 +4,7 @@ import { addDays } from "./history";
 import { stockholmDate } from "./model";
 import { notify, type Defer, type NotifyEnv } from "./notifications";
 import { REGION_SOURCES } from "./regions";
+import { d1Store, enforce, record } from "./rateLimit";
 import { compass, dangerText, dayName, problemName, toLang, type Lang } from "./lang";
 import { coversDay, warningSentence, type Warning } from "./warnings";
 import { companyOf, invitesOf, pendingInvitations, type Person, type TripInvite } from "./tripInvites";
@@ -17,6 +18,8 @@ import { companyOf, invitesOf, pendingInvitations, type Person, type TripInvite 
 /** How far ahead a tour can be planned. */
 export const MAX_DAYS_AHEAD = 14;
 const MAX_UPCOMING = 20;
+/** Plans and route changes per person and hour. */
+const SAVE_LIMIT = { max: 120, windowMs: 3600 * 1000 };
 /** Past plans are kept a week, then removed. */
 const KEEP_PAST_DAYS = 7;
 /** From this Swedish hour on the tour day, "no level published" is sent. */
@@ -111,6 +114,10 @@ interface TripBody {
  */
 export async function createTrip(request: Request, env: CommunityEnv, now = new Date()) {
   const me = await requireUser(request, env);
+  const store = d1Store(env.DB);
+  const limitKey = `trip-save:${me.id}`;
+  await enforce(store, [{ key: limitKey, ...SAVE_LIMIT }], "Du har ändrat dina turdagar många gånger. Försök igen om en stund.");
+  await record(store, [limitKey]);
   const body = await readJson<TripBody>(request);
   const regionId = typeof body.regionId === "string" ? body.regionId : "";
   if (!REGION_SOURCES.some((r) => r.id === regionId)) throw new HttpError(400, "Okänt område.");
