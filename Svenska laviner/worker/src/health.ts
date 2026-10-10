@@ -1,4 +1,5 @@
-import { sendEmail, type EmailEnv } from "./email";
+import type { EmailEnv } from "./email";
+import { mailAdmins } from "./adminMail";
 import { stockholmDate } from "./model";
 import { REGION_SOURCES } from "./regions";
 
@@ -57,18 +58,8 @@ interface AlertRow {
   last_sent: string | null;
 }
 
-async function admins(env: HealthEnv): Promise<string[]> {
-  const rows = await env.DB.prepare("SELECT email FROM users WHERE is_admin = 1 AND email_verified = 1").all<{ email: string }>();
-  return rows.results.map((r) => r.email);
-}
-
-async function mail(env: HealthEnv, subject: string, lines: string[]) {
-  const text = [...lines, "", "Sidan för hämtningen: https://fjallkoll-worker.fabian-n-sund.workers.dev/forecasts", "/ Snöläge"].join("\n");
-  const html = `<!doctype html><html lang="sv"><body style="font-family:system-ui,sans-serif">${lines
-    .map((l) => `<p>${l.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!)}</p>`)
-    .join("")}</body></html>`;
-  for (const to of await admins(env)) await sendEmail(env, { to, subject, text, html });
-}
+const FOOTER = ["Sidan för hämtningen: https://fjallkoll-worker.fabian-n-sund.workers.dev/forecasts"];
+const mail = (env: HealthEnv, subject: string, lines: string[]) => mailAdmins(env, subject, lines, { footer: FOOTER });
 
 /** Records this fetch's health and emails the admins when it's time to. */
 export async function checkForecastHealth(env: HealthEnv, outcomes: FetchOutcome[], now = new Date()): Promise<void> {

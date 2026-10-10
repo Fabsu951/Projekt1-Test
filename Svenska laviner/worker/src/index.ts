@@ -50,6 +50,7 @@ import { createTrip, deleteTrip, listTrips, notifyTrips, type PublishedDay } fro
 import { answerInvitation, inviteToTrip } from "./tripInvites";
 import { adminStats } from "./adminStats";
 import { checkForecastHealth } from "./health";
+import { seasonStartReport } from "./seasonReport";
 import { fetchWarnings, WARNINGS_PAGE } from "./warnings";
 import { fcmConfigured, type FcmEnv } from "./fcm";
 import { stockholmDate } from "./model";
@@ -422,6 +423,11 @@ async function recordAll(env: Env, results: RegionResult[]): Promise<void> {
     );
   } catch (err) {
     console.error("Could not check the forecast health", err);
+  }
+  try {
+    await seasonStartReport(env, results.map((r) => r.forecast));
+  } catch (err) {
+    console.error("Could not send the season-start report", err);
   }
   try {
     const published: PublishedDay[] = results.flatMap((r) => {
