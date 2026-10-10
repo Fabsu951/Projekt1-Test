@@ -4,6 +4,7 @@ import { HttpError, nowIso, readJson } from "./http";
 import { changeMessage, type DangerChange } from "./push";
 import { clientIp, d1Store, enforce, record } from "./rateLimit";
 import { REGION_SOURCES } from "./regions";
+import { toLang } from "./lang";
 
 // Push to the Android/iOS apps (the browser version uses web push, push.ts).
 // A device registers its FCM token with the areas it wants danger-level
@@ -20,6 +21,7 @@ interface RegisterBody {
   platform?: unknown;
   regions?: unknown;
   account?: unknown;
+  lang?: unknown;
 }
 
 /** Saves what this device wants; nothing wanted removes it. */
@@ -45,11 +47,11 @@ export async function registerDevice(request: Request, env: NativeEnv) {
   }
   const now = nowIso();
   await env.DB.prepare(
-    `INSERT INTO native_devices (token, platform, regions, user_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
+    `INSERT INTO native_devices (token, platform, regions, user_id, created_at, updated_at, lang) VALUES (?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT (token) DO UPDATE SET platform = excluded.platform, regions = excluded.regions,
-       user_id = excluded.user_id, updated_at = excluded.updated_at`
+       user_id = excluded.user_id, updated_at = excluded.updated_at, lang = excluded.lang`
   )
-    .bind(token, platform, JSON.stringify(regions), user?.id ?? null, now, now)
+    .bind(token, platform, JSON.stringify(regions), user?.id ?? null, now, now, toLang(body.lang))
     .run();
   return { regions, account: user !== null };
 }
@@ -60,6 +62,15 @@ export async function unregisterDevice(request: Request, env: NativeEnv) {
   return { ok: true };
 }
 
+/** POST /native/lang {token, lang}: the phone's notices follow the app's language. */
+export async function setDeviceLanguage(request: Request, env: NativeEnv) {
+  const body = await readJson<{ token?: unknown; lang?: unknown }>(request);
+  if (typeof body.token === "string") {
+    await env.DB.prepare("UPDATE native_devices SET lang = ? WHERE token = ?").bind(toLang(body.lang), body.token).run();
+  }
+  return { ok: true };
+}
+
 async function forget(env: NativeEnv, tokens: string[]) {
   if (tokens.length) await env.DB.batch(tokens.map((t) => env.DB.prepare("DELETE FROM native_devices WHERE token = ?").bind(t)));
 }
@@ -67,9 +78,10 @@ async function forget(env: NativeEnv, tokens: string[]) {
 /** Danger-level changes to every device following the area. */
 export async function notifyNativeChanges(env: NativeEnv, changes: DangerChange[], today: string, fetcher: typeof fetch = fetch) {
   if (changes.length === 0 || !fcmConfigured(env)) return;
-  const { results } = await env.DB.prepare("SELECT token, regions FROM native_devices WHERE regions != '[]'").all<{
+  const { results } = await env.DB.prepare("SELECT token, regions, lang FROM native_devices WHERE regions != '[]'").all<{
     token: string;
     regions: string;
+    lang: string;
   }>();
   const gone: string[] = [];
   for (const device of results) {
@@ -81,7 +93,7 @@ export async function notifyNativeChanges(env: NativeEnv, changes: DangerChange[
     }
     for (const change of changes) {
       if (!Array.isArray(regions) || !regions.includes(change.regionId)) continue;
-      const msg = changeMessage(change, today);
+      const msg = changeMessage(change, today, toLang(device.lang));
       if ((await sendFcm(env, device.token, msg, fetcher)) === "gone") {
         gone.push(device.token);
         break;

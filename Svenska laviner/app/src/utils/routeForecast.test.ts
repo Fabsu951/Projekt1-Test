@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { AvalancheForecast, ForecastProblem } from "../types/avalanche";
 import type { RouteSample } from "./routePlan";
-import { checkRouteAgainstForecast, elevationBands, regionForRoute, sectorOf } from "./routeForecast";
+import { checkRouteAgainstForecast, elevationBands, regionForRoute, sectorOf, steepProfile } from "./routeForecast";
 
 const problem = (over: Partial<ForecastProblem> = {}): ForecastProblem => ({
   type: "vindpack",
@@ -81,5 +81,21 @@ describe("route vs. today's forecast", () => {
     ];
     expect(regionForRoute(route([[0, 0, null], [0, 0, null]]), regions)).toBe("kebnekaisefjallen");
     expect(regionForRoute([{ lat: 59.33, lon: 18.07, distM: 0, elevation: 0, slope: 0, aspect: null }], regions)).toBeNull();
+  });
+});
+
+describe("steep profile for a planned tour day", () => {
+  it("adds up steep ground by sector and 10 m of height, leaving out gentle ground", () => {
+    const samples = route([
+      [900, 10, 0],
+      [1001, 35, 45],
+      [1004, 32, 50],
+      [1100, 40, 180],
+      [1100, 20, 180],
+    ]);
+    expect(steepProfile(samples)).toEqual([
+      [1, 1000, 50],
+      [4, 1100, 25],
+    ]);
   });
 });

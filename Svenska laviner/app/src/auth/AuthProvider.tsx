@@ -5,6 +5,7 @@ import { cached, clearUserCache, USER_SCOPE } from "../services/cache";
 import { stopNativeAccountPush } from "../services/nativePush";
 import type { User } from "../types/observation";
 import { AuthContext, type AuthState } from "./authContext";
+import { lang } from "../i18n";
 
 const TOKEN_KEY = "fjallkoll:auth-token";
 
@@ -70,6 +71,15 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       .catch(() => {});
   }, []);
 
+  // Notifications and emails follow the language the app is read in.
+  useEffect(() => {
+    if (!token || !user?.lang || user.lang === lang()) return;
+    const next = lang();
+    api("/auth/lang", { method: "POST", token, json: { lang: next } })
+      .then(() => setUser((u) => (u ? { ...u, lang: next } : u)))
+      .catch(() => {});
+  }, [token, user?.lang]);
+
   const value = useMemo<AuthState>(
     () => ({
       user,
@@ -83,7 +93,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           await api("/auth/register", {
             method: "POST",
             // Only reachable after ticking "Jag godkänner användarvillkoren" on the form.
-            json: { email, password, displayName, turnstileToken: turnstileToken ?? undefined, acceptTerms: true },
+            json: { email, password, displayName, turnstileToken: turnstileToken ?? undefined, acceptTerms: true, lang: lang() },
           })
         );
       },

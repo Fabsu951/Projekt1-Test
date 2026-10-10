@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import FilePicker from "../components/FilePicker";
 import { useAuth } from "../auth/useAuth";
 import PageLoading from "../components/PageLoading";
@@ -8,7 +8,7 @@ import VerifyEmailNotice from "../components/VerifyEmailNotice";
 import { HIDE_ENDS_CHOICES } from "../data/tourSeasons";
 import { VISIBILITY_CHOICES } from "../data/tourVisibility";
 import type { TourVisibility } from "../types/tour";
-import { createTour } from "../services/tourService";
+import { createTour, SimilarTourError, type SimilarTour } from "../services/tourService";
 import { distanceM, importTrackFile, type TrackPoint } from "../utils/trackImport";
 import { formatDistance } from "../utils/tourFormat";
 import { t, locale } from "../i18n";
@@ -25,6 +25,8 @@ export default function NewTourPage() {
   const [hideEndsM, setHideEndsM] = useState(500);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** One of your tours that looks like the same outing; saving again needs a yes. */
+  const [similar, setSimilar] = useState<SimilarTour | null>(null);
 
   if (loading) return <PageLoading />;
   if (!user) return <Navigate to="/logga-in?next=/turer/ny" replace />;
@@ -35,6 +37,7 @@ export default function NewTourPage() {
 
   async function onFile(file: File | undefined) {
     setError(null);
+    setSimilar(null);
     setPoints(null);
     if (!file) return;
     setFileName(file.name);
@@ -49,12 +52,18 @@ export default function NewTourPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    await save(false);
+  }
+
+  async function save(allowDuplicate: boolean) {
     if (!points) return setError(t("Välj en GPX- eller FIT-fil först."));
     if (!hasTimes && !date) return setError(t("Spåret saknar tider – ange vilket datum turen gjordes."));
     setBusy(true);
     setError(null);
+    setSimilar(null);
     try {
       const tour = await createTour(token!, {
+        allowDuplicate,
         title: title.trim(),
         description: description.trim(),
         visibility,
@@ -64,7 +73,8 @@ export default function NewTourPage() {
       });
       navigate(`/turer/${tour.id}`, { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("Kunde inte spara turen."));
+      if (err instanceof SimilarTourError) setSimilar(err.similarTo);
+      else setError(err instanceof Error ? err.message : t("Kunde inte spara turen."));
       setBusy(false);
     }
   }
@@ -139,6 +149,23 @@ export default function NewTourPage() {
           <p className="error" role="alert">
             {error}
           </p>
+        )}
+        {similar && (
+          <div className="notice similar-tour" role="alert">
+            <p>
+              {t("Du har redan en tur som startade samtidigt och är ungefär lika lång:")}{" "}
+              <Link to={`/turer/${similar.id}`}>{similar.title}</Link>
+              {t(". Är det samma tur behöver du inte spara den igen.")}
+            </p>
+            <div className="button-row">
+              <Link to={`/turer/${similar.id}`} className="button">
+                {t("Visa den befintliga")}
+              </Link>
+              <button type="button" className="button" disabled={busy} onClick={() => void save(true)}>
+                {t("Spara ändå")}
+              </button>
+            </div>
+          </div>
         )}
         <button type="submit" className="button button--primary" disabled={busy || !points}>
           {busy ? t("Sparar…") : t("Spara tur")}

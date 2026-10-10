@@ -19,6 +19,8 @@ export interface AdminStats {
   };
   weeks: Array<{ week: string; users: number; observations: number; tours: number }>;
   regions: Array<{ regionId: string; name: string; favorites: number; observations: number; tours: number }>;
+  /** The server's check of the forecast fetching (worker/src/health.ts); problems are in Swedish. */
+  forecastHealth?: { problems: string[]; since: string | null };
 }
 
 export async function fetchAdminStats(token: string): Promise<AdminStats> {

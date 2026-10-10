@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api, ApiError } from "./api";
 import { cached, USER_SCOPE } from "./cache";
 import type { Tour, TourLine, TourVisibility, TourWithTrack } from "../types/tour";
 import type { TrackPoint } from "../utils/trackImport";
@@ -50,10 +50,33 @@ export interface NewTour {
   points: TrackPoint[];
   /** Where an imported tour came from ("hc:<id>"); the server keeps one tour per source. */
   sourceRef?: string;
+  /** Save even though one of your tours started at the same time. */
+  allowDuplicate?: boolean;
+}
+
+export interface SimilarTour {
+  id: number;
+  title: string;
+  startedAt: string;
+}
+
+/** You already have a tour that started at the same time with about the same length. */
+export class SimilarTourError extends Error {
+  similarTo: SimilarTour;
+  constructor(message: string, similarTo: SimilarTour) {
+    super(message);
+    this.similarTo = similarTo;
+  }
 }
 
 export async function createTour(token: string, tour: NewTour): Promise<Tour> {
-  return (await api<{ tour: Tour }>("/tours", { method: "POST", token, json: tour })).tour;
+  try {
+    return (await api<{ tour: Tour }>("/tours", { method: "POST", token, json: tour })).tour;
+  } catch (err) {
+    const similar = err instanceof ApiError && err.status === 409 ? (err.data.similarTo as SimilarTour | undefined) : undefined;
+    if (err instanceof ApiError && similar && typeof similar.id === "number") throw new SimilarTourError(err.message, similar);
+    throw err;
+  }
 }
 
 /** Sources of the tours you've imported (e.g. prefix "hc" for Health Connect). */

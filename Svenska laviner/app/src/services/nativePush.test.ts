@@ -46,7 +46,7 @@ describe("app push (Firebase)", () => {
     expect(calls.at(-1)).toEqual({
       path: "/native/register",
       token: null,
-      json: { token: "fcm-token-1", platform: "android", regions: ["riksgransfjallen"], account: false },
+      json: { token: "fcm-token-1", platform: "android", regions: ["riksgransfjallen"], account: false, lang: "sv" },
     });
     expect(await push.nativeRegionPushEnabled()).toBe(true);
   });

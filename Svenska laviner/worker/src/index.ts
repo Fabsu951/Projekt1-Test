@@ -43,11 +43,12 @@ import {
 } from "./social";
 import { parseTerrainPath, serveTerrain } from "./terrain";
 import { parseSlopePath, parseTilePath, saveSlopeMeta, serveSlopeTile, serveTile, slopeMeta, uploadTiles, type TilesEnv } from "./tiles";
-import { notifyChanges, publicKey, subscribe, unsubscribe, type PushEnv } from "./push";
-import { notifyNativeChanges, registerDevice, unregisterDevice, type NativeEnv } from "./nativePush";
+import { notifyChanges, publicKey, setPushLanguage, subscribe, unsubscribe, type PushEnv } from "./push";
+import { notifyNativeChanges, registerDevice, setDeviceLanguage, unregisterDevice, type NativeEnv } from "./nativePush";
 import type { NotifyEnv } from "./notifications";
 import { createTrip, deleteTrip, listTrips, notifyTrips, type PublishedDay } from "./trips";
 import { adminStats } from "./adminStats";
+import { checkForecastHealth } from "./health";
 import { fcmConfigured, type FcmEnv } from "./fcm";
 import { stockholmDate } from "./model";
 import type { VapidEnv } from "./webpush";
@@ -62,6 +63,7 @@ import {
   register,
   resendVerification,
   resetPassword,
+  setLanguage,
   verifyEmail,
 } from "./auth";
 import {
@@ -276,6 +278,7 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
     if (pathname === "/auth/verify" && method === "POST") return json(await verifyEmail(request, env), origin);
     if (pathname === "/auth/resend-verification" && method === "POST")
       return json(await resendVerification(request, env), origin);
+    if (pathname === "/auth/lang" && method === "POST") return json(await setLanguage(request, env), origin);
     if (pathname === "/auth/forgot" && method === "POST") return json(await forgotPassword(request, env), origin);
     if (pathname === "/auth/reset" && method === "POST") return json(await resetPassword(request, env), origin);
 
@@ -358,7 +361,7 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
       return await serveImage(env, pathname.slice("/images/".length), corsHeaders(origin));
     }
   } catch (err) {
-    if (err instanceof HttpError) return error(err.message, origin, err.status);
+    if (err instanceof HttpError) return error(err.message, origin, err.status, err.extra);
     console.error(err);
     return error("Något gick fel på servern. Försök igen.", origin, 500);
   }
@@ -400,9 +403,33 @@ async function recordAll(env: Env, results: RegionResult[]): Promise<void> {
     console.error("Could not record forecast history or send notifications", err);
   }
   try {
+    await checkForecastHealth(
+      env,
+      results.map((r) => ({
+        regionId: r.forecast.regionId,
+        source: r.forecast.source,
+        fetchError: r.forecast.fetchError,
+        danger: r.forecast.danger,
+        seasonOver: r.forecast.seasonOver,
+        special: r.forecast.special ?? null,
+      }))
+    );
+  } catch (err) {
+    console.error("Could not check the forecast health", err);
+  }
+  try {
     const published: PublishedDay[] = results.flatMap((r) => {
       const row = historyRow(r.forecast.regionId, r.forecast);
-      return row ? [{ regionId: row.regionId, date: row.date, danger: row.danger, problemNames: r.forecast.problems.map((p) => p.name) }] : [];
+      if (!row) return [];
+      const problems = r.forecast.problems.map((p) => ({
+        type: p.type,
+        name: p.name,
+        aspects: p.aspects,
+        elevations: p.elevations,
+        metersAbove: p.metersAbove,
+        metersBelow: p.metersBelow,
+      }));
+      return [{ regionId: row.regionId, date: row.date, danger: row.danger, problems }];
     });
     await notifyTrips(env as unknown as NotifyEnv, published);
   } catch (err) {
@@ -532,8 +559,9 @@ export default {
       try {
         if (url.pathname === "/native/register") return json(await registerDevice(request, env), origin);
         if (url.pathname === "/native/unregister") return json(await unregisterDevice(request, env), origin);
+        if (url.pathname === "/native/lang") return json(await setDeviceLanguage(request, env), origin);
       } catch (err) {
-        if (err instanceof HttpError) return error(err.message, origin, err.status);
+        if (err instanceof HttpError) return error(err.message, origin, err.status, err.extra);
         console.error(err);
         return error("Något gick fel på servern. Försök igen.", origin, 500);
       }
@@ -546,8 +574,10 @@ export default {
           return json(await subscribe(request, env as PushEnv), origin);
         if (url.pathname === "/push/unsubscribe" && request.method === "POST")
           return json(await unsubscribe(request, env as PushEnv), origin);
+        if (url.pathname === "/push/lang" && request.method === "POST")
+          return json(await setPushLanguage(request, env as PushEnv), origin);
       } catch (err) {
-        if (err instanceof HttpError) return error(err.message, origin, err.status);
+        if (err instanceof HttpError) return error(err.message, origin, err.status, err.extra);
         console.error(err);
         return error("Något gick fel på servern. Försök igen.", origin, 500);
       }

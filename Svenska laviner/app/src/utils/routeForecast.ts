@@ -131,3 +131,23 @@ export function checkRouteAgainstForecast(samples: RouteSample[], forecast: Aval
   });
   return { regionId: forecast.regionId, treelineM, steepM, problems, flagged };
 }
+
+/**
+ * The steep ground under a route in compact form for the server's forecast
+ * check on a planned tour day (worker/src/trips.ts): [aspect sector 0–7,
+ * height rounded to 10 m, metres], pieces with the same sector and height
+ * added together.
+ */
+export function steepProfile(samples: RouteSample[]): Array<[number, number, number]> {
+  const pieces = new Map<string, [number, number, number]>();
+  samples.forEach((s, i) => {
+    if (i === 0 || s.slope === null || s.slope < STEEP_DEG || s.aspect === null || s.elevation === null) return;
+    const sector = COMPASS_SECTORS.indexOf(sectorOf(s.aspect));
+    const height = Math.round(s.elevation / 10) * 10;
+    const key = `${sector}|${height}`;
+    const piece = pieces.get(key) ?? [sector, height, 0];
+    piece[2] += s.distM - samples[i - 1].distM;
+    pieces.set(key, piece);
+  });
+  return [...pieces.values()].map(([sector, height, metres]) => [sector, height, Math.max(1, Math.round(metres))]);
+}

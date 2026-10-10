@@ -4,6 +4,7 @@ import { verifyTurnstile, type TurnstileEnv } from "./turnstile";
 import { trackKeysOf } from "./tours";
 import { avatarKeyOf } from "./profile";
 import { appUrl, emailConfigured, type EmailEnv, resetEmail, sendEmail, verificationEmail } from "./email";
+import { toLang, type Lang } from "./lang";
 
 export interface CommunityEnv extends EmailEnv, TurnstileEnv {
   DB: D1Database;
@@ -22,6 +23,8 @@ export interface User {
    * so it isn't enforced.
    */
   canPost: boolean;
+  /** The language the user reads the app in; notifications and emails follow it. */
+  lang: Lang;
 }
 
 // Cloudflare Workers cap PBKDF2 at 100k iterations.
@@ -102,6 +105,7 @@ interface UserRow {
   is_admin: number;
   email_verified: number;
   password_hash: string;
+  lang: string;
 }
 
 function toUser(row: UserRow, env: CommunityEnv): User {
@@ -113,10 +117,11 @@ function toUser(row: UserRow, env: CommunityEnv): User {
     isAdmin: row.is_admin === 1,
     emailVerified,
     canPost: emailVerified || !emailConfigured(env),
+    lang: toLang(row.lang),
   };
 }
 
-const USER_COLUMNS = "u.id, u.email, u.display_name, u.is_admin, u.email_verified, u.password_hash";
+const USER_COLUMNS = "u.id, u.email, u.display_name, u.is_admin, u.email_verified, u.password_hash, u.lang";
 
 function bearerToken(request: Request): string | null {
   const header = request.headers.get("Authorization") ?? "";
@@ -197,11 +202,11 @@ async function consumeEmailToken(env: CommunityEnv, token: string, purpose: "ver
   return row.user_id;
 }
 
-async function sendVerification(env: CommunityEnv, user: { id: number; email: string; displayName: string }) {
+async function sendVerification(env: CommunityEnv, user: { id: number; email: string; displayName: string; lang: Lang }) {
   const token = await createEmailToken(env, user.id, "verify", VERIFY_TTL_MS);
   if (!token) throw new HttpError(429, "Vi har redan skickat flera mejl. Vänta en stund och försök igen.");
   try {
-    await sendEmail(env, verificationEmail(user.email, user.displayName, `${appUrl(env)}/verifiera?token=${token}`));
+    await sendEmail(env, verificationEmail(user.email, user.displayName, `${appUrl(env)}/verifiera?token=${token}`, user.lang));
   } catch {
     throw new HttpError(502, "Kunde inte skicka mejlet just nu. Försök igen om en stund.");
   }
@@ -225,14 +230,14 @@ export async function verifyEmail(request: Request, env: CommunityEnv) {
 /** Always answers the same way, so it can't be used to find out who has an account. */
 export async function forgotPassword(request: Request, env: CommunityEnv) {
   const { email } = await readJson<{ email?: string }>(request);
-  const row = await env.DB.prepare("SELECT id, email, display_name FROM users WHERE email = ?")
+  const row = await env.DB.prepare("SELECT id, email, display_name, lang FROM users WHERE email = ?")
     .bind((email ?? "").trim().toLowerCase())
-    .first<{ id: number; email: string; display_name: string }>();
+    .first<{ id: number; email: string; display_name: string; lang: string }>();
   if (row) {
     const token = await createEmailToken(env, row.id, "reset", RESET_TTL_MS);
     if (token) {
       try {
-        await sendEmail(env, resetEmail(row.email, row.display_name, `${appUrl(env)}/aterstall-losenord?token=${token}`));
+        await sendEmail(env, resetEmail(row.email, row.display_name, `${appUrl(env)}/aterstall-losenord?token=${token}`, toLang(row.lang)));
       } catch {
         // Don't reveal (via a different error) that this address has an account.
       }
@@ -271,6 +276,8 @@ interface RegisterBody {
   turnstileToken?: string;
   /** Ticked "Jag godkänner användarvillkoren och är minst 13 år". */
   acceptTerms?: boolean;
+  /** The app's language when signing up ("sv" or "en"). */
+  lang?: string;
 }
 
 export async function register(request: Request, env: CommunityEnv) {
@@ -278,6 +285,7 @@ export async function register(request: Request, env: CommunityEnv) {
   const email = (body.email ?? "").trim().toLowerCase();
   const displayName = (body.displayName ?? "").trim();
   const password = body.password ?? "";
+  const lang = toLang(body.lang);
 
   if (!EMAIL.test(email) || email.length > 254) throw new HttpError(400, "Ange en giltig e-postadress.");
   if (!DISPLAY_NAME.test(displayName))
@@ -306,15 +314,15 @@ export async function register(request: Request, env: CommunityEnv) {
   }
 
   const result = await env.DB.prepare(
-    "INSERT INTO users (email, display_name, password_hash, created_at, terms_accepted_at) VALUES (?, ?, ?, ?, ?)"
+    "INSERT INTO users (email, display_name, password_hash, created_at, terms_accepted_at, lang) VALUES (?, ?, ?, ?, ?, ?)"
   )
-    .bind(email, displayName, await hashPassword(password), nowIso(), nowIso())
+    .bind(email, displayName, await hashPassword(password), nowIso(), nowIso(), lang)
     .run();
   const userId = Number(result.meta.last_row_id);
   await record(store, [registerKey]);
   const token = await createSession(env, userId);
   try {
-    await sendVerification(env, { id: userId, email, displayName });
+    await sendVerification(env, { id: userId, email, displayName, lang });
   } catch (err) {
     // The account exists either way; the user can resend from their profile.
     console.error("verification email failed", err);
@@ -328,8 +336,17 @@ export async function register(request: Request, env: CommunityEnv) {
       isAdmin: false,
       emailVerified: false,
       canPost: !emailConfigured(env),
+      lang,
     } satisfies User,
   };
+}
+
+/** POST /auth/lang {lang}: the app tells which language the user reads it in. */
+export async function setLanguage(request: Request, env: CommunityEnv) {
+  const user = await requireUser(request, env);
+  const lang = toLang((await readJson<{ lang?: unknown }>(request)).lang);
+  if (lang !== user.lang) await env.DB.prepare("UPDATE users SET lang = ? WHERE id = ?").bind(lang, user.id).run();
+  return { lang };
 }
 
 export async function login(request: Request, env: CommunityEnv) {

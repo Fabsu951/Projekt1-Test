@@ -39,4 +39,6 @@ export interface User {
   /** Profile picture and experience points, from /auth/me. */
   avatarPath?: string | null;
   xp?: number;
+  /** The language notifications and emails are written in. */
+  lang?: "sv" | "en";
 }

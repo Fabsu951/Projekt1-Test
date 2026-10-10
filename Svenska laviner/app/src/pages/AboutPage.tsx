@@ -192,7 +192,7 @@ export default function AboutPage() {
         <h3>{t("Vilka uppgifter vi sparar")}</h3>
         <ul>
           <li>
-            <strong>{t("Konto:")}</strong>{" "}{t("e-postadress, användarnamn och ditt lösenord i krypterad (hashad) form. Vi kan aldrig se ditt lösenord. När du är inloggad sparas också vilka områden du stjärnmärkt, så att de följer med mellan dina enheter.")}
+            <strong>{t("Konto:")}</strong>{" "}{t("e-postadress, användarnamn och ditt lösenord i krypterad (hashad) form. Vi kan aldrig se ditt lösenord. När du är inloggad sparas också vilka områden du stjärnmärkt, så att de följer med mellan dina enheter, och vilket språk du läser appen på, så att notiser och mejl kommer på samma språk.")}
           </li>
           <li>
             <strong>{t("Observationer:")}</strong>{" "}{t("det du själv publicerar, alltså typ, plats på kartan, tidpunkt, beskrivning och eventuell bild. Innan bilden laddas upp tar appen bort den inbäddade informationen, till exempel GPS-position och kameramodell. Saknas täckning när du skickar sparas observationen bara på din telefon tills den kan skickas, och du kan ta bort den där innan dess.")}
@@ -207,7 +207,7 @@ export default function AboutPage() {
             <strong>{t("Planerade rutter:")}</strong>{" "}{t("punkterna du klickar ut, namnet och ruttens längd och höjdmeter, om du väljer att spara rutten i ditt konto. Sparade rutter är privata. Väljer du \"Dela\" ser dina följare rutten i sitt flöde och den som har länken kan öppna den. Rutter som inte sparas finns bara på din enhet.")}
           </li>
           <li>
-            <strong>{t("Planerade turdagar:")}</strong>{" "}{t("om du väljer en dag under \"Prognos inför din tur\" sparar vi området och datumet i ditt konto, för att kunna skicka dig prognosen för den dagen. De tas bort en vecka efter dagen, eller när du tar bort dem eller ditt konto.")}
+            <strong>{t("Planerade turdagar:")}</strong>{" "}{t("om du väljer en dag under \"Prognos inför din tur\" sparar vi området och datumet i ditt konto, för att kunna skicka dig prognosen för den dagen. Väljer du också en av dina sparade rutter sparar vi vilken, och en sammanfattning av den branta marken under den (väderstreck, höjd och längd), så att notisen kan jämföra rutten med prognosen. De tas bort en vecka efter dagen, eller när du tar bort dem, rutten eller ditt konto.")}
           </li>
           <li>
             <strong>{t("Följare, kommentarer och gilla:")}</strong>{" "}{t("vilka du följer, vilka som följer dig, och de kommentarer och gillamarkeringar du gör. Antalet följare syns för alla, men bara du ser vilka det är. Kommentarer syns för alla som kan se inlägget. Turer du delar med \"Bara de som följer mig\" syns bara för dina följare och finns inte med i värmekartan.")}

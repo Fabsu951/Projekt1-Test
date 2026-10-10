@@ -2,7 +2,7 @@ import { Capacitor, registerPlugin } from "@capacitor/core";
 import { Preferences } from "@capacitor/preferences";
 import { Health, type Workout } from "capacitor-health";
 import { distanceM, simplify, type TrackPoint } from "../utils/trackImport";
-import { createTour, fetchImportedSources } from "./tourService";
+import { createTour, fetchImportedSources, SimilarTourError } from "./tourService";
 import type { Tour } from "../types/tour";
 import { t, locale } from "../i18n";
 
@@ -287,15 +287,22 @@ export function defaultTitle(w: HealthWorkout): string {
 
 /** Uploads one session as a private tour (the server ignores a session it already has). */
 export async function importWorkout(token: string, w: HealthWorkout): Promise<Tour> {
-  const tour = await createTour(token, {
-    title: defaultTitle(w),
-    description: "",
-    visibility: "private",
-    hideEndsM: 500,
-    date: null,
-    points: w.points,
-    sourceRef: sourceRefFor(w),
-  });
+  let tour: Tour;
+  try {
+    tour = await createTour(token, {
+      title: defaultTitle(w),
+      description: "",
+      visibility: "private",
+      hideEndsM: 500,
+      date: null,
+      points: w.points,
+      sourceRef: sourceRefFor(w),
+    });
+  } catch (err) {
+    // Already uploaded another way (a GPX file of the same outing): not offered again.
+    if (err instanceof SimilarTourError) await rememberImported([w.id]);
+    throw err;
+  }
   await rememberImported([w.id]);
   return tour;
 }
@@ -334,9 +341,10 @@ export function checkForNewWorkouts(token: string): Promise<AutoImportResult> {
       }
       try {
         imported.push(await importWorkout(token, w));
-      } catch {
-        // Offline or over the upload limit: try again next time.
-        waiting++;
+      } catch (err) {
+        // Offline or over the upload limit: try again next time. A tour you
+        // already have is simply skipped.
+        if (!(err instanceof SimilarTourError)) waiting++;
       }
     }
     return { imported, waiting };

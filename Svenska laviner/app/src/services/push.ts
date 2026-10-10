@@ -1,6 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 import { api } from "./api";
-import { t } from "../i18n";
+import { lang, t } from "../i18n";
 
 /**
  * Web push for "farograden ändrades i mina områden". Browser only for now:
@@ -109,7 +109,31 @@ export async function currentSubscription(): Promise<PushSubscription | null> {
 }
 
 async function saveRegions(subscription: PushSubscription, regions: string[]): Promise<void> {
-  await api("/push/subscribe", { method: "POST", json: { subscription: subscription.toJSON(), regions } });
+  await api("/push/subscribe", { method: "POST", json: { subscription: subscription.toJSON(), regions, lang: lang() } });
+  rememberLang();
+}
+
+const LANG_KEY = "fjallkoll:push-lang";
+
+function rememberLang() {
+  try {
+    localStorage.setItem(LANG_KEY, lang());
+  } catch {
+    // Sent again next time.
+  }
+}
+
+/** After a language change: this browser's danger-level notices follow it. */
+export async function syncPushLanguage(): Promise<void> {
+  try {
+    if (!hasFlag("regions") || localStorage.getItem(LANG_KEY) === lang()) return;
+  } catch {
+    return;
+  }
+  const subscription = await currentSubscription();
+  if (!subscription) return;
+  await api("/push/lang", { method: "POST", json: { endpoint: subscription.endpoint, lang: lang() } });
+  rememberLang();
 }
 
 /** Asks for permission (must follow a tap) and subscribes for these regions. */

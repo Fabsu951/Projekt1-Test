@@ -2,7 +2,7 @@ import { Capacitor } from "@capacitor/core";
 import { Preferences } from "@capacitor/preferences";
 import { FirebaseMessaging } from "@capacitor-firebase/messaging";
 import { api } from "./api";
-import { t } from "../i18n";
+import { lang, t } from "../i18n";
 
 // Push in the Android and iOS apps, through Firebase Cloud Messaging (which
 // hands iPhone messages to Apple). The browser version uses web push
@@ -17,6 +17,8 @@ interface NativePushState {
   regions: string[];
   /** Notices for the signed-in account (followers, comments, likes). */
   account: boolean;
+  /** The language last sent to the server for this device's notices. */
+  lang?: string;
 }
 
 const EMPTY: NativePushState = { regions: [], account: false };
@@ -42,6 +44,7 @@ async function loadState(): Promise<NativePushState> {
     return {
       regions: Array.isArray(parsed.regions) ? parsed.regions.filter((r): r is string => typeof r === "string") : [],
       account: parsed.account === true,
+      lang: typeof parsed.lang === "string" ? parsed.lang : undefined,
     };
   } catch {
     return { ...EMPTY };
@@ -75,9 +78,9 @@ async function register(state: NativePushState, authToken: string | null, ask = 
   const result = await api<{ regions: string[]; account: boolean }>("/native/register", {
     method: "POST",
     token: state.account ? authToken : null,
-    json: { token, platform: Capacitor.getPlatform(), regions: state.regions, account: state.account },
+    json: { token, platform: Capacitor.getPlatform(), regions: state.regions, account: state.account, lang: lang() },
   });
-  await saveState({ regions: result.regions, account: result.account });
+  await saveState({ regions: result.regions, account: result.account, lang: lang() });
 }
 
 export async function nativeRegionPushEnabled(): Promise<boolean> {
@@ -128,6 +131,16 @@ let listening = false;
  * Starts listening once per app run: re-registers when Firebase hands out a
  * new token, and opens the right page when a notification is tapped.
  */
+/** After a language change: this phone's notices follow it (no permission prompt). */
+export async function syncNativeLanguage(): Promise<void> {
+  if (!isNativeApp()) return;
+  const state = await loadState();
+  if ((!state.regions.length && !state.account) || state.lang === lang()) return;
+  const token = await deviceToken(false);
+  await api("/native/lang", { method: "POST", json: { token, lang: lang() } });
+  await saveState({ ...state, lang: lang() });
+}
+
 export function listenForNativePush(open: (path: string) => void, authToken: () => string | null): void {
   if (!isNativeApp() || listening) return;
   listening = true;

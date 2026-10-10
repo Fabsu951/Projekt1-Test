@@ -1,3 +1,4 @@
+import { userLang, type Lang } from "./lang";
 import { requirePoster, requireUser, type CommunityEnv, type User } from "./auth";
 import { HttpError, nowIso, readJson } from "./http";
 import { notify, type Defer, type NotifyEnv } from "./notifications";
@@ -28,6 +29,15 @@ export const REMOVAL_REASONS: Record<string, string> = {
   spam: "innehållet är reklam eller spam",
   personuppgifter: "innehållet visar andras personuppgifter",
   ovrigt: "innehållet bryter mot användarvillkoren",
+};
+
+const REMOVAL_REASONS_EN: Record<string, string> = {
+  olagligt: "the content appears to break the law",
+  krankande: "the content is offensive, threatening or harassing",
+  vilseledande: "the content is misleading or could lead others to make dangerous decisions",
+  spam: "the content is advertising or spam",
+  personuppgifter: "the content shows other people's personal data",
+  ovrigt: "the content breaks the terms of use",
 };
 
 function reportType(value: unknown): ReportType {
@@ -198,7 +208,14 @@ export async function dismissContentReports(request: Request, env: CommunityEnv)
 }
 
 /** "din tur ”Sydtoppen”", for the owner's notice. */
-function whatWasRemoved(type: ReportType, summary: string): string {
+function whatWasRemoved(type: ReportType, summary: string, lang: Lang): string {
+  const short = summary.length > 60 ? `${summary.slice(0, 57)}…` : summary;
+  if (lang === "en") {
+    if (type === "tour") return `Your tour ”${summary}” has been removed`;
+    if (type === "route") return `Your route ”${summary}” has been removed`;
+    if (type === "comment") return `Your comment ”${short}” has been removed`;
+    return "Your display name and profile picture have been reset";
+  }
   if (type === "tour") return `Din tur ”${summary}” har tagits bort`;
   if (type === "route") return `Din rutt ”${summary}” har tagits bort`;
   if (type === "comment") return `Din kommentar ”${summary.length > 60 ? `${summary.slice(0, 57)}…` : summary}” har tagits bort`;
@@ -238,10 +255,15 @@ export async function removeReportedContent(request: Request, env: NotifyEnv, de
   }
   await env.DB.batch(statements);
 
+  const lang = await userLang(env.DB, item.ownerId);
   const text =
-    `${whatWasRemoved(type, item.summary)} efter en anmälan, eftersom ${REMOVAL_REASONS[reason]}.` +
-    (extra ? ` ${extra}` : "") +
-    " Tycker du att det är fel, hör av dig till e-postadressen under Om Snöläge.";
+    lang === "en"
+      ? `${whatWasRemoved(type, item.summary, lang)} after a report, because ${REMOVAL_REASONS_EN[reason]}.` +
+        (extra ? ` ${extra}` : "") +
+        " If you think this is wrong, contact the email address under About Snöläge."
+      : `${whatWasRemoved(type, item.summary, lang)} efter en anmälan, eftersom ${REMOVAL_REASONS[reason]}.` +
+        (extra ? ` ${extra}` : "") +
+        " Tycker du att det är fel, hör av dig till e-postadressen under Om Snöläge.";
   if (item.ownerId !== admin.id) {
     await notify(env, [{ userId: item.ownerId, kind: "moderation", actorId: admin.id, note: text }], defer);
   }

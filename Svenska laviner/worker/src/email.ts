@@ -6,6 +6,8 @@
  * emails are only logged — visible with `wrangler dev` / `wrangler tail` —
  * and email verification is not enforced (see emailConfigured()).
  */
+import type { Lang } from "./lang";
+
 export interface EmailEnv {
   RESEND_API_KEY?: string;
   EMAIL_FROM?: string;
@@ -48,35 +50,68 @@ function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
 
-function layout(heading: string, intro: string, buttonText: string, link: string, footer: string): Email["html"] {
-  return `<!doctype html><html lang="sv"><body style="margin:0;background:#10161d;font-family:system-ui,sans-serif;color:#eef3f7">
+function layout(heading: string, intro: string, buttonText: string, link: string, footer: string, lang: Lang): Email["html"] {
+  const copy = lang === "en" ? "Button not working? Copy the link:" : "Fungerar inte knappen? Kopiera länken:";
+  return `<!doctype html><html lang="${lang}"><body style="margin:0;background:#10161d;font-family:system-ui,sans-serif;color:#eef3f7">
 <div style="max-width:480px;margin:0 auto;padding:32px 20px">
 <p style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7cc7ec">Snöläge</p>
 <h1 style="font-size:22px;margin:0 0 12px">${escapeHtml(heading)}</h1>
 <p style="line-height:1.5">${escapeHtml(intro)}</p>
 <p style="margin:24px 0"><a href="${escapeHtml(link)}" style="background:#ff9f43;color:#1a1a1a;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:700">${escapeHtml(buttonText)}</a></p>
-<p style="font-size:13px;color:#a2b0be;line-height:1.5">${escapeHtml(footer)}<br>Fungerar inte knappen? Kopiera länken:<br>${escapeHtml(link)}</p>
+<p style="font-size:13px;color:#a2b0be;line-height:1.5">${escapeHtml(footer)}<br>${copy}<br>${escapeHtml(link)}</p>
 </div></body></html>`;
 }
 
-export function verificationEmail(to: string, displayName: string, link: string): Email {
-  const intro = `Hej ${displayName}! Bekräfta din e-postadress för att kunna dela observationer på Snöläge.`;
-  const footer = "Länken gäller i 24 timmar. Har du inte skapat något konto kan du bortse från det här mejlet.";
+const TEXTS = {
+  verify: {
+    sv: {
+      subject: "Bekräfta din e-postadress – Snöläge",
+      intro: (name: string) => `Hej ${name}! Bekräfta din e-postadress för att kunna dela observationer på Snöläge.`,
+      footer: "Länken gäller i 24 timmar. Har du inte skapat något konto kan du bortse från det här mejlet.",
+      heading: "Bekräfta din e-post",
+      button: "Bekräfta e-postadress",
+    },
+    en: {
+      subject: "Confirm your email address – Snöläge",
+      intro: (name: string) => `Hi ${name}! Confirm your email address to be able to share observations on Snöläge.`,
+      footer: "The link is valid for 24 hours. If you didn't create an account, you can ignore this email.",
+      heading: "Confirm your email",
+      button: "Confirm email address",
+    },
+  },
+  reset: {
+    sv: {
+      subject: "Återställ ditt lösenord – Snöläge",
+      intro: (name: string) => `Hej ${name}! Någon (förhoppningsvis du) har bett om att återställa lösenordet till ditt konto.`,
+      footer: "Länken gäller i 1 timme. Har du inte bett om detta kan du bortse från mejlet — ditt lösenord ändras inte.",
+      heading: "Återställ lösenord",
+      button: "Välj nytt lösenord",
+    },
+    en: {
+      subject: "Reset your password – Snöläge",
+      intro: (name: string) => `Hi ${name}! Someone (hopefully you) asked to reset the password for your account.`,
+      footer: "The link is valid for 1 hour. If you didn't ask for this, you can ignore the email — your password won't change.",
+      heading: "Reset password",
+      button: "Choose a new password",
+    },
+  },
+};
+
+function compose(kind: keyof typeof TEXTS, to: string, displayName: string, link: string, lang: Lang): Email {
+  const t = TEXTS[kind][lang];
+  const intro = t.intro(displayName);
   return {
     to,
-    subject: "Bekräfta din e-postadress – Snöläge",
-    text: `${intro}\n\n${link}\n\n${footer}`,
-    html: layout("Bekräfta din e-post", intro, "Bekräfta e-postadress", link, footer),
+    subject: t.subject,
+    text: `${intro}\n\n${link}\n\n${t.footer}`,
+    html: layout(t.heading, intro, t.button, link, t.footer, lang),
   };
 }
 
-export function resetEmail(to: string, displayName: string, link: string): Email {
-  const intro = `Hej ${displayName}! Någon (förhoppningsvis du) har bett om att återställa lösenordet till ditt konto.`;
-  const footer = "Länken gäller i 1 timme. Har du inte bett om detta kan du bortse från mejlet — ditt lösenord ändras inte.";
-  return {
-    to,
-    subject: "Återställ ditt lösenord – Snöläge",
-    text: `${intro}\n\n${link}\n\n${footer}`,
-    html: layout("Återställ lösenord", intro, "Välj nytt lösenord", link, footer),
-  };
+export function verificationEmail(to: string, displayName: string, link: string, lang: Lang = "sv"): Email {
+  return compose("verify", to, displayName, link, lang);
+}
+
+export function resetEmail(to: string, displayName: string, link: string, lang: Lang = "sv"): Email {
+  return compose("reset", to, displayName, link, lang);
 }

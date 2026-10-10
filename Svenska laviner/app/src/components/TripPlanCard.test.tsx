@@ -38,7 +38,7 @@ describe("TripPlanCard", () => {
 
     fireEvent.click(tomorrow);
     await waitFor(() => expect(tomorrow).toHaveAttribute("aria-pressed", "true"));
-    expect(service.planTrip).toHaveBeenCalledWith("tok", "kebnekaisefjallen", "2026-02-14");
+    expect(service.planTrip).toHaveBeenCalledWith("tok", "kebnekaisefjallen", "2026-02-14", undefined);
     expect(screen.getByRole("status")).toHaveTextContent("I morgon: väntar på prognosen");
 
     fireEvent.click(tomorrow);

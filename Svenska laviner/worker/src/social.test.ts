@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { beforeEach, describe, expect, it } from "vitest";
 import type { CommunityEnv } from "./auth";
-import { deleteAccount } from "./auth";
+import { deleteAccount, setLanguage } from "./auth";
 import { HttpError } from "./http";
 import { addComment, deleteComment, feed, follow, getPerson, listComments, searchPeople, setLike, unfollow } from "./social";
 import { createTour, importedSources, listTours, tourLines } from "./tours";
@@ -266,6 +266,14 @@ describe("notifications", () => {
     expect(list.notifications[0]).toMatchObject({ url: "/person/1", read: false });
   });
 
+  it("writes them in the reader's language", async () => {
+    await setLanguage(req("/auth/lang", "bertil", { json: { lang: "en" } }), env);
+    const id = await tour(ids.bertil, "Sydtoppen", 1);
+    await follow(req("/people/2/follow", "anna", { method: "POST" }), env, ids.bertil);
+    await addComment(req("/comments", "anna", { json: { type: "tour", id, body: "Fin tur!" } }), env);
+    expect(await texts("bertil")).toEqual(["Anna commented on your tour ”Sydtoppen”", "Anna started following you"]);
+  });
+
   it("tells owners about comments and likes, and earlier commenters about replies", async () => {
     const id = await tour(ids.bertil, "Sydtoppen", 1);
     const comment = (who: keyof typeof tokens, body: string) =>
@@ -298,9 +306,11 @@ describe("notifications", () => {
 
 describe("imported tours", () => {
   const points = Array.from({ length: 40 }, (_, i) => [67.9 + i * 0.001, 18.5, 800 + i * 5, Date.UTC(2026, 1, 3, 9, i)]);
-  const upload = (sourceRef?: unknown) =>
+  const upload = (sourceRef?: unknown, more: object = {}, track: unknown[] = points) =>
     createTour(
-      req("/tours", "anna", { json: { title: "Skidtur", description: "", visibility: "private", hideEndsM: 500, points, sourceRef } }),
+      req("/tours", "anna", {
+        json: { title: "Skidtur", description: "", visibility: "private", hideEndsM: 500, points: track, sourceRef, ...more },
+      }),
       env
     );
 
@@ -312,6 +322,23 @@ describe("imported tours", () => {
     // Someone else's import of a session with the same id is their own tour.
     expect((await importedSources(req("/tours/sources?prefix=hc", "bertil"), env)).refs).toEqual([]);
     expect(stored.size).toBe(1);
+  });
+
+  it("warns about the same outing from another source, unless told to save anyway", async () => {
+    const first = await upload("hc:abc-123");
+    // The same session as a GPX file a few minutes off: a 409 that names the existing tour.
+    const shifted = points.map(([lat, lon, ele, t]) => [lat, lon, ele, (t as number) + 4 * 60_000]);
+    let caught: unknown;
+    try {
+      await upload(undefined, {}, shifted);
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught).toMatchObject({ status: 409, extra: { similarTo: { id: first.tour.id, title: "Skidtur" } } });
+    expect((await upload(undefined, { allowDuplicate: true }, shifted)).tour.id).not.toBe(first.tour.id);
+    // A different outing the same morning (much longer) is not a duplicate.
+    const longer = Array.from({ length: 40 }, (_, i) => [67.9 + i * 0.01, 18.5, 800, Date.UTC(2026, 1, 3, 9, i)]);
+    expect((await upload(undefined, {}, longer)).tour).toBeTruthy();
   });
 
   it("refuses odd source refs and still takes plain uploads", async () => {

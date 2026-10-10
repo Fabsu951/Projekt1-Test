@@ -7,9 +7,12 @@ export const WORKER_BASE = ((import.meta.env.VITE_MAP_PROXY_URL as string | unde
 
 export class ApiError extends Error {
   status: number;
-  constructor(status: number, message: string) {
+  /** The rest of the server's answer, for errors the app can act on. */
+  data: Record<string, unknown>;
+  constructor(status: number, message: string, data: Record<string, unknown> = {}) {
     super(message);
     this.status = status;
+    this.data = data;
   }
 }
 
@@ -38,7 +41,7 @@ export async function api<T>(path: string, { method = "GET", token, json, form }
     throw new ApiError(0, t("Ingen kontakt med servern. Kontrollera din uppkoppling."));
   }
   const data = (await res.json().catch(() => ({}))) as { error?: string };
-  if (!res.ok) throw new ApiError(res.status, data.error ?? t("Något gick fel ({status}).", { status: res.status }));
+  if (!res.ok) throw new ApiError(res.status, data.error ?? t("Något gick fel ({status}).", { status: res.status }), data);
   return data as T;
 }
 

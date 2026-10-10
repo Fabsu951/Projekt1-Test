@@ -10,14 +10,25 @@ export interface TripPlan {
   date: string;
   /** The forecast (or "no level published") has been sent. */
   notified: boolean;
+  /** A saved route the notice compares with the forecast. */
+  routeId?: number | null;
+  routeTitle?: string | null;
+}
+
+/** A saved route and its steep ground ([sector, height, metres], see steepProfile). */
+export interface TripRoute {
+  routeId: number;
+  steep: Array<[number, number, number]>;
 }
 
 export async function fetchTrips(token: string): Promise<TripPlan[]> {
   return (await api<{ trips: TripPlan[] }>("/trips", { token })).trips;
 }
 
-export async function planTrip(token: string, regionId: string, date: string): Promise<TripPlan> {
-  return (await api<{ trip: TripPlan }>("/trips", { method: "POST", token, json: { regionId, date } })).trip;
+/** Plans a day; `route` adds or (null) removes a route, leaving it out keeps what is there. */
+export async function planTrip(token: string, regionId: string, date: string, route?: TripRoute | null): Promise<TripPlan> {
+  const json = route === undefined ? { regionId, date } : route === null ? { regionId, date, routeId: null } : { regionId, date, ...route };
+  return (await api<{ trip: TripPlan }>("/trips", { method: "POST", token, json })).trip;
 }
 
 export async function removeTrip(token: string, id: number): Promise<void> {

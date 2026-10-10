@@ -150,6 +150,26 @@ interface CreateBody {
   points?: unknown;
   /** Where an imported tour came from, e.g. "hc:<session id>"; one tour per source per person. */
   sourceRef?: unknown;
+  /** Save even though a tour starting at the same time already exists. */
+  allowDuplicate?: unknown;
+}
+
+/** Tours this close in start time, with lengths this close, count as the same outing. */
+const SAME_START_MS = 15 * 60 * 1000;
+const SAME_LENGTH = { share: 0.3, metres: 1000 };
+
+/** One of your tours that looks like the same outing (another file of it, or another app's copy). */
+async function similarTour(env: CommunityEnv, userId: number, startedAt: string, distanceM: number) {
+  const t = Date.parse(startedAt);
+  const rows = await env.DB.prepare(
+    "SELECT id, title, started_at, distance_m FROM tours WHERE user_id = ? AND started_at BETWEEN ? AND ?"
+  )
+    .bind(userId, new Date(t - SAME_START_MS).toISOString(), new Date(t + SAME_START_MS).toISOString())
+    .all<{ id: number; title: string; started_at: string; distance_m: number }>();
+  const close = rows.results.find(
+    (r) => Math.abs(r.distance_m - distanceM) <= Math.max(SAME_LENGTH.metres, SAME_LENGTH.share * Math.max(r.distance_m, distanceM))
+  );
+  return close ? { id: close.id, title: close.title, startedAt: close.started_at } : null;
 }
 
 const SOURCE_REF = /^[a-z]{2,10}:[\w.:-]{1,190}$/;
@@ -205,6 +225,13 @@ export async function createTour(request: Request, env: CommunityEnv) {
   const startedAt = stats.startedAt ?? date;
   if (!startedAt) throw new HttpError(400, "Spåret saknar tider. Ange vilket datum turen gjordes.");
   if (new Date(startedAt).getTime() > Date.now() + 24 * 3600 * 1000) throw new HttpError(400, "Turen kan inte ligga i framtiden.");
+  // Only tracks with real times are compared; a date alone says too little.
+  if (stats.startedAt && body.allowDuplicate !== true) {
+    const similar = await similarTour(env, user.id, stats.startedAt, stats.distanceM);
+    if (similar) {
+      throw new HttpError(409, `Du har redan en tur som startade samtidigt: ”${similar.title}”.`, { similarTo: similar });
+    }
+  }
 
   const visibility = readVisibility(body, "public");
   const hide = hideEnds(body.hideEndsM);

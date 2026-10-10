@@ -84,6 +84,39 @@ export default function AdminStatsPage() {
       {!stats && !error && <PageLoading label={t("Laddar…")} />}
       {stats && (
         <>
+          {stats.forecastHealth && (
+            <div className={stats.forecastHealth.problems.length ? "notice notice--stale admin-health" : "admin-health"} role="status">
+              {stats.forecastHealth.problems.length === 0 ? (
+                <p>
+                  <span aria-hidden="true">✓</span>{" "}{t("Prognoshämtningen fungerar.")}
+                </p>
+              ) : (
+                <>
+                  <p>
+                    <strong>
+                      <span aria-hidden="true">⚠</span>{" "}
+                      {t("Problem med prognoshämtningen sedan {time}:", {
+                        time: stats.forecastHealth.since
+                          ? new Date(stats.forecastHealth.since).toLocaleString(locale(), {
+                              day: "numeric",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "–",
+                      })}
+                    </strong>
+                  </p>
+                  <ul>
+                    {stats.forecastHealth.problems.map((p) => (
+                      <li key={p}>{p}</li>
+                    ))}
+                  </ul>
+                  <p className="muted">{t("Administratörer får mejl om det håller i sig.")}</p>
+                </>
+              )}
+            </div>
+          )}
           {totals!.openReports > 0 && (
             <p className="notice">
               {totals!.openReports}{" "}{t("öppna anmälningar.")}{" "}<Link to="/admin">{t("Gå till anmälda inlägg")}</Link>.

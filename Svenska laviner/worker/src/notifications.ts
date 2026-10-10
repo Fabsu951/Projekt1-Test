@@ -5,6 +5,7 @@ import type { ItemType } from "./socialCleanup";
 import { fcmConfigured, type FcmEnv } from "./fcm";
 import { sendNativeToUser } from "./nativePush";
 import { isPushEndpoint, sendPush, vapidConfigured, type VapidEnv } from "./webpush";
+import { userLang, type Lang } from "./lang";
 
 // Notifications about people: new followers, comments and likes on your
 // things, and replies in comment threads you've joined. Always stored for
@@ -85,7 +86,7 @@ async function sendPushes(env: NotifyEnv, list: Array<NewNotification & { id: nu
       ? await env.DB.prepare("SELECT 1 AS x FROM native_devices WHERE user_id = ? LIMIT 1").bind(n.userId).first()
       : null;
     if (subs.results.length === 0 && !devices) continue;
-    const [view] = await describe(env, [{ ...n, created_at: "", read_at: null }]);
+    const [view] = await describe(env, [{ ...n, created_at: "", read_at: null }], await userLang(env.DB, n.userId));
     if (devices) await sendNativeToUser(env, n.userId, { title: "Snöläge", body: view.text, url: view.url, tag: `social-${n.id}` });
     for (const sub of subs.results) {
       const result = await sendPush(env, sub, { title: "Snöläge", body: view.text, url: view.url, tag: `social-${n.id}` });
@@ -113,7 +114,7 @@ export interface NotificationView {
   id: number;
   kind: NotificationKind;
   actor: { id: number; displayName: string };
-  /** Ready-made Swedish sentence, e.g. "Anna kommenterade din tur ”Sydtoppen”". */
+  /** Ready-made sentence in the reader's language, e.g. "Anna kommenterade din tur ”Sydtoppen”". */
   text: string;
   /** Where tapping it leads, a path in the app. */
   url: string;
@@ -121,10 +122,8 @@ export interface NotificationView {
   read: boolean;
 }
 
-const OBSERVATION_LABEL = "observation";
-
-/** Names, item titles and links for a set of notification rows. */
-async function describe(env: CommunityEnv, rows: Row[]): Promise<NotificationView[]> {
+/** Names, item titles and links for a set of notification rows, in the reader's language. */
+async function describe(env: CommunityEnv, rows: Row[], lang: Lang = "sv"): Promise<NotificationView[]> {
   const actorIds = [...new Set(rows.map((r) => r.actorId))];
   const names = new Map<number, string>();
   if (actorIds.length) {
@@ -143,33 +142,53 @@ async function describe(env: CommunityEnv, rows: Row[]): Promise<NotificationVie
     for (const r of res.results) titles.set(`${type}:${r.id}`, r.title);
   }
 
+  const en = lang === "en";
   return rows.map((r) => {
-    const who = names.get(r.actorId) ?? "Någon";
+    const who = names.get(r.actorId) ?? (en ? "Someone" : "Någon");
     const title = r.itemType && r.itemId ? titles.get(`${r.itemType}:${r.itemId}`) : undefined;
-    const thing =
-      r.itemType === "tour"
-        ? `din tur${title ? ` ”${title}”` : ""}`
+    const quoted = title ? ` ”${title}”` : "";
+    const thing = en
+      ? r.itemType === "tour"
+        ? `your tour${quoted}`
         : r.itemType === "route"
-          ? `din rutt${title ? ` ”${title}”` : ""}`
-          : `din ${OBSERVATION_LABEL}`;
-    const where =
-      r.itemType === "tour"
-        ? `turen${title ? ` ”${title}”` : ""}`
+          ? `your route${quoted}`
+          : "your observation"
+      : r.itemType === "tour"
+        ? `din tur${quoted}`
         : r.itemType === "route"
-          ? `rutten${title ? ` ”${title}”` : ""}`
+          ? `din rutt${quoted}`
+          : "din observation";
+    const where = en
+      ? r.itemType === "tour"
+        ? `the tour${quoted}`
+        : r.itemType === "route"
+          ? `the route${quoted}`
+          : "an observation"
+      : r.itemType === "tour"
+        ? `turen${quoted}`
+        : r.itemType === "route"
+          ? `rutten${quoted}`
           : "en observation";
     const text =
       r.kind === "trip"
-        ? (r.note ?? "Prognosen för din planerade tur är publicerad.")
+        ? (r.note ?? (en ? "The forecast for your planned tour is published." : "Prognosen för din planerade tur är publicerad."))
         : r.kind === "moderation"
-        ? (r.note ?? "Något du publicerat har tagits bort efter en anmälan.")
-        : r.kind === "follow"
-        ? `${who} började följa dig`
-        : r.kind === "comment"
-          ? `${who} kommenterade ${thing}`
-          : r.kind === "reply"
-            ? `${who} svarade på ${where}`
-            : `${who} gillade ${thing}`;
+          ? (r.note ?? (en ? "Something you published was removed after a report." : "Något du publicerat har tagits bort efter en anmälan."))
+          : r.kind === "follow"
+            ? en
+              ? `${who} started following you`
+              : `${who} började följa dig`
+            : r.kind === "comment"
+              ? en
+                ? `${who} commented on ${thing}`
+                : `${who} kommenterade ${thing}`
+              : r.kind === "reply"
+                ? en
+                  ? `${who} replied on ${where}`
+                  : `${who} svarade på ${where}`
+                : en
+                  ? `${who} liked ${thing}`
+                  : `${who} gillade ${thing}`;
     const url = r.url
       ? r.url
       : r.kind === "moderation"
@@ -204,7 +223,7 @@ export async function listNotifications(request: Request, env: CommunityEnv) {
   )
     .bind(me.id, MAX_LIST)
     .all<Row>();
-  const notifications = await describe(env, rows.results);
+  const notifications = await describe(env, rows.results, me.lang);
   return {
     notifications,
     unread: await unreadCount(env, me.id),

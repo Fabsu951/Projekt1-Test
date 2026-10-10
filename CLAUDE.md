@@ -962,6 +962,46 @@ the start, exact map point.
   worker-made notification/email texts, place names; terms/privacy are
   translated with a note that the Swedish text applies. Tests run in
   Swedish (`test/setup.ts`); `english.test.tsx` checks English rendering.
+- **Forecast health alarm (2026-10-10):** `worker/src/health.ts`, run from
+  `recordAll` (cron + cache misses): `forecastProblems()` flags an area read
+  from the page because the API failed, an area not fetched at all, and
+  (10 Jan–10 Apr) no level anywhere. Migration `0022` `service_alerts`
+  (one row "forecasts": problems, first_seen, last_sent). Email to every
+  verified admin (`users.is_admin`) once trouble has lasted 30 min, again
+  every 24 h, and "fungerar igen" when it clears; a single bad fetch that
+  fixes itself sends nothing. `/admin/stats` returns `forecastHealth`, shown
+  at the top of `/admin/oversikt`.
+- **Route on a tour day (2026-10-10):** migration `0021` trip_plans
+  `route_id/route_title/route_steep`. `TripPlanCard` has "Jämför en sparad
+  rutt med prognosen" (your saved routes, this area's first); the app runs
+  `analyseRoute` and sends `steepProfile()` (`utils/routeForecast.ts`:
+  `[sector 0–7, height per 10 m, metres]` for ground ≥ 30°) with
+  `POST /trips {regionId, date, routeId|null, steep}` (re-POST updates,
+  null removes; only your own routes). `notifyTrips` → `checkRoute()` in
+  `worker/src/trips.ts` ports the app's matching (aspects, metre limits or
+  treeline bands, 50 m margin, `TREELINE_M`) and adds "Din rutt ”X” går
+  över brant mark … där prognosen anger: Drevsnöflak ca 400 m (NO)" or "ingen
+  brant mark … – det betyder inte att den är säker". A snapshot: deleting
+  the route clears it (`socialCleanup`). Privacy policy updated.
+- **Notifications/emails in English (2026-10-10):** migration `0020`
+  `lang` on users, push_subscriptions, native_devices (default 'sv').
+  `worker/src/lang.ts` (`toLang`, `DANGER_NAMES`, `dangerText`,
+  `problemName` slug → EAWS English, `dayName`, `compass`). Account:
+  `POST /auth/lang` (AuthProvider sends it when `user.lang` ≠ app language;
+  register sends `lang`); notification texts are built at read/push time in
+  the reader's language (`describe(…, lang)`), trip and moderation notes at
+  creation in the recipient's; verification/reset emails per account.
+  Danger pushes per subscription/device: `lang` on `/push/subscribe` and
+  `/native/register`, plus `POST /push/lang` / `/native/lang` sent by
+  `syncPushLanguage`/`syncNativeLanguage` (NativePushBridge, on start) after
+  a language switch. Admin alarm emails stay Swedish.
+- **Duplicate tours (2026-10-10):** `POST /tours` with a timed track looks
+  for one of your tours starting within 15 min with a length within
+  max(30 %, 1 km); then 409 `{error, similarTo: {id, title, startedAt}}`
+  (`HttpError.extra` → `error(…, extra)`), unless `allowDuplicate: true`.
+  App: `ApiError.data`, `SimilarTourError` from `createTour`;
+  `NewTourPage` shows "Visa den befintliga" / "Spara ändå"; health import
+  marks such a workout imported and skips it silently.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -1016,6 +1056,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (238 tests as of 2026-10-10, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 150 tests, including the
+  (247 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 163 tests, including the
   real-page fixtures).
