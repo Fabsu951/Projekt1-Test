@@ -3,6 +3,8 @@ import { AspectRosette } from "./CompassIcons";
 import ElevationIcon from "./ElevationIcon";
 import { ELEVATION_LABELS } from "../data/elevations";
 import ProblemIcon from "./ProblemIcon";
+import { PROBLEM_LABELS } from "../data/avalancheProblems";
+import { PROBLEM_ADVICE } from "../data/dangerAdvice";
 import { t, compass } from "../i18n";
 
 function elevationText(problem: ForecastProblem): string {
@@ -58,6 +60,17 @@ export default function ForecastProblems({ problems }: Props) {
               </>
             )}
           </dl>
+
+          {problem.type && (
+            <details className="forecast-problem__explain">
+              <summary>{t("Vad är {name}?", { name: problem.name.toLowerCase() })}</summary>
+              <p>{PROBLEM_LABELS[problem.type].description}</p>
+              <p>
+                <strong>{t("Så hanterar du det:")}</strong>{" "}
+                {PROBLEM_ADVICE[problem.type]}
+              </p>
+            </details>
+          )}
 
           {problem.infoUrl && (
             <a className="forecast-problem__more" href={problem.infoUrl} target="_blank" rel="noreferrer">

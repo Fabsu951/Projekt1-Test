@@ -17,6 +17,7 @@ import type { WeatherPoint } from "../types/weather";
 import ForecastBadge from "../components/ForecastBadge";
 import OfficialForecast from "../components/OfficialForecast";
 import ForecastNotes from "../components/ForecastNotes";
+import DangerAdvice from "../components/DangerAdvice";
 import WeatherWarnings from "../components/WeatherWarnings";
 import ObservationCard from "../components/ObservationCard";
 import { fetchObservations } from "../services/observationService";
@@ -135,6 +136,7 @@ export default function RegionDetail() {
         <p className="notice notice--stale">{t("Ingen kontakt just nu — visar senast sparade prognos.")}</p>
       )}
       {forecast && <OfficialForecast forecast={forecast} />}
+      {forecast?.status === "published" && forecast.dangerLevel !== null && <DangerAdvice level={forecast.dangerLevel} />}
       {forecast && <ForecastNotes forecast={forecast} />}
       <WeatherWarnings regionId={region.id} />
 

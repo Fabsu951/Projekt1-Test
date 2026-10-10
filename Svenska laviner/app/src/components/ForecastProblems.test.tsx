@@ -28,6 +28,12 @@ describe("ForecastProblems", () => {
     expect(screen.getByRole("link", { name: /Mer om drevsnöflak/ })).toHaveAttribute("href", DREVSNO.infoUrl);
   });
 
+  it("explains the problem and how to handle it", () => {
+    render(<ForecastProblems problems={[DREVSNO]} />);
+    expect(screen.getByText("Vad är drevsnöflak?")).toBeInTheDocument();
+    expect(screen.getByText(/Undvik branta läsidor där den har samlats/)).toBeInTheDocument();
+  });
+
   it("says 'Alla väderstreck' rather than listing all eight", () => {
     render(<ForecastProblems problems={[{ ...DREVSNO, aspects: ["N", "NO", "O", "SO", "S", "SV", "V", "NV"] }]} />);
     expect(screen.getByText("Alla väderstreck")).toBeInTheDocument();
