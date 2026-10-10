@@ -1123,6 +1123,14 @@ the start, exact map point.
   icons). Icons/splash/og-image regenerated (scratchpad scripts: sharp for
   `assets/*.png` + `public/icons/*.webp` + `favicon.svg`, then
   `npm run app:icons` with the new colours; og-image rendered with Playwright).
+- **Phone tab bar (2026-10-10):** ≤ 640 px (`hooks/usePhoneLayout.ts`)
+  `TabBar.tsx` fixed at the bottom: Idag (also active on `/omrade/*`) ·
+  Karta · Observera (raised accent button → `/observationer/snabb`) · Flöde
+  (also `/person/*`) · Turer — Fabian asked for Flöde in the bar too. On
+  phones the header shows bell + avatar (`app-shell__quick`) and "Meny"
+  holds only the rest (`tab: true` items filtered out of `NAV_GROUPS`, empty
+  groups dropped, language + theme). Desktop unchanged. z-index 30 (the
+  full-screen map at 50 covers it); `main` gets bottom padding.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -1177,6 +1185,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (265 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  (266 tests as of 2026-10-10, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 177 tests, including the
   real-page fixtures).

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const auth = { user: null as unknown };
 vi.mock("../auth/useAuth", () => ({ useAuth: () => auth }));
@@ -67,5 +67,27 @@ describe("Layout", () => {
     expect(button).toHaveAttribute("aria-expanded", "false");
     fireEvent.click(button);
     expect(button).toHaveAttribute("aria-expanded", "true");
+  });
+
+  describe("on a phone", () => {
+    afterEach(() => vi.unstubAllGlobals());
+
+    it("puts the main pages in a tab bar and the rest in the menu", () => {
+      vi.stubGlobal("matchMedia", (query: string) => ({
+        matches: query === "(max-width: 640px)",
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      }));
+      auth.user = null;
+      app("/omrade/kebnekaisefjallen");
+      const tabs = screen.getByRole("navigation", { name: "Flikar" });
+      const names = [...tabs.querySelectorAll("a")].map((a) => a.textContent);
+      expect(names).toEqual(["Idag", "Karta", "Observera", "Flöde", "Turer"]);
+      expect(tabs.querySelector('a[aria-current="page"]')).toHaveTextContent("Idag");
+      const menu = screen.getByRole("navigation", { name: "Huvudmeny" });
+      expect(menu).not.toHaveTextContent("Karta");
+      expect(menu).toHaveTextContent("Säkerhetsguide");
+      expect(menu).toHaveTextContent("Observationer");
+    });
   });
 });

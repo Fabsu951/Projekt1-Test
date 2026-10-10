@@ -1256,4 +1256,6 @@ export const EN: Record<string, string> = {
   "Utseende": "Appearance",
   "Prognosen publicerad {time}": "Forecast published {time}",
   "Notiser går inte att slå på här just nu. Du kan göra det senare under Mina områden på startsidan.": "Notifications can't be turned on here right now. You can do it later under My areas on the start page.",
+  "Observera": "Observe",
+  "Flikar": "Tabs",
 };
