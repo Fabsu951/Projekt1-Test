@@ -13,6 +13,7 @@ import type { Person } from "../types/social";
 import type { Tour } from "../types/tour";
 import AdminBadge from "../components/AdminBadge";
 import ReportButton from "../components/ReportButton";
+import { t } from "../i18n";
 
 /** Someone's public page: follow them and see the tours they share with you. */
 export default function PersonPage() {
@@ -52,13 +53,13 @@ export default function PersonPage() {
           actions={
             <>
               <p className="page__lead">
-                {person.followers} följare · följer {person.following}
-                {person.followsMe && " · följer dig"}
+                {t("{followers} följare · följer {following}", { followers: person.followers, following: person.following })}
+                {person.followsMe && t(" · följer dig")}
               </p>
               <div className="button-row">
                 {person.isMe ? (
                   <Link to="/profil" className="button">
-                    Till din profil
+                    {t("Till din profil")}
                   </Link>
                 ) : (
                   <FollowButton personId={person.id} following={person.iFollow} onChange={(p) => setPerson({ ...person, ...p })} />
@@ -69,12 +70,12 @@ export default function PersonPage() {
                     type="button"
                     className="button"
                     onClick={async () => {
-                      if (!window.confirm("Ta bort profilbilden?")) return;
+                      if (!window.confirm(t("Ta bort profilbilden?"))) return;
                       await removeAvatar(token, person.id);
                       setPerson({ ...person, avatarPath: null });
                     }}
                   >
-                    Ta bort profilbild (admin)
+                    {t("Ta bort profilbild (admin)")}
                   </button>
                 )}
               </div>
@@ -84,10 +85,10 @@ export default function PersonPage() {
       </header>
 
       <section className="section">
-        <h2>Turer</h2>
-        {!tours && <PageLoading label="Laddar…" />}
-        {tours && tours.length === 0 && <p className="section__intro">Inga turer som du kan se.</p>}
-        <div className="tour-list">{tours?.map((t) => <TourCard key={t.id} tour={t} />)}</div>
+        <h2>{t("Turer")}</h2>
+        {!tours && <PageLoading label={t("Laddar…")} />}
+        {tours && tours.length === 0 && <p className="section__intro">{t("Inga turer som du kan se.")}</p>}
+        <div className="tour-list">{tours?.map((tour) => <TourCard key={tour.id} tour={tour} />)}</div>
       </section>
     </div>
   );

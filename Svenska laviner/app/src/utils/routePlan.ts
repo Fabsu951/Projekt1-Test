@@ -1,4 +1,5 @@
 import type { ElevationSampler } from "./elevation";
+import { t } from "../i18n";
 
 // A planned ski tour: straight legs between the points the user clicks
 // (there are no paths to follow in the mountains), sampled every few metres
@@ -18,7 +19,7 @@ export const SLOPE_BANDS: Array<{ below: number; label: string; color: string }>
   { below: 35, label: "30–35°", color: "#ffeb3b" },
   { below: 40, label: "35–40°", color: "#ff9800" },
   { below: 45, label: "40–45°", color: "#f44336" },
-  { below: Infinity, label: "över 45°", color: "#8c145a" },
+  { below: Infinity, label: t("över 45°"), color: "#8c145a" },
 ];
 
 export function slopeBand(slope: number): number {
@@ -51,8 +52,8 @@ export function densify(waypoints: LatLon[]): RoutePoint[] {
     const leg = distanceM(a, b);
     const steps = Math.max(1, Math.ceil(leg / STEP_M));
     for (let s = 1; s <= steps; s++) {
-      const t = s / steps;
-      out.push({ lat: a[0] + (b[0] - a[0]) * t, lon: a[1] + (b[1] - a[1]) * t, distM: total + leg * t });
+      const frac = s / steps;
+      out.push({ lat: a[0] + (b[0] - a[0]) * frac, lon: a[1] + (b[1] - a[1]) * frac, distM: total + leg * frac });
     }
     total += leg;
   }
@@ -99,8 +100,8 @@ export async function analyseRoute(waypoints: LatLon[], sampler: ElevationSample
   const points = densify(waypoints);
   await sampler.ready(points.map((p) => [p.lat, p.lon]));
   const samples: RouteSample[] = points.map((p) => {
-    const t = sampler.terrainSync(p.lat, p.lon);
-    return { ...p, elevation: t?.elevation ?? null, slope: t?.slope ?? null, aspect: t?.aspect ?? null };
+    const terrain = sampler.terrainSync(p.lat, p.lon);
+    return { ...p, elevation: terrain?.elevation ?? null, slope: terrain?.slope ?? null, aspect: terrain?.aspect ?? null };
   });
 
   let ascentM = 0;

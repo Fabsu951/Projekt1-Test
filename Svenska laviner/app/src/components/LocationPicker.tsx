@@ -4,6 +4,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Geolocation } from "@capacitor/geolocation";
 import TopoLayer from "./TopoLayer";
+import { t } from "../i18n";
 
 const PIN = L.divIcon({ className: "observation-pin", html: "<span></span>", iconSize: [22, 22], iconAnchor: [11, 11] });
 
@@ -40,7 +41,7 @@ export default function LocationPicker({ value, onChange }: Props) {
   const [focus, setFocus] = useState<Point | null>(null);
 
   async function locateMe() {
-    setStatus("Hämtar position…");
+    setStatus(t("Hämtar position…"));
     try {
       const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 15000 });
       const p = { lat: pos.coords.latitude, lon: pos.coords.longitude };
@@ -48,7 +49,7 @@ export default function LocationPicker({ value, onChange }: Props) {
       setFocus(p);
       setStatus(null);
     } catch {
-      setStatus("Kunde inte hämta din position. Klicka på kartan i stället.");
+      setStatus(t("Kunde inte hämta din position. Klicka på kartan i stället."));
     }
   }
 
@@ -64,11 +65,11 @@ export default function LocationPicker({ value, onChange }: Props) {
       </div>
       <div className="location-picker__bar">
         <button type="button" className="button" onClick={() => void locateMe()}>
-          📍 Använd min position
+          {t("📍 Använd min position")}
         </button>
         <span className="form__hint">
           {status ??
-            (value ? `${value.lat.toFixed(4)}, ${value.lon.toFixed(4)}` : "Klicka på kartan där du gjorde observationen.")}
+            (value ? `${value.lat.toFixed(4)}, ${value.lon.toFixed(4)}` : t("Klicka på kartan där du gjorde observationen."))}
         </span>
       </div>
     </div>

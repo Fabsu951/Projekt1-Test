@@ -4,6 +4,7 @@ import { Health, type Workout } from "capacitor-health";
 import { distanceM, simplify, type TrackPoint } from "../utils/trackImport";
 import { createTour, fetchImportedSources } from "./tourService";
 import type { Tour } from "../types/tour";
+import { t, locale } from "../i18n";
 
 // Tours from the phone's health store: Health Connect on Android, Apple
 // Hälsa (HealthKit) on iPhone. Exercise sessions with a GPS route, written
@@ -18,7 +19,7 @@ const AUTO_KEY = "fjallkoll:health-auto";
 const SOURCE_PREFIX = Capacitor.getPlatform() === "ios" ? "ah" : "hc";
 
 /** What the phone's health store is called, for the texts. */
-export const HEALTH_STORE_NAME = Capacitor.getPlatform() === "ios" ? "Apple Hälsa" : "Health Connect";
+export const HEALTH_STORE_NAME = Capacitor.getPlatform() === "ios" ? t("Apple Hälsa") : "Health Connect";
 const MAX_REMEMBERED = 500;
 /** Health Connect only lets apps read about a month back without a separate history permission. */
 export const LOOKBACK_DAYS = 30;
@@ -31,19 +32,19 @@ const MIN_DISTANCE_M = 300;
  * "downhillSkiing".
  */
 const TYPE_LABELS: Record<string, string> = {
-  skiing: "Skidtur",
-  downhillskiing: "Skidtur",
-  crosscountryskiing: "Längdskidor",
-  snowsports: "Skidtur",
+  skiing: t("Skidtur"),
+  downhillskiing: t("Skidtur"),
+  crosscountryskiing: t("Längdskidor"),
+  snowsports: t("Skidtur"),
   snowboarding: "Snowboard",
-  snowshoeing: "Snöskor",
-  hiking: "Vandring",
-  walking: "Promenad",
-  running: "Löpning",
-  biking: "Cykeltur",
-  cycling: "Cykeltur",
+  snowshoeing: t("Snöskor"),
+  hiking: t("Vandring"),
+  walking: t("Promenad"),
+  running: t("Löpning"),
+  biking: t("Cykeltur"),
+  cycling: t("Cykeltur"),
   mountainbiking: "Mountainbike",
-  climbing: "Klättring",
+  climbing: t("Klättring"),
 };
 
 /** Types that are probably ski tours, preselected in the list. */
@@ -187,7 +188,7 @@ export function toHealthWorkout(w: Workout): HealthWorkout | null {
   return {
     id: w.id ?? `${w.startDate}-${w.endDate}`,
     type,
-    label: TYPE_LABELS[typeKey(type)] ?? "Pass",
+    label: TYPE_LABELS[typeKey(type)] ?? t("Pass"),
     startDate: w.startDate,
     endDate: w.endDate,
     distanceM: Math.round(w.distance ?? length),
@@ -241,7 +242,7 @@ function routelessOf(w: Workout): RoutelessWorkout {
   return {
     id: w.id ?? `${w.startDate}-${w.endDate}`,
     type,
-    label: TYPE_LABELS[typeKey(type)] ?? "Pass",
+    label: TYPE_LABELS[typeKey(type)] ?? t("Pass"),
     startDate: w.startDate,
     endDate: w.endDate,
     distanceM: typeof w.distance === "number" && w.distance > 0 ? Math.round(w.distance) : null,
@@ -280,7 +281,7 @@ export async function requestWorkoutRoute(w: RoutelessWorkout): Promise<HealthWo
 
 /** "Skidtur 3 februari" – a starting title the user can change later. */
 export function defaultTitle(w: HealthWorkout): string {
-  const day = new Date(w.startDate).toLocaleDateString("sv-SE", { day: "numeric", month: "long" });
+  const day = new Date(w.startDate).toLocaleDateString(locale(), { day: "numeric", month: "long" });
   return `${w.label} ${day}`;
 }
 

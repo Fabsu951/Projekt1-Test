@@ -15,8 +15,9 @@ import {
   type SavedArea,
 } from "../services/offlineMap";
 import { offlineMapsAvailable, topoTileUrl } from "../services/mapTiles";
+import { t, locale } from "../i18n";
 
-const DATE = new Intl.DateTimeFormat("sv-SE", { day: "numeric", month: "short" });
+const DATE = new Intl.DateTimeFormat(locale(), { day: "numeric", month: "short" });
 
 interface Props {
   region: AvalancheRegion;
@@ -53,7 +54,7 @@ export default function OfflineMapCard({ region }: Props) {
       setSaved(await downloadArea(region, level, topoTileUrl, setProgress, abort.current.signal));
     } catch (err) {
       if (!(err instanceof DOMException && err.name === "AbortError")) {
-        setError(err instanceof Error ? err.message : "Kunde inte spara kartan.");
+        setError(err instanceof Error ? err.message : t("Kunde inte spara kartan."));
       }
     } finally {
       setProgress(null);
@@ -67,7 +68,7 @@ export default function OfflineMapCard({ region }: Props) {
       await removeArea(region.id);
       setSaved(null);
     } catch {
-      setError("Kunde inte ta bort den sparade kartan.");
+      setError(t("Kunde inte ta bort den sparade kartan."));
     }
   }
 
@@ -76,39 +77,37 @@ export default function OfflineMapCard({ region }: Props) {
       {progress ? (
         <>
           <p>
-            Sparar kartan… {progress.done.toLocaleString("sv-SE")} av {progress.total.toLocaleString("sv-SE")} kartbitar
+            {t("Sparar kartan… {done} av {total} kartbitar", { done: progress.done.toLocaleString(locale()), total: progress.total.toLocaleString(locale()) })}
           </p>
-          <progress max={progress.total} value={progress.done} aria-label="Nedladdning av offlinekarta" />
+          <progress max={progress.total} value={progress.done} aria-label={t("Nedladdning av offlinekarta")} />
           <button type="button" className="button" onClick={() => abort.current?.abort()}>
-            Avbryt
+            {t("Avbryt")}
           </button>
         </>
       ) : saved ? (
         <>
           <p>
-            <strong>Sparad för offline</strong> ({OFFLINE_LEVELS[saved.level].label.toLowerCase()},{" "}
-            {formatMegabytes(saved.bytes)}, {DATE.format(new Date(saved.savedAt))}). Kartan runt {region.name} fungerar
-            utan täckning.
+            <strong>{t("Sparad för offline")}</strong> ({OFFLINE_LEVELS[saved.level].label.toLowerCase()},{" "}
+            {formatMegabytes(saved.bytes)}, {DATE.format(new Date(saved.savedAt))}{t("). Kartan runt")}{" "}{region.name}{" "}{t("fungerar utan täckning.")}
           </p>
           <div className="button-row">
             <button type="button" className="button" onClick={() => void download(saved.level)}>
-              Uppdatera
+              {t("Uppdatera")}
             </button>
             <button type="button" className="button" onClick={() => void remove()}>
-              Ta bort
+              {t("Ta bort")}
             </button>
           </div>
         </>
       ) : (
         <>
           <p>
-            Spara kartan för ett område på ca 60 × 60 km runt {region.name} så att den fungerar utan täckning. Gör det
-            gärna på wifi.
+            {t("Spara kartan för ett område på ca 60 × 60 km runt")}{" "}{region.name}{" "}{t("så att den fungerar utan täckning. Gör det gärna på wifi.")}
           </p>
           <div className="button-row">
             {sizes.map((s) => (
               <button key={s.level} type="button" className="button" onClick={() => void download(s.level)}>
-                {s.label} (ca {s.size})
+                {s.label}{" "}{t("(ca")}{" "}{s.size})
               </button>
             ))}
           </div>

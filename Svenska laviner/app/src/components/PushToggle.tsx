@@ -17,6 +17,7 @@ import {
   nativeRegionPushEnabled,
   updateNativeRegions,
 } from "../services/nativePush";
+import { t } from "../i18n";
 
 /**
  * "Notiser när farograden ändras" for the starred regions: web push in
@@ -70,7 +71,7 @@ export default function PushToggle() {
           ? updateNativeRegions(favorites, token)
           : updatePushRegions(favorites)
         : (native ? disableNativeRegionPush(token) : disablePush()).then(() => setEnabled(false));
-    request.catch(() => setMessage("Kunde inte uppdatera dina notiser. Försök igen senare."));
+    request.catch(() => setMessage(t("Kunde inte uppdatera dina notiser. Försök igen senare.")));
   }, [favorites, enabled, native, token]);
 
   if (!available || favorites.length === 0) return null;
@@ -90,7 +91,7 @@ export default function PushToggle() {
         setEnabled(true);
       }
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Kunde inte ändra notiserna.");
+      setMessage(err instanceof Error ? err.message : t("Kunde inte ändra notiserna."));
     } finally {
       setBusy(false);
     }
@@ -100,7 +101,7 @@ export default function PushToggle() {
     <div className="push-toggle">
       <label className="push-toggle__label">
         <input type="checkbox" checked={enabled} disabled={busy} onChange={() => void toggle()} />
-        Notis när farograden ändras i mina områden
+        {t("Notis när farograden ändras i mina områden")}
       </label>
       {message && (
         <p className="push-toggle__message" role="alert">

@@ -945,6 +945,23 @@ the start, exact map point.
   (`AdminStatsPage`, button "Översikt" on `/profil` for admins): tiles,
   three single-series weekly bar charts (accent, hover titles, aria label
   with all values, "Visa som tabell"), area table.
+- **English version (2026-10-10):** `app/src/i18n/`: gettext-style
+  `t("<Swedish text>", {vars})` with `{name}` placeholders, `plural(n, one,
+  many)`, `locale()` for display dates/numbers (keep `"sv-SE"` only for
+  machine YYYY-MM-DD dates), `compass()` (O/V → E/W), `isEnglish()`.
+  English lives in `i18n/en.ts` keyed by the Swedish text (~1 150 entries);
+  a missing entry shows Swedish. `i18n.test.ts` fails if any literal
+  `t(`/`plural(` argument lacks English or placeholders differ — so every new
+  UI text must go through `t()` and get an `en.ts` entry. Language =
+  saved choice (localStorage `fjallkoll:language`) else browser
+  (sv/nb/nn/no/da → Swedish, others English); outside a browser (build →
+  page heads) always Swedish. Switching (`LanguageSwitch` in the menu and
+  `/om-appen#sprak`) reloads, so module-level `t()` in data files is fine.
+  Stays Swedish: forecast texts from NV (note shown in English; problem
+  names mapped to EAWS English via `problemName()`), user posts,
+  worker-made notification/email texts, place names; terms/privacy are
+  translated with a note that the Swedish text applies. Tests run in
+  Swedish (`test/setup.ts`); `english.test.tsx` checks English rendering.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)

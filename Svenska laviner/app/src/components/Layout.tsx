@@ -7,32 +7,34 @@ import { defaultTitle, fullTitle, PageTitleContext } from "./pageTitle";
 import { applyPageMeta } from "./pageMeta";
 import ErrorBoundary from "./ErrorBoundary";
 import Avatar from "./Avatar";
+import LanguageSwitch from "./LanguageSwitch";
 import NotificationBell from "./NotificationBell";
 import OfflineBanner from "./OfflineBanner";
 import { useAuth } from "../auth/useAuth";
+import { t } from "../i18n";
 
 /** The menu in three groups: today's conditions, the community, and reading. */
 const NAV_GROUPS = [
   {
-    label: "Läget",
+    label: t("Läget"),
     items: [
-      { to: "/", label: "Idag", end: true },
-      { to: "/karta", label: "Karta", end: false },
-      { to: "/observationer", label: "Observationer", end: false },
+      { to: "/", label: t("Idag"), end: true },
+      { to: "/karta", label: t("Karta"), end: false },
+      { to: "/observationer", label: t("Observationer"), end: false },
     ],
   },
   {
-    label: "Gemenskap",
+    label: t("Gemenskap"),
     items: [
-      { to: "/flode", label: "Flöde", end: false },
-      { to: "/turer", label: "Turer", end: false },
+      { to: "/flode", label: t("Flöde"), end: false },
+      { to: "/turer", label: t("Turer"), end: false },
     ],
   },
   {
-    label: "Lär dig mer",
+    label: t("Lär dig mer"),
     items: [
-      { to: "/sakerhetsguide", label: "Säkerhetsguide", end: false },
-      { to: "/om-appen", label: "Om Snöläge", end: false },
+      { to: "/sakerhetsguide", label: t("Säkerhetsguide"), end: false },
+      { to: "/om-appen", label: t("Om Snöläge"), end: false },
     ],
   },
 ];
@@ -98,12 +100,12 @@ export default function Layout() {
           onClick={() => setMenuOpen((o) => !o)}
         >
           <span className={menuOpen ? "menu-icon menu-icon--open" : "menu-icon"} aria-hidden="true" />
-          Meny
+          {t("Meny")}
         </button>
         <nav
           id="app-nav"
           className={menuOpen ? "app-shell__nav app-shell__nav--open" : "app-shell__nav"}
-          aria-label="Huvudmeny"
+          aria-label={t("Huvudmeny")}
         >
           {NAV_GROUPS.map((group) => (
             <div key={group.label} className="app-shell__nav-group" role="group" aria-label={group.label}>
@@ -125,11 +127,12 @@ export default function Layout() {
             </div>
           ))}
           <div className="app-shell__nav-group app-shell__nav-group--me">
+            <LanguageSwitch />
             {user && token && <NotificationBell token={token} />}
             <NavLink
               to={user ? "/profil" : "/logga-in"}
-              aria-label={user ? `Min profil (${user.displayName})` : undefined}
-              title={user ? "Min profil" : undefined}
+              aria-label={user ? t("Min profil ({name})", { name: user.displayName }) : undefined}
+              title={user ? t("Min profil") : undefined}
               className={({ isActive }) =>
                 [
                   "app-shell__nav-link app-shell__nav-link--account",
@@ -143,10 +146,10 @@ export default function Layout() {
               {user ? (
                 <>
                   <Avatar name={user.displayName} avatarPath={user.avatarPath} xp={user.xp} size={38} />
-                  <span className="app-shell__account-name">Min profil</span>
+                  <span className="app-shell__account-name">{t("Min profil")}</span>
                 </>
               ) : (
-                "Logga in"
+                t("Logga in")
               )}
             </NavLink>
           </div>

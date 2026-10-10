@@ -6,9 +6,10 @@ import type { Badge, Comment, ItemType } from "../types/social";
 import Avatar from "./Avatar";
 import AdminBadge from "./AdminBadge";
 import ReportButton from "./ReportButton";
+import { t, locale, plural } from "../i18n";
 
 const when = (iso: string) =>
-  new Date(iso).toLocaleString("sv-SE", {
+  new Date(iso).toLocaleString(locale(), {
     day: "numeric",
     month: "short",
     hour: "2-digit",
@@ -49,13 +50,13 @@ export default function Reactions({
     if (!open) return;
     let cancelled = false;
     fetchComments(type, id, token)
-      .then((t) => {
+      .then((result) => {
         if (cancelled) return;
-        setThread(t.comments);
-        setPeople(t.people ?? {});
-        setCount(t.comments.length);
-        setLikes(t.likes);
-        setLikedState(t.likedByMe);
+        setThread(result.comments);
+        setPeople(result.people ?? {});
+        setCount(result.comments.length);
+        setLikes(result.likes);
+        setLikedState(result.likedByMe);
       })
       .catch((err: Error) => !cancelled && setError(err.message));
     return () => {
@@ -84,20 +85,20 @@ export default function Reactions({
     setBusy(true);
     setError(null);
     try {
-      const t = await addComment(token, type, id, draft);
-      setThread(t.comments);
-      setPeople(t.people ?? {});
-      setCount(t.comments.length);
+      const comment = await addComment(token, type, id, draft);
+      setThread(comment.comments);
+      setPeople(comment.people ?? {});
+      setCount(comment.comments.length);
       setDraft("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunde inte skicka kommentaren.");
+      setError(err instanceof Error ? err.message : t("Kunde inte skicka kommentaren."));
     } finally {
       setBusy(false);
     }
   }
 
   async function remove(c: Comment) {
-    if (!token || !window.confirm("Ta bort kommentaren?")) return;
+    if (!token || !window.confirm(t("Ta bort kommentaren?"))) return;
     await deleteComment(token, c.id);
     setThread((list) => list?.filter((x) => x.id !== c.id) ?? null);
     setCount((n) => n - 1);
@@ -113,20 +114,20 @@ export default function Reactions({
             aria-pressed={liked}
             onClick={() => void toggleLike()}
           >
-            <span aria-hidden="true">{liked ? "♥" : "♡"}</span> Gilla
+            <span aria-hidden="true">{liked ? "♥" : "♡"}</span>{" "}{t("Gilla")}
             {likes > 0 && ` · ${likes}`}
           </button>
         ) : (
           likes > 0 && <span className="reactions__count">♥ {likes}</span>
         )}
         <button type="button" className="reactions__toggle" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-          {count === 0 ? "Kommentera" : count === 1 ? "1 kommentar" : `${count} kommentarer`}
+          {count === 0 ? t("Kommentera") : plural(count, "1 kommentar", "{n} kommentarer")}
         </button>
       </div>
 
       {open && (
         <div className="reactions__thread">
-          {!thread && !error && <p className="reactions__hint">Laddar…</p>}
+          {!thread && !error && <p className="reactions__hint">{t("Laddar…")}</p>}
           {thread?.map((c) => (
             <div key={c.id} className="comment">
               <Avatar name={c.author} avatarPath={people[c.userId]?.avatarPath} xp={people[c.userId]?.xp} size={30} />
@@ -136,7 +137,7 @@ export default function Reactions({
                   <AdminBadge show={people[c.userId]?.isAdmin} /> · {when(c.createdAt)}
                   {c.canDelete && (
                     <button type="button" className="comment__delete" onClick={() => void remove(c)}>
-                      Ta bort
+                      {t("Ta bort")}
                     </button>
                   )}
                   <ReportButton type="comment" id={c.id} ownerId={c.userId} className="comment__delete" />
@@ -151,17 +152,17 @@ export default function Reactions({
                 rows={2}
                 maxLength={2000}
                 value={draft}
-                placeholder="Skriv en kommentar – fråga om förhållandena, tipsa om vägval…"
-                aria-label="Skriv en kommentar"
+                placeholder={t("Skriv en kommentar – fråga om förhållandena, tipsa om vägval…")}
+                aria-label={t("Skriv en kommentar")}
                 onChange={(e) => setDraft(e.target.value)}
               />
               <button type="submit" className="button" disabled={busy || !draft.trim()}>
-                Skicka
+                {t("Skicka")}
               </button>
             </form>
           ) : (
             <p className="reactions__hint">
-              <Link to="/logga-in?next=/flode">Logga in</Link> för att kommentera.
+              <Link to="/logga-in?next=/flode">{t("Logga in")}</Link>{" "}{t("för att kommentera.")}
             </p>
           )}
           {error && <p className="error">{error}</p>}

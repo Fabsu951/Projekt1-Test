@@ -1,6 +1,7 @@
 import { Preferences } from "@capacitor/preferences";
 import { corridorTiles, downloadTiles, estimateBytes, forgetTileCaches, offlineSupported, TILE_CACHE_PREFIX, type DownloadProgress } from "./offlineMap";
 import type { LatLon, RouteAnalysis, RouteSample } from "../utils/routePlan";
+import { t } from "../i18n";
 
 // Planned routes kept on the device for use without coverage: the points,
 // the finished analysis (heights, slopes, profile — which otherwise need
@@ -92,7 +93,7 @@ export async function saveRouteOffline(
   onProgress: (p: DownloadProgress) => void,
   signal?: AbortSignal
 ): Promise<OfflineRoute> {
-  if (!offlineSupported()) throw new Error("Den här webbläsaren kan inte spara kartor offline.");
+  if (!offlineSupported()) throw new Error(t("Den här webbläsaren kan inte spara kartor offline."));
   const key = route.key ?? (route.routeId !== null ? `route-${route.routeId}` : `local-${Date.now()}`);
   // A changed route may cover other tiles: start its cache afresh.
   await caches.delete(cacheName(key));

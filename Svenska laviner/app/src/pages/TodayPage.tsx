@@ -16,6 +16,7 @@ import PushToggle from "../components/PushToggle";
 import ForecastBadge from "../components/ForecastBadge";
 import FavoriteButton from "../components/FavoriteButton";
 import HealthImportNotice from "../components/HealthImportNotice";
+import { t, locale } from "../i18n";
 
 // The start page, "Idag i fjällen": today's forecast for your starred areas
 // first, then quick actions, fresh observations, an overview map and the
@@ -25,7 +26,7 @@ const OBSERVATION_DAYS = 7;
 const SHOWN_OBSERVATIONS = 4;
 
 function todayText(now: Date): string {
-  const text = now.toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Stockholm" });
+  const text = now.toLocaleDateString(locale(), { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Stockholm" });
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
@@ -83,21 +84,20 @@ export default function TodayPage() {
   return (
     <div className="page page--wide today">
       <header className="today__hello">
-        <h1>Idag i fjällen</h1>
+        <h1>{t("Idag i fjällen")}</h1>
         <p>
           {todayText(now)}
-          {published && ` · prognosen publicerad ${published}`}
+          {published && t(" · prognosen publicerad {time}", { time: published })}
         </p>
       </header>
 
-      {stale && <p className="notice notice--stale">Ingen kontakt just nu. Visar senast sparade prognoser.</p>}
+      {stale && <p className="notice notice--stale">{t("Ingen kontakt just nu. Visar senast sparade prognoser.")}</p>}
       {offSeason && (
         <div className="today-season">
-          <strong>Ingen lavinprognos just nu.</strong>
+          <strong>{t("Ingen lavinprognos just nu.")}</strong>
           <p>
-            Naturvårdsverket publicerar lavinprognoser från mitten av december till mitten av maj. Under tiden kan du läsa{" "}
-            <Link to="/sakerhetsguide">säkerhetsguiden</Link>, planera turer på <Link to="/karta">kartan</Link> eller lägga in
-            förra säsongens turer i <Link to="/turer">turdagboken</Link>.
+            {t("Naturvårdsverket publicerar lavinprognoser från mitten av december till mitten av maj. Under tiden kan du läsa")}{" "}
+            <Link to="/sakerhetsguide">{t("säkerhetsguiden")}</Link>{t(", planera turer på")}{" "}<Link to="/karta">{t("kartan")}</Link>{" "}{t("eller lägga in förra säsongens turer i")}{" "}<Link to="/turer">{t("turdagboken")}</Link>.
           </p>
         </div>
       )}
@@ -108,7 +108,7 @@ export default function TodayPage() {
         <div className="today__main">
           <section aria-labelledby="today-mine">
             <h2 id="today-mine" className="today__label">
-              Mina områden
+              {t("Mina områden")}
             </h2>
             {favorites.length > 0 ? (
               <>
@@ -122,8 +122,7 @@ export default function TodayPage() {
             ) : (
               <div className="today-empty">
                 <p>
-                  Tryck på <span aria-hidden="true">☆</span> stjärnan vid ett område, så hamnar det här med dagens prognos, trenden och
-                  lavinproblemen.
+                  {t("Tryck på")}{" "}<span aria-hidden="true">☆</span>{" "}{t("stjärnan vid ett område, så hamnar det här med dagens prognos, trenden och lavinproblemen.")}
                 </p>
                 <NearestRegion />
               </div>
@@ -132,22 +131,24 @@ export default function TodayPage() {
 
           <section aria-labelledby="today-quick">
             <h2 id="today-quick" className="today__label">
-              Snabbval
+              {t("Snabbval")}
             </h2>
             <QuickActions />
           </section>
 
           <section aria-labelledby="today-obs">
             <h2 id="today-obs" className="today__label">
-              {favorites.length > 0 ? "Observationer i dina områden" : "Senaste observationerna"}
+              {favorites.length > 0 ? t("Observationer i dina områden") : t("Senaste observationerna")}
               <Link to="/observationer" className="today__label-link">
-                Alla →
+                {t("Alla →")}
               </Link>
             </h2>
             <RecentObservations
               observations={myObservations}
               now={now}
-              emptyText={`Inga observationer de senaste ${OBSERVATION_DAYS} dagarna${favorites.length > 0 ? " i dina områden" : ""}.`}
+              emptyText={(favorites.length > 0
+                  ? t("Inga observationer de senaste {n} dagarna i dina områden.", { n: OBSERVATION_DAYS })
+                  : t("Inga observationer de senaste {n} dagarna.", { n: OBSERVATION_DAYS }))}
             />
           </section>
         </div>
@@ -155,9 +156,9 @@ export default function TodayPage() {
         <aside className="today__side">
           <section aria-labelledby="today-map">
             <h2 id="today-map" className="today__label">
-              Översikt
+              {t("Översikt")}
               <Link to="/karta" className="today__label-link">
-                Öppna kartan →
+                {t("Öppna kartan →")}
               </Link>
             </h2>
             <OverviewMap forecasts={forecasts} favorites={favorites} />
@@ -166,7 +167,7 @@ export default function TodayPage() {
           {others.length > 0 && (
             <section aria-labelledby="today-others">
               <h2 id="today-others" className="today__label">
-                {favorites.length > 0 ? "Övriga områden" : "Alla områden"}
+                {favorites.length > 0 ? t("Övriga områden") : t("Alla områden")}
               </h2>
               <ul className="today-panel today-areas">
                 {others.map((region) => {
@@ -178,7 +179,7 @@ export default function TodayPage() {
                           {region.name}
                           {f?.headline && <small>{f.headline}</small>}
                         </span>
-                        {f ? <ForecastBadge forecast={f} /> : <span className="skeleton skeleton--badge" aria-label="Laddar farograd" />}
+                        {f ? <ForecastBadge forecast={f} /> : <span className="skeleton skeleton--badge" aria-label={t("Laddar farograd")} />}
                       </Link>
                       <FavoriteButton regionId={region.id} regionName={region.name} />
                     </li>
@@ -188,11 +189,11 @@ export default function TodayPage() {
             </section>
           )}
           <p className="source-list">
-            Farograder från Naturvårdsverkets{" "}
+            {t("Farograder från Naturvårdsverkets")}{" "}
             <a href="https://www.lavinprognoser.se/" target="_blank" rel="noreferrer">
-              lavinprognoser.se
+              {t("lavinprognoser.se")}
             </a>
-            . Läs alltid hela prognosen innan du ger dig ut.
+            {t(". Läs alltid hela prognosen innan du ger dig ut.")}
           </p>
         </aside>
       </div>

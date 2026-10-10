@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import ShareButton from "./ShareButton";
 
-const props = { path: "/omrade/abisko", title: "Lavinprognos Abisko", text: "Dagens lavinprognos", what: "prognosen för Abisko" };
+const props = { path: "/omrade/abisko", title: "Lavinprognos Abisko", text: "Dagens lavinprognos", label: "Dela prognosen för Abisko" };
 
 describe("ShareButton", () => {
   afterEach(() => {

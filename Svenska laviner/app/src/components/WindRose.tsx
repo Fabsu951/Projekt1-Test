@@ -11,6 +11,7 @@ import {
   windFromDistribution,
 } from "../utils/windAnalysis";
 import { windCompass } from "../utils/weatherFormat";
+import { t, compass } from "../i18n";
 
 // Validated (node scripts/validate_palette.js --ordinal --mode dark --surface
 // "#132132") 5-step single-hue sequential ramp. On this dark surface the
@@ -78,17 +79,17 @@ export default function WindRose({ readings, sourceLabel, tableCaption }: Props)
   const nearThreshold = calm && raw !== null && raw.maxSpeed >= NEAR_THRESHOLD_MS;
 
   const summary = !calm
-    ? `Vind från ${windFrom} → mest vindlastat: ${top.sector}-vända sluttningar.`
+    ? t("Vind från {from} → mest vindlastat: {sector}-vända sluttningar.", { from: compass(windFrom ?? ""), sector: compass(top.sector) })
     : raw
-      ? `Ingen betydande vindtransport i ${sourceLabel} — högsta vinden var ${raw.maxSpeed.toFixed(1)} m/s (${windCompass(raw.maxSpeedDirection)}), under transportgränsen på ${TRANSPORT_THRESHOLD_MS} m/s.`
-      : `Ingen betydande vindtransport i ${sourceLabel}.`;
+      ? t("Ingen betydande vindtransport i {source} — högsta vinden var {speed} m/s ({direction}), under transportgränsen på {limit} m/s.", { source: sourceLabel, speed: raw.maxSpeed.toFixed(1), direction: windCompass(raw.maxSpeedDirection), limit: TRANSPORT_THRESHOLD_MS })
+      : t("Ingen betydande vindtransport i {source}.", { source: sourceLabel });
 
   return (
     <div className="wind-rose">
       <svg
         viewBox={`0 0 ${VIEWBOX_SIZE} ${VIEWBOX_SIZE}`}
         role="img"
-        aria-label={`Vindlastros per väderstreck. ${summary}`}
+        aria-label={t("Vindlastros per väderstreck. {summary}", { summary })}
         className="wind-rose__svg"
       >
         {showCalmDirections
@@ -121,8 +122,8 @@ export default function WindRose({ readings, sourceLabel, tableCaption }: Props)
         )}
         {calm && raw && (
           <text x={CENTER} y={CENTER} textAnchor="middle" className="wind-rose__hub-text">
-            <tspan x={CENTER} dy="-0.2em">Ingen</tspan>
-            <tspan x={CENTER} dy="1.1em">transport</tspan>
+            <tspan x={CENTER} dy="-0.2em">{t("Ingen")}</tspan>
+            <tspan x={CENTER} dy="1.1em">{t("transport")}</tspan>
           </text>
         )}
         {sectors.map((s) => {
@@ -137,7 +138,7 @@ export default function WindRose({ readings, sourceLabel, tableCaption }: Props)
               dominantBaseline="middle"
               className={isTop ? "wind-rose__label wind-rose__label--top" : "wind-rose__label"}
             >
-              {s.sector}
+              {compass(s.sector)}
             </text>
           );
         })}
@@ -147,22 +148,24 @@ export default function WindRose({ readings, sourceLabel, tableCaption }: Props)
         {!calm && (
           <AspectRosette
             highlighted={mostLoadedSectors(sectors, 2).map((s) => s.sector)}
-            label={`Mest vindlastade väderstreck: ${mostLoadedSectors(sectors, 2)
-              .map((s) => s.sector)
-              .join(", ")}`}
+            label={t("Mest vindlastade väderstreck: {sectors}", {
+              sectors: mostLoadedSectors(sectors, 2)
+                .map((s) => compass(s.sector))
+                .join(", "),
+            })}
           />
         )}
         <p className="wind-rose__summary">{summary}</p>
       </div>
       {showCalmDirections && (
-        <p className="wind-rose__hint">De grå fälten visar varifrån vinden blåser, inte vindlast.</p>
+        <p className="wind-rose__hint">{t("De grå fälten visar varifrån vinden blåser, inte vindlast.")}</p>
       )}
       {!calm && (
-        <p className="wind-rose__hint">Pilen visar vindens riktning; fälten visar var snön läggs (läsidan).</p>
+        <p className="wind-rose__hint">{t("Pilen visar vindens riktning; fälten visar var snön läggs (läsidan).")}</p>
       )}
       {nearThreshold && (
         <p className="wind-rose__near">
-          Nära transportgränsen — lös snö kan ändå börja driva, särskilt i byar och på krön.
+          {t("Nära transportgränsen — lös snö kan ändå börja driva, särskilt i byar och på krön.")}
         </p>
       )}
 
@@ -170,15 +173,15 @@ export default function WindRose({ readings, sourceLabel, tableCaption }: Props)
         <caption>{tableCaption}</caption>
         <thead>
           <tr>
-            <th scope="col">Väderstreck</th>
-            <th scope="col">Timmar med vindtransport</th>
-            <th scope="col">Relativt lastindex</th>
+            <th scope="col">{t("Väderstreck")}</th>
+            <th scope="col">{t("Timmar med vindtransport")}</th>
+            <th scope="col">{t("Relativt lastindex")}</th>
           </tr>
         </thead>
         <tbody>
           {sectors.map((s) => (
             <tr key={s.sector}>
-              <th scope="row">{s.sector}</th>
+              <th scope="row">{compass(s.sector)}</th>
               <td>{s.hoursWithTransport}</td>
               <td>{s.loadIndex}</td>
             </tr>

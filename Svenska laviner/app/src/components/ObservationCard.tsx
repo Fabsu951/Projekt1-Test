@@ -8,9 +8,10 @@ import { imageUrl } from "../services/api";
 import { deleteObservation, reportObservation, restoreObservation } from "../services/observationService";
 import type { Observation } from "../types/observation";
 import AdminBadge from "./AdminBadge";
+import { t, locale } from "../i18n";
 
 function formatWhen(iso: string): string {
-  return new Date(iso).toLocaleString("sv-SE", {
+  return new Date(iso).toLocaleString(locale(), {
     day: "numeric",
     month: "short",
     hour: "2-digit",
@@ -40,7 +41,7 @@ export default function ObservationCard({ observation: o, onChanged, showAdminAc
       setMessage(done);
       onChanged?.();
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Något gick fel.");
+      setMessage(err instanceof Error ? err.message : t("Något gick fel."));
     } finally {
       setBusy(false);
     }
@@ -48,13 +49,13 @@ export default function ObservationCard({ observation: o, onChanged, showAdminAc
 
   function onReport() {
     if (!token) return;
-    const reason = window.prompt("Varför är inlägget olämpligt? (valfritt)") ?? "";
-    void run(() => reportObservation(token, o.id, reason), "Tack, inlägget är anmält.");
+    const reason = window.prompt(t("Varför är inlägget olämpligt? (valfritt)")) ?? "";
+    void run(() => reportObservation(token, o.id, reason), t("Tack, inlägget är anmält."));
   }
 
   function onDelete() {
-    if (!token || !window.confirm("Ta bort observationen? Det går inte att ångra.")) return;
-    void run(() => deleteObservation(token, o.id), "Borttagen.");
+    if (!token || !window.confirm(t("Ta bort observationen? Det går inte att ångra."))) return;
+    void run(() => deleteObservation(token, o.id), t("Borttagen."));
   }
 
   return (
@@ -69,7 +70,7 @@ export default function ObservationCard({ observation: o, onChanged, showAdminAc
         </span>
       </header>
       {((o.dangerSigns?.length ?? 0) > 0 || o.snowDepthCm != null) && (
-        <ul className="observation-card__details" aria-label="Varningstecken och snödjup">
+        <ul className="observation-card__details" aria-label={t("Varningstecken och snödjup")}>
           {o.dangerSigns?.map((sign) => {
             const label = dangerSignLabel(sign);
             return label ? (
@@ -78,18 +79,18 @@ export default function ObservationCard({ observation: o, onChanged, showAdminAc
               </li>
             ) : null;
           })}
-          {o.snowDepthCm != null && <li className="observation-card__depth">Snödjup {o.snowDepthCm} cm</li>}
+          {o.snowDepthCm != null && <li className="observation-card__depth">{t("Snödjup")}{" "}{o.snowDepthCm} cm</li>}
         </ul>
       )}
       <p className="observation-card__text">{o.description}</p>
       {o.imagePath && (
         <a href={imageUrl(o.imagePath)} target="_blank" rel="noreferrer">
-          <img className="observation-card__image" src={imageUrl(o.imagePath)} alt="Bild från observationen" loading="lazy" />
+          <img className="observation-card__image" src={imageUrl(o.imagePath)} alt={t("Bild från observationen")} loading="lazy" />
         </a>
       )}
       <footer className="observation-card__footer">
         <span>
-          av{" "}
+          {t("av")}{" "}
           <Link to={`/person/${o.userId}`}>
             <strong>{o.author}</strong>
           </Link>
@@ -102,27 +103,27 @@ export default function ObservationCard({ observation: o, onChanged, showAdminAc
         <span className="observation-card__actions">
           {user?.canPost && !isOwner && !o.hidden && (
             <button type="button" className="link-button" onClick={onReport} disabled={busy}>
-              Anmäl
+              {t("Anmäl")}
             </button>
           )}
           {(isOwner || user?.isAdmin) && (
             <button type="button" className="link-button link-button--danger" onClick={onDelete} disabled={busy}>
-              Ta bort
+              {t("Ta bort")}
             </button>
           )}
           {showAdminActions && user?.isAdmin && o.reportCount > 0 && token && (
             <button
               type="button"
               className="link-button"
-              onClick={() => void run(() => restoreObservation(token, o.id), "Återställd.")}
+              onClick={() => void run(() => restoreObservation(token, o.id), t("Återställd."))}
               disabled={busy}
             >
-              Återställ
+              {t("Återställ")}
             </button>
           )}
         </span>
       </footer>
-      {o.hidden && <p className="observation-card__flag">Dold efter anmälningar ({o.reportCount}).</p>}
+      {o.hidden && <p className="observation-card__flag">{t("Dold efter anmälningar (")}{o.reportCount}).</p>}
       {message && <p className="observation-card__message">{message}</p>}
     </article>
   );

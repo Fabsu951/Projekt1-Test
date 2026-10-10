@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SHOWING_SAVED_EVENT } from "../services/cache";
+import { t, locale } from "../i18n";
 
 function savedTime(iso: string): string {
-  return new Date(iso).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleString(locale(), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
 /**
@@ -50,12 +51,12 @@ export default function OfflineBanner() {
     <div className="offline-banner" role="status">
       <span className="offline-banner__dot" aria-hidden="true" />
       <span>
-        {online ? <strong>Ingen kontakt med servern.</strong> : <strong>Du är offline.</strong>}{" "}
-        {savedFrom ? `Visar det som sparades ${savedTime(savedFrom)}.` : "Snöläge visar det som är sparat på enheten."}
+        {online ? <strong>{t("Ingen kontakt med servern.")}</strong> : <strong>{t("Du är offline.")}</strong>}{" "}
+        {savedFrom ? t("Visar det som sparades {time}.", { time: savedTime(savedFrom) }) : t("Snöläge visar det som är sparat på enheten.")}
       </span>
       {!onOfflinePage && (
         <Link to="/offline" className="offline-banner__link">
-          Vad fungerar utan täckning?
+          {t("Vad fungerar utan täckning?")}
         </Link>
       )}
     </div>

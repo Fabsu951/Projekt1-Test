@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { SLOPE_BANDS, slopeBand, type RouteSample } from "../utils/routePlan";
+import { t, locale } from "../i18n";
 
 const HEIGHT = 120;
 const PAD = { left: 54, right: 10, top: 22, bottom: 22 };
 
-const km = (m: number) => `${(m / 1000).toLocaleString("sv-SE", { maximumFractionDigits: 1 })} km`;
+const km = (m: number) => `${(m / 1000).toLocaleString(locale(), { maximumFractionDigits: 1 })} km`;
 
 /**
  * Height along the route, the line coloured by the steepness of the ground
@@ -82,7 +83,7 @@ export default function ElevationProfile({
       onPointerDown={(e) => pick(e.clientX)}
       onPointerLeave={() => onHover(null)}
     >
-      <svg width={width} height={HEIGHT} role="img" aria-label={`Höjdprofil från ${Math.round(min)} till ${Math.round(max)} m över ${km(total)}`}>
+      <svg width={width} height={HEIGHT} role="img" aria-label={t("Höjdprofil från {min} till {max} m över {distance}", { min: Math.round(min), max: Math.round(max), distance: km(total) })}>
         {[min, max].map((h) => (
           <g key={h}>
             <line x1={PAD.left} x2={width - PAD.right} y1={y(h)} y2={y(h)} className="elevation-profile__grid" />

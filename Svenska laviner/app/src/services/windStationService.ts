@@ -1,4 +1,5 @@
 import { haversineDistanceKm } from "../utils/geo";
+import { t } from "../i18n";
 
 /**
  * SMHI's separate observation network (metobs), distinct from the forecast
@@ -57,7 +58,7 @@ export interface WindSample {
 export async function findNearestWindStation(lat: number, lon: number): Promise<WindStation> {
   const res = await fetch(`${METOBS_BASE}/parameter/${WIND_SPEED_PARAMETER}.json`);
   if (!res.ok) {
-    throw new Error(`Kunde inte hämta stationslistan: HTTP ${res.status}`);
+    throw new Error(t("Kunde inte hämta stationslistan: HTTP {status}", { status: res.status }));
   }
   const data: RawStationListResponse = await res.json();
 
@@ -65,7 +66,7 @@ export async function findNearestWindStation(lat: number, lon: number): Promise<
     (s) => s.active !== false && Number.isFinite(s.latitude) && Number.isFinite(s.longitude)
   );
   if (candidates.length === 0) {
-    throw new Error("Inga aktiva vindstationer hittades");
+    throw new Error(t("Inga aktiva vindstationer hittades"));
   }
 
   let nearest = candidates[0];

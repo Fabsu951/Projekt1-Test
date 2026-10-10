@@ -1,9 +1,10 @@
 import type { AvalancheForecast, DangerLevel, Elevation, ForecastNote, ForecastProblem, ForecastTrend } from "../types/avalanche";
 import { REGIONS } from "../data/regions";
-import { SITE_PROBLEM_TYPES } from "../data/avalancheProblems";
+import { PROBLEM_LABELS, SITE_PROBLEM_TYPES } from "../data/avalancheProblems";
 import { COMPASS_SECTORS, type CompassSector } from "../utils/windAnalysis";
 import { cached, withCache } from "./cache";
 import { ApiError } from "./api";
+import { isEnglish, t } from "../i18n";
 
 /**
  * Official forecasts come from Naturvårdsverket's lavinprognoser.se
@@ -57,6 +58,12 @@ const ELEVATIONS: Elevation[] = ["kalfjall", "tradgrans", "under_tradgrans"];
 const text = (v: unknown): string | null => (typeof v === "string" && v.trim() ? v.trim() : null);
 const metres = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
+/** The forecast's own (Swedish) problem name, or the English one for a type we know. */
+function problemName(siteType: unknown, name: string): string {
+  const ours = typeof siteType === "string" ? SITE_PROBLEM_TYPES[siteType] : undefined;
+  return isEnglish() && ours ? PROBLEM_LABELS[ours].label : name;
+}
+
 /** Keeps only well-formed problems, and only the aspects/elevations we know how to draw. */
 export function toProblems(raw: unknown): ForecastProblem[] {
   if (!Array.isArray(raw)) return [];
@@ -67,7 +74,7 @@ export function toProblems(raw: unknown): ForecastProblem[] {
     return [
       {
         type: SITE_PROBLEM_TYPES[p.type] ?? null,
-        name,
+        name: problemName(p.type, name),
         aspects: COMPASS_SECTORS.filter((s: CompassSector) => list(p.aspects).includes(s)),
         elevations: ELEVATIONS.filter((e) => list(p.elevations).includes(e)),
         metersAbove: metres(p.metersAbove),
@@ -158,7 +165,7 @@ export async function fetchAllForecasts(workerBase = WORKER_BASE): Promise<Avala
   if (!workerBase) return REGIONS.map((r) => unavailable(r.id));
 
   const res = await fetch(`${workerBase.replace(/\/$/, "")}/forecasts`);
-  if (!res.ok) throw new Error(`Prognoshämtning misslyckades: ${res.status}`);
+  if (!res.ok) throw new Error(t("Prognoshämtning misslyckades: {status}", { status: res.status }));
   const data: { regions: WorkerRegionForecast[] } = await res.json();
 
   const byId = new Map(data.regions.map((item) => [item.regionId, toForecast(item)]));
@@ -189,7 +196,7 @@ export function toHistory(raw: unknown): HistoryDay[] {
 export async function fetchForecastHistory(regionId: string, workerBase = WORKER_BASE): Promise<HistoryDay[]> {
   if (!workerBase) return [];
   const res = await fetch(`${workerBase.replace(/\/$/, "")}/forecasts/history?region=${encodeURIComponent(regionId)}&days=7`);
-  if (!res.ok) throw new Error(`Historikhämtning misslyckades: ${res.status}`);
+  if (!res.ok) throw new Error(t("Historikhämtning misslyckades: {status}", { status: res.status }));
   return toHistory(await res.json());
 }
 
@@ -257,7 +264,7 @@ export function toSeason(raw: unknown): Season | null {
   const problems = Array.isArray(r.problems)
     ? r.problems.flatMap((p): Season["problems"] =>
         typeof p?.type === "string" && typeof p?.name === "string" && Number.isInteger(p?.days)
-          ? [{ type: p.type, name: p.name, days: p.days }]
+          ? [{ type: p.type, name: problemName(p.type, p.name), days: p.days }]
           : []
       )
     : [];
@@ -266,14 +273,14 @@ export function toSeason(raw: unknown): Season | null {
 
 /** A whole season for an area, from Naturvårdsverket's API via the worker (saved for offline use). */
 export async function fetchSeason(regionId: string, season: number, workerBase = WORKER_BASE): Promise<Season> {
-  if (!workerBase) throw new Error("Säsongsdata saknas i den här versionen.");
+  if (!workerBase) throw new Error(t("Säsongsdata saknas i den här versionen."));
   return cached(`season:${regionId}:${season}`, async () => {
     const res = await fetch(
       `${workerBase.replace(/\/$/, "")}/forecasts/season?region=${encodeURIComponent(regionId)}&season=${season}&v=2`
     );
-    if (!res.ok) throw new ApiError(res.status, "Kunde inte hämta säsongen just nu.");
+    if (!res.ok) throw new ApiError(res.status, t("Kunde inte hämta säsongen just nu."));
     const season_ = toSeason(await res.json());
-    if (!season_) throw new ApiError(502, "Säsongsdatan gick inte att läsa.");
+    if (!season_) throw new ApiError(502, t("Säsongsdatan gick inte att läsa."));
     return season_;
   });
 }

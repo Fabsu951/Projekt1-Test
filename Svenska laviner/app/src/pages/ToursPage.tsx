@@ -9,6 +9,7 @@ import { seasonMonths } from "../data/tourSeasons";
 import { fetchTours } from "../services/tourService";
 import type { Tour } from "../types/tour";
 import HealthImportNotice from "../components/HealthImportNotice";
+import { t } from "../i18n";
 
 export default function ToursPage() {
   const { user, token } = useAuth();
@@ -35,17 +36,16 @@ export default function ToursPage() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>Turer</h1>
+        <h1>{t("Turer")}</h1>
         <p className="page__lead">
-          Turer som andra åkare delat, med spår, höjdmeter och när på säsongen de gjordes. Bra för att planera
-          nästa tur.
+          {t("Turer som andra åkare delat, med spår, höjdmeter och när på säsongen de gjordes. Bra för att planera nästa tur.")}
         </p>
         <div className="button-row">
           <Link to="/karta?turer=varmekarta" className="button">
-            Visa värmekarta
+            {t("Visa värmekarta")}
           </Link>
           <Link to={user ? "/turer/ny" : "/logga-in?next=/turer/ny"} className="button button--primary">
-            + Lägg till tur från klockan
+            {t("+ Lägg till tur från klockan")}
           </Link>
         </div>
       </header>
@@ -53,15 +53,14 @@ export default function ToursPage() {
       <HealthImportNotice invite />
 
       <p className="notice">
-        Turerna delas av användare. Förhållandena en annan dag kan vara helt andra – kontrollera alltid dagens
-        lavinprognos och gör din egen bedömning.
+        {t("Turerna delas av användare. Förhållandena en annan dag kan vara helt andra – kontrollera alltid dagens lavinprognos och gör din egen bedömning.")}
       </p>
 
       <div className="filter-row">
         <label className="form__field form__field--inline">
-          Område
+          {t("Område")}
           <select value={region} onChange={(e) => setRegion(e.target.value)}>
-            <option value="">Alla områden</option>
+            <option value="">{t("Alla områden")}</option>
             {REGIONS.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name}
@@ -73,9 +72,9 @@ export default function ToursPage() {
       <SeasonFilter selected={seasons} onChange={setSeasons} />
 
       {error && <p className="error">{error}</p>}
-      {!tours && !error && <PageLoading label="Laddar turer…" />}
-      {tours && tours.length === 0 && <p className="section__intro">Inga turer här än. Dela gärna din senaste!</p>}
-      <div className="tour-list">{tours?.map((t) => <TourCard key={t.id} tour={t} />)}</div>
+      {!tours && !error && <PageLoading label={t("Laddar turer…")} />}
+      {tours && tours.length === 0 && <p className="section__intro">{t("Inga turer här än. Dela gärna din senaste!")}</p>}
+      <div className="tour-list">{tours?.map((tour) => <TourCard key={tour.id} tour={tour} />)}</div>
     </div>
   );
 }

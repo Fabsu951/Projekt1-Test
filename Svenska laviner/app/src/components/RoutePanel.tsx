@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import ElevationProfile from "./ElevationProfile";
 import { formatDistance } from "../utils/tourFormat";
 import { formatHours, SLOPE_BANDS, type RouteAnalysis } from "../utils/routePlan";
+import { t } from "../i18n";
 
 /** Stats, height profile and actions for the route being planned. */
 export default function RoutePanel({
@@ -39,7 +40,7 @@ export default function RoutePanel({
     : [];
 
   return (
-    <section className="route-panel" aria-label="Ruttplanering">
+    <section className="route-panel" aria-label={t("Ruttplanering")}>
       <div className="route-panel__head">
         <h2>
           <button
@@ -48,7 +49,7 @@ export default function RoutePanel({
             aria-expanded={!folded}
             onClick={() => setFolded((f) => !f)}
           >
-            Planera rutt
+            {t("Planera rutt")}
             {folded && analysis && (
               <span className="route-panel__summary">
                 {formatDistance(Math.round(analysis.distanceM))} · ↑ {analysis.ascentM} m · {formatHours(analysis.hours)}
@@ -59,52 +60,51 @@ export default function RoutePanel({
         </h2>
         <div className="route-panel__actions">
           <button type="button" className="button" onClick={onUndo} disabled={pointCount === 0}>
-            Ångra
+            {t("Ångra")}
           </button>
           <button type="button" className="button" onClick={onClear} disabled={pointCount === 0}>
-            Rensa
+            {t("Rensa")}
           </button>
           <button type="button" className="button button--primary" onClick={onExport} disabled={!analysis}>
-            Spara som GPX
+            {t("Spara som GPX")}
           </button>
           <button type="button" className="button" onClick={onClose}>
-            Klar
+            {t("Klar")}
           </button>
         </div>
       </div>
 
       {folded ? null : pointCount < 2 ? (
         <p className="route-panel__hint">
-          {pointCount === 0 ? "Klicka på kartan där turen börjar." : "Klicka vidare längs vägen du vill gå."} Dra en
-          punkt för att flytta den.
+          {pointCount === 0 ? t("Klicka på kartan där turen börjar.") : t("Klicka vidare längs vägen du vill gå.")}{" "}{t("Dra en punkt för att flytta den.")}
         </p>
       ) : !analysis ? (
-        <p className="route-panel__hint">{loading ? "Räknar på rutten…" : "Kunde inte läsa höjddata just nu."}</p>
+        <p className="route-panel__hint">{loading ? t("Räknar på rutten…") : t("Kunde inte läsa höjddata just nu.")}</p>
       ) : (
         <>
           <dl className="route-stats">
             <div>
-              <dt>Distans</dt>
+              <dt>{t("Distans")}</dt>
               <dd>{formatDistance(Math.round(analysis.distanceM))}</dd>
             </div>
             <div>
-              <dt>Upp</dt>
+              <dt>{t("Upp")}</dt>
               <dd>{analysis.ascentM} m</dd>
             </div>
             <div>
-              <dt>Ner</dt>
+              <dt>{t("Ner")}</dt>
               <dd>{analysis.descentM} m</dd>
             </div>
             <div>
-              <dt>Högsta punkt</dt>
+              <dt>{t("Högsta punkt")}</dt>
               <dd>{analysis.maxElevationM === null ? "–" : `${analysis.maxElevationM} m`}</dd>
             </div>
             <div>
-              <dt>Tid, ungefär</dt>
+              <dt>{t("Tid, ungefär")}</dt>
               <dd>{formatHours(analysis.hours)}</dd>
             </div>
             <div>
-              <dt>Brantast</dt>
+              <dt>{t("Brantast")}</dt>
               <dd>{analysis.maxSlope === null ? "–" : `${Math.round(analysis.maxSlope)}°`}</dd>
             </div>
           </dl>
@@ -113,8 +113,8 @@ export default function RoutePanel({
 
           <p className="route-panel__steep">
             {steepBands.length === 0
-              ? "Marken under rutten är flackare än 30° hela vägen (enligt höjddatan)."
-              : "Brant mark under rutten: "}
+              ? t("Marken under rutten är flackare än 30° hela vägen (enligt höjddatan).")
+              : t("Brant mark under rutten: ")}
             {steepBands.map((b) => (
               <span key={b.label} className="route-panel__band">
                 <span className="route-panel__swatch" style={{ backgroundColor: b.color }} aria-hidden="true" />
@@ -123,7 +123,7 @@ export default function RoutePanel({
             ))}
           </p>
           {analysis.incomplete && (
-            <p className="notice">Höjddata saknas för en del av rutten, så siffrorna gäller bara resten.</p>
+            <p className="notice">{t("Höjddata saknas för en del av rutten, så siffrorna gäller bara resten.")}</p>
           )}
           {children}
         </>
@@ -133,9 +133,7 @@ export default function RoutePanel({
 
       {!folded && (
         <p className="route-panel__note">
-          Tiden är beräknad med Munter-metoden utan pauser. Lutningen kommer från höjddata med ungefär 30 m
-          upplösning och visar bara marken precis under linjen – korta branta partier, hängdrivor och sluttningar
-          ovanför rutten syns inte. Använd den för planering, inte som besked om att en sluttning är säker.
+          {t("Tiden är beräknad med Munter-metoden utan pauser. Lutningen kommer från höjddata med ungefär 30 m upplösning och visar bara marken precis under linjen – korta branta partier, hängdrivor och sluttningar ovanför rutten syns inte. Använd den för planering, inte som besked om att en sluttning är säker.")}
         </p>
       )}
     </section>

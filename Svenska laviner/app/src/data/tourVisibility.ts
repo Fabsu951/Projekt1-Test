@@ -1,9 +1,10 @@
 import type { Tour, TourVisibility } from "../types/tour";
+import { t } from "../i18n";
 
 export const VISIBILITY_CHOICES: Array<{ value: TourVisibility; label: string }> = [
-  { value: "public", label: "Alla" },
-  { value: "followers", label: "Bara de som följer mig" },
-  { value: "private", label: "Bara jag" },
+  { value: "public", label: t("Alla") },
+  { value: "followers", label: t("Bara de som följer mig") },
+  { value: "private", label: t("Bara jag") },
 ];
 
 /** Older workers only send `shared`. */

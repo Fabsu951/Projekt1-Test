@@ -1,5 +1,6 @@
 import { Preferences } from "@capacitor/preferences";
 import type { AvalancheRegion } from "../types/avalanche";
+import { t } from "../i18n";
 
 /**
  * Offline map areas. Tiles are stored with the Cache Storage API in one
@@ -10,8 +11,8 @@ import type { AvalancheRegion } from "../types/avalanche";
 export type OfflineLevel = "oversikt" | "detaljerad";
 
 export const OFFLINE_LEVELS: Record<OfflineLevel, { label: string; maxZoom: number }> = {
-  oversikt: { label: "Översikt", maxZoom: 13 },
-  detaljerad: { label: "Detaljerad", maxZoom: 14 },
+  oversikt: { label: t("Översikt"), maxZoom: 13 },
+  detaljerad: { label: t("Detaljerad"), maxZoom: 14 },
 };
 
 const MIN_ZOOM = 8;
@@ -178,7 +179,7 @@ export async function downloadTiles(
 
   async function worker() {
     while (next < tiles.length) {
-      if (signal?.aborted) throw new DOMException("Avbruten", "AbortError");
+      if (signal?.aborted) throw new DOMException(t("Avbruten"), "AbortError");
       const [z, x, y] = tiles[next++];
       const url = tileUrl(z, x, y);
       try {
@@ -203,7 +204,7 @@ export async function downloadTiles(
 
   await Promise.all(Array.from({ length: PARALLEL }, worker));
   if (failed > tiles.length * 0.03) {
-    throw new Error(`${failed} av ${tiles.length} kartbitar kunde inte hämtas. Kontrollera anslutningen och försök igen.`);
+    throw new Error(t("{failed} av {total} kartbitar kunde inte hämtas. Kontrollera anslutningen och försök igen.", { failed, total: tiles.length }));
   }
   return { tiles: tiles.length - failed, bytes };
 }
@@ -323,7 +324,7 @@ export async function saveView(
   signal?: AbortSignal
 ): Promise<SavedView> {
   const plan = viewPlan(bounds);
-  if (!plan) throw new Error("Området är för stort. Zooma in lite och försök igen.");
+  if (!plan) throw new Error(t("Området är för stort. Zooma in lite och försök igen."));
   const key = `view-${Date.now()}`;
   const result = await downloadTiles(cacheName(key), tilesFor(bounds, plan.maxZoom), tileUrl, onProgress, signal);
   const view: SavedView = { key, name, bounds, maxZoom: plan.maxZoom, tiles: result.tiles, bytes: result.bytes, savedAt: new Date().toISOString() };

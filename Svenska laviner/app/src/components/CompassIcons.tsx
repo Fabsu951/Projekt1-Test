@@ -1,5 +1,6 @@
 import type { CompassSector } from "../utils/windAnalysis";
 import { COMPASS_SECTORS } from "../utils/windAnalysis";
+import { t, compass } from "../i18n";
 
 interface WindArrowProps {
   /** Meteorological direction the wind blows FROM, in degrees. */
@@ -53,7 +54,7 @@ export function AspectRosette({ highlighted, size = 52, label }: AspectRosettePr
       width={size}
       height={size}
       role="img"
-      aria-label={label ?? `Utsatta väderstreck: ${highlighted.join(", ") || "inga"}`}
+      aria-label={label ?? t("Utsatta väderstreck: {list}", { list: highlighted.map(compass).join(", ") || t("inga") })}
     >
       {COMPASS_SECTORS.map((sector, i) => (
         <path

@@ -26,8 +26,8 @@ const SLOPE_STOPS: Array<[number, [number, number, number]]> = [
   [55, [140, 20, 90]],
 ];
 
-function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
+function lerp(a: number, b: number, frac: number): number {
+  return a + (b - a) * frac;
 }
 
 function slopeColor(slopeDegrees: number): [number, number, number] {
@@ -35,11 +35,11 @@ function slopeColor(slopeDegrees: number): [number, number, number] {
     const [angleA, colorA] = SLOPE_STOPS[i];
     const [angleB, colorB] = SLOPE_STOPS[i + 1];
     if (slopeDegrees >= angleA && slopeDegrees <= angleB) {
-      const t = angleB === angleA ? 0 : (slopeDegrees - angleA) / (angleB - angleA);
+      const frac = angleB === angleA ? 0 : (slopeDegrees - angleA) / (angleB - angleA);
       return [
-        lerp(colorA[0], colorB[0], t),
-        lerp(colorA[1], colorB[1], t),
-        lerp(colorA[2], colorB[2], t),
+        lerp(colorA[0], colorB[0], frac),
+        lerp(colorA[1], colorB[1], frac),
+        lerp(colorA[2], colorB[2], frac),
       ];
     }
   }

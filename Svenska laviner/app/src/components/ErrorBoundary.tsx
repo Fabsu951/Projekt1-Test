@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { t } from "../i18n";
 
 interface Props {
   children: ReactNode;
@@ -30,10 +31,9 @@ export default class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="page">
           <div className="notice notice--danger">
-            <strong>Något gick fel när sidan skulle visas.</strong>
+            <strong>{t("Något gick fel när sidan skulle visas.")}</strong>
             <p>
-              Prova att ladda om, eller gå till en annan sida via menyn ovan. Om
-              felet kvarstår, kontrollera din internetanslutning.
+              {t("Prova att ladda om, eller gå till en annan sida via menyn ovan. Om felet kvarstår, kontrollera din internetanslutning.")}
             </p>
           </div>
         </div>

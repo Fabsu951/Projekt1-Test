@@ -1,5 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 import { api } from "./api";
+import { t } from "../i18n";
 
 /**
  * Web push for "farograden ändrades i mina områden". Browser only for now:
@@ -79,7 +80,7 @@ export async function regionPushEnabled(): Promise<boolean> {
 async function subscribeBrowser(publicKey: string): Promise<PushSubscription> {
   const permission = await Notification.requestPermission();
   if (permission !== "granted") {
-    throw new Error("Notiser är blockerade för den här sidan. Tillåt dem i webbläsarens inställningar.");
+    throw new Error(t("Notiser är blockerade för den här sidan. Tillåt dem i webbläsarens inställningar."));
   }
   try {
     const reg = await registration();
@@ -90,7 +91,7 @@ async function subscribeBrowser(publicKey: string): Promise<PushSubscription> {
   } catch {
     // Browsers word these differently (and in English); say what to try instead.
     throw new Error(
-      "Webbläsaren kunde inte slå på notiser. Prova Chrome, Firefox eller Edge, eller på iPhone: lägg först till sidan på hemskärmen och öppna den därifrån."
+      t("Webbläsaren kunde inte slå på notiser. Prova Chrome, Firefox eller Edge, eller på iPhone: lägg först till sidan på hemskärmen och öppna den därifrån.")
     );
   }
 }

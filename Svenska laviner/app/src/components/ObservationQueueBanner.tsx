@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { QUEUE_CHANGED_EVENT, queuedObservations } from "../services/observationQueue";
+import { t, plural } from "../i18n";
 
 const SENT_SHOWN_MS = 6000;
 
@@ -45,16 +46,15 @@ export default function ObservationQueueBanner() {
 
   if (!waiting && !failed && !sent) return null;
   const onList = location.pathname === "/observationer";
-  const many = (n: number) => (n === 1 ? "1 observation" : `${n} observationer`);
 
   return (
     <div className={waiting || failed ? "queue-banner" : "queue-banner queue-banner--done"} role="status">
-      {waiting > 0 && <span>{many(waiting)} väntar på täckning och skickas automatiskt.</span>}
-      {failed > 0 && <span>{many(failed)} kunde inte skickas.</span>}
-      {!waiting && !failed && sent > 0 && <span>{sent === 1 ? "Din observation är skickad." : `${sent} observationer är skickade.`}</span>}
+      {waiting > 0 && <span>{plural(waiting, "1 observation väntar på täckning och skickas automatiskt.", "{n} observationer väntar på täckning och skickas automatiskt.")}</span>}
+      {failed > 0 && <span>{plural(failed, "1 observation kunde inte skickas.", "{n} observationer kunde inte skickas.")}</span>}
+      {!waiting && !failed && sent > 0 && <span>{plural(sent, "Din observation är skickad.", "{n} observationer är skickade.")}</span>}
       {(waiting > 0 || failed > 0) && !onList && (
         <Link to="/observationer#vantar" className="queue-banner__link">
-          Visa
+          {t("Visa")}
         </Link>
       )}
     </div>

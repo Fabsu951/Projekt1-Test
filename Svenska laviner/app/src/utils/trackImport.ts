@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 /**
  * Reads GPS tracks exported from watches and apps: GPX (Garmin, Suunto,
  * Coros, Strava, Apple via export apps …) and FIT (Garmin's own format).
@@ -27,7 +28,7 @@ const num = (value: string | null | undefined): number | null => {
 
 export function parseGpx(xml: string): TrackPoint[] {
   const doc = new DOMParser().parseFromString(xml, "application/xml");
-  if (doc.getElementsByTagName("parsererror").length) throw new Error("Filen är ingen giltig GPX-fil.");
+  if (doc.getElementsByTagName("parsererror").length) throw new Error(t("Filen är ingen giltig GPX-fil."));
   const nodes = [...Array.from(doc.getElementsByTagName("trkpt")), ...Array.from(doc.getElementsByTagName("rtept"))];
   const points: TrackPoint[] = [];
   for (const node of nodes) {
@@ -47,9 +48,9 @@ const SEMICIRCLES_TO_DEGREES = 180 / 2 ** 31;
 export async function parseFit(data: ArrayBuffer): Promise<TrackPoint[]> {
   const { Decoder, Stream } = await import("@garmin/fitsdk");
   const decoder = new Decoder(Stream.fromArrayBuffer(data));
-  if (!decoder.isFIT()) throw new Error("Filen är ingen giltig FIT-fil.");
+  if (!decoder.isFIT()) throw new Error(t("Filen är ingen giltig FIT-fil."));
   const { messages, errors } = decoder.read({ convertDateTimesToDates: true });
-  if (errors.length && !messages.recordMesgs?.length) throw new Error("FIT-filen kunde inte läsas.");
+  if (errors.length && !messages.recordMesgs?.length) throw new Error(t("FIT-filen kunde inte läsas."));
 
   const points: TrackPoint[] = [];
   for (const r of (messages.recordMesgs ?? []) as Array<Record<string, unknown>>) {
@@ -83,7 +84,7 @@ export async function importTrackFile(file: Blob & { name?: string }): Promise<T
   const header = new TextDecoder().decode(bytes.slice(8, 12));
   const points = name.endsWith(".fit") || header === ".FIT" ? await parseFit(bytes) : parseGpx(new TextDecoder().decode(bytes));
   if (points.length < 2) {
-    throw new Error("Hittade inget GPS-spår i filen. Exportera turen som GPX eller FIT från klockan eller appen.");
+    throw new Error(t("Hittade inget GPS-spår i filen. Exportera turen som GPX eller FIT från klockan eller appen."));
   }
   return simplify(points);
 }

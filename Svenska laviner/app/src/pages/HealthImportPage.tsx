@@ -27,6 +27,7 @@ import {
 } from "../services/healthImport";
 import type { Tour } from "../types/tour";
 import { formatDistance } from "../utils/tourFormat";
+import { t, locale, plural } from "../i18n";
 
 // "Hämta från Health Connect / Apple Hälsa": lists sessions with a GPS route
 // that the watch's app has written to the phone's health store, and imports the chosen ones as
@@ -42,7 +43,7 @@ type State =
   | { kind: "error"; message: string };
 
 function when(iso: string): string {
-  return new Date(iso).toLocaleString("sv-SE", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleString(locale(), { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
 function duration(w: HealthWorkout): string {
@@ -72,7 +73,7 @@ export default function HealthImportPage() {
       setSelected(new Set(workouts.filter((w) => w.suggested).map((w) => w.id)));
       setState({ kind: "list", workouts, withoutRoute });
     } catch (err) {
-      setState({ kind: "error", message: err instanceof Error ? err.message : `Kunde inte läsa från ${HEALTH_STORE_NAME}.` });
+      setState({ kind: "error", message: err instanceof Error ? err.message : t("Kunde inte läsa från {store}.", { store: HEALTH_STORE_NAME }) });
     }
   }, [token]);
 
@@ -99,7 +100,7 @@ export default function HealthImportPage() {
       if (access.workouts) await load();
       else setState({ kind: "not-connected", routesDenied: true });
     } catch (err) {
-      setState({ kind: "error", message: err instanceof Error ? err.message : "Kunde inte be om åtkomst." });
+      setState({ kind: "error", message: err instanceof Error ? err.message : t("Kunde inte be om åtkomst.") });
     } finally {
       setBusy(false);
     }
@@ -114,7 +115,7 @@ export default function HealthImportPage() {
       try {
         done.push(await importWorkout(token!, w));
       } catch (err) {
-        setFailed(`${defaultTitle(w)}: ${err instanceof Error ? err.message : "kunde inte sparas"}`);
+        setFailed(`${defaultTitle(w)}: ${err instanceof Error ? err.message : t("kunde inte sparas")}`);
         break;
       }
     }
@@ -163,22 +164,22 @@ export default function HealthImportPage() {
     <div className="page">
       <header className="page__header">
         <Link to="/turer" className="back-link">
-          ← Turer
+          {t("← Turer")}
         </Link>
-        <h1>Hämta från {HEALTH_STORE_NAME}</h1>
+        <h1>{t("Hämta från")}{" "}{HEALTH_STORE_NAME}</h1>
         <p className="page__lead">
-          Pass med GPS-spår som klockans app sparat i {HEALTH_STORE_NAME} blir turer i din turdagbok. De sparas som{" "}
-          <strong>privata</strong>, och du väljer själv om och hur varje tur ska delas.
+          {t("Pass med GPS-spår som klockans app sparat i")}{" "}{HEALTH_STORE_NAME}{" "}{t("blir turer i din turdagbok. De sparas som")}{" "}
+          <strong>{t("privata")}</strong>{t(", och du väljer själv om och hur varje tur ska delas.")}
         </p>
       </header>
 
       {imported.length > 0 && (
         <div className="notice notice--ok" role="status">
-          <strong>{imported.length === 1 ? "1 tur importerad" : `${imported.length} turer importerade`}</strong> (privata).
+          <strong>{plural(imported.length, "1 tur importerad", "{n} turer importerade")}</strong>{" "}{t("(privata).")}
           <ul className="health-imported">
-            {imported.map((t) => (
-              <li key={t.id}>
-                <Link to={`/turer/${t.id}`}>{t.title}</Link> – öppna för att byta namn eller dela
+            {imported.map((tour) => (
+              <li key={tour.id}>
+                <Link to={`/turer/${tour.id}`}>{tour.title}</Link>{" "}{t("– öppna för att byta namn eller dela")}
               </li>
             ))}
           </ul>
@@ -187,78 +188,78 @@ export default function HealthImportPage() {
       {failed && <p className="error">{failed}</p>}
       {state.kind === "list" && (
         <p className="health-connected" role="status">
-          <span aria-hidden="true">✓</span> Kopplad till {HEALTH_STORE_NAME}. Snöläge letar efter pass med GPS-spår från de senaste{" "}
-          {LOOKBACK_DAYS} dagarna varje gång du öppnar appen.
+          <span aria-hidden="true">✓</span>{" "}{t("Kopplad till")}{" "}{HEALTH_STORE_NAME}{t(". Snöläge letar efter pass med GPS-spår från de senaste")}{" "}
+          {LOOKBACK_DAYS}{" "}{t("dagarna varje gång du öppnar appen.")}
           <button type="button" className="link-button" onClick={() => void load()}>
-            Leta igen
+            {t("Leta igen")}
           </button>
         </p>
       )}
 
       {state.kind === "checking" || state.kind === "loading" ? (
-        <p>{state.kind === "loading" ? `Läser pass från ${HEALTH_STORE_NAME}…` : `Kollar ${HEALTH_STORE_NAME}…`}</p>
+        <p>{state.kind === "loading" ? t("Läser pass från {store}…", { store: HEALTH_STORE_NAME }) : t("Kollar {store}…", { store: HEALTH_STORE_NAME })}</p>
       ) : state.kind === "unsupported" ? (
         <div className="notice">
-          Klockans pass kan hämtas i Snöläges app för Android (Health Connect) och iPhone (Apple Hälsa). Här kan du i stället{" "}
-          <Link to="/turer/ny">ladda upp en GPX- eller FIT-fil</Link> från klockan.
+          {t("Klockans pass kan hämtas i Snöläges app för Android (Health Connect) och iPhone (Apple Hälsa). Här kan du i stället")}{" "}
+          <Link to="/turer/ny">{t("ladda upp en GPX- eller FIT-fil")}</Link>{" "}{t("från klockan.")}
         </div>
       ) : state.kind === "missing" && ios ? (
         <div className="health-step">
-          <p>Apple Hälsa finns inte på den här enheten (till exempel en iPad). Hämta passen från en iPhone i stället.</p>
+          <p>{t("Apple Hälsa finns inte på den här enheten (till exempel en iPad). Hämta passen från en iPhone i stället.")}</p>
         </div>
       ) : state.kind === "missing" ? (
         <div className="health-step">
-          <p>Health Connect är inte installerat på telefonen. Det är Googles app som samlar träningsdata från klockor och appar.</p>
+          <p>{t("Health Connect är inte installerat på telefonen. Det är Googles app som samlar träningsdata från klockor och appar.")}</p>
           <button type="button" className="button button--primary" onClick={() => void openHealthConnectInstall()}>
-            Installera Health Connect
+            {t("Installera Health Connect")}
           </button>
         </div>
       ) : state.kind === "not-connected" ? (
         <div className="health-step">
-          <p>Snöläge läser bara dina <strong>träningspass och deras GPS-rutter</strong>, aldrig puls, vikt eller annan hälsodata, och bara medan du har appen öppen.</p>
+          <p>{t("Snöläge läser bara dina")}{" "}<strong>{t("träningspass och deras GPS-rutter")}</strong>{t(", aldrig puls, vikt eller annan hälsodata, och bara medan du har appen öppen.")}</p>
           <ol>
             {ios ? (
               <>
-                <li>Kontrollera att klockans app (till exempel Garmin Connect, Suunto eller Polar) skriver pass till Apple Hälsa. Apple Watch gör det själv.</li>
-                <li>Tryck nedan och slå på <strong>Träningspass</strong> och <strong>Träningsrutter</strong> i rutan som visas.</li>
+                <li>{t("Kontrollera att klockans app (till exempel Garmin Connect, Suunto eller Polar) skriver pass till Apple Hälsa. Apple Watch gör det själv.")}</li>
+                <li>{t("Tryck nedan och slå på")}{" "}<strong>{t("Träningspass")}</strong>{" "}{t("och")}{" "}<strong>{t("Träningsrutter")}</strong>{" "}{t("i rutan som visas.")}</li>
               </>
             ) : (
               <>
-                <li>Kontrollera att klockans app (till exempel Garmin Connect, Suunto, Polar eller Samsung Health) skickar pass till Health Connect.</li>
-                <li>Tryck nedan och tillåt <strong>Träning</strong> och <strong>Träningsrutter</strong>. Välj gärna "Tillåt alltid" för rutterna.</li>
+                <li>{t("Kontrollera att klockans app (till exempel Garmin Connect, Suunto, Polar eller Samsung Health) skickar pass till Health Connect.")}</li>
+                <li>{t("Tryck nedan och tillåt")}{" "}<strong>{t("Träning")}</strong>{" "}{t("och")}{" "}<strong>{t("Träningsrutter")}</strong>{t(". Välj gärna \"Tillåt alltid\" för rutterna.")}</li>
               </>
             )}
           </ol>
           {state.routesDenied && (
             <p className="notice">
-              Snöläge behöver åtkomst till dina träningspass.{" "}
+              {t("Snöläge behöver åtkomst till dina träningspass.")}{" "}
               {ios
-                ? "Du kan ändra det i Inställningar → Hälsa → Dataåtkomst och enheter → Snöläge."
-                : "Du kan ändra det i Health Connect under Appbehörigheter → Snöläge."}{" "}
+                ? t("Du kan ändra det i Inställningar → Hälsa → Dataåtkomst och enheter → Snöläge.")
+                : t("Du kan ändra det i Health Connect under Appbehörigheter → Snöläge.")}{" "}
               <button type="button" className="link-button" onClick={() => void openHealthConnectSettings()}>
-                Öppna {HEALTH_STORE_NAME}
+                {t("Öppna")}{" "}{HEALTH_STORE_NAME}
               </button>
             </p>
           )}
           <button type="button" className="button button--primary" disabled={busy} onClick={() => void connect()}>
-            Koppla {HEALTH_STORE_NAME}
+            {t("Koppla")}{" "}{HEALTH_STORE_NAME}
           </button>
         </div>
       ) : state.kind === "error" ? (
         <div className="health-step">
           <p className="error">{state.message}</p>
           <button type="button" className="button" onClick={() => void load()}>
-            Försök igen
+            {t("Försök igen")}
           </button>
         </div>
       ) : state.workouts.length === 0 ? (
         <div className="health-step">
-          <p>Inga nya pass med GPS-spår de senaste {LOOKBACK_DAYS} dagarna.</p>
+          <p>{t("Inga nya pass med GPS-spår de senaste")}{" "}{LOOKBACK_DAYS}{" "}{t("dagarna.")}</p>
           <RoutelessList items={state.withoutRoute} onFetch={fetchRoute} onSkip={skipRouteless} />
           <p className="muted">
-            Syns inte din tur? Alla klockappar skickar inte GPS-rutten till {HEALTH_STORE_NAME}
-            {ios ? ", och har du nekat Träningsrutter visas inga pass" : ""}. Då kan du{" "}
-            <Link to="/turer/ny">ladda upp filen</Link> i stället.
+            {t("Syns inte din tur? Alla klockappar skickar inte GPS-rutten till")}{" "}{HEALTH_STORE_NAME}
+            {ios ? t(", och har du nekat Träningsrutter visas inga pass") : ""}{t(". Då kan du")}{" "}
+            <Link to="/turer/ny">{t("ladda upp filen")}</Link>{" "}{t("i stället.")}
           </p>
         </div>
       ) : (
@@ -270,7 +271,7 @@ export default function HealthImportPage() {
                 <label>
                   <input type="checkbox" checked={selected.has(w.id)} onChange={() => toggle(w.id)} />
                   <span className="health-list__sketch">
-                    <TrackSketch points={w.points.map((p) => [p[0], p[1]] as [number, number])} label={`Spår för ${defaultTitle(w)}`} />
+                    <TrackSketch points={w.points.map((p) => [p[0], p[1]] as [number, number])} label={t("Spår för {title}", { title: defaultTitle(w) })} />
                   </span>
                   <span className="health-list__text">
                     <strong>{w.label}</strong>
@@ -289,13 +290,13 @@ export default function HealthImportPage() {
               disabled={busy || selected.size === 0}
               onClick={() => void importSelected(state.workouts)}
             >
-              {busy ? "Importerar…" : `Importera valda (${selected.size})`}
+              {busy ? t("Importerar…") : t("Importera valda ({n})", { n: selected.size })}
             </button>
             <button type="button" className="button" disabled={busy || selected.size === 0} onClick={() => void skipSelected(state.workouts)}>
-              Hoppa över valda
+              {t("Hoppa över valda")}
             </button>
           </div>
-          <p className="muted">Turerna sparas som privata. Start och slut döljs med 500 m om du senare delar dem.</p>
+          <p className="muted">{t("Turerna sparas som privata. Start och slut döljs med 500 m om du senare delar dem.")}</p>
         </>
       )}
 
@@ -311,10 +312,9 @@ export default function HealthImportPage() {
             }}
           />
           <span>
-            <strong>Lägg till nya skidpass automatiskt</strong>
+            <strong>{t("Lägg till nya skidpass automatiskt")}</strong>
             <br />
-            När du öppnar appen läggs nya skidturer, snöskopass och vandringar till som <strong>privata</strong> turer. Du
-            väljer fortfarande själv vilka du delar. Andra pass, till exempel löprundor, väntar här.
+            {t("När du öppnar appen läggs nya skidturer, snöskopass och vandringar till som")}{" "}<strong>{t("privata")}</strong>{" "}{t("turer. Du väljer fortfarande själv vilka du delar. Andra pass, till exempel löprundor, väntar här.")}
           </span>
         </label>
       )}
@@ -331,9 +331,9 @@ export default function HealthImportPage() {
               setState({ kind: "not-connected" });
             }}
           >
-            Sluta hämta från {HEALTH_STORE_NAME}
+            {t("Sluta hämta från")}{" "}{HEALTH_STORE_NAME}
           </button>{" "}
-          (ta även bort behörigheten i {HEALTH_STORE_NAME} om du vill).
+          {t("(ta även bort behörigheten i")}{" "}{HEALTH_STORE_NAME}{" "}{t("om du vill).")}
         </p>
       )}
     </div>
@@ -360,12 +360,12 @@ function RoutelessList({
   if (!canAsk) {
     return (
       <p className="notice">
-        {items.length === 1 ? "1 pass" : `${items.length} pass`} hittades utan GPS-rutt.{" "}
+        {plural(items.length, "1 pass hittades utan GPS-rutt.", "{n} pass hittades utan GPS-rutt.")}{" "}
         {ios
-          ? "Kontrollera att Träningsrutter är påslaget i Inställningar → Hälsa → Dataåtkomst och enheter → Snöläge, och att klockans app sparar rutten i Apple Hälsa."
-          : "Kontrollera att klockans app sparar rutten i Health Connect och att Snöläge får läsa träningsrutter (Health Connect → Appbehörigheter → Snöläge)."}{" "}
+          ? t("Kontrollera att Träningsrutter är påslaget i Inställningar → Hälsa → Dataåtkomst och enheter → Snöläge, och att klockans app sparar rutten i Apple Hälsa.")
+          : t("Kontrollera att klockans app sparar rutten i Health Connect och att Snöläge får läsa träningsrutter (Health Connect → Appbehörigheter → Snöläge).")}{" "}
         <button type="button" className="link-button" onClick={() => void openHealthConnectSettings()}>
-          Öppna {HEALTH_STORE_NAME}
+          {t("Öppna")}{" "}{HEALTH_STORE_NAME}
         </button>
       </p>
     );
@@ -383,10 +383,9 @@ function RoutelessList({
 
   return (
     <section className="health-routeless" aria-labelledby="health-routeless-title">
-      <h2 id="health-routeless-title">Pass där rutten saknas ({items.length})</h2>
+      <h2 id="health-routeless-title">{t("Pass där rutten saknas (")}{items.length})</h2>
       <p className="muted">
-        Health Connect lämnar ut rutter från klockans app ett pass i taget. Tryck på <strong>Hämta rutten</strong> och
-        tillåt i rutan som visas. Väljer du <strong>Tillåt alltid</strong> där behöver du inte fråga igen.
+        {t("Health Connect lämnar ut rutter från klockans app ett pass i taget. Tryck på")}{" "}<strong>{t("Hämta rutten")}</strong>{" "}{t("och tillåt i rutan som visas. Väljer du")}{" "}<strong>{t("Tillåt alltid")}</strong>{" "}{t("där behöver du inte fråga igen.")}
       </p>
       <ul className="health-routeless__list">
         {items.map((w) => (
@@ -394,17 +393,17 @@ function RoutelessList({
             <span>
               <strong>{w.label}</strong> · {when(w.startDate)}
               {w.distanceM ? ` · ${formatDistance(w.distanceM)}` : ""}
-              {status[w.id] === "none" && <span className="health-routeless__note">Ingen GPS-rutt i det här passet.</span>}
-              {status[w.id] === "error" && <span className="health-routeless__note">Health Connect svarade inte. Försök igen.</span>}
+              {status[w.id] === "none" && <span className="health-routeless__note">{t("Ingen GPS-rutt i det här passet.")}</span>}
+              {status[w.id] === "error" && <span className="health-routeless__note">{t("Health Connect svarade inte. Försök igen.")}</span>}
             </span>
             <span className="health-routeless__actions">
               {w.canAsk && status[w.id] !== "none" && (
                 <button type="button" className="button" disabled={status[w.id] === "busy"} onClick={() => void fetchOne(w)}>
-                  {status[w.id] === "busy" ? "Väntar…" : "Hämta rutten"}
+                  {status[w.id] === "busy" ? t("Väntar…") : t("Hämta rutten")}
                 </button>
               )}
               <button type="button" className="link-button" onClick={() => void onSkip(w)}>
-                Hoppa över
+                {t("Hoppa över")}
               </button>
             </span>
           </li>

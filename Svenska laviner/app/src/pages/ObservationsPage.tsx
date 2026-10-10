@@ -9,6 +9,7 @@ import { OBSERVATION_TYPES } from "../data/observationTypes";
 import { fetchObservations } from "../services/observationService";
 import { QUEUE_CHANGED_EVENT } from "../services/observationQueue";
 import type { Observation } from "../types/observation";
+import { t } from "../i18n";
 
 export default function ObservationsPage() {
   const { user } = useAuth();
@@ -41,16 +42,16 @@ export default function ObservationsPage() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>Observationer</h1>
+        <h1>{t("Observationer")}</h1>
         <p className="page__lead">
-          Lavinobservationer från andra åkare: laviner, sprickor, kollapser och annat värt att veta.
+          {t("Lavinobservationer från andra åkare: laviner, sprickor, kollapser och annat värt att veta.")}
         </p>
         <div className="button-row">
           <Link to={user ? "/observationer/snabb" : "/logga-in?next=/observationer/snabb"} className="button button--primary">
-            Snabbobservation
+            {t("Snabbobservation")}
           </Link>
           <Link to={user ? "/observationer/ny" : "/logga-in?next=/observationer/ny"} className="button">
-            + Utförlig observation
+            {t("+ Utförlig observation")}
           </Link>
         </div>
       </header>
@@ -58,15 +59,14 @@ export default function ObservationsPage() {
       <QueuedObservationList />
 
       <p className="notice">
-        Observationerna delas av användare och granskas inte i förväg. De ersätter inte den officiella
-        lavinprognosen eller din egen bedömning i fält.
+        {t("Observationerna delas av användare och granskas inte i förväg. De ersätter inte den officiella lavinprognosen eller din egen bedömning i fält.")}
       </p>
 
       <div className="filter-row">
         <label className="form__field form__field--inline">
-          Område
+          {t("Område")}
           <select value={region} onChange={(e) => setRegion(e.target.value)}>
-            <option value="">Alla områden</option>
+            <option value="">{t("Alla områden")}</option>
             {REGIONS.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name}
@@ -75,32 +75,32 @@ export default function ObservationsPage() {
           </select>
         </label>
         <label className="form__field form__field--inline">
-          Typ
+          {t("Typ")}
           <select value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="">Alla typer</option>
-            {OBSERVATION_TYPES.map((t) => (
-              <option key={t.type} value={t.type}>
-                {t.label}
+            <option value="">{t("Alla typer")}</option>
+            {OBSERVATION_TYPES.map((option) => (
+              <option key={option.type} value={option.type}>
+                {option.label}
               </option>
             ))}
           </select>
         </label>
         <label className="form__field form__field--inline">
-          Tid
+          {t("Tid")}
           <select value={days} onChange={(e) => setDays(Number(e.target.value))}>
-            <option value={1}>Senaste dygnet</option>
-            <option value={3}>Senaste 3 dagarna</option>
-            <option value={7}>Senaste veckan</option>
-            <option value={30}>Senaste 30 dagarna</option>
-            <option value={0}>Alla</option>
+            <option value={1}>{t("Senaste dygnet")}</option>
+            <option value={3}>{t("Senaste 3 dagarna")}</option>
+            <option value={7}>{t("Senaste veckan")}</option>
+            <option value={30}>{t("Senaste 30 dagarna")}</option>
+            <option value={0}>{t("Alla")}</option>
           </select>
         </label>
       </div>
 
       {error && <p className="error">{error}</p>}
-      {!observations && !error && <PageLoading label="Laddar observationer…" />}
+      {!observations && !error && <PageLoading label={t("Laddar observationer…")} />}
       {observations && observations.length === 0 && (
-        <p className="section__intro">Inga observationer här än. Bli först att dela en!</p>
+        <p className="section__intro">{t("Inga observationer här än. Bli först att dela en!")}</p>
       )}
       <div className="observation-list">
         {observations?.map((o) => <ObservationCard key={o.id} observation={o} onChanged={load} />)}

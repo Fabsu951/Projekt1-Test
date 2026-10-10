@@ -1,4 +1,5 @@
 import { useFavorites } from "../favorites/useFavorites";
+import { t } from "../i18n";
 
 interface Props {
   regionId: string;
@@ -14,8 +15,8 @@ export default function FavoriteButton({ regionId, regionName }: Props) {
       type="button"
       className={on ? "favorite-button favorite-button--on" : "favorite-button"}
       aria-pressed={on}
-      aria-label={on ? `Ta bort ${regionName} från mina områden` : `Spara ${regionName} i mina områden`}
-      title={on ? "Ta bort från mina områden" : "Spara i mina områden"}
+      aria-label={on ? t("Ta bort {name} från mina områden", { name: regionName }) : t("Spara {name} i mina områden", { name: regionName })}
+      title={on ? t("Ta bort från mina områden") : t("Spara i mina områden")}
       onClick={() => toggleFavorite(regionId)}
     >
       <svg viewBox="0 0 24 24" width={22} height={22} aria-hidden="true">

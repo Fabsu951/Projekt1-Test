@@ -1,4 +1,5 @@
 import type { Source } from "../types/avalanche";
+import { t } from "../i18n";
 
 interface Props {
   sources: Source[];
@@ -9,7 +10,7 @@ export default function SourceList({ sources }: Props) {
 
   return (
     <p className="source-list">
-      Källa:{" "}
+      {t("Källa:")}{" "}
       {sources.map((source, i) => (
         <span key={source.url}>
           {i > 0 && ", "}

@@ -3,11 +3,12 @@ import { AspectRosette } from "./CompassIcons";
 import ElevationIcon from "./ElevationIcon";
 import { ELEVATION_LABELS } from "../data/elevations";
 import ProblemIcon from "./ProblemIcon";
+import { t, compass } from "../i18n";
 
 function elevationText(problem: ForecastProblem): string {
   const parts = [problem.elevations.map((e) => ELEVATION_LABELS[e]).join(", ")];
-  if (problem.metersAbove !== null) parts.push(`över ${problem.metersAbove} m`);
-  if (problem.metersBelow !== null) parts.push(`under ${problem.metersBelow} m`);
+  if (problem.metersAbove !== null) parts.push(t("över {m} m", { m: problem.metersAbove }));
+  if (problem.metersBelow !== null) parts.push(t("under {m} m", { m: problem.metersBelow }));
   return parts.filter(Boolean).join(", ");
 }
 
@@ -29,7 +30,7 @@ export default function ForecastProblems({ problems }: Props) {
           <div className="forecast-problem__where">
             <figure>
               <AspectRosette highlighted={problem.aspects} />
-              <figcaption>{problem.aspects.length === 8 ? "Alla väderstreck" : problem.aspects.join(", ")}</figcaption>
+              <figcaption>{problem.aspects.length === 8 ? t("Alla väderstreck") : problem.aspects.map(compass).join(", ")}</figcaption>
             </figure>
             <figure>
               <ElevationIcon highlighted={problem.elevations} />
@@ -40,19 +41,19 @@ export default function ForecastProblems({ problems }: Props) {
           <dl className="forecast-problem__facts">
             {problem.sensitivity && (
               <>
-                <dt>Känslighet och utbredning</dt>
+                <dt>{t("Känslighet och utbredning")}</dt>
                 <dd>{problem.sensitivity}</dd>
               </>
             )}
             {problem.size && (
               <>
-                <dt>Största förväntade storlek</dt>
+                <dt>{t("Största förväntade storlek")}</dt>
                 <dd>{problem.size}</dd>
               </>
             )}
             {problem.where && (
               <>
-                <dt>Här finns lavinproblemet</dt>
+                <dt>{t("Här finns lavinproblemet")}</dt>
                 <dd>{problem.where}</dd>
               </>
             )}
@@ -60,7 +61,7 @@ export default function ForecastProblems({ problems }: Props) {
 
           {problem.infoUrl && (
             <a className="forecast-problem__more" href={problem.infoUrl} target="_blank" rel="noreferrer">
-              Mer om {problem.name.toLowerCase()} på lavinprognoser.se →
+              {t("Mer om")}{" "}{problem.name.toLowerCase()}{" "}{t("på lavinprognoser.se →")}
             </a>
           )}
         </article>

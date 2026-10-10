@@ -11,6 +11,7 @@ import type { TourVisibility } from "../types/tour";
 import { createTour } from "../services/tourService";
 import { distanceM, importTrackFile, type TrackPoint } from "../utils/trackImport";
 import { formatDistance } from "../utils/tourFormat";
+import { t, locale } from "../i18n";
 
 export default function NewTourPage() {
   const { user, token, loading } = useAuth();
@@ -42,14 +43,14 @@ export default function NewTourPage() {
       setPoints(imported);
       if (!title) setTitle(file.name.replace(/\.(gpx|fit)$/i, "").replace(/[_-]+/g, " ").trim());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunde inte läsa filen.");
+      setError(err instanceof Error ? err.message : t("Kunde inte läsa filen."));
     }
   }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!points) return setError("Välj en GPX- eller FIT-fil först.");
-    if (!hasTimes && !date) return setError("Spåret saknar tider – ange vilket datum turen gjordes.");
+    if (!points) return setError(t("Välj en GPX- eller FIT-fil först."));
+    if (!hasTimes && !date) return setError(t("Spåret saknar tider – ange vilket datum turen gjordes."));
     setBusy(true);
     setError(null);
     try {
@@ -63,7 +64,7 @@ export default function NewTourPage() {
       });
       navigate(`/turer/${tour.id}`, { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunde inte spara turen.");
+      setError(err instanceof Error ? err.message : t("Kunde inte spara turen."));
       setBusy(false);
     }
   }
@@ -71,48 +72,47 @@ export default function NewTourPage() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>Ny tur</h1>
+        <h1>{t("Ny tur")}</h1>
         <p className="page__lead">
-          Exportera turen som GPX eller FIT från klockan eller appen (Garmin Connect, Suunto, Coros, Strava …) och
-          ladda upp filen här.
+          {t("Exportera turen som GPX eller FIT från klockan eller appen (Garmin Connect, Suunto, Coros, Strava …) och ladda upp filen här.")}
         </p>
       </header>
 
       <form className="form" onSubmit={onSubmit}>
         <label className="form__field">
-          Spårfil <span className="form__hint">(.gpx eller .fit)</span>
-          <FilePicker accept=".gpx,.fit,application/gpx+xml" buttonLabel="Välj spårfil" onFile={(f) => void onFile(f)} />
+          {t("Spårfil")}{" "}<span className="form__hint">{t("(.gpx eller .fit)")}</span>
+          <FilePicker accept=".gpx,.fit,application/gpx+xml" buttonLabel={t("Välj spårfil")} onFile={(f) => void onFile(f)} />
         </label>
 
         {points && (
           <>
             <p className="form__hint">
-              {fileName}: {formatDistance(Math.round(length))}, {points.length.toLocaleString("sv-SE")} punkter.
+              {fileName}: {formatDistance(Math.round(length))}, {points.length.toLocaleString(locale())}{" "}{t("punkter.")}
             </p>
             <TrackMap track={points} />
           </>
         )}
 
         <label className="form__field">
-          Titel
+          {t("Titel")}
           <input required maxLength={100} value={title} onChange={(e) => setTitle(e.target.value)} />
         </label>
 
         {points && !hasTimes && (
           <label className="form__field">
-            Datum <span className="form__hint">(spåret saknar tider)</span>
+            {t("Datum")}{" "}<span className="form__hint">{t("(spåret saknar tider)")}</span>
             <input type="date" required value={date} onChange={(e) => setDate(e.target.value)} />
           </label>
         )}
 
         <label className="form__field">
-          Beskrivning{" "}
-          <span className="form__hint">(förhållanden, vägval, var det var bra åkning, vad du undvek och varför)</span>
+          {t("Beskrivning")}{" "}
+          <span className="form__hint">{t("(förhållanden, vägval, var det var bra åkning, vad du undvek och varför)")}</span>
           <textarea rows={5} maxLength={4000} value={description} onChange={(e) => setDescription(e.target.value)} />
         </label>
 
         <label className="form__field">
-          Vem ska se turen?
+          {t("Vem ska se turen?")}
           <select value={visibility} onChange={(e) => setVisibility(e.target.value as TourVisibility)}>
             {VISIBILITY_CHOICES.map((c) => (
               <option key={c.value} value={c.value}>
@@ -124,7 +124,7 @@ export default function NewTourPage() {
 
         {visibility !== "private" && (
           <label className="form__field">
-            Dölj början och slutet <span className="form__hint">(så att ingen ser var du bor eller parkerar)</span>
+            {t("Dölj början och slutet")}{" "}<span className="form__hint">{t("(så att ingen ser var du bor eller parkerar)")}</span>
             <select value={hideEndsM} onChange={(e) => setHideEndsM(Number(e.target.value))}>
               {HIDE_ENDS_CHOICES.map((c) => (
                 <option key={c.meters} value={c.meters}>
@@ -141,7 +141,7 @@ export default function NewTourPage() {
           </p>
         )}
         <button type="submit" className="button button--primary" disabled={busy || !points}>
-          {busy ? "Sparar…" : "Spara tur"}
+          {busy ? t("Sparar…") : t("Spara tur")}
         </button>
       </form>
     </div>

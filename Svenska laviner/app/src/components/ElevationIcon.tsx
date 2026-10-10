@@ -1,6 +1,7 @@
 import { useId } from "react";
 import type { Elevation } from "../types/avalanche";
 import { ELEVATION_LABELS } from "../data/elevations";
+import { t } from "../i18n";
 
 // Top to bottom: the y-range of each band inside the mountain.
 const BANDS: Array<[Elevation, number, number]> = [
@@ -17,7 +18,7 @@ interface Props {
 /** A mountain split into the forecast's three elevation bands; affected bands are orange. */
 export default function ElevationIcon({ highlighted, size = 52 }: Props) {
   const clipId = useId();
-  const label = `Utsatta höjder: ${highlighted.map((e) => ELEVATION_LABELS[e]).join(", ") || "inga"}`;
+  const label = t("Utsatta höjder: {list}", { list: highlighted.map((e) => ELEVATION_LABELS[e]).join(", ") || t("inga") });
   return (
     <svg className="elevation-icon" viewBox="0 0 48 48" width={size} height={size} role="img" aria-label={label}>
       <clipPath id={clipId}>

@@ -919,6 +919,15 @@ p.muted a:not(.button) {
   color: var(--accent);
 }
 
+/* The language switch is a button styled like the menu links. */
+.app-shell__lang {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
 .type-picker {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));

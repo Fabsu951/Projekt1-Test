@@ -36,6 +36,7 @@ import { fetchRoute } from "../services/routeService";
 import { ElevationSampler } from "../utils/elevation";
 import { analyseRoute, routeToGpx, type RouteAnalysis } from "../utils/routePlan";
 import { ObservationMarkers, RegionMarkers, TourMarkers } from "../components/MapMarkers";
+import { t } from "../i18n";
 
 const SLOPE_LEGEND: Array<[string, string]> = [
   ["< 28°", "#325a82"],
@@ -87,7 +88,7 @@ function FitToContainer({ fullscreen }: { fullscreen: boolean }) {
 
 function downloadGpx(analysis: RouteAnalysis, title: string) {
   const date = new Date().toISOString().slice(0, 10);
-  const name = title.trim() || `Snöläge-rutt ${date}`;
+  const name = title.trim() || t("Snöläge-rutt {date}", { date });
   const file = `${name.replace(/[^\p{L}\p{N} _-]+/gu, "").trim().replace(/\s+/g, "-") || "fjallkoll-rutt"}.gpx`;
   void saveTextFile(file, routeToGpx(name, analysis.samples), "application/gpx+xml");
 }
@@ -270,9 +271,9 @@ export default function MapPage() {
     <div className={["page page--map", fullscreen && "page--map-full", planning && "page--planning"].filter(Boolean).join(" ")}>
       {!fullscreen && (
         <header className="page__header">
-          <h1>Karta</h1>
+          <h1>{t("Karta")}</h1>
           <p className="page__lead">
-            Lavinprognosområdenas ungefärliga läge, färgkodade efter farograd.
+            {t("Lavinprognosområdenas ungefärliga läge, färgkodade efter farograd.")}
           </p>
         </header>
       )}
@@ -283,14 +284,14 @@ export default function MapPage() {
             type="button"
             className={showPosition ? "button map-toolbar__locate map-toolbar__locate--on" : "button map-toolbar__locate"}
             aria-pressed={showPosition}
-            aria-label={showPosition ? "Dölj min position" : "Visa min position"}
+            aria-label={showPosition ? t("Dölj min position") : t("Visa min position")}
             onClick={() => {
               setShowPosition((on) => !on);
               setPositionStatus(null);
             }}
           >
             <span className="my-position__legend" aria-hidden="true" />
-            <span className="map-toolbar__label">{showPosition ? "Dölj min position" : "Visa min position"}</span>
+            <span className="map-toolbar__label">{showPosition ? t("Dölj min position") : t("Visa min position")}</span>
           </button>
           <button
             type="button"
@@ -299,35 +300,35 @@ export default function MapPage() {
             aria-controls="map-layers"
             onClick={toggleLayers}
           >
-            Kartlager{activeLayers > 0 && ` (${activeLayers} på)`}
+            {t("Kartlager")}{activeLayers > 0 && t(" ({n} på)", { n: activeLayers })}
             <span className={layersOpen ? "map-toolbar__chevron map-toolbar__chevron--open" : "map-toolbar__chevron"} aria-hidden="true" />
           </button>
           <button
             type="button"
             className={planning ? "button map-toolbar__plan map-toolbar__plan--on" : "button map-toolbar__plan"}
             aria-pressed={planning}
-            aria-label="Planera rutt"
+            aria-label={t("Planera rutt")}
             onClick={() => setPlanning((on) => !on)}
           >
             <span className="route-icon" aria-hidden="true" />
-            <span className="map-toolbar__label">Planera rutt</span>
+            <span className="map-toolbar__label">{t("Planera rutt")}</span>
           </button>
           <button
             type="button"
             className="button map-toolbar__fullscreen"
             aria-pressed={fullscreen}
-            aria-label={fullscreen ? "Stäng helskärm" : "Helskärm"}
+            aria-label={fullscreen ? t("Stäng helskärm") : t("Helskärm")}
             onClick={() => setFullscreen((on) => !on)}
           >
             <span className={fullscreen ? "fullscreen-icon fullscreen-icon--exit" : "fullscreen-icon"} aria-hidden="true" />
-            <span className="map-toolbar__label">{fullscreen ? "Stäng helskärm" : "Helskärm"}</span>
+            <span className="map-toolbar__label">{fullscreen ? t("Stäng helskärm") : t("Helskärm")}</span>
           </button>
         </div>
 
         <div id="map-layers" className="map-toolbar map-layers" hidden={!layersOpen}>
           <div className="map-layers__group" role="group" aria-labelledby="layers-show">
             <p id="layers-show" className="map-layers__title">
-              Visa på kartan
+              {t("Visa på kartan")}
             </p>
             <label className="map-toolbar__toggle">
               <input
@@ -336,33 +337,31 @@ export default function MapPage() {
                 onChange={(e) => setShowObservations(e.target.checked)}
               />
               <span className="observation-pin observation-pin--legend"><span /></span>
-              Observationer
+              {t("Observationer")}
             </label>
             <label className="map-toolbar__toggle">
               <input type="checkbox" checked={showTours} onChange={(e) => setShowTours(e.target.checked)} />
               <span className="tour-pin tour-pin--legend">
                 <span />
               </span>
-              Turer
+              {t("Turer")}
             </label>
             <label className="map-toolbar__toggle">
               <input type="checkbox" checked={showHeatmap} onChange={(e) => setShowHeatmap(e.target.checked)} />
               <span className="heat-legend" aria-hidden="true" />
-              Värmekarta över turer
+              {t("Värmekarta över turer")}
             </label>
             {showHeatmap && <SeasonFilter selected={heatSeasons} onChange={setHeatSeasons} />}
             {showHeatmap && (
               <p className="notice map-layers__note">
-                Värmekartan visar turer som användare delat. Färgen och tjockleken visar hur många olika turer som gått
-                samma väg – tryck på en linje för att se vilka. Början och slutet av
-                turerna är dolda. Den säger inget om förhållandena i dag – kolla alltid lavinprognosen.
-                {heatLines.length === 0 && " Inga delade turer för det valda urvalet än."}
+                {t("Värmekartan visar turer som användare delat. Färgen och tjockleken visar hur många olika turer som gått samma väg – tryck på en linje för att se vilka. Början och slutet av turerna är dolda. Den säger inget om förhållandena i dag – kolla alltid lavinprognosen.")}
+                {heatLines.length === 0 && t(" Inga delade turer för det valda urvalet än.")}
               </p>
             )}
           </div>
           <div className="map-layers__group" role="group" aria-labelledby="layers-terrain">
             <p id="layers-terrain" className="map-layers__title">
-              Terräng
+              {t("Terräng")}
             </p>
             <label className="map-toolbar__toggle">
               <input
@@ -371,7 +370,7 @@ export default function MapPage() {
                 onChange={(e) => setShowSlope(e.target.checked)}
               />
               <span>
-                Lutning, egen beräkning <span className="map-layers__sub">(zooma in för att se den)</span>
+                {t("Lutning, egen beräkning")}{" "}<span className="map-layers__sub">{t("(zooma in för att se den)")}</span>
               </span>
             </label>
             {showSlope && (
@@ -393,7 +392,7 @@ export default function MapPage() {
                     onChange={(e) => setShowDetailedSlope(e.target.checked)}
                   />
                   <span>
-                    Lutning, detaljerad <span className="map-layers__sub">(Lantmäteriets höjddata, zooma in)</span>
+                    {t("Lutning, detaljerad")}{" "}<span className="map-layers__sub">{t("(Lantmäteriets höjddata, zooma in)")}</span>
                   </span>
                 </label>
                 {showDetailedSlope && (
@@ -410,11 +409,11 @@ export default function MapPage() {
             )}
             {officialTerrainAvailable && (
               <div className="official-terrain">
-                <p className="official-terrain__title">Från Naturvårdsverket</p>
+                <p className="official-terrain__title">{t("Från Naturvårdsverket")}</p>
                 {(
                   [
-                    ["lutning", "Lutning"],
-                    ["riktning", "Sluttningsriktning"],
+                    ["lutning", t("Lutning")],
+                    ["riktning", t("Sluttningsriktning")],
                   ] as Array<[OfficialTerrain, string]>
                 ).map(([id, label]) => (
                   <label key={id} className="map-toolbar__toggle">
@@ -447,25 +446,19 @@ export default function MapPage() {
 
         {officialTerrain && (
           <p className="notice">
-            {officialTerrain === "lutning" ? "Lutningskartan" : "Kartan över sluttningsriktning"} kommer från
-            Naturvårdsverkets lavinprognostjänst. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos.
-            Zooma in om lagret inte syns.
+            {officialTerrain === "lutning" ? t("Lutningskartan") : t("Kartan över sluttningsriktning")}{" "}{t("kommer från Naturvårdsverkets lavinprognostjänst. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos. Zooma in om lagret inte syns.")}
           </p>
         )}
 
         {showDetailedSlope && (
           <p className="notice notice--stale">
-            Den detaljerade lutningen är beräknad från Lantmäteriets höjdmodell med 1 m upplösning, i steg om ett par
-            meter. Under 30° visas ingenting. Den visar terrängen, inte lavinfaran, och snö och skavlar kan ändra den
-            verkliga lutningen.
+            {t("Den detaljerade lutningen är beräknad från Lantmäteriets höjdmodell med 1 m upplösning, i steg om ett par meter. Under 30° visas ingenting. Den visar terrängen, inte lavinfaran, och snö och skavlar kan ändra den verkliga lutningen.")}
           </p>
         )}
 
         {showSlope && (
           <p className="notice notice--stale">
-            Terränglutningen är beräknad från öppen höjddata med ~30 m upplösning
-            (SRTM/NASADEM) och är en grov approximation — inte tillräckligt exakt
-            för att ensam avgöra om en specifik sluttning är säker.
+            {t("Terränglutningen är beräknad från öppen höjddata med ~30 m upplösning (SRTM/NASADEM) och är en grov approximation — inte tillräckligt exakt för att ensam avgöra om en specifik sluttning är säker.")}
           </p>
         )}
       </div>

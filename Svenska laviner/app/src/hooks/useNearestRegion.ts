@@ -3,6 +3,7 @@ import { Geolocation } from "@capacitor/geolocation";
 import { REGIONS } from "../data/regions";
 import { haversineDistanceKm } from "../utils/geo";
 import type { AvalancheRegion } from "../types/avalanche";
+import { t } from "../i18n";
 
 type Status = "idle" | "loading" | "success" | "denied" | "error";
 
@@ -51,7 +52,7 @@ export function useNearestRegion() {
     } catch (err) {
       const geoError = err as Partial<GeolocationPositionError>;
       const message =
-        geoError?.message ?? (err instanceof Error ? err.message : "Okänt platsfel");
+        geoError?.message ?? (err instanceof Error ? err.message : t("Okänt platsfel"));
       const denied = geoError?.code === 1 || /denied|permission/i.test(message);
       setState({
         status: denied ? "denied" : "error",

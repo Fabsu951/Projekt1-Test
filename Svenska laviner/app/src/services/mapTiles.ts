@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 // Lantmäteriet's topographic map, served by our Cloudflare Worker at
 // /tiles/topowebb/{z}/{x}/{y}.png. The worker hosts the tiles in R2 (from
 // the CC BY 4.0 "Topografisk webbkarta Nedladdning, raster"), fills gaps from the
@@ -21,9 +22,9 @@ export function topoTileUrl(z: number, x: number, y: number): string {
 /** Offline areas are only offered for our own tiles, never for openstreetmap.org. */
 export const offlineMapsAvailable = Boolean(PROXY_BASE);
 
-const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsgivare';
+const OSM_ATTRIBUTION = t('&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsgivare');
 export const TOPOWEBB_ATTRIBUTION = PROXY_BASE
-  ? `&copy; Lantmäteriet, <a href="https://creativecommons.org/licenses/by/4.0/deed.sv">CC BY 4.0</a> · utanför fjällen ${OSM_ATTRIBUTION}`
+  ? t('&copy; Lantmäteriet, <a href="https://creativecommons.org/licenses/by/4.0/deed.sv">CC BY 4.0</a> · utanför fjällen {osm}', { osm: OSM_ATTRIBUTION })
   : OSM_ATTRIBUTION;
 
 /**
@@ -36,7 +37,7 @@ const workerBase = () => (PROXY_BASE ?? "").replace(/\/$/, "");
 export const officialTerrainUrl = (layer: OfficialTerrain) => `${workerBase()}/terrain/${layer}/{z}/{x}/{y}.png`;
 export const officialTerrainLegendUrl = (layer: OfficialTerrain) => `${workerBase()}/terrain/${layer}/legend.png`;
 export const OFFICIAL_TERRAIN_ATTRIBUTION =
-  'Terrängkarta: <a href="https://www.lavinprognoser.se/">Naturvårdsverket</a>';
+  t('Terrängkarta: <a href="https://www.lavinprognoser.se/">Naturvårdsverket</a>');
 
 /**
  * The detailed slope map, made from Lantmäteriet's 1 m height model by
@@ -45,7 +46,7 @@ export const OFFICIAL_TERRAIN_ATTRIBUTION =
  */
 export const DETAILED_SLOPE_URL = `${workerBase()}/tiles/slope/{z}/{x}/{y}.png`;
 export const DETAILED_SLOPE_ATTRIBUTION =
-  'Lutning beräknad från &copy; Lantmäteriet Markhöjdmodell, <a href="https://creativecommons.org/licenses/by/4.0/deed.sv">CC BY 4.0</a>';
+  t('Lutning beräknad från &copy; Lantmäteriet Markhöjdmodell, <a href="https://creativecommons.org/licenses/by/4.0/deed.sv">CC BY 4.0</a>');
 
 let slopeMetaCheck: Promise<boolean> | null = null;
 

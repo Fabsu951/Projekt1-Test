@@ -1,4 +1,5 @@
 import { getRegionById } from "../data/regions";
+import { t } from "../i18n";
 
 // Title, description and search-engine hints for a page address. Plain
 // functions without browser or React imports, because they run in two
@@ -8,31 +9,31 @@ import { getRegionById } from "../data/regions";
 // Slack, Facebook …) never run JavaScript.
 
 const TITLES: Array<[RegExp, string]> = [
-  [/^\/$/, "Idag"],
-  [/^\/omrade\/[^/]+\/sasong/, "Säsongen"],
-  [/^\/omrade\//, "Område"],
-  [/^\/karta/, "Karta"],
-  [/^\/observationer\/ny/, "Ny observation"],
-  [/^\/observationer\/snabb/, "Snabbobservation"],
-  [/^\/observationer/, "Observationer"],
-  [/^\/turer\/ny/, "Ny tur"],
-  [/^\/turer\/halsa/, "Hämta från klockan"],
-  [/^\/turer\/\d/, "Tur"],
-  [/^\/turer/, "Turer"],
-  [/^\/flode/, "Flöde"],
-  [/^\/notiser/, "Notiser"],
-  [/^\/person\//, "Person"],
-  [/^\/sakerhetsguide/, "Säkerhetsguide"],
-  [/^\/om-appen/, "Om Snöläge"],
-  [/^\/offline/, "Utan täckning"],
-  [/^\/logga-in/, "Logga in"],
-  [/^\/registrera/, "Skapa konto"],
-  [/^\/profil/, "Min profil"],
-  [/^\/admin\/oversikt/, "Översikt"],
-  [/^\/admin/, "Anmälda inlägg"],
-  [/^\/glomt-losenord/, "Glömt lösenord"],
-  [/^\/aterstall-losenord/, "Nytt lösenord"],
-  [/^\/verifiera/, "Bekräfta e-post"],
+  [/^\/$/, t("Idag")],
+  [/^\/omrade\/[^/]+\/sasong/, t("Säsongen")],
+  [/^\/omrade\//, t("Område")],
+  [/^\/karta/, t("Karta")],
+  [/^\/observationer\/ny/, t("Ny observation")],
+  [/^\/observationer\/snabb/, t("Snabbobservation")],
+  [/^\/observationer/, t("Observationer")],
+  [/^\/turer\/ny/, t("Ny tur")],
+  [/^\/turer\/halsa/, t("Hämta från klockan")],
+  [/^\/turer\/\d/, t("Tur")],
+  [/^\/turer/, t("Turer")],
+  [/^\/flode/, t("Flöde")],
+  [/^\/notiser/, t("Notiser")],
+  [/^\/person\//, t("Person")],
+  [/^\/sakerhetsguide/, t("Säkerhetsguide")],
+  [/^\/om-appen/, t("Om Snöläge")],
+  [/^\/offline/, t("Utan täckning")],
+  [/^\/logga-in/, t("Logga in")],
+  [/^\/registrera/, t("Skapa konto")],
+  [/^\/profil/, t("Min profil")],
+  [/^\/admin\/oversikt/, t("Översikt")],
+  [/^\/admin/, t("Anmälda inlägg")],
+  [/^\/glomt-losenord/, t("Glömt lösenord")],
+  [/^\/aterstall-losenord/, t("Nytt lösenord")],
+  [/^\/verifiera/, t("Bekräfta e-post")],
 ];
 
 export function defaultTitle(pathname: string): string | null {
@@ -40,7 +41,7 @@ export function defaultTitle(pathname: string): string | null {
 }
 
 export function fullTitle(title: string | null): string {
-  return title ? `${title} – Snöläge` : "Snöläge – lavinprognos och turer";
+  return title ? `${title} – Snöläge` : t("Snöläge – lavinprognos och turer");
 }
 
 const REGION_PAGE = /^\/omrade\/([^/]+)\/?$/;
@@ -50,7 +51,7 @@ const SEASON_PAGE = /^\/omrade\/([^/]+)\/sasong\/?$/;
 export function staticTitle(pathname: string): string {
   const season = SEASON_PAGE.exec(pathname);
   const seasonRegion = season && getRegionById(season[1]);
-  if (seasonRegion) return fullTitle(`Säsongen – ${seasonRegion.name}`);
+  if (seasonRegion) return fullTitle(t("Säsongen – {name}", { name: seasonRegion.name }));
   const area = REGION_PAGE.exec(pathname);
   const region = area && getRegionById(area[1]);
   if (region) return fullTitle(region.name);
@@ -60,28 +61,28 @@ export function staticTitle(pathname: string): string {
 const DESCRIPTIONS: Array<[RegExp, string]> = [
   [
     /^\/$/,
-    "Dagens lavinprognos för svenska fjällen på ett ställe: farograd, lavinproblem, fjällväder och vind för Kebnekaise, Riksgränsen, Vindelfjällen, Lapplandsfjällen, Jämtland och Härjedalen. Med karta, observationer och turer.",
+    t("Dagens lavinprognos för svenska fjällen på ett ställe: farograd, lavinproblem, fjällväder och vind för Kebnekaise, Riksgränsen, Vindelfjällen, Lapplandsfjällen, Jämtland och Härjedalen. Med karta, observationer och turer."),
   ],
   [
     /^\/karta\/?$/,
-    "Karta över svenska fjällen med Lantmäteriets topografiska karta, Naturvårdsverkets lutningskartor, ruttplanering och observationer från skidåkare.",
+    t("Karta över svenska fjällen med Lantmäteriets topografiska karta, Naturvårdsverkets lutningskartor, ruttplanering och observationer från skidåkare."),
   ],
   [
     /^\/observationer\/?$/,
-    "Observationer från fjällen: laviner, skjutsprickor, wumpf, snödjup och förhållanden som skidåkare har rapporterat.",
+    t("Observationer från fjällen: laviner, skjutsprickor, wumpf, snödjup och förhållanden som skidåkare har rapporterat."),
   ],
   [
     /^\/turer\/?$/,
-    "Skidturer i svenska fjällen som andra har delat, med höjdmeter, karta och en värmekarta över vanliga vägval.",
+    t("Skidturer i svenska fjällen som andra har delat, med höjdmeter, karta och en värmekarta över vanliga vägval."),
   ],
   [
     /^\/sakerhetsguide\/?$/,
-    "Grunderna i lavinsäkerhet: hur laviner bildas, väder som ökar risken, branthet, terrängfällor, lavinproblemen och hur du läser lavinprognosen.",
+    t("Grunderna i lavinsäkerhet: hur laviner bildas, väder som ökar risken, branthet, terrängfällor, lavinproblemen och hur du läser lavinprognosen."),
   ],
-  [/^\/om-appen\/?$/, "Om Snöläge: var uppgifterna kommer ifrån, användarvillkor och integritetspolicy."],
+  [/^\/om-appen\/?$/, t("Om Snöläge: var uppgifterna kommer ifrån, användarvillkor och integritetspolicy.")],
   [
     /^\/offline\/?$/,
-    "Vad som fungerar utan mobiltäckning i fjällen, och hur du sparar kartor och rutter i förväg.",
+    t("Vad som fungerar utan mobiltäckning i fjällen, och hur du sparar kartor och rutter i förväg."),
   ],
 ];
 
@@ -93,14 +94,14 @@ export function pageDescription(pathname: string): string {
   if (season) {
     const region = getRegionById(season[1]);
     if (region) {
-      return `Säsongen dag för dag i ${region.name}: farograder och lavinproblem från Naturvårdsverkets lavinprognoser, som kalender och diagram.`;
+      return t("Säsongen dag för dag i {name}: farograder och lavinproblem från Naturvårdsverkets lavinprognoser, som kalender och diagram.", { name: region.name });
     }
   }
   const area = REGION_PAGE.exec(pathname);
   if (area) {
     const region = getRegionById(area[1]);
     if (region) {
-      return `Dagens lavinprognos för ${region.name}: farograd, lavinproblem, utveckling, fjällväder och vind, med länkar till Naturvårdsverket och SMHI.`;
+      return t("Dagens lavinprognos för {name}: farograd, lavinproblem, utveckling, fjällväder och vind, med länkar till Naturvårdsverket och SMHI.", { name: region.name });
     }
   }
   return DESCRIPTIONS.find(([re]) => re.test(pathname))?.[1] ?? FALLBACK;

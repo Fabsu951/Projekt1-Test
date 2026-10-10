@@ -3,6 +3,7 @@ import { getDangerInfo } from "../../data/dangerScale";
 import { DANGER_SCALE } from "../../data/dangerScale";
 import { REGIONS } from "../../data/regions";
 import type { AvalancheForecast } from "../../types/avalanche";
+import { t } from "../../i18n";
 
 // A small schematic map of the six forecast areas, coloured by today's level.
 // Positions are the areas' real centres; the dashed line roughly follows the
@@ -58,10 +59,10 @@ export default function OverviewMap({ forecasts, favorites }: Props) {
 
   return (
     <div className="overview-map">
-      <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label="Översiktskarta över prognosområdena">
+      <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label={t("Översiktskarta över prognosområdena")}>
         <polyline points={border} fill="none" stroke="var(--accent)" strokeWidth="1.2" strokeDasharray="4 4" opacity="0.45" />
-        <text x={nx} y={ny} className="overview-map__country" textAnchor="middle">NORGE</text>
-        <text x={sx} y={sy} className="overview-map__country" textAnchor="middle">SVERIGE</text>
+        <text x={nx} y={ny} className="overview-map__country" textAnchor="middle">{t("NORGE")}</text>
+        <text x={sx} y={sy} className="overview-map__country" textAnchor="middle">{t("SVERIGE")}</text>
         {REGIONS.map((r) => {
           const [x, y] = project(r.lat, r.lon);
           const f = forecasts[r.id];
@@ -78,7 +79,7 @@ export default function OverviewMap({ forecasts, favorites }: Props) {
                 e.preventDefault();
                 navigate(`/omrade/${r.id}`);
               }}
-              aria-label={`${r.name}: ${info ? info.label : "ingen farograd"}`}
+              aria-label={`${r.name}: ${info ? info.label : t("ingen farograd")}`}
               className="overview-map__area"
             >
               <circle cx={x} cy={y} r={R} fill={info?.color ?? "var(--bg-raised)"} stroke="var(--snow)" strokeWidth={2} />
@@ -93,7 +94,7 @@ export default function OverviewMap({ forecasts, favorites }: Props) {
           );
         })}
       </svg>
-      <ul className="overview-map__legend" aria-label="Lavinskalan">
+      <ul className="overview-map__legend" aria-label={t("Lavinskalan")}>
         {DANGER_SCALE.map((d) => (
           <li key={d.level}>
             <b style={{ background: d.color }} />

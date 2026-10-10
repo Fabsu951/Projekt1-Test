@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 const MAX_EDGE = 1600;
 const QUALITY = 0.85;
 
@@ -15,11 +16,11 @@ export async function prepareImage(file: File): Promise<Blob> {
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Kunde inte läsa bilden.");
+  if (!ctx) throw new Error(t("Kunde inte läsa bilden."));
   ctx.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
   return new Promise((resolve, reject) =>
-    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Kunde inte läsa bilden."))), "image/jpeg", QUALITY)
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error(t("Kunde inte läsa bilden.")))), "image/jpeg", QUALITY)
   );
 }
 
@@ -34,10 +35,10 @@ export async function prepareAvatar(file: File): Promise<Blob> {
   canvas.width = edge;
   canvas.height = edge;
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Kunde inte läsa bilden.");
+  if (!ctx) throw new Error(t("Kunde inte läsa bilden."));
   ctx.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, edge, edge);
   bitmap.close();
   return new Promise((resolve, reject) =>
-    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Kunde inte läsa bilden."))), "image/jpeg", QUALITY)
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error(t("Kunde inte läsa bilden.")))), "image/jpeg", QUALITY)
   );
 }

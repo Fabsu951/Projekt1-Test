@@ -13,9 +13,10 @@ import {
   nativePushAvailable,
 } from "../services/nativePush";
 import type { Badge } from "../types/social";
+import { t, locale } from "../i18n";
 
 const when = (iso: string) =>
-  new Date(iso).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  new Date(iso).toLocaleString(locale(), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
 /** New followers, comments, likes and replies — newest first. */
 export default function NotificationsPage() {
@@ -48,17 +49,17 @@ export default function NotificationsPage() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>Notiser</h1>
-        <p className="page__lead">När någon börjar följa dig, kommenterar, gillar eller svarar i en tråd du är med i.</p>
+        <h1>{t("Notiser")}</h1>
+        <p className="page__lead">{t("När någon börjar följa dig, kommenterar, gillar eller svarar i en tråd du är med i.")}</p>
       </header>
 
       <AccountPushToggle token={token} />
 
       {error && <p className="error">{error}</p>}
-      {!list && !error && <PageLoading label="Laddar…" />}
+      {!list && !error && <PageLoading label={t("Laddar…")} />}
       {list && list.length === 0 && (
         <p className="section__intro">
-          Inga notiser än. <Link to="/flode">Hitta kompisar att följa</Link>.
+          {t("Inga notiser än.")}{" "}<Link to="/flode">{t("Hitta kompisar att följa")}</Link>.
         </p>
       )}
       <ul className="notification-list">
@@ -129,7 +130,7 @@ function AccountPushToggle({ token }: { token: string }) {
       else await disableAccountPush(token);
       setOn(next);
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Det gick inte att ändra notiserna.");
+      setMessage(err instanceof Error ? err.message : t("Det gick inte att ändra notiserna."));
     } finally {
       setBusy(false);
     }
@@ -139,7 +140,7 @@ function AccountPushToggle({ token }: { token: string }) {
     <div className="notification-push">
       <label className="form__field form__field--checkbox">
         <input type="checkbox" checked={on} disabled={busy} onChange={(e) => void toggle(e.target.checked)} />
-        Skicka notiserna till den här enheten även när Snöläge är stängt
+        {t("Skicka notiserna till den här enheten även när Snöläge är stängt")}
       </label>
       {message && <p className="error">{message}</p>}
     </div>

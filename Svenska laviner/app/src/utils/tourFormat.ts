@@ -1,5 +1,6 @@
+import { locale } from "../i18n";
 export function formatDistance(m: number): string {
-  return m >= 1000 ? `${(m / 1000).toLocaleString("sv-SE", { maximumFractionDigits: 1 })} km` : `${m} m`;
+  return m >= 1000 ? `${(m / 1000).toLocaleString(locale(), { maximumFractionDigits: 1 })} km` : `${m} m`;
 }
 
 export function formatDuration(s: number | null): string | null {
@@ -10,5 +11,5 @@ export function formatDuration(s: number | null): string | null {
 }
 
 export function formatTourDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("sv-SE", { day: "numeric", month: "long", year: "numeric" });
+  return new Date(iso).toLocaleDateString(locale(), { day: "numeric", month: "long", year: "numeric" });
 }

@@ -1,8 +1,9 @@
 import type { HistoryDay } from "../services/avalancheService";
 import { getDangerInfo } from "../data/dangerScale";
+import { t, locale } from "../i18n";
 
-const WEEKDAY = new Intl.DateTimeFormat("sv-SE", { weekday: "short", timeZone: "UTC" });
-const FULL_DATE = new Intl.DateTimeFormat("sv-SE", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+const WEEKDAY = new Intl.DateTimeFormat(locale(), { weekday: "short", timeZone: "UTC" });
+const FULL_DATE = new Intl.DateTimeFormat(locale(), { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
 
 function addDays(date: string, days: number): string {
   const [y, m, d] = date.split("-").map(Number);
@@ -10,8 +11,8 @@ function addDays(date: string, days: number): string {
 }
 
 function dayLabel(date: string, today: string): string {
-  if (date === today) return "Idag";
-  if (date === addDays(today, 1)) return "I morgon";
+  if (date === today) return t("Idag");
+  if (date === addDays(today, 1)) return t("I morgon");
   return WEEKDAY.format(new Date(`${date}T12:00:00Z`)).replace(".", "");
 }
 
@@ -28,7 +29,7 @@ export default function DangerHistory({ days, today }: Props) {
       {days.map((day) => {
         const info = day.dangerLevel !== null ? getDangerInfo(day.dangerLevel) : null;
         const fullDate = FULL_DATE.format(new Date(`${day.date}T12:00:00Z`));
-        const description = info ? `${info.level} ${info.label}` : "ingen prognos";
+        const description = info ? `${info.level} ${info.label}` : t("ingen prognos");
         return (
           <li key={day.date} className="danger-history__day" title={`${fullDate}: ${description}`}>
             <span className="danger-history__label">{dayLabel(day.date, today)}</span>

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { setFollowing } from "../services/socialService";
 import type { Person } from "../types/social";
+import { t } from "../i18n";
 
 /** Follow / stop following someone. Signed-out visitors get a log-in link instead. */
 export default function FollowButton({
@@ -21,7 +22,7 @@ export default function FollowButton({
   if (!user || !token) {
     return (
       <Link to={`/logga-in?next=/person/${personId}`} className="button follow-button">
-        Följ
+        {t("Följ")}
       </Link>
     );
   }
@@ -47,7 +48,7 @@ export default function FollowButton({
       disabled={busy}
       onClick={() => void toggle()}
     >
-      {on ? "Följer ✓" : "Följ"}
+      {on ? t("Följer ✓") : t("Följ")}
     </button>
   );
 }

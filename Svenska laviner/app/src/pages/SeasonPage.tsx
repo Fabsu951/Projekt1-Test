@@ -8,6 +8,7 @@ import type { DangerLevel } from "../types/avalanche";
 import ProblemIcon from "../components/ProblemIcon";
 import { usePageTitle } from "../components/pageTitle";
 import NotFoundPage from "./NotFoundPage";
+import { t, isEnglish, locale } from "../i18n";
 
 // "Säsongen": one area's whole forecast season from Naturvårdsverket's open
 // API — a calendar with every day's level, how many days each level had,
@@ -15,15 +16,17 @@ import NotFoundPage from "./NotFoundPage";
 // a colour; days without a level say what the forecast said instead.
 
 const SEASONS_BACK = 5;
-const MONTHS = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+const MONTHS = isEnglish()
+  ? ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  : ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
 const LEVELS: DangerLevel[] = [1, 2, 3, 4, 5];
 
 const seasonLabel = (y: number) => `${y}/${String(y + 1).slice(2)}`;
 
 function dayText(d: SeasonDay): string {
   const [y, m, day] = d.date.split("-").map(Number);
-  const when = new Date(Date.UTC(y, m - 1, day, 12)).toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" });
-  const level = d.dangerLevel ? `${d.dangerLevel} ${getDangerInfo(d.dangerLevel).label}` : (d.label ?? "Ingen farograd");
+  const when = new Date(Date.UTC(y, m - 1, day, 12)).toLocaleDateString(locale(), { weekday: "short", day: "numeric", month: "short" });
+  const level = d.dangerLevel ? `${d.dangerLevel} ${getDangerInfo(d.dangerLevel).label}` : (d.label ?? t("Ingen farograd"));
   return `${when}: ${level}`;
 }
 
@@ -66,7 +69,7 @@ export default function SeasonPage() {
   // What's loaded, tagged with what it's for, so a new choice shows "Hämtar…" without resetting state in the effect.
   const [loaded, setLoaded] = useState<{ key: string; data: Season | null; error: string | null } | null>(null);
   const [selected, setSelected] = useState<SeasonDay | null>(null);
-  usePageTitle(region ? `Säsongen ${seasonLabel(season)} – ${region.name}` : null);
+  usePageTitle(region ? t("Säsongen {season} – {name}", { season: seasonLabel(season), name: region.name }) : null);
 
   useEffect(() => {
     if (!region) return;
@@ -98,11 +101,11 @@ export default function SeasonPage() {
         ← {region.name}
       </Link>
       <header className="page__header">
-        <h1>Säsongen i {region.name}</h1>
-        <p className="page__lead">Varje dags farograd enligt Naturvårdsverkets lavinprognoser.</p>
+        <h1>{t("Säsongen i")}{" "}{region.name}</h1>
+        <p className="page__lead">{t("Varje dags farograd enligt Naturvårdsverkets lavinprognoser.")}</p>
       </header>
 
-      <div className="chip-row season__picker" role="group" aria-label="Välj säsong">
+      <div className="chip-row season__picker" role="group" aria-label={t("Välj säsong")}>
         {Array.from({ length: SEASONS_BACK }, (_, i) => latest - i).map((y) => (
           <button
             key={y}
@@ -122,35 +125,34 @@ export default function SeasonPage() {
       {error ? (
         <p className="notice">{error}</p>
       ) : !data ? (
-        <p className="muted">Hämtar säsongen…</p>
+        <p className="muted">{t("Hämtar säsongen…")}</p>
       ) : withLevel.length === 0 ? (
-        <p className="notice notice--stale">Inga publicerade farograder för {seasonLabel(season)} i det här området.</p>
+        <p className="notice notice--stale">{t("Inga publicerade farograder för")}{" "}{seasonLabel(season)}{" "}{t("i det här området.")}</p>
       ) : (
         <>
           <div className="season__tiles">
             <div className="season__tile">
               <strong>{withLevel.length}</strong>
-              <span>dagar med farograd</span>
+              <span>{t("dagar med farograd")}</span>
             </div>
             {mostCommon && (
               <div className="season__tile">
                 <strong>
                   {mostCommon} {getDangerInfo(mostCommon).label.replace(" fara", "")}
                 </strong>
-                <span>vanligast ({data.levels[mostCommon]} dagar)</span>
+                <span>{t("vanligast ({n} dagar)", { n: data.levels[mostCommon] })}</span>
               </div>
             )}
             <div className="season__tile">
               <strong>{atLeast3}</strong>
-              <span>dagar med betydande eller högre</span>
+              <span>{t("dagar med betydande eller högre")}</span>
             </div>
           </div>
 
           <section className="section" aria-labelledby="season-calendar">
-            <h2 id="season-calendar">Dag för dag</h2>
+            <h2 id="season-calendar">{t("Dag för dag")}</h2>
             <p className="muted season__span">
-              Dagliga prognoser {shortDate(withLevel[0].date)} – {shortDate(withLevel[withLevel.length - 1].date)}. Övriga
-              dagar publicerade Naturvårdsverket ingen daglig prognos för området (till exempel bara försäsongstips).
+              {t("Dagliga prognoser")}{" "}{shortDate(withLevel[0].date)} – {shortDate(withLevel[withLevel.length - 1].date)}{t(". Övriga dagar publicerade Naturvårdsverket ingen daglig prognos för området (till exempel bara försäsongstips).")}
             </p>
             <div className="season__months">
               {calendar.map((m) => (
@@ -209,9 +211,9 @@ export default function SeasonPage() {
                 )}
               </div>
             ) : (
-              <p className="muted season__hint">Tryck på en dag för att se lavinproblemen.</p>
+              <p className="muted season__hint">{t("Tryck på en dag för att se lavinproblemen.")}</p>
             )}
-            <ul className="season__legend" aria-label="Lavinskalan">
+            <ul className="season__legend" aria-label={t("Lavinskalan")}>
               {LEVELS.map((l) => (
                 <li key={l}>
                   <b style={{ background: getDangerInfo(l).color }} />
@@ -220,13 +222,13 @@ export default function SeasonPage() {
               ))}
               <li>
                 <b className="season__legend-none" />
-                Ingen farograd
+                {t("Ingen farograd")}
               </li>
             </ul>
           </section>
 
           <section className="section" aria-labelledby="season-levels">
-            <h2 id="season-levels">Dagar per farograd</h2>
+            <h2 id="season-levels">{t("Dagar per farograd")}</h2>
             <ul className="season__bars">
               {LEVELS.map((l) => (
                 <li key={l}>
@@ -247,7 +249,7 @@ export default function SeasonPage() {
 
           {data.problems.length > 0 && (
             <section className="section" aria-labelledby="season-problems">
-              <h2 id="season-problems">Vanligaste lavinproblemen</h2>
+              <h2 id="season-problems">{t("Vanligaste lavinproblemen")}</h2>
               <ul className="season__problems">
                 {data.problems.map((p) => {
                   const type = SITE_PROBLEM_TYPES[p.type];
@@ -267,7 +269,7 @@ export default function SeasonPage() {
           )}
 
           <details className="season__table">
-            <summary>Visa som lista</summary>
+            <summary>{t("Visa som lista")}</summary>
             <ul>
               {data.days.map((d) => (
                 <li key={d.date}>
@@ -279,11 +281,11 @@ export default function SeasonPage() {
           </details>
 
           <p className="source-list">
-            Källa: Naturvårdsverkets lavinprognoser (öppna API:er), via{" "}
+            {t("Källa: Naturvårdsverkets lavinprognoser (öppna API:er), via")}{" "}
             <a href="https://www.lavinprognoser.se/" target="_blank" rel="noreferrer">
-              lavinprognoser.se
+              {t("lavinprognoser.se")}
             </a>
-            . Ett dagsdatum är dagen prognosen gällde till kl 18. Visar senaste versionen när en prognos rättats.
+            {t(". Ett dagsdatum är dagen prognosen gällde till kl 18. Visar senaste versionen när en prognos rättats.")}
           </p>
         </>
       )}

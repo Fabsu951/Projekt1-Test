@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { safeNext } from "../utils/safeNext";
+import { t } from "../i18n";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -21,7 +22,7 @@ export default function LoginPage() {
       await login(email, password);
       navigate(next, { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Inloggningen misslyckades.");
+      setError(err instanceof Error ? err.message : t("Inloggningen misslyckades."));
     } finally {
       setBusy(false);
     }
@@ -30,16 +31,16 @@ export default function LoginPage() {
   return (
     <div className="page page--narrow">
       <header className="page__header">
-        <h1>Logga in</h1>
-        <p className="page__lead">Logga in för att dela observationer från fjället.</p>
+        <h1>{t("Logga in")}</h1>
+        <p className="page__lead">{t("Logga in för att dela observationer från fjället.")}</p>
       </header>
       <form className="form" onSubmit={onSubmit}>
         <label className="form__field">
-          E-post
+          {t("E-post")}
           <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
         <label className="form__field">
-          Lösenord
+          {t("Lösenord")}
           <input
             type="password"
             autoComplete="current-password"
@@ -50,14 +51,14 @@ export default function LoginPage() {
         </label>
         {error && <p className="error" role="alert">{error}</p>}
         <button type="submit" className="button button--primary" disabled={busy}>
-          {busy ? "Loggar in…" : "Logga in"}
+          {busy ? t("Loggar in…") : t("Logga in")}
         </button>
       </form>
       <p className="form__alt">
-        <Link to="/glomt-losenord">Glömt lösenordet?</Link>
+        <Link to="/glomt-losenord">{t("Glömt lösenordet?")}</Link>
       </p>
       <p className="form__alt">
-        Inget konto? <Link to={`/registrera?next=${encodeURIComponent(next)}`}>Skapa ett här</Link>
+        {t("Inget konto?")}{" "}<Link to={`/registrera?next=${encodeURIComponent(next)}`}>{t("Skapa ett här")}</Link>
       </p>
     </div>
   );

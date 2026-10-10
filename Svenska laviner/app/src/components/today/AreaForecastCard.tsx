@@ -7,6 +7,7 @@ import { problemWhere, recentDays, trendSinceYesterday } from "../../utils/today
 import FavoriteButton from "../FavoriteButton";
 import ProblemIcon from "../ProblemIcon";
 import ForecastTrendLine from "../ForecastTrendLine";
+import { t } from "../../i18n";
 
 interface Props {
   region: AvalancheRegion;
@@ -37,10 +38,10 @@ export default function AreaForecastCard({ region, forecast, history, now }: Pro
         <FavoriteButton regionId={region.id} regionName={region.name} />
       </div>
       <p className="area-card__levelname">
-        {forecast ? forecastLabel(forecast) : <span className="skeleton skeleton--text" aria-label="Laddar prognos" />}
+        {forecast ? forecastLabel(forecast) : <span className="skeleton skeleton--text" aria-label={t("Laddar prognos")} />}
         {trend && (
           <span className={`area-card__trend area-card__trend--${trend.kind}`}>
-            {trend.kind === "same" ? "→ samma som igår" : `${trend.kind === "up" ? "↑" : "↓"} från ${trend.from} igår`}
+            {trend.kind === "same" ? t("→ samma som igår") : (trend.kind === "up" ? t("↑ från {level} igår", { level: trend.from }) : t("↓ från {level} igår", { level: trend.from }))}
           </span>
         )}
       </p>
@@ -54,7 +55,7 @@ export default function AreaForecastCard({ region, forecast, history, now }: Pro
       )}
 
       {forecast && forecast.problems.length > 0 && (
-        <ul className="area-card__problems" aria-label="Lavinproblem">
+        <ul className="area-card__problems" aria-label={t("Lavinproblem")}>
           {forecast.problems.map((p, i) => (
             <li key={`${p.name}-${i}`} className="area-card__problem">
               {p.type && <ProblemIcon problem={p.type} size={20} />}
@@ -70,16 +71,16 @@ export default function AreaForecastCard({ region, forecast, history, now }: Pro
       {forecast && (forecast.status === "season-over" || forecast.status === "not-assessed" || forecast.status === "unavailable") && (
         <p className="area-card__message area-card__message--muted">
           {forecast.status === "season-over"
-            ? "Ingen prognos just nu. Lavinprognoserna publiceras från mitten av december."
+            ? t("Ingen prognos just nu. Lavinprognoserna publiceras från mitten av december.")
             : forecast.status === "not-assessed"
-              ? "Området bedöms inte idag."
-              : "Prognosen kunde inte hämtas. Läs den på lavinprognoser.se."}
+              ? t("Området bedöms inte idag.")
+              : t("Prognosen kunde inte hämtas. Läs den på lavinprognoser.se.")}
         </p>
       )}
 
       <div className="area-card__foot">
         {days.some((d) => d.dangerLevel !== null) ? (
-          <span className="area-card__spark" role="img" aria-label={`Farograd senaste dagarna: ${days.map((d) => d.dangerLevel ?? "ingen").join(", ")}`}>
+          <span className="area-card__spark" role="img" aria-label={`Farograd senaste dagarna: ${days.map((d) => d.dangerLevel ?? t("ingen")).join(", ")}`}>
             {days.map((d, i) => (
               <i
                 key={d.date}
@@ -95,10 +96,10 @@ export default function AreaForecastCard({ region, forecast, history, now }: Pro
           <span />
         )}
         <span className="area-card__links">
-          <Link to={`/omrade/${region.id}`}>Väder och detaljer</Link>
+          <Link to={`/omrade/${region.id}`}>{t("Väder och detaljer")}</Link>
           {forecast && (
             <a href={forecast.sourceUrl} target="_blank" rel="noreferrer">
-              Hela prognosen ↗
+              {t("Hela prognosen ↗")}
             </a>
           )}
         </span>

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import type { AvalancheRegion, AvalancheForecast } from "../types/avalanche";
 import ForecastBadge from "./ForecastBadge";
 import FavoriteButton from "./FavoriteButton";
+import { t } from "../i18n";
 
 interface Props {
   region: AvalancheRegion;
@@ -19,7 +20,7 @@ export default function RegionCard({ region, forecast }: Props) {
         {forecast ? (
           <ForecastBadge forecast={forecast} />
         ) : (
-          <span className="skeleton skeleton--badge" aria-label="Laddar farograd" />
+          <span className="skeleton skeleton--badge" aria-label={t("Laddar farograd")} />
         )}
       </Link>
       <FavoriteButton regionId={region.id} regionName={region.name} />

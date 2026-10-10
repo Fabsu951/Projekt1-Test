@@ -1,4 +1,5 @@
 import { Capacitor } from "@capacitor/core";
+import { t } from "../i18n";
 
 // Things that work differently inside the Android/iOS apps than on the web.
 
@@ -28,7 +29,7 @@ export async function sharePage(path: string, title: string, text: string): Prom
   try {
     if (isNativeApp()) {
       const { Share } = await import("@capacitor/share");
-      await Share.share({ title, text, url, dialogTitle: "Dela" });
+      await Share.share({ title, text, url, dialogTitle: t("Dela") });
       return "shared";
     }
     if (typeof navigator.share === "function") {
@@ -57,7 +58,7 @@ export async function saveTextFile(fileName: string, text: string, mimeType: str
       import("@capacitor/share"),
     ]);
     const written = await Filesystem.writeFile({ path: fileName, data: text, directory: Directory.Cache, encoding: Encoding.UTF8 });
-    await Share.share({ title: fileName, files: [written.uri], dialogTitle: "Spara eller skicka filen" });
+    await Share.share({ title: fileName, files: [written.uri], dialogTitle: t("Spara eller skicka filen") });
     return;
   }
   const url = URL.createObjectURL(new Blob([text], { type: mimeType }));

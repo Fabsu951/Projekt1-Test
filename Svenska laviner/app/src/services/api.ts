@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 /**
  * The Cloudflare Worker hosts the map proxy, forecast scraper, and the
  * accounts/observations API, all under one base URL.
@@ -20,7 +21,7 @@ interface ApiOptions {
 }
 
 export async function api<T>(path: string, { method = "GET", token, json, form }: ApiOptions = {}): Promise<T> {
-  if (!WORKER_BASE) throw new ApiError(0, "Servern är inte konfigurerad.");
+  if (!WORKER_BASE) throw new ApiError(0, t("Servern är inte konfigurerad."));
   const headers: Record<string, string> = {};
   if (token) headers.Authorization = `Bearer ${token}`;
   let body: BodyInit | undefined;
@@ -34,10 +35,10 @@ export async function api<T>(path: string, { method = "GET", token, json, form }
   try {
     res = await fetch(`${WORKER_BASE}${path}`, { method, headers, body });
   } catch {
-    throw new ApiError(0, "Ingen kontakt med servern. Kontrollera din uppkoppling.");
+    throw new ApiError(0, t("Ingen kontakt med servern. Kontrollera din uppkoppling."));
   }
   const data = (await res.json().catch(() => ({}))) as { error?: string };
-  if (!res.ok) throw new ApiError(res.status, data.error ?? `Något gick fel (${res.status}).`);
+  if (!res.ok) throw new ApiError(res.status, data.error ?? t("Något gick fel ({status}).", { status: res.status }));
   return data as T;
 }
 

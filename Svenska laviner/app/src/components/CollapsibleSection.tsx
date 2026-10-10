@@ -1,4 +1,5 @@
 import { useId, useState, type ReactNode } from "react";
+import { t } from "../i18n";
 
 const storageKey = (id: string) => `fjallkoll:section-open:${id}`;
 
@@ -77,7 +78,7 @@ export function ShowMore<T>({
       {render(visible)}
       {items.length > initial && (
         <button type="button" className="button collapsible__more" onClick={() => setAll((a) => !a)}>
-          {all ? "Visa färre" : `Visa alla ${items.length}`}
+          {all ? t("Visa färre") : t("Visa alla {n}", { n: items.length })}
         </button>
       )}
     </>

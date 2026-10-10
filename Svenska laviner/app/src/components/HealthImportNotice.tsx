@@ -9,6 +9,7 @@ import {
   HEALTH_STORE_NAME,
   type AutoImportResult,
 } from "../services/healthImport";
+import { t, plural } from "../i18n";
 
 /**
  * In the Android/iPhone app once Health Connect / Apple Hälsa is connected:
@@ -50,8 +51,8 @@ export default function HealthImportNotice({ invite = false }: { invite?: boolea
   if (connected === false && invite) {
     return (
       <Link to="/turer/halsa" className="health-notice health-notice--invite">
-        <strong>Hämta turer från {HEALTH_STORE_NAME}</strong>
-        <span>Pass med GPS-spår från klockan, utan att ladda upp filer →</span>
+        <strong>{t("Hämta turer från")}{" "}{HEALTH_STORE_NAME}</strong>
+        <span>{t("Pass med GPS-spår från klockan, utan att ladda upp filer →")}</span>
       </Link>
     );
   }
@@ -63,17 +64,16 @@ export default function HealthImportNotice({ invite = false }: { invite?: boolea
       {imported.length > 0 && (
         <>
           <strong>
-            {imported.length === 1 ? "1 ny tur från klockan" : `${imported.length} nya turer från klockan`} har lagts till som
-            privat{imported.length === 1 ? "" : "a"}
+            {plural(imported.length, "1 ny tur från klockan har lagts till som privat", "{n} nya turer från klockan har lagts till som privata")}
           </strong>
           <Link to={imported.length === 1 ? `/turer/${imported[0].id}` : "/profil"}>
-            {imported.length === 1 ? `Granska och dela "${imported[0].title}" →` : "Granska och dela under Mina turer →"}
+            {imported.length === 1 ? t("Granska och dela \"{title}\" →", { title: imported[0].title }) : t("Granska och dela under Mina turer →")}
           </Link>
         </>
       )}
       {waiting > 0 && (
         <Link to="/turer/halsa">
-          {waiting === 1 ? "1 pass väntar" : `${waiting} pass väntar`} på att du väljer om de ska läggas till →
+          {plural(waiting, "1 pass väntar på att du väljer om det ska läggas till →", "{n} pass väntar på att du väljer om de ska läggas till →")}
         </Link>
       )}
     </div>

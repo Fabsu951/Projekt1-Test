@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Circle, CircleMarker } from "react-leaflet";
 import { useMap } from "react-leaflet";
 import { Geolocation } from "@capacitor/geolocation";
+import { t } from "../i18n";
 
 interface Fix {
   lat: number;
@@ -34,12 +35,12 @@ export default function MyPosition({ enabled, onStatus }: Props) {
 
     let watchId: string | null = null;
     let cancelled = false;
-    onStatus("Hämtar din position…");
+    onStatus(t("Hämtar din position…"));
 
     Geolocation.watchPosition({ enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 }, (pos, err) => {
       if (cancelled) return;
       if (err || !pos) {
-        onStatus("Kunde inte hämta din position. Kontrollera att platstjänster är påslagna och tillåtna för Snöläge.");
+        onStatus(t("Kunde inte hämta din position. Kontrollera att platstjänster är påslagna och tillåtna för Snöläge."));
         return;
       }
       const next = { lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy };
@@ -55,7 +56,7 @@ export default function MyPosition({ enabled, onStatus }: Props) {
         else watchId = id;
       })
       .catch(() => {
-        if (!cancelled) onStatus("Platstjänster är inte tillgängliga på den här enheten.");
+        if (!cancelled) onStatus(t("Platstjänster är inte tillgängliga på den här enheten."));
       });
 
     return () => {

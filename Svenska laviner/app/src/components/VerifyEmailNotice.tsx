@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/useAuth";
+import { t } from "../i18n";
 
 /**
  * Reminder (with resend) for users who must verify before posting. Hidden
@@ -36,20 +37,19 @@ export default function VerifyEmailNotice() {
       await resendVerification();
       setState("sent");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunde inte skicka mejlet.");
+      setError(err instanceof Error ? err.message : t("Kunde inte skicka mejlet."));
       setState("idle");
     }
   }
 
   return (
     <div className="notice" role="status">
-      <strong>Bekräfta din e-postadress.</strong> Du behöver bekräfta din e-post innan du kan dela eller
-      anmäla observationer. Vi har skickat en länk till <strong>{user.email}</strong>.{" "}
+      <strong>{t("Bekräfta din e-postadress.")}</strong>{" "}{t("Du behöver bekräfta din e-post innan du kan dela eller anmäla observationer. Vi har skickat en länk till")}{" "}<strong>{user.email}</strong>.{" "}
       {state === "sent" ? (
-        "Nytt mejl skickat!"
+        t("Nytt mejl skickat!")
       ) : (
         <button type="button" className="link-button" onClick={() => void resend()} disabled={state === "sending"}>
-          Skicka igen
+          {t("Skicka igen")}
         </button>
       )}
       {error && <p className="error">{error}</p>}

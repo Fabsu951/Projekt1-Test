@@ -12,6 +12,7 @@ import {
   type SavedView,
 } from "../services/offlineMap";
 import { offlineMapsAvailable, topoTileUrl } from "../services/mapTiles";
+import { t, locale } from "../i18n";
 
 /** "Spara kartan offline": keeps what's on screen for use without coverage. */
 export default function OfflineViewBox({ bounds, onShow }: { bounds: Bounds | null; onShow: (b: Bounds) => void }) {
@@ -34,12 +35,12 @@ export default function OfflineViewBox({ bounds, onShow }: { bounds: Bounds | nu
     abort.current = new AbortController();
     setProgress({ done: 0, total: plan?.tiles ?? 0 });
     try {
-      const name = `Kartområde ${new Date().toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}`;
+      const name = t("Kartområde {date}", { date: new Date().toLocaleDateString(locale(), { day: "numeric", month: "short" }) });
       const view = await saveView(bounds, name, topoTileUrl, setProgress, abort.current.signal);
       setViews((list) => [view, ...list]);
     } catch (err) {
       if (!(err instanceof DOMException && err.name === "AbortError")) {
-        setError(err instanceof Error ? err.message : "Kunde inte spara kartan.");
+        setError(err instanceof Error ? err.message : t("Kunde inte spara kartan."));
       }
     } finally {
       setProgress(null);
@@ -49,33 +50,33 @@ export default function OfflineViewBox({ bounds, onShow }: { bounds: Bounds | nu
   return (
     <section className="offline-box map-layers__group" aria-labelledby="offline-box-title">
       <p id="offline-box-title" className="map-layers__title">
-        Karta utan täckning
+        {t("Karta utan täckning")}
       </p>
       {progress ? (
         <div className="offline-box__row">
-          <progress max={progress.total} value={progress.done} aria-label="Sparar kartan" />
+          <progress max={progress.total} value={progress.done} aria-label={t("Sparar kartan")} />
           <span>
             {progress.done} / {progress.total}
           </span>
           <button type="button" className="button" onClick={() => abort.current?.abort()}>
-            Avbryt
+            {t("Avbryt")}
           </button>
         </div>
       ) : (
         <div className="offline-box__row">
           <button type="button" className="button" disabled={!plan} onClick={() => void save()}>
-            Spara det som syns offline
+            {t("Spara det som syns offline")}
           </button>
           <span className="offline-box__hint">
             {plan
-              ? `ca ${formatMegabytes(estimateBytes(plan.tiles))}${plan.maxZoom < 15 ? ", zooma in för mer detaljer" : ""}`
-              : "Zooma in för att spara"}
+              ? (plan.maxZoom < 15 ? t("ca {size}, zooma in för mer detaljer", { size: formatMegabytes(estimateBytes(plan.tiles)) }) : t("ca {size}", { size: formatMegabytes(estimateBytes(plan.tiles)) }))
+              : t("Zooma in för att spara")}
           </span>
         </div>
       )}
       {error && <p className="error">{error}</p>}
       <Link to="/offline" className="offline-box__link">
-        Vad fungerar utan täckning? →
+        {t("Vad fungerar utan täckning? →")}
       </Link>
       {views.length > 0 && (
         <ul className="offline-box__list">
@@ -86,7 +87,7 @@ export default function OfflineViewBox({ bounds, onShow }: { bounds: Bounds | nu
               </span>
               <span className="offline-box__actions">
                 <button type="button" className="link-button" onClick={() => onShow(v.bounds)}>
-                  Visa
+                  {t("Visa")}
                 </button>
                 <button
                   type="button"
@@ -96,7 +97,7 @@ export default function OfflineViewBox({ bounds, onShow }: { bounds: Bounds | nu
                     setViews((list) => list.filter((x) => x.key !== v.key));
                   }}
                 >
-                  Ta bort
+                  {t("Ta bort")}
                 </button>
               </span>
             </li>

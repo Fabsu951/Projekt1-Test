@@ -12,6 +12,7 @@ import { submitObservation } from "../services/observationQueue";
 import type { DangerSign, ObservationType } from "../types/observation";
 import { nearestRegionId } from "../utils/geo";
 import { prepareImage } from "../utils/image";
+import { t } from "../i18n";
 
 /** "YYYY-MM-DDTHH:mm" in local time, for <input type="datetime-local">. */
 function localInputValue(date: Date): string {
@@ -45,7 +46,7 @@ export default function NewObservationPage() {
     return (
       <div className="page">
         <header className="page__header">
-          <h1>Ny observation</h1>
+          <h1>{t("Ny observation")}</h1>
         </header>
         <VerifyEmailNotice />
       </div>
@@ -64,20 +65,20 @@ export default function NewObservationPage() {
       setImage(blob);
       setPreview(URL.createObjectURL(blob));
     } catch {
-      setError("Kunde inte läsa bilden. Prova en annan bild (JPEG eller PNG).");
+      setError(t("Kunde inte läsa bilden. Prova en annan bild (JPEG eller PNG)."));
     }
   }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!type) return setError("Välj typ av observation.");
-    if (!point) return setError("Markera platsen på kartan.");
+    if (!type) return setError(t("Välj typ av observation."));
+    if (!point) return setError(t("Markera platsen på kartan."));
     const observedAt = new Date(when);
-    if (Number.isNaN(observedAt.getTime())) return setError("Ange när du gjorde observationen.");
+    if (Number.isNaN(observedAt.getTime())) return setError(t("Ange när du gjorde observationen."));
     const depth = snowDepth.trim() === "" ? null : Number(snowDepth);
     if (depth !== null && (!Number.isInteger(depth) || depth < 0 || depth > 1000)) {
-      return setError("Snödjupet ska vara ett heltal mellan 0 och 1000 cm.");
+      return setError(t("Snödjupet ska vara ett heltal mellan 0 och 1000 cm."));
     }
 
     setBusy(true);
@@ -95,7 +96,7 @@ export default function NewObservationPage() {
       });
       navigate("/observationer", { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunde inte spara observationen.");
+      setError(err instanceof Error ? err.message : t("Kunde inte spara observationen."));
       setBusy(false);
     }
   }
@@ -103,36 +104,36 @@ export default function NewObservationPage() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>Ny observation</h1>
-        <p className="page__lead">Dela vad du såg, så att andra åkare kan fatta bättre beslut.</p>
+        <h1>{t("Ny observation")}</h1>
+        <p className="page__lead">{t("Dela vad du såg, så att andra åkare kan fatta bättre beslut.")}</p>
       </header>
 
       <form className="form" onSubmit={onSubmit}>
         <fieldset className="form__field">
-          <legend>Vad såg du?</legend>
+          <legend>{t("Vad såg du?")}</legend>
           <div className="type-picker">
-            {OBSERVATION_TYPES.map((t) => (
-              <label key={t.type} className={type === t.type ? "type-picker__option type-picker__option--on" : "type-picker__option"}>
-                <input type="radio" name="type" value={t.type} checked={type === t.type} onChange={() => setType(t.type)} />
-                <strong>{t.label}</strong>
-                <span>{t.hint}</span>
+            {OBSERVATION_TYPES.map((option) => (
+              <label key={option.type} className={type === option.type ? "type-picker__option type-picker__option--on" : "type-picker__option"}>
+                <input type="radio" name="type" value={option.type} checked={type === option.type} onChange={() => setType(option.type)} />
+                <strong>{option.label}</strong>
+                <span>{option.hint}</span>
               </label>
             ))}
           </div>
         </fieldset>
 
         <div className="form__field">
-          <span>Var?</span>
+          <span>{t("Var?")}</span>
           <LocationPicker value={point} onChange={setPoint} />
         </div>
 
         <label className="form__field">
-          När?
+          {t("När?")}
           <input type="datetime-local" required value={when} max={localInputValue(new Date())} onChange={(e) => setWhen(e.target.value)} />
         </label>
 
         <label className="form__field">
-          Beskrivning <span className="form__hint">(höjd, väderstreck, storlek, lutning…)</span>
+          {t("Beskrivning")}{" "}<span className="form__hint">{t("(höjd, väderstreck, storlek, lutning…)")}</span>
           <textarea
             required
             minLength={10}
@@ -140,13 +141,13 @@ export default function NewObservationPage() {
             rows={5}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="T.ex. Skjutsprickor ca 10 m långa på nordostvänd sluttning, 1100 m ö.h., ca 35°."
+            placeholder={t("T.ex. Skjutsprickor ca 10 m långa på nordostvänd sluttning, 1100 m ö.h., ca 35°.")}
           />
         </label>
 
         <fieldset className="form__field">
           <legend>
-            Varningstecken <span className="form__hint">(valfritt, kryssa i allt du såg)</span>
+            {t("Varningstecken")}{" "}<span className="form__hint">{t("(valfritt, kryssa i allt du såg)")}</span>
           </legend>
           <div className="sign-picker">
             {DANGER_SIGNS.map((s) => (
@@ -167,7 +168,7 @@ export default function NewObservationPage() {
         </fieldset>
 
         <label className="form__field">
-          Snödjup <span className="form__hint">(valfritt, i cm)</span>
+          {t("Snödjup")}{" "}<span className="form__hint">{t("(valfritt, i cm)")}</span>
           <input
             type="number"
             inputMode="numeric"
@@ -181,14 +182,14 @@ export default function NewObservationPage() {
         </label>
 
         <label className="form__field">
-          Bild <span className="form__hint">(valfritt; platsdata i bilden tas bort)</span>
-          <FilePicker accept="image/*" buttonLabel="Välj bild" onFile={(f) => void onImage(f)} />
+          {t("Bild")}{" "}<span className="form__hint">{t("(valfritt; platsdata i bilden tas bort)")}</span>
+          <FilePicker accept="image/*" buttonLabel={t("Välj bild")} onFile={(f) => void onImage(f)} />
         </label>
-        {preview && <img className="form__preview" src={preview} alt="Förhandsvisning av bilden" />}
+        {preview && <img className="form__preview" src={preview} alt={t("Förhandsvisning av bilden")} />}
 
         {error && <p className="error" role="alert">{error}</p>}
         <button type="submit" className="button button--primary" disabled={busy}>
-          {busy ? "Publicerar…" : "Publicera observation"}
+          {busy ? t("Publicerar…") : t("Publicera observation")}
         </button>
       </form>
     </div>

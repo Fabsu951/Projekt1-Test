@@ -10,6 +10,7 @@ import {
 } from "../services/offlineRoutes";
 import type { RouteDraft } from "../hooks/useRouteDraft";
 import type { RouteAnalysis } from "../utils/routePlan";
+import { t } from "../i18n";
 
 /** Keeps the route being planned — map along it, profile and numbers — on this device. */
 export default function RouteOfflineBox({
@@ -56,7 +57,7 @@ export default function RouteOfflineBox({
         {
           routeId: draft.id,
           key: saved?.key,
-          title: draft.title.trim() || "Rutt utan namn",
+          title: draft.title.trim() || t("Rutt utan namn"),
           waypoints: draft.points,
         },
         analysis,
@@ -68,7 +69,7 @@ export default function RouteOfflineBox({
       onSaved?.();
     } catch (err) {
       if (!(err instanceof DOMException && err.name === "AbortError")) {
-        setError(err instanceof Error ? err.message : "Kunde inte spara rutten offline.");
+        setError(err instanceof Error ? err.message : t("Kunde inte spara rutten offline."));
       }
     } finally {
       setProgress(null);
@@ -79,15 +80,15 @@ export default function RouteOfflineBox({
     <div className="offline-box">
       {progress ? (
         <div className="offline-box__row">
-          <progress max={progress.total || 1} value={progress.done} aria-label="Sparar kartan längs rutten" />
-          <span>{progress.total ? `${progress.done} / ${progress.total}` : "Förbereder…"}</span>
+          <progress max={progress.total || 1} value={progress.done} aria-label={t("Sparar kartan längs rutten")} />
+          <span>{progress.total ? `${progress.done} / ${progress.total}` : t("Förbereder…")}</span>
           <button type="button" className="button" onClick={() => abort.current?.abort()}>
-            Avbryt
+            {t("Avbryt")}
           </button>
         </div>
       ) : saved && !outdated ? (
         <div className="offline-box__row">
-          <span>✓ Sparad offline · {formatMegabytes(saved.bytes)} karta längs rutten</span>
+          <span>{t("✓ Sparad offline ·")}{" "}{formatMegabytes(saved.bytes)}{" "}{t("karta längs rutten")}</span>
           <button
             type="button"
             className="link-button"
@@ -97,7 +98,7 @@ export default function RouteOfflineBox({
               onSaved?.();
             }}
           >
-            Ta bort
+            {t("Ta bort")}
           </button>
         </div>
       ) : (
@@ -108,10 +109,10 @@ export default function RouteOfflineBox({
             disabled={!analysis || analysis.incomplete}
             onClick={() => void save()}
           >
-            {outdated ? "Uppdatera offline-kopian" : "Spara offline"}
+            {outdated ? t("Uppdatera offline-kopian") : t("Spara offline")}
           </button>
           <span className="offline-box__hint">
-            Karta längs rutten, höjdprofil och siffror utan täckning · ca {formatMegabytes(estimateRouteBytes(draft.points))}
+            {t("Karta längs rutten, höjdprofil och siffror utan täckning · ca")}{" "}{formatMegabytes(estimateRouteBytes(draft.points))}
           </span>
         </div>
       )}
@@ -129,7 +130,7 @@ export function OfflineRouteList({ onOpen, refreshKey }: { onOpen: (r: OfflineRo
   if (routes.length === 0) return null;
   return (
     <details className="offline-routes">
-      <summary>Rutter sparade offline ({routes.length})</summary>
+      <summary>{t("Rutter sparade offline (")}{routes.length})</summary>
       <ul className="offline-box__list">
         {routes.map((r) => (
           <li key={r.key}>
@@ -137,7 +138,7 @@ export function OfflineRouteList({ onOpen, refreshKey }: { onOpen: (r: OfflineRo
               {r.title} · {formatMegabytes(r.bytes)}
             </span>
             <button type="button" className="link-button" onClick={() => onOpen(r)}>
-              Öppna
+              {t("Öppna")}
             </button>
           </li>
         ))}

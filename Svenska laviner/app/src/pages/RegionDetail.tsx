@@ -37,6 +37,7 @@ import {
   type WindStation,
   type WindSample,
 } from "../services/windStationService";
+import { t } from "../i18n";
 
 export default function RegionDetail() {
   const { id = "" } = useParams();
@@ -99,8 +100,8 @@ export default function RegionDetail() {
   if (!region) {
     return (
       <div className="page">
-        <p>Området hittades inte.</p>
-        <Link to="/">Tillbaka</Link>
+        <p>{t("Området hittades inte.")}</p>
+        <Link to="/">{t("Tillbaka")}</Link>
       </div>
     );
   }
@@ -108,7 +109,7 @@ export default function RegionDetail() {
   return (
     <div className="page">
       <Link to="/" className="back-link">
-        ← Alla områden
+        {t("← Alla områden")}
       </Link>
       <header className="page__header">
         <div className="page__title-row">
@@ -116,66 +117,66 @@ export default function RegionDetail() {
           <FavoriteButton regionId={region.id} regionName={region.name} />
           <ShareButton
             path={`/omrade/${region.id}`}
-            title={`Lavinprognos ${region.name}`}
-            text={`Dagens lavinprognos för ${region.name} på Snöläge`}
-            what={`prognosen för ${region.name}`}
+            title={t("Lavinprognos {name}", { name: region.name })}
+            text={t("Dagens lavinprognos för {name} på Snöläge", { name: region.name })}
+            label={t("Dela prognosen för {name}", { name: region.name })}
           />
         </div>
         <p className="page__lead">{region.subAreas.join(" · ")}</p>
         {forecast ? (
           <ForecastBadge forecast={forecast} size="large" />
         ) : (
-          <span className="skeleton skeleton--badge skeleton--badge-large" aria-label="Laddar farograd" />
+          <span className="skeleton skeleton--badge skeleton--badge-large" aria-label={t("Laddar farograd")} />
         )}
       </header>
 
       {forecastStale && (
-        <p className="notice notice--stale">Ingen kontakt just nu — visar senast sparade prognos.</p>
+        <p className="notice notice--stale">{t("Ingen kontakt just nu — visar senast sparade prognos.")}</p>
       )}
       {forecast && <OfficialForecast forecast={forecast} />}
       {forecast && <ForecastNotes forecast={forecast} />}
 
       {history.some((d) => d.dangerLevel !== null) && (
         <section className="section">
-          <h2>Senaste dagarna</h2>
+          <h2>{t("Senaste dagarna")}</h2>
           <DangerHistory
             days={history}
             today={new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm" }).format(new Date())}
           />
-          <p className="danger-history__note">Farograd enligt lavinprognoser.se, som Snöläge sparat dag för dag.</p>
+          <p className="danger-history__note">{t("Farograd enligt lavinprognoser.se, som Snöläge sparat dag för dag.")}</p>
         </section>
       )}
 
       <Link to={`/omrade/${region.id}/sasong`} className="season-link">
-        <strong>Säsongen dag för dag</strong>
-        <span>Farograder och lavinproblem för hela vintern, även tidigare säsonger →</span>
+        <strong>{t("Säsongen dag för dag")}</strong>
+        <span>{t("Farograder och lavinproblem för hela vintern, även tidigare säsonger →")}</span>
       </Link>
 
-      <CollapsibleSection id="region-trip" title="Prognos inför din tur">
+      <CollapsibleSection id="region-trip" title={t("Prognos inför din tur")}>
         <TripPlanCard regionId={region.id} regionName={region.name} />
       </CollapsibleSection>
 
       {forecast && forecast.problems.length > 0 && (
         <section className="section">
-          <h2>Lavinproblem</h2>
+          <h2>{t("Lavinproblem")}</h2>
           <ForecastProblems problems={forecast.problems} />
         </section>
       )}
 
-      <CollapsibleSection id="region-about" title="Om området">
+      <CollapsibleSection id="region-about" title={t("Om området")}>
         <p>{region.description}</p>
         <SourceList sources={region.sources} />
       </CollapsibleSection>
 
-      <CollapsibleSection id="region-offline" title="Karta offline">
+      <CollapsibleSection id="region-offline" title={t("Karta offline")}>
         <OfflineMapCard region={region} />
       </CollapsibleSection>
 
       <section className="section">
-        <h2>Väder</h2>
+        <h2>{t("Väder")}</h2>
         {weatherError && (
           <p className="notice" role="status">
-            Väderprognosen från SMHI kunde inte hämtas just nu. Försök igen om en stund.
+            {t("Väderprognosen från SMHI kunde inte hämtas just nu. Försök igen om en stund.")}
           </p>
         )}
         {!weather && !weatherError && (
@@ -192,8 +193,8 @@ export default function RegionDetail() {
         )}
         {weatherStale && (
           <p className="notice notice--stale">
-            Ingen kontakt just nu — visar sparad väderdata från{" "}
-            {weatherCachedAt ? formatTime(weatherCachedAt) : "tidigare"}.
+            {t("Ingen kontakt just nu — visar sparad väderdata från")}{" "}
+            {weatherCachedAt ? formatTime(weatherCachedAt) : t("tidigare")}.
           </p>
         )}
         {weather && (
@@ -210,7 +211,7 @@ export default function RegionDetail() {
                     <WindArrow fromDegrees={w.windDirection} />
                     <span>
                       {w.windSpeed.toFixed(0)} m/s {windCompass(w.windDirection)}
-                      {w.windGust > w.windSpeed + 3 ? ` (byar ${w.windGust.toFixed(0)})` : ""}
+                      {w.windGust > w.windSpeed + 3 ? t(" (byar {gust})", { gust: w.windGust.toFixed(0) }) : ""}
                     </span>
                   </span>
                 </div>
@@ -223,34 +224,32 @@ export default function RegionDetail() {
 
       {(weather || stationSeries || stationError) && (
         <section className="section">
-          <h2>Vindanalys</h2>
+          <h2>{t("Vindanalys")}</h2>
           <p className="section__intro">
-            Beräknad vindlast per väderstreck — vilken sida snön väntas läggas
-            på av vinden. Ett förenklat mått (linjärt ovanför transportgränsen),
-            inte en fysikalisk modell.
+            {t("Beräknad vindlast per väderstreck — vilken sida snön väntas läggas på av vinden. Ett förenklat mått (linjärt ovanför transportgränsen), inte en fysikalisk modell.")}
           </p>
 
           <div className="wind-subsection">
-            <h3>Uppmätt, senaste dygnet</h3>
+            <h3>{t("Uppmätt, senaste dygnet")}</h3>
             {stationError && (
               <p className="notice" role="status">
-                Uppmätt vind från SMHI:s stationer kunde inte hämtas just nu. Prognosen nedan fungerar ändå.
+                {t("Uppmätt vind från SMHI:s stationer kunde inte hämtas just nu. Prognosen nedan fungerar ändå.")}
               </p>
             )}
-            {!stationSeries && !stationError && <PageLoading label="Laddar mätdata…" />}
+            {!stationSeries && !stationError && <PageLoading label={t("Laddar mätdata…")} />}
             {stationSeries && stationSeries.length === 0 && (
-              <p className="section__intro">Ingen mätdata tillgänglig just nu.</p>
+              <p className="section__intro">{t("Ingen mätdata tillgänglig just nu.")}</p>
             )}
             {stationSeries && stationSeries.length > 0 && station && (
               <>
                 <p className="section__intro">
-                  Baserat på SMHI:s mätstation {station.name}, ~
-                  {Math.round(station.distanceKm)} km bort.
+                  {t("Baserat på SMHI:s mätstation")}{" "}{station.name}, ~
+                  {Math.round(station.distanceKm)}{" "}{t("km bort.")}
                 </p>
                 <WindRose
                   readings={stationSeries}
-                  sourceLabel="mätningen"
-                  tableCaption="Vindlast per väderstreck (uppmätt, senaste dygnet)"
+                  sourceLabel={t("mätningen")}
+                  tableCaption={t("Vindlast per väderstreck (uppmätt, senaste dygnet)")}
                 />
               </>
             )}
@@ -258,11 +257,11 @@ export default function RegionDetail() {
 
           {weather && (
             <div className="wind-subsection">
-              <h3>Prognos, kommande timmar</h3>
+              <h3>{t("Prognos, kommande timmar")}</h3>
               <WindRose
                 readings={weather}
-                sourceLabel="prognosen"
-                tableCaption="Vindlast per väderstreck (senaste prognosen)"
+                sourceLabel={t("prognosen")}
+                tableCaption={t("Vindlast per väderstreck (senaste prognosen)")}
               />
             </div>
           )}
@@ -270,42 +269,42 @@ export default function RegionDetail() {
       )}
 
       <section className="section">
-        <h2>Turer i området</h2>
-        <p className="section__intro">Turer som andra åkare delat härifrån, senaste först.</p>
-        {!tours && <PageLoading label="Laddar turer…" />}
-        {tours && tours.length === 0 && <p className="section__intro">Inga delade turer från området än.</p>}
-        <div className="tour-list">{tours?.map((t) => <TourCard key={t.id} tour={t} />)}</div>
+        <h2>{t("Turer i området")}</h2>
+        <p className="section__intro">{t("Turer som andra åkare delat härifrån, senaste först.")}</p>
+        {!tours && <PageLoading label={t("Laddar turer…")} />}
+        {tours && tours.length === 0 && <p className="section__intro">{t("Inga delade turer från området än.")}</p>}
+        <div className="tour-list">{tours?.map((tour) => <TourCard key={tour.id} tour={tour} />)}</div>
         <p>
           <Link to="/turer" className="back-link">
-            Alla turer →
+            {t("Alla turer →")}
           </Link>{" "}
           <Link to="/turer/ny" className="back-link">
-            + Lägg till en tur
+            {t("+ Lägg till en tur")}
           </Link>
         </p>
       </section>
 
       <section className="section">
-        <h2>Observationer i området</h2>
-        <p className="section__intro">Senaste observationerna från andra åkare. Granskas inte i förväg.</p>
-        {!observations && <PageLoading label="Laddar observationer…" />}
+        <h2>{t("Observationer i området")}</h2>
+        <p className="section__intro">{t("Senaste observationerna från andra åkare. Granskas inte i förväg.")}</p>
+        {!observations && <PageLoading label={t("Laddar observationer…")} />}
         {observations && observations.length === 0 && (
-          <p className="section__intro">Inga observationer från området än.</p>
+          <p className="section__intro">{t("Inga observationer från området än.")}</p>
         )}
         <div className="observation-list">
           {observations?.map((o) => <ObservationCard key={o.id} observation={o} />)}
         </div>
         <p>
           <Link to="/observationer" className="back-link">
-            Alla observationer →
+            {t("Alla observationer →")}
           </Link>{" "}
           <Link to="/observationer/ny" className="back-link">
-            + Dela en observation
+            {t("+ Dela en observation")}
           </Link>
         </p>
       </section>
 
-      <CollapsibleSection id="region-scale" title="Lavinskalan">
+      <CollapsibleSection id="region-scale" title={t("Lavinskalan")}>
         <DangerScaleGuide showHeading={false} />
       </CollapsibleSection>
 

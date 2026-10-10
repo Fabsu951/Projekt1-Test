@@ -10,3 +10,6 @@ if (!("geolocation" in navigator)) {
     configurable: true,
   });
 }
+
+// The app picks English for non-Scandinavian browsers (jsdom says en-US); tests read the Swedish texts.
+localStorage.setItem("fjallkoll:language", "sv");

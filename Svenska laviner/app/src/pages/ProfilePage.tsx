@@ -20,6 +20,7 @@ import LevelCard, { XpExplainer } from "../components/LevelCard";
 import { prepareAvatar } from "../utils/image";
 import type { Person, PersonSummary } from "../types/social";
 import AdminBadge from "../components/AdminBadge";
+import { t, locale } from "../i18n";
 
 export default function ProfilePage() {
   const { user, token, loading, logout, deleteAccount, refreshUser } = useAuth();
@@ -65,7 +66,7 @@ export default function ProfilePage() {
       setMe({ ...me, avatarPath });
       void refreshUser();
     } catch (err) {
-      setAvatarError(err instanceof Error ? err.message : "Kunde inte spara bilden.");
+      setAvatarError(err instanceof Error ? err.message : t("Kunde inte spara bilden."));
     } finally {
       setAvatarBusy(false);
     }
@@ -89,7 +90,7 @@ export default function ProfilePage() {
   async function onDeleteAccount() {
     if (
       !window.confirm(
-        "Radera ditt konto? Allt du har lagt upp – observationer, bilder, turer, rutter och kommentarer – tas bort permanent. Det går inte att ångra."
+        t("Radera ditt konto? Allt du har lagt upp – observationer, bilder, turer, rutter och kommentarer – tas bort permanent. Det går inte att ångra.")
       )
     )
       return;
@@ -97,7 +98,7 @@ export default function ProfilePage() {
       await deleteAccount();
       navigate("/", { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunde inte radera kontot.");
+      setError(err instanceof Error ? err.message : t("Kunde inte radera kontot."));
     }
   }
 
@@ -111,23 +112,23 @@ export default function ProfilePage() {
         <p className="page__lead">{user.email}</p>
         <div className="button-row">
           <Link to="/observationer/ny" className="button button--primary">
-            + Ny observation
+            {t("+ Ny observation")}
           </Link>
           <Link to="/turer/ny" className="button">
-            + Ny tur
+            {t("+ Ny tur")}
           </Link>
           {user.isAdmin && (
             <Link to="/admin" className="button">
-              Anmälda inlägg
+              {t("Anmälda inlägg")}
             </Link>
           )}
           {user.isAdmin && (
             <Link to="/admin/oversikt" className="button">
-              Översikt
+              {t("Översikt")}
             </Link>
           )}
           <button type="button" className="button" onClick={() => void logout()}>
-            Logga ut
+            {t("Logga ut")}
           </button>
         </div>
       </header>
@@ -141,7 +142,7 @@ export default function ProfilePage() {
             actions={
               <div className="button-row">
                 <label className={avatarBusy ? "button button--disabled" : "button"}>
-                  {me.avatarPath ? "Byt profilbild" : "Lägg till profilbild"}
+                  {me.avatarPath ? t("Byt profilbild") : t("Lägg till profilbild")}
                   <input
                     type="file"
                     accept="image/*"
@@ -152,7 +153,7 @@ export default function ProfilePage() {
                 </label>
                 {me.avatarPath && (
                   <button type="button" className="button" disabled={avatarBusy} onClick={() => void dropAvatar()}>
-                    Ta bort bild
+                    {t("Ta bort bild")}
                   </button>
                 )}
               </div>
@@ -163,25 +164,25 @@ export default function ProfilePage() {
         </section>
       )}
 
-      <CollapsibleSection id="profile-following" title="Följer" count={follows?.following.length}>
+      <CollapsibleSection id="profile-following" title={t("Följer")} count={follows?.following.length}>
         <PeopleList
           people={follows?.following ?? null}
           empty={
             <>
-              Du följer ingen än. <Link to="/flode">Hitta kompisar i flödet</Link>.
+              {t("Du följer ingen än.")}{" "}<Link to="/flode">{t("Hitta kompisar i flödet")}</Link>.
             </>
           }
         />
       </CollapsibleSection>
 
-      <CollapsibleSection id="profile-followers" title="Följare" count={follows?.followers.length}>
-        <PeopleList people={follows?.followers ?? null} empty="Ingen följer dig än." />
+      <CollapsibleSection id="profile-followers" title={t("Följare")} count={follows?.followers.length}>
+        <PeopleList people={follows?.followers ?? null} empty={t("Ingen följer dig än.")} />
       </CollapsibleSection>
 
-      <CollapsibleSection id="profile-observations" title="Mina observationer" count={mine?.length}>
+      <CollapsibleSection id="profile-observations" title={t("Mina observationer")} count={mine?.length}>
         {error && <p className="error">{error}</p>}
-        {!mine && !error && <PageLoading label="Laddar…" />}
-        {mine && mine.length === 0 && <p className="section__intro">Du har inte delat några observationer än.</p>}
+        {!mine && !error && <PageLoading label={t("Laddar…")} />}
+        {mine && mine.length === 0 && <p className="section__intro">{t("Du har inte delat några observationer än.")}</p>}
         {mine && (
           <ShowMore
             items={mine}
@@ -194,26 +195,26 @@ export default function ProfilePage() {
         )}
       </CollapsibleSection>
 
-      <CollapsibleSection id="profile-tours" title="Mina turer" count={tours?.length}>
-        {!tours && <PageLoading label="Laddar…" />}
+      <CollapsibleSection id="profile-tours" title={t("Mina turer")} count={tours?.length}>
+        {!tours && <PageLoading label={t("Laddar…")} />}
         {tours && tours.length === 0 && (
           <p className="section__intro">
-            Inga turer än. <Link to="/turer/ny">Lägg till en från klockan</Link>.
+            {t("Inga turer än.")}{" "}<Link to="/turer/ny">{t("Lägg till en från klockan")}</Link>.
           </p>
         )}
         {tours && (
           <ShowMore
             items={tours}
-            render={(visible) => <div className="tour-list">{visible.map((t) => <TourCard key={t.id} tour={t} />)}</div>}
+            render={(visible) => <div className="tour-list">{visible.map((tour) => <TourCard key={tour.id} tour={tour} />)}</div>}
           />
         )}
       </CollapsibleSection>
 
-      <CollapsibleSection id="profile-routes" title="Mina rutter" count={routes?.length}>
-        {!routes && <PageLoading label="Laddar…" />}
+      <CollapsibleSection id="profile-routes" title={t("Mina rutter")} count={routes?.length}>
+        {!routes && <PageLoading label={t("Laddar…")} />}
         {routes && routes.length === 0 && (
           <p className="section__intro">
-            Inga sparade rutter än. <Link to="/karta">Planera en på kartan</Link> och tryck "Spara i mitt konto".
+            {t("Inga sparade rutter än.")}{" "}<Link to="/karta">{t("Planera en på kartan")}</Link>{" "}{t("och tryck \"Spara i mitt konto\".")}
           </p>
         )}
         {routes && (
@@ -230,24 +231,24 @@ export default function ProfilePage() {
                       <span className="route-card__meta">
                         {formatDistance(r.distanceM)}
                         {r.ascentM !== null && ` · ↑ ${r.ascentM} m`} ·{" "}
-                        {new Date(r.updatedAt).toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
-                        {r.shared && " · delad via länk"}
+                        {new Date(r.updatedAt).toLocaleDateString(locale(), { day: "numeric", month: "short", year: "numeric" })}
+                        {r.shared && t(" · delad via länk")}
                       </span>
                     </div>
                     <div className="route-card__actions">
                       <Link to={`/karta?rutt=${r.id}`} className="button">
-                        Öppna i kartan
+                        {t("Öppna i kartan")}
                       </Link>
                       <button
                         type="button"
                         className="button button--danger"
                         onClick={async () => {
-                          if (!token || !window.confirm(`Ta bort rutten "${r.title}"?`)) return;
+                          if (!token || !window.confirm(t("Ta bort rutten \"{title}\"?", { title: r.title }))) return;
                           await deleteRoute(token, r.id);
                           setRoutes((list) => list?.filter((x) => x.id !== r.id) ?? null);
                         }}
                       >
-                        Ta bort
+                        {t("Ta bort")}
                       </button>
                     </div>
                   </li>
@@ -259,12 +260,12 @@ export default function ProfilePage() {
       </CollapsibleSection>
 
       <section className="section">
-        <h2>Konto</h2>
+        <h2>{t("Konto")}</h2>
         <p className="section__intro">
-          Raderar du kontot tas din e-post, ditt användarnamn, din profilbild och alla dina observationer, bilder, turer, rutter, kommentarer och följare bort.
+          {t("Raderar du kontot tas din e-post, ditt användarnamn, din profilbild och alla dina observationer, bilder, turer, rutter, kommentarer och följare bort.")}
         </p>
         <button type="button" className="button button--danger" onClick={() => void onDeleteAccount()}>
-          Radera mitt konto
+          {t("Radera mitt konto")}
         </button>
       </section>
     </div>
@@ -272,7 +273,7 @@ export default function ProfilePage() {
 }
 
 function PeopleList({ people, empty }: { people: PersonSummary[] | null; empty: ReactNode }) {
-  if (!people) return <PageLoading label="Laddar…" />;
+  if (!people) return <PageLoading label={t("Laddar…")} />;
   if (people.length === 0) return <p className="section__intro">{empty}</p>;
   return (
     <ShowMore

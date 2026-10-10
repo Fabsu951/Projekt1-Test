@@ -4,6 +4,7 @@ import { Polyline, Popup, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import type { TourLine } from "../types/tour";
 import { buildHeatGrid, cellSizeM, HEAT_BANDS, heatRuns, toursNear } from "../utils/heatGrid";
+import { t, locale, plural } from "../i18n";
 
 const LISTED = 5;
 
@@ -44,22 +45,22 @@ export default function TourHeatmap({ lines }: { lines: TourLine[] }) {
       {picked && pickedTours.length > 0 && (
         <Popup position={picked.at} eventHandlers={{ remove: () => setPicked(null) }}>
           <strong>
-            {pickedTours.length === 1 ? "1 delad tur har gått här" : `${pickedTours.length} delade turer har gått här`}
+            {plural(pickedTours.length, "1 delad tur har gått här", "{n} delade turer har gått här")}
           </strong>
           <ul className="heat-popup__list">
-            {pickedTours.slice(0, LISTED).map((t) => (
-              <li key={t.id}>
-                <Link to={`/turer/${t.id}`}>{t.title ?? "Tur"}</Link>
-                {t.startedAt && (
+            {pickedTours.slice(0, LISTED).map((tour) => (
+              <li key={tour.id}>
+                <Link to={`/turer/${tour.id}`}>{tour.title ?? t("Tur")}</Link>
+                {tour.startedAt && (
                   <span className="heat-popup__date">
                     {" "}
-                    · {new Date(t.startedAt).toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
+                    · {new Date(tour.startedAt).toLocaleDateString(locale(), { day: "numeric", month: "short", year: "numeric" })}
                   </span>
                 )}
               </li>
             ))}
           </ul>
-          {pickedTours.length > LISTED && <span>… och {pickedTours.length - LISTED} till</span>}
+          {pickedTours.length > LISTED && <span>{t("… och {n} till", { n: pickedTours.length - LISTED })}</span>}
         </Popup>
       )}
     </>
@@ -69,8 +70,8 @@ export default function TourHeatmap({ lines }: { lines: TourLine[] }) {
 /** What the colours mean; shown over the map while the heatmap is on. */
 export function HeatLegend() {
   return (
-    <div className="heat-legend-box" role="note" aria-label="Färgförklaring för värmekartan">
-      <span className="heat-legend-box__title">Antal turer här</span>
+    <div className="heat-legend-box" role="note" aria-label={t("Färgförklaring för värmekartan")}>
+      <span className="heat-legend-box__title">{t("Antal turer här")}</span>
       {HEAT_BANDS.map((b) => (
         <span key={b.label} className="heat-legend-box__item">
           <span className="heat-legend-box__swatch" style={{ backgroundColor: b.color, height: b.weight }} />

@@ -4,6 +4,7 @@ import SafetyChecklist from "../components/SafetyChecklist";
 import SourceList from "../components/SourceList";
 import { PROBLEM_LABELS } from "../data/avalancheProblems";
 import type { AvalancheProblem, Source } from "../types/avalanche";
+import { t } from "../i18n";
 
 const ALL_PROBLEMS = Object.keys(PROBLEM_LABELS) as AvalancheProblem[];
 
@@ -39,92 +40,88 @@ const LAVINPROGNOSER_PROBLEM: Source = {
 
 const WEATHER_FACTORS = [
   {
-    title: "Nysnö",
-    text: "Nysnö har lägre densitet än äldre snö och binder inte direkt till underlaget. Så mycket som 80 % av alla laviner sker inom ett dygn efter ett större snöfall, och risken kvarstår förhöjd i flera dagar efteråt.",
+    title: t("Nysnö"),
+    text: t("Nysnö har lägre densitet än äldre snö och binder inte direkt till underlaget. Så mycket som 80 % av alla laviner sker inom ett dygn efter ett större snöfall, och risken kvarstår förhöjd i flera dagar efteråt."),
   },
   {
-    title: "Vind",
-    text: "Vind flyttar snö även utan nederbörd. På läsidor byggs hårda, spröda vindflak upp — ofta den enskilt vanligaste orsaken till skidåkarutlösta laviner. Ju hårdare vind, desto snabbare och mer omfattande omlagring.",
+    title: t("Vind"),
+    text: t("Vind flyttar snö även utan nederbörd. På läsidor byggs hårda, spröda vindflak upp — ofta den enskilt vanligaste orsaken till skidåkarutlösta laviner. Ju hårdare vind, desto snabbare och mer omfattande omlagring."),
   },
   {
-    title: "Temperatur",
-    text: "Snabb temperaturhöjning, solvärme eller regn försvagar snötäcket och kan utlösa våtsnölaviner. Stora temperaturskillnader inne i snötäcket driver också omvandling som kan skapa nya svaga lager djupt nere.",
+    title: t("Temperatur"),
+    text: t("Snabb temperaturhöjning, solvärme eller regn försvagar snötäcket och kan utlösa våtsnölaviner. Stora temperaturskillnader inne i snötäcket driver också omvandling som kan skapa nya svaga lager djupt nere."),
   },
 ];
 
 const SNOWPACK_BASICS = [
   {
-    title: "Ytrimfrost (surface hoar)",
-    text: "Bildas på kalla, klara och vindstilla nätter när fukt fryser direkt på snöytan, som frost på en bilruta. Om det snöar in ovanpå utan att rimfrosten bryts ner blir det ett svagt, glasartat lager djupt i snötäcket som kan hålla sig farligt i veckor.",
+    title: t("Ytrimfrost (surface hoar)"),
+    text: t("Bildas på kalla, klara och vindstilla nätter när fukt fryser direkt på snöytan, som frost på en bilruta. Om det snöar in ovanpå utan att rimfrosten bryts ner blir det ett svagt, glasartat lager djupt i snötäcket som kan hålla sig farligt i veckor."),
   },
   {
-    title: "Kantkorn och djuprimfrost (depth hoar)",
-    text: "Uppstår genom en process som kallas temperaturgradient-metamorfos: stor temperaturskillnad mellan markvärme och kall yta får vattenånga att vandra genom snötäcket och bygga om kristallerna till lösa, kantiga korn med svag sammanhållning — vanligast vid tunt, tidigt snötäcke.",
+    title: t("Kantkorn och djuprimfrost (depth hoar)"),
+    text: t("Uppstår genom en process som kallas temperaturgradient-metamorfos: stor temperaturskillnad mellan markvärme och kall yta får vattenånga att vandra genom snötäcket och bygga om kristallerna till lösa, kantiga korn med svag sammanhållning — vanligast vid tunt, tidigt snötäcke."),
   },
 ];
 
 const STEEPNESS_LEVELS = [
   {
     range: "< 25°",
-    risk: "Låg",
-    note: "Fjällsäkerhetsrådets rekommenderade gräns för säker skidåkning. De flesta laviner sker inte i så flack terräng, men var uppmärksam på brantare terräng ovanför dig.",
+    risk: t("Låg"),
+    note: t("Fjällsäkerhetsrådets rekommenderade gräns för säker skidåkning. De flesta laviner sker inte i så flack terräng, men var uppmärksam på brantare terräng ovanför dig."),
   },
   {
     range: "25–30°",
-    risk: "Ökande",
-    note: "Fortfarande relativt säkert, men risken börjar öka och enstaka flaklaviner är möjliga.",
+    risk: t("Ökande"),
+    note: t("Fortfarande relativt säkert, men risken börjar öka och enstaka flaklaviner är möjliga."),
   },
   {
     range: "30–35°",
-    risk: "Ökande",
-    note: "Här börjar flaklaviner bli möjliga. Vanlig terräng för skidåkning utanför pist.",
+    risk: t("Ökande"),
+    note: t("Här börjar flaklaviner bli möjliga. Vanlig terräng för skidåkning utanför pist."),
   },
   {
     range: "35–45°",
-    risk: "Hög",
-    note: "Den brantaste terrängen där de flesta skidåkarutlösta laviner sker. Extra försiktighet krävs.",
+    risk: t("Hög"),
+    note: t("Den brantaste terrängen där de flesta skidåkarutlösta laviner sker. Extra försiktighet krävs."),
   },
   {
     range: "> 45°",
-    risk: "Mycket hög",
-    note: "Mycket brant terräng. Snön glider ofta av innan den hinner bygga upp stor spänning, men konsekvenserna av en lavin är extrema.",
+    risk: t("Mycket hög"),
+    note: t("Mycket brant terräng. Snön glider ofta av innan den hinner bygga upp stor spänning, men konsekvenserna av en lavin är extrema."),
   },
 ];
 
 const TERRAIN_TRAPS = [
-  "Gryt, raviner och bäckfåror där lavinmassor samlas och begraver djupt",
-  "Klippor och stup nedanför sluttningen",
-  "Träd och stenblock som du kan slås mot",
-  "Öppna vatten eller sjöisar nedanför sluttningen",
-  "Konvexa (utbuktande) partier där snötäcket är extra spänt",
+  t("Gryt, raviner och bäckfåror där lavinmassor samlas och begraver djupt"),
+  t("Klippor och stup nedanför sluttningen"),
+  t("Träd och stenblock som du kan slås mot"),
+  t("Öppna vatten eller sjöisar nedanför sluttningen"),
+  t("Konvexa (utbuktande) partier där snötäcket är extra spänt"),
 ];
 
 const GOLDEN_RULES = [
-  "Ett i taget i brant terräng — övriga väntar på säker plats och observerar",
-  "Håll avstånd i uppförsbacke och nedförsbacke i lavinterräng",
-  "Undvik att korsa under någon annan i brant terräng",
-  "Ändra plan om observationer inte stämmer med prognosen",
-  "Enklaste vägen ner är ofta den säkraste — inte alltid den roligaste",
+  t("Ett i taget i brant terräng — övriga väntar på säker plats och observerar"),
+  t("Håll avstånd i uppförsbacke och nedförsbacke i lavinterräng"),
+  t("Undvik att korsa under någon annan i brant terräng"),
+  t("Ändra plan om observationer inte stämmer med prognosen"),
+  t("Enklaste vägen ner är ofta den säkraste — inte alltid den roligaste"),
 ];
 
 export default function SafetyGuide() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>Säkerhetsguide</h1>
+        <h1>{t("Säkerhetsguide")}</h1>
         <p className="page__lead">
-          Grunderna i att läsa terräng och undvika lavinolyckor. Ersätter inte en
-          lavinkurs — se den som en repetition, inte en utbildning.
+          {t("Grunderna i att läsa terräng och undvika lavinolyckor. Ersätter inte en lavinkurs — se den som en repetition, inte en utbildning.")}
         </p>
       </header>
 
       <section className="section">
-        <h2>Hur bildas laviner?</h2>
+        <h2>{t("Hur bildas laviner?")}</h2>
         <p>
-          Snötäcket byggs upp av lager som faller vid olika tillfällen och under
-          olika väder. En lavin sker när ett övre lager inte längre håller ihop
-          med det som ligger under — ofta på grund av ett svagt lager djupt nere
-          som kan ligga kvar i veckor eller hela vintern.
+          {t("Snötäcket byggs upp av lager som faller vid olika tillfällen och under olika väder. En lavin sker när ett övre lager inte längre håller ihop med det som ligger under — ofta på grund av ett svagt lager djupt nere som kan ligga kvar i veckor eller hela vintern.")}
         </p>
         <div className="avalanche-problems">
           {SNOWPACK_BASICS.map((item) => (
@@ -138,9 +135,9 @@ export default function SafetyGuide() {
       </section>
 
       <section className="section">
-        <h2>Väder som ökar lavinrisken</h2>
+        <h2>{t("Väder som ökar lavinrisken")}</h2>
         <p>
-          Tre väderfaktorer påverkar stabiliteten i snötäcket mer än några andra:
+          {t("Tre väderfaktorer påverkar stabiliteten i snötäcket mer än några andra:")}
         </p>
         <div className="avalanche-problems">
           {WEATHER_FACTORS.map((item) => (
@@ -154,10 +151,9 @@ export default function SafetyGuide() {
       </section>
 
       <section className="section">
-        <h2>Branthet och lavinrisk</h2>
+        <h2>{t("Branthet och lavinrisk")}</h2>
         <p>
-          Sluttningens lutning är en av de viktigaste faktorerna för lavinrisk. De
-          flesta skidåkarutlösta flaklaviner sker i terräng brantare än 30°.
+          {t("Sluttningens lutning är en av de viktigaste faktorerna för lavinrisk. De flesta skidåkarutlösta flaklaviner sker i terräng brantare än 30°.")}
         </p>
         <div className="steepness-table">
           {STEEPNESS_LEVELS.map((level) => (
@@ -172,10 +168,9 @@ export default function SafetyGuide() {
       </section>
 
       <section className="section">
-        <h2>Terrängfällor</h2>
+        <h2>{t("Terrängfällor")}</h2>
         <p>
-          En terrängfälla förvärrar konsekvenserna av en lavin, även en liten. Var
-          extra vaksam kring:
+          {t("En terrängfälla förvärrar konsekvenserna av en lavin, även en liten. Var extra vaksam kring:")}
         </p>
         <ul>
           {TERRAIN_TRAPS.map((trap) => (
@@ -186,7 +181,7 @@ export default function SafetyGuide() {
       </section>
 
       <section className="section">
-        <h2>Tumregler i fält</h2>
+        <h2>{t("Tumregler i fält")}</h2>
         <ul>
           {GOLDEN_RULES.map((rule) => (
             <li key={rule}>{rule}</li>
@@ -196,52 +191,44 @@ export default function SafetyGuide() {
       </section>
 
       <section className="section">
-        <h2>Lavinproblemen</h2>
+        <h2>{t("Lavinproblemen")}</h2>
         <p className="section__intro">
-          Varje lavinprognos beskriver faran med ett eller flera av de här
-          lavinproblemen, med samma namn som på lavinprognoser.se. Varje problem
-          har sina egna typiska platser i terrängen och kräver olika sätt att
-          undvika det.
+          {t("Varje lavinprognos beskriver faran med ett eller flera av de här lavinproblemen, med samma namn som på lavinprognoser.se. Varje problem har sina egna typiska platser i terrängen och kräver olika sätt att undvika det.")}
         </p>
         <AvalancheProblems problems={ALL_PROBLEMS} />
       </section>
 
       <section className="section">
-        <h2>Så läser du lavinprognosen</h2>
+        <h2>{t("Så läser du lavinprognosen")}</h2>
         <p>
-          En officiell svensk lavinprognos (från Naturvårdsverket via
-          lavinprognoser.se) består av flera delar som hör ihop:
+          {t("En officiell svensk lavinprognos (från Naturvårdsverket via lavinprognoser.se) består av flera delar som hör ihop:")}
         </p>
         <ul>
           <li>
-            <strong>Farograd (1–5)</strong> — se lavinskalan nedan
+            <strong>{t("Farograd (1–5)")}</strong>{" "}{t("— se lavinskalan nedan")}
           </li>
           <li>
-            <strong>Huvudbudskap</strong> — en kort text som sammanfattar dagens
-            viktigaste risk
+            <strong>{t("Huvudbudskap")}</strong>{" "}{t("— en kort text som sammanfattar dagens viktigaste risk")}
           </li>
           <li>
-            <strong>Lavinproblem</strong> — vilken typ av problem som är aktuell
-            och var i terrängen den finns (se ovan)
+            <strong>{t("Lavinproblem")}</strong>{" "}{t("— vilken typ av problem som är aktuell och var i terrängen den finns (se ovan)")}
           </li>
           <li>
-            <strong>Fjällväder</strong> — dagens väderprognos för området
+            <strong>{t("Fjällväder")}</strong>{" "}{t("— dagens väderprognos för området")}
           </li>
           <li>
-            <strong>Utveckling</strong> — hur risken väntas förändras de
-            kommande dagarna
+            <strong>{t("Utveckling")}</strong>{" "}{t("— hur risken väntas förändras de kommande dagarna")}
           </li>
         </ul>
         <p className="section__intro">
-          Farograden ensam säger inte var faran finns — det gör lavinproblemet.
-          Läs alltid hela prognosen, inte bara siffran.
+          {t("Farograden ensam säger inte var faran finns — det gör lavinproblemet. Läs alltid hela prognosen, inte bara siffran.")}
         </p>
         <SourceList sources={[LAVINPROGNOSER_LAS_FORST, LAVINPROGNOSER_PROBLEM]} />
         <DangerScaleGuide />
       </section>
 
       <section className="section">
-        <h2>Innan och under turen</h2>
+        <h2>{t("Innan och under turen")}</h2>
         <SafetyChecklist />
       </section>
     </div>

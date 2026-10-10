@@ -11,6 +11,7 @@ import type { Tour } from "../types/tour";
 import { forecastLabel } from "../utils/forecastLabel";
 import { formatDistance } from "../utils/tourFormat";
 import AdminBadge from "./AdminBadge";
+import { t, locale } from "../i18n";
 
 // The map's pins, kept apart from the map page and memoised: the page
 // re-renders on every pan (the visible area feeds "spara det som syns") and
@@ -72,7 +73,7 @@ export const RegionMarkers = memo(function RegionMarkers({ forecasts }: { foreca
               </>
             )}
             <br />
-            <Link to={`/omrade/${region.id}`}>Visa detaljer →</Link>
+            <Link to={`/omrade/${region.id}`}>{t("Visa detaljer →")}</Link>
           </Popup>
         </Marker>
       ))}
@@ -86,13 +87,13 @@ const ObservationMarker = memo(function ObservationMarker({ o }: { o: Observatio
       <Popup>
         <strong>{observationTypeLabel(o.type)}</strong>
         <br />
-        {new Date(o.observedAt).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} ·{" "}
+        {new Date(o.observedAt).toLocaleString(locale(), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} ·{" "}
         {o.author}
         <AdminBadge show={o.authorIsAdmin} />
         <br />
         {o.description.length > 140 ? `${o.description.slice(0, 140)}…` : o.description}
         <br />
-        <Link to="/observationer">Alla observationer →</Link>
+        <Link to="/observationer">{t("Alla observationer →")}</Link>
       </Popup>
     </Marker>
   );
@@ -108,16 +109,16 @@ export const ObservationMarkers = memo(function ObservationMarkers({ observation
   );
 });
 
-const TourMarker = memo(function TourMarker({ t }: { t: Tour }) {
+const TourMarker = memo(function TourMarker({ tour }: { tour: Tour }) {
   return (
-    <Marker position={t.pin!} icon={TOUR_ICON} zIndexOffset={900}>
+    <Marker position={tour.pin!} icon={TOUR_ICON} zIndexOffset={900}>
       <Popup>
-        <strong>{t.title}</strong>
+        <strong>{tour.title}</strong>
         <br />
-        {new Date(t.startedAt).toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })} ·{" "}
-        {formatDistance(t.distanceM)} · ↑ {t.ascentM} m
+        {new Date(tour.startedAt).toLocaleDateString(locale(), { day: "numeric", month: "short", year: "numeric" })} ·{" "}
+        {formatDistance(tour.distanceM)} · ↑ {tour.ascentM} m
         <br />
-        <Link to={`/turer/${t.id}`}>Visa turen →</Link>
+        <Link to={`/turer/${tour.id}`}>{t("Visa turen →")}</Link>
       </Popup>
     </Marker>
   );
@@ -127,9 +128,9 @@ export const TourMarkers = memo(function TourMarkers({ tours }: { tours: Tour[] 
   return (
     <>
       {tours
-        .filter((t) => t.pin)
-        .map((t) => (
-          <TourMarker key={t.id} t={t} />
+        .filter((tour) => tour.pin)
+        .map((tour) => (
+          <TourMarker key={tour.id} tour={tour} />
         ))}
     </>
   );

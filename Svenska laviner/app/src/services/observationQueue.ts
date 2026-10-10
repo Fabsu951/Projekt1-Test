@@ -1,6 +1,7 @@
 import { Preferences } from "@capacitor/preferences";
 import { ApiError } from "./api";
 import { createObservation, type NewObservation } from "./observationService";
+import { t } from "../i18n";
 
 // Observations made without coverage. They are kept on the phone, with the
 // time and place they were made, and sent when there is a connection again
@@ -77,7 +78,7 @@ function dataUrlToBlob(url: string): Blob {
 export async function queueObservation(userId: number, obs: NewObservation & { clientId: string }): Promise<void> {
   const list = await read();
   if (list.filter((q) => q.userId === userId).length >= MAX_QUEUED) {
-    throw new Error(`Det finns redan ${MAX_QUEUED} observationer som väntar på att skickas.`);
+    throw new Error(t("Det finns redan {n} observationer som väntar på att skickas.", { n: MAX_QUEUED }));
   }
   const { observedAt, image, clientId, ...rest } = obs;
   list.push({
@@ -89,7 +90,7 @@ export async function queueObservation(userId: number, obs: NewObservation & { c
   try {
     await write(list);
   } catch {
-    throw new Error("Det finns inte plats att spara observationen på telefonen. Prova utan bild.");
+    throw new Error(t("Det finns inte plats att spara observationen på telefonen. Prova utan bild."));
   }
 }
 
@@ -140,7 +141,7 @@ export function flushObservationQueue(token: string, userId: number): Promise<nu
           if (isConnectionError(err)) break;
           const status = (err as ApiError).status;
           if (status === 401 || status === 429 || status >= 500) break;
-          const message = err instanceof Error ? err.message : "Servern tog inte emot observationen.";
+          const message = err instanceof Error ? err.message : t("Servern tog inte emot observationen.");
           await write((await read()).map((q) => (q.clientId === item.clientId ? { ...q, failed: message } : q)), sent);
         }
       }

@@ -1,4 +1,5 @@
 import { TOUR_SEASONS } from "../data/tourSeasons";
+import { t } from "../i18n";
 
 /** Chips for picking parts of the ski season; none picked means the whole year. */
 export default function SeasonFilter({
@@ -10,7 +11,7 @@ export default function SeasonFilter({
 }) {
   return (
     <fieldset className="season-filter">
-      <legend>När på säsongen</legend>
+      <legend>{t("När på säsongen")}</legend>
       {TOUR_SEASONS.map((s) => (
         <label key={s.id} className={selected.includes(s.id) ? "chip chip--on" : "chip"}>
           <input

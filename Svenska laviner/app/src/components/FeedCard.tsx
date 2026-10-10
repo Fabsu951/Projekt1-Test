@@ -9,9 +9,10 @@ import type { Badge, FeedItem } from "../types/social";
 import { formatDistance, formatDuration, formatTourDate } from "../utils/tourFormat";
 import AdminBadge from "./AdminBadge";
 import ReportButton from "./ReportButton";
+import { t, locale } from "../i18n";
 
 const ago = (iso: string) =>
-  new Date(iso).toLocaleString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  new Date(iso).toLocaleString(locale(), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
 /** One tour, observation or shared route in the feed, with likes and comments. */
 export default function FeedCard({ item, badge }: { item: FeedItem; badge?: Badge }) {
@@ -21,7 +22,7 @@ export default function FeedCard({ item, badge }: { item: FeedItem; badge?: Badg
       : item.type === "observation"
         ? { id: item.observation.userId, name: item.observation.author }
         : { id: item.author.id, name: item.author.displayName };
-  const what = item.type === "tour" ? "laddade upp en tur" : item.type === "observation" ? "delade en observation" : "delade en rutt";
+  const what = item.type === "tour" ? t("laddade upp en tur") : item.type === "observation" ? t("delade en observation") : t("delade en rutt");
 
   return (
     <article className={`feed-card feed-card--${item.type}`}>
@@ -48,28 +49,28 @@ export default function FeedCard({ item, badge }: { item: FeedItem; badge?: Badg
 }
 
 function TourBody({ item }: { item: Extract<FeedItem, { type: "tour" }> }) {
-  const t = item.tour;
-  const region = t.regionId ? getRegionById(t.regionId) : undefined;
-  const duration = formatDuration(t.durationS);
+  const tour = item.tour;
+  const region = tour.regionId ? getRegionById(tour.regionId) : undefined;
+  const duration = formatDuration(tour.durationS);
   return (
     <div className="feed-card__body">
       <div>
-        <Link to={`/turer/${t.id}`} className="feed-card__title">
-          {t.title}
+        <Link to={`/turer/${tour.id}`} className="feed-card__title">
+          {tour.title}
         </Link>
         <p className="feed-card__meta">
-          {formatTourDate(t.startedAt)}
+          {formatTourDate(tour.startedAt)}
           {region && ` · ${region.name}`}
-          {t.visibility === "followers" && " · bara följare"}
+          {tour.visibility === "followers" && t(" · bara följare")}
         </p>
-        <ul className="tour-card__stats" aria-label="Turens fakta">
-          <li>{formatDistance(t.distanceM)}</li>
-          <li>↑ {t.ascentM} m</li>
+        <ul className="tour-card__stats" aria-label={t("Turens fakta")}>
+          <li>{formatDistance(tour.distanceM)}</li>
+          <li>↑ {tour.ascentM} m</li>
           {duration && <li>{duration}</li>}
         </ul>
-        {t.description && <p className="feed-card__text">{t.description}</p>}
+        {tour.description && <p className="feed-card__text">{tour.description}</p>}
       </div>
-      {item.line && <TrackSketch points={item.line} label={`Spåret för ${t.title}`} />}
+      {item.line && <TrackSketch points={item.line} label={t("Spåret för {title}", { title: tour.title })} />}
     </div>
   );
 }
@@ -82,12 +83,12 @@ function ObservationBody({ item }: { item: Extract<FeedItem, { type: "observatio
       <div>
         <p className="feed-card__title">{observationTypeLabel(o.type)}</p>
         <p className="feed-card__meta">
-          Observerad {ago(o.observedAt)}
+          {t("Observerad")}{" "}{ago(o.observedAt)}
           {region && ` · ${region.name}`}
         </p>
         <p className="feed-card__text">{o.description}</p>
       </div>
-      {o.imagePath && <img className="feed-card__image" src={imageUrl(o.imagePath)} alt="Bild från observationen" loading="lazy" />}
+      {o.imagePath && <img className="feed-card__image" src={imageUrl(o.imagePath)} alt={t("Bild från observationen")} loading="lazy" />}
     </div>
   );
 }
@@ -100,16 +101,16 @@ function RouteBody({ item }: { item: Extract<FeedItem, { type: "route" }> }) {
         <Link to={`/karta?rutt=${r.id}`} className="feed-card__title">
           {r.title}
         </Link>
-        <ul className="tour-card__stats" aria-label="Ruttens fakta">
+        <ul className="tour-card__stats" aria-label={t("Ruttens fakta")}>
           <li>{formatDistance(r.distanceM)}</li>
           {r.ascentM !== null && <li>↑ {r.ascentM} m</li>}
         </ul>
         <Link to={`/karta?rutt=${r.id}`} className="feed-card__open">
-          Öppna i kartan →
+          {t("Öppna i kartan →")}
         </Link>{" "}
         <ReportButton type="route" id={r.id} ownerId={item.author.id} />
       </div>
-      <TrackSketch points={r.waypoints} label={`Rutten ${r.title}`} />
+      <TrackSketch points={r.waypoints} label={t("Rutten {title}", { title: r.title })} />
     </div>
   );
 }

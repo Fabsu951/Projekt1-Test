@@ -7,19 +7,20 @@ import {
   type ReportedItem,
   type ReportType,
 } from "../services/reportService";
+import { t, plural } from "../i18n";
 
 const TYPE_LABEL: Record<ReportType, string> = {
-  tour: "Tur",
-  route: "Rutt",
-  comment: "Kommentar",
-  profile: "Profil",
+  tour: t("Tur"),
+  route: t("Rutt"),
+  comment: t("Kommentar"),
+  profile: t("Profil"),
 };
 
 const REMOVE_LABEL: Record<ReportType, string> = {
-  tour: "Ta bort turen",
-  route: "Ta bort rutten",
-  comment: "Ta bort kommentaren",
-  profile: "Återställ namn och bild",
+  tour: t("Ta bort turen"),
+  route: t("Ta bort rutten"),
+  comment: t("Ta bort kommentaren"),
+  profile: t("Återställ namn och bild"),
 };
 
 /** Admin: reported tours, routes, comments and profiles, with dismiss / remove-with-reason. */
@@ -40,8 +41,8 @@ export default function ContentReports({ token }: { token: string }) {
   useEffect(load, [load]);
 
   if (error) return <p className="error">{error}</p>;
-  if (!items) return <p className="section__intro">Laddar…</p>;
-  if (items.length === 0) return <p className="section__intro">Inga anmälda turer, rutter, kommentarer eller profiler.</p>;
+  if (!items) return <p className="section__intro">{t("Laddar…")}</p>;
+  if (items.length === 0) return <p className="section__intro">{t("Inga anmälda turer, rutter, kommentarer eller profiler.")}</p>;
   return (
     <div className="content-reports">
       {items.map((item) => (
@@ -74,7 +75,7 @@ function ReportedCard({
       await action();
       onDone();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Något gick fel.");
+      setError(err instanceof Error ? err.message : t("Något gick fel."));
       setBusy(false);
     }
   }
@@ -84,17 +85,17 @@ function ReportedCard({
       <header className="content-report__header">
         <span className="content-report__type">{TYPE_LABEL[item.type]}</span>
         <span className="content-report__count">
-          {item.reports} {item.reports === 1 ? "anmälan" : "anmälningar"}
-          {item.hidden && " · dold"}
+          {plural(item.reports, "1 anmälan", "{n} anmälningar")}
+          {item.hidden && t(" · dold")}
         </span>
       </header>
       <p className="content-report__summary">{item.summary}</p>
       <p className="content-report__meta">
-        av <Link to={`/person/${item.owner.id}`}>{item.owner.displayName}</Link> ·{" "}
-        <Link to={item.url}>Visa</Link>
+        {t("av")}{" "}<Link to={`/person/${item.owner.id}`}>{item.owner.displayName}</Link> ·{" "}
+        <Link to={item.url}>{t("Visa")}</Link>
       </p>
       {item.reasons.length > 0 && (
-        <ul className="content-report__reasons" aria-label="Skäl som angavs">
+        <ul className="content-report__reasons" aria-label={t("Skäl som angavs")}>
           {item.reasons.map((r, i) => (
             <li key={i}>”{r}”</li>
           ))}
@@ -102,9 +103,9 @@ function ReportedCard({
       )}
       <div className="content-report__actions">
         <label className="form__field">
-          <span>Skäl som ägaren får se</span>
+          <span>{t("Skäl som ägaren får se")}</span>
           <select value={reason} onChange={(e) => setReason(e.target.value)}>
-            <option value="">Välj skäl…</option>
+            <option value="">{t("Välj skäl…")}</option>
             {Object.entries(reasons).map(([id, text]) => (
               <option key={id} value={id}>
                 {text}
@@ -113,7 +114,7 @@ function ReportedCard({
           </select>
         </label>
         <label className="form__field">
-          <span>Tillägg (valfritt)</span>
+          <span>{t("Tillägg (valfritt)")}</span>
           <input value={note} maxLength={300} onChange={(e) => setNote(e.target.value)} />
         </label>
         <div className="button-row">
@@ -122,14 +123,14 @@ function ReportedCard({
             className="button button--danger"
             disabled={busy || !reason}
             onClick={() => {
-              if (window.confirm(`${REMOVE_LABEL[item.type]}? Ägaren får en notis med skälet.`))
+              if (window.confirm(t("{action}? Ägaren får en notis med skälet.", { action: REMOVE_LABEL[item.type] })))
                 void run(() => removeReportedContent(token, item.type, item.id, reason, note));
             }}
           >
             {REMOVE_LABEL[item.type]}
           </button>
           <button type="button" className="button" disabled={busy} onClick={() => void run(() => dismissContentReports(token, item.type, item.id))}>
-            Inget fel – avfärda
+            {t("Inget fel – avfärda")}
           </button>
         </div>
         {error && <p className="error">{error}</p>}

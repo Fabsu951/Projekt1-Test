@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useNearestRegion } from "../hooks/useNearestRegion";
+import { t } from "../i18n";
 
 export default function NearestRegion() {
   const { status, region, distanceKm, errorMessage, locate } = useNearestRegion();
@@ -7,20 +8,19 @@ export default function NearestRegion() {
   if (status === "idle") {
     return (
       <button type="button" className="nearest-region__button" onClick={locate}>
-        📍 Visa närmaste område
+        {t("📍 Visa närmaste område")}
       </button>
     );
   }
 
   if (status === "loading") {
-    return <p className="nearest-region__status">Hämtar din position…</p>;
+    return <p className="nearest-region__status">{t("Hämtar din position…")}</p>;
   }
 
   if (status === "denied") {
     return (
       <p className="nearest-region__status">
-        Platsåtkomst nekad. Du kan ändra det i enhetens inställningar för att se
-        närmaste område.
+        {t("Platsåtkomst nekad. Du kan ändra det i enhetens inställningar för att se närmaste område.")}
       </p>
     );
   }
@@ -28,7 +28,7 @@ export default function NearestRegion() {
   if (status === "error") {
     return (
       <p className="nearest-region__status">
-        Kunde inte hämta din position{errorMessage ? `: ${errorMessage}` : ""}.
+        {t("Kunde inte hämta din position")}{errorMessage ? `: ${errorMessage}` : ""}.
       </p>
     );
   }
@@ -37,7 +37,7 @@ export default function NearestRegion() {
 
   return (
     <Link to={`/omrade/${region.id}`} className="nearest-region__result">
-      📍 Närmast dig: <strong>{region.name}</strong>
+      {t("📍 Närmast dig:")}{" "}<strong>{region.name}</strong>
       {distanceKm !== null && ` (~${Math.round(distanceKm)} km)`}
     </Link>
   );

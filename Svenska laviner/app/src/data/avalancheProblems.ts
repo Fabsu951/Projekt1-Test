@@ -1,4 +1,5 @@
 import type { AvalancheProblem, Source } from "../types/avalanche";
+import { t } from "../i18n";
 
 /**
  * The avalanche problems lavinprognoser.se uses, named as the forecasts name
@@ -7,30 +8,30 @@ import type { AvalancheProblem, Source } from "../types/avalanche";
  */
 export const PROBLEM_LABELS: Record<AvalancheProblem, { label: string; description: string }> = {
   nysno: {
-    label: "Nysnöflak",
-    description: "Nyfallen snö som ännu inte bundit till underlaget, särskilt på lä-sidor.",
+    label: t("Nysnöflak"),
+    description: t("Nyfallen snö som ännu inte bundit till underlaget, särskilt på lä-sidor."),
   },
   vindpack: {
-    label: "Drevsnöflak",
-    description: "Vinden har flyttat snö till hårda, spröda flak på läsidor och i fördjupningar.",
+    label: t("Drevsnöflak"),
+    description: t("Vinden har flyttat snö till hårda, spröda flak på läsidor och i fördjupningar."),
   },
   gammal_svag_lagring: {
-    label: "Bestående flak",
-    description: "Ett svagt lager djupt i snötäcket som kan brytas av stor belastning, svårbedömt och farligt.",
+    label: t("Bestående flak"),
+    description: t("Ett svagt lager djupt i snötäcket som kan brytas av stor belastning, svårbedömt och farligt."),
   },
   vatsno: {
-    label: "Våta laviner",
-    description: "Smältvatten eller regn har försvagat snötäcket, ofta senare på dagen eller vid varmt väder.",
+    label: t("Våta laviner"),
+    description: t("Smältvatten eller regn har försvagat snötäcket, ofta senare på dagen eller vid varmt väder."),
   },
   glidlavin: {
-    label: "Glidlaviner",
+    label: t("Glidlaviner"),
     description:
-      "Hela snötäcket glider sakta på underlaget (ofta hala klippor eller blöt mark), ibland synligt som sprickor i snön. Kan lossna helt plötsligt och går inte att utlösa eller förutsäga tidpunkten för.",
+      t("Hela snötäcket glider sakta på underlaget (ofta hala klippor eller blöt mark), ibland synligt som sprickor i snön. Kan lossna helt plötsligt och går inte att utlösa eller förutsäga tidpunkten för."),
   },
   hangdrivor: {
-    label: "Hängdrivor",
+    label: t("Hängdrivor"),
     description:
-      "Snö som vinden byggt ut över krön och branta kanter. En hängdriva kan brista längre in än man tror, och när den rasar kan den i sin tur utlösa en lavin i sluttningen nedanför.",
+      t("Snö som vinden byggt ut över krön och branta kanter. En hängdriva kan brista längre in än man tror, och när den rasar kan den i sin tur utlösa en lavin i sluttningen nedanför."),
   },
 };
 

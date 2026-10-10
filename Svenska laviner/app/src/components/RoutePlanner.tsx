@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { CircleMarker, Marker, Polyline, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { SLOPE_BANDS, slopeRuns, type LatLon, type RouteSample } from "../utils/routePlan";
+import { t } from "../i18n";
 
 function pointIcon(kind: "start" | "middle" | "end") {
   return L.divIcon({
@@ -46,7 +47,7 @@ export default function RoutePlanner({
 
   // Heights and slopes come from Mapterhorn's open elevation data.
   useEffect(() => {
-    const credit = '&copy; <a href="https://mapterhorn.com/attribution/" target="_blank" rel="noreferrer">Mapterhorn</a> (höjddata)';
+    const credit = t("&copy; <a href=\"https://mapterhorn.com/attribution/\" target=\"_blank\" rel=\"noreferrer\">Mapterhorn</a> (höjddata)");
     map.attributionControl?.addAttribution(credit);
     return () => {
       map.attributionControl?.removeAttribution(credit);
@@ -97,7 +98,7 @@ export default function RoutePlanner({
           draggable
           zIndexOffset={1500}
           icon={i === 0 ? ICONS.start : i === waypoints.length - 1 ? ICONS.end : ICONS.middle}
-          title={i === 0 ? "Start" : i === waypoints.length - 1 ? "Mål" : `Punkt ${i + 1}`}
+          title={i === 0 ? t("Start") : i === waypoints.length - 1 ? t("Mål") : t("Punkt {n}", { n: i + 1 })}
           eventHandlers={{
             dragend: (e) => {
               const ll = (e.target as L.Marker).getLatLng();

@@ -9,6 +9,7 @@ import { QUICK_CHOICES, quickObservation, toggleChoice, type QuickChoice } from 
 import { REGIONS } from "../data/regions";
 import { submitObservation } from "../services/observationQueue";
 import { nearestRegionId } from "../utils/geo";
+import { t } from "../i18n";
 
 type Fix = { kind: "locating" } | { kind: "found"; point: Point; accuracyM: number } | { kind: "failed" };
 
@@ -55,7 +56,7 @@ export default function QuickObservationPage() {
     return (
       <div className="page">
         <header className="page__header">
-          <h1>Snabbobservation</h1>
+          <h1>{t("Snabbobservation")}</h1>
         </header>
         <VerifyEmailNotice />
       </div>
@@ -84,7 +85,7 @@ export default function QuickObservationPage() {
       });
       navigate("/observationer", { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunde inte skicka observationen.");
+      setError(err instanceof Error ? err.message : t("Kunde inte skicka observationen."));
       setBusy(false);
     }
   }
@@ -92,11 +93,11 @@ export default function QuickObservationPage() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>Snabbobservation</h1>
-        <p className="page__lead">Tryck på det du ser just nu. Plats och tid tas från telefonen.</p>
+        <h1>{t("Snabbobservation")}</h1>
+        <p className="page__lead">{t("Tryck på det du ser just nu. Plats och tid tas från telefonen.")}</p>
       </header>
 
-      <div className="quick-obs__choices" role="group" aria-label="Vad ser du?">
+      <div className="quick-obs__choices" role="group" aria-label={t("Vad ser du?")}>
         {QUICK_CHOICES.map((c) => {
           const on = chosen.includes(c.choice);
           return (
@@ -114,22 +115,22 @@ export default function QuickObservationPage() {
       </div>
 
       <label className="form__field quick-obs__note">
-        Kort kommentar <span className="form__hint">(valfritt)</span>
+        {t("Kort kommentar")}{" "}<span className="form__hint">{t("(valfritt)")}</span>
         <input
           type="text"
           maxLength={300}
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="T.ex. nordostsluttning, 1100 m"
+          placeholder={t("T.ex. nordostsluttning, 1100 m")}
         />
       </label>
 
       <p className="quick-obs__position" role="status">
-        {fix.kind === "locating" && "Hämtar din position…"}
-        {fix.kind === "found" && !picked && `Position från telefonen (±${fix.accuracyM} m).`}
-        {fix.kind === "failed" && !picked && "Kunde inte hämta din position. Tryck på kartan där du är."}
-        {picked && "Platsen är vald på kartan."}
-        {fix.kind === "found" && fix.accuracyM > ROUGH_ACCURACY_M && !picked && " Den är osäker, rätta gärna på kartan."}
+        {fix.kind === "locating" && t("Hämtar din position…")}
+        {fix.kind === "found" && !picked && t("Position från telefonen (±{m} m).", { m: fix.accuracyM })}
+        {fix.kind === "failed" && !picked && t("Kunde inte hämta din position. Tryck på kartan där du är.")}
+        {picked && t("Platsen är vald på kartan.")}
+        {fix.kind === "found" && fix.accuracyM > ROUGH_ACCURACY_M && !picked && t(" Den är osäker, rätta gärna på kartan.")}
       </p>
       {rough && <LocationPicker value={point} onChange={setPicked} />}
 
@@ -144,10 +145,10 @@ export default function QuickObservationPage() {
         disabled={busy || !observation || !point}
         onClick={() => void send()}
       >
-        {busy ? "Skickar…" : !observation ? "Välj vad du ser" : !point ? "Väntar på position…" : "Skicka observationen"}
+        {busy ? t("Skickar…") : !observation ? t("Välj vad du ser") : !point ? t("Väntar på position…") : t("Skicka observationen")}
       </button>
       <p className="muted quick-obs__more">
-        Vill du lägga till bild, snödjup eller mer text? <Link to="/observationer/ny">Använd hela formuläret</Link>.
+        {t("Vill du lägga till bild, snödjup eller mer text?")}{" "}<Link to="/observationer/ny">{t("Använd hela formuläret")}</Link>.
       </p>
     </div>
   );

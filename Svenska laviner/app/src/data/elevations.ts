@@ -1,8 +1,9 @@
 import type { Elevation } from "../types/avalanche";
+import { t } from "../i18n";
 
 /** The elevation bands as lavinprognoser.se names them. */
 export const ELEVATION_LABELS: Record<Elevation, string> = {
-  kalfjall: "Kalfjället",
-  tradgrans: "Trädgränsen",
-  under_tradgrans: "Under trädgränsen",
+  kalfjall: t("Kalfjället"),
+  tradgrans: t("Trädgränsen"),
+  under_tradgrans: t("Under trädgränsen"),
 };

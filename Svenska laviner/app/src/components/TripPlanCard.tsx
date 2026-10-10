@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { fetchTrips, planTrip, removeTrip, type TripPlan } from "../services/tripService";
+import { t, locale } from "../i18n";
 
 const DAYS_SHOWN = 8;
 
@@ -14,12 +15,12 @@ function addDays(date: string, days: number): string {
   return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
 }
 
-/** "Idag", "I morgon", then "lör 14/2". */
+/** "Idag", t("I morgon"), then "lör 14/2". */
 function dayLabel(date: string, today: string): string {
-  if (date === today) return "Idag";
-  if (date === addDays(today, 1)) return "I morgon";
+  if (date === today) return t("Idag");
+  if (date === addDays(today, 1)) return t("I morgon");
   const [y, m, d] = date.split("-").map(Number);
-  const weekday = new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("sv-SE", { weekday: "short", timeZone: "UTC" });
+  const weekday = new Date(Date.UTC(y, m - 1, d)).toLocaleDateString(locale(), { weekday: "short", timeZone: "UTC" });
   return `${weekday} ${d}/${m}`;
 }
 
@@ -55,14 +56,13 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
   if (!user || !token) {
     return (
       <p className="trip-plan__intro">
-        Planerar du en tur hit? <Link to={`/logga-in?next=/omrade/${regionId}`}>Logga in</Link> så skickar Snöläge
-        prognosen för din turdag så fort den publiceras.
+        {t("Planerar du en tur hit?")}{" "}<Link to={`/logga-in?next=/omrade/${regionId}`}>{t("Logga in")}</Link>{" "}{t("så skickar Snöläge prognosen för din turdag så fort den publiceras.")}
       </p>
     );
   }
 
-  const here = (trips ?? []).filter((t) => t.regionId === regionId);
-  const planned = new Map(here.map((t) => [t.date, t]));
+  const here = (trips ?? []).filter((trip) => trip.regionId === regionId);
+  const planned = new Map(here.map((trip) => [trip.date, trip]));
 
   async function toggle(date: string) {
     setBusy(date);
@@ -71,13 +71,13 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
       const existing = planned.get(date);
       if (existing) {
         await removeTrip(token!, existing.id);
-        setTrips((list) => (list ?? []).filter((t) => t.id !== existing.id));
+        setTrips((list) => (list ?? []).filter((trip) => trip.id !== existing.id));
       } else {
         const trip = await planTrip(token!, regionId, date);
         setTrips((list) => [...(list ?? []), trip]);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Det gick inte att spara.");
+      setError(err instanceof Error ? err.message : t("Det gick inte att spara."));
     } finally {
       setBusy(null);
     }
@@ -88,10 +88,9 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
   return (
     <div className="trip-plan">
       <p className="trip-plan__intro">
-        Välj dagen för din tur i {regionName}. Du får prognosen för den dagen som notis när Naturvårdsverket publicerar
-        den, oftast kl 18 kvällen före. Finns ingen farograd på morgonen får du veta det också.
+        {t("Välj dagen för din tur i")}{" "}{regionName}{t(". Du får prognosen för den dagen som notis när Naturvårdsverket publicerar den, oftast kl 18 kvällen före. Finns ingen farograd på morgonen får du veta det också.")}
       </p>
-      <div className="chip-row trip-plan__days" role="group" aria-label="Dag för turen">
+      <div className="chip-row trip-plan__days" role="group" aria-label={t("Dag för turen")}>
         {days.map((date) => {
           const on = planned.has(date);
           return (
@@ -116,10 +115,10 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
       {here.length > 0 && (
         <p className="muted trip-plan__status" role="status">
           {here
-            .map((t) => `${dayLabel(t.date, today)}: ${t.notified ? "prognosen är skickad" : "väntar på prognosen"}`)
+            .map((trip) => `${dayLabel(trip.date, today)}: ${trip.notified ? t("prognosen är skickad") : t("väntar på prognosen")}`)
             .join(" · ")}
-          . Notisen syns under klockan i menyn. Vill du få den i telefonen, slå på det under{" "}
-          <Link to="/notiser">Notiser</Link>.
+          {t(". Notisen syns under klockan i menyn. Vill du få den i telefonen, slå på det under")}{" "}
+          <Link to="/notiser">{t("Notiser")}</Link>.
         </p>
       )}
     </div>

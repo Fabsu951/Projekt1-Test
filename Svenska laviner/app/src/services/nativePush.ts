@@ -2,6 +2,7 @@ import { Capacitor } from "@capacitor/core";
 import { Preferences } from "@capacitor/preferences";
 import { FirebaseMessaging } from "@capacitor-firebase/messaging";
 import { api } from "./api";
+import { t } from "../i18n";
 
 // Push in the Android and iOS apps, through Firebase Cloud Messaging (which
 // hands iPhone messages to Apple). The browser version uses web push
@@ -56,7 +57,7 @@ async function deviceToken(ask: boolean): Promise<string> {
   let { receive } = await FirebaseMessaging.checkPermissions();
   if (receive !== "granted" && ask) receive = (await FirebaseMessaging.requestPermissions()).receive;
   if (receive !== "granted") {
-    throw new Error("Notiser är avstängda för Snöläge. Slå på dem under Inställningar → Appar → Snöläge → Notiser.");
+    throw new Error(t("Notiser är avstängda för Snöläge. Slå på dem under Inställningar → Appar → Snöläge → Notiser."));
   }
   return (await FirebaseMessaging.getToken()).token;
 }

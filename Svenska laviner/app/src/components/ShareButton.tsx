@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { sharePage } from "../services/native";
+import { t } from "../i18n";
 
 interface Props {
   /** Path in the app, e.g. /omrade/kebnekaisefjallen */
@@ -7,16 +8,16 @@ interface Props {
   title: string;
   text: string;
   /** What is shared, for screen readers ("prognosen för Kebnekaisefjällen"). */
-  what: string;
+  label: string;
 }
 
 /** An icon button that opens the share sheet, or copies the link where there is none. */
-export default function ShareButton({ path, title, text, what }: Props) {
+export default function ShareButton({ path, title, text, label }: Props) {
   const [status, setStatus] = useState<string | null>(null);
 
   async function onClick() {
     const outcome = await sharePage(path, title, text);
-    setStatus(outcome === "copied" ? "Länken är kopierad" : outcome === "failed" ? "Kunde inte dela länken" : null);
+    setStatus(outcome === "copied" ? t("Länken är kopierad") : outcome === "failed" ? t("Kunde inte dela länken") : null);
   }
 
   return (
@@ -24,8 +25,8 @@ export default function ShareButton({ path, title, text, what }: Props) {
       <button
         type="button"
         className="favorite-button share-button"
-        aria-label={`Dela ${what}`}
-        title="Dela"
+        aria-label={label}
+        title={t("Dela")}
         onClick={() => void onClick()}
       >
         <svg viewBox="0 0 24 24" width={22} height={22} aria-hidden="true">

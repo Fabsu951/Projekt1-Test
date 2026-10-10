@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { fetchUnread, NOTIFICATIONS_READ_EVENT } from "../services/notificationService";
+import { t, plural } from "../i18n";
 
 const POLL_MS = 60_000;
 
@@ -30,12 +31,12 @@ export default function NotificationBell({ token }: { token: string }) {
     };
   }, [token, pathname]);
 
-  const label = count === 0 ? "Notiser" : count === 1 ? "Notiser, 1 oläst" : `Notiser, ${count} olästa`;
+  const label = count === 0 ? t("Notiser") : plural(count, "Notiser, 1 oläst", "Notiser, {n} olästa");
   return (
     <NavLink
       to="/notiser"
       aria-label={label}
-      title="Notiser"
+      title={t("Notiser")}
       className={({ isActive }) =>
         isActive ? "app-shell__nav-link notification-bell app-shell__nav-link--active" : "app-shell__nav-link notification-bell"
       }
@@ -51,7 +52,7 @@ export default function NotificationBell({ token }: { token: string }) {
         />
       </svg>
       {count > 0 && <span className="notification-bell__count">{count > 99 ? "99+" : count}</span>}
-      <span className="app-shell__account-name">Notiser</span>
+      <span className="app-shell__account-name">{t("Notiser")}</span>
     </NavLink>
   );
 }

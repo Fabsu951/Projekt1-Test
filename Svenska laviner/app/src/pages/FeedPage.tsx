@@ -8,6 +8,7 @@ import { fetchFeed, searchPeople } from "../services/socialService";
 import type { Badge, FeedItem, PersonSummary } from "../types/social";
 import Avatar from "../components/Avatar";
 import AdminBadge from "../components/AdminBadge";
+import { t } from "../i18n";
 
 /** What the people you follow have shared, plus finding people to follow. */
 export default function FeedPage() {
@@ -52,32 +53,31 @@ export default function FeedPage() {
   return (
     <div className="page">
       <header className="page__header">
-        <h1>Flöde</h1>
+        <h1>{t("Flöde")}</h1>
         <p className="page__lead">
-          Turer, observationer och rutter från dem du följer. Gilla, kommentera och fråga om förhållandena.
+          {t("Turer, observationer och rutter från dem du följer. Gilla, kommentera och fråga om förhållandena.")}
         </p>
       </header>
 
       {!user || !token ? (
         <p className="section__intro">
-          <Link to="/logga-in?next=/flode">Logga in</Link> eller <Link to="/registrera">skapa ett konto</Link> för att
-          följa andra åkare och se vad de delar.
+          <Link to="/logga-in?next=/flode">{t("Logga in")}</Link>{" "}{t("eller")}{" "}<Link to="/registrera">{t("skapa ett konto")}</Link>{" "}{t("för att följa andra åkare och se vad de delar.")}
         </p>
       ) : (
         <>
           <PeopleSearch token={token} />
           {error && <p className="error">{error}</p>}
-          {!items && !error && <PageLoading label="Laddar flödet…" />}
+          {!items && !error && <PageLoading label={t("Laddar flödet…")} />}
           {items && items.length === 0 && (
             <p className="section__intro">
-              Flödet är tomt än. Sök efter kompisar ovan och följ dem, eller{" "}
-              <Link to="/turer/ny">lägg upp en tur</Link> själv.
+              {t("Flödet är tomt än. Sök efter kompisar ovan och följ dem, eller")}{" "}
+              <Link to="/turer/ny">{t("lägg upp en tur")}</Link>{" "}{t("själv.")}
             </p>
           )}
           <div className="feed">{items?.map((item) => <FeedCard key={`${item.type}-${item.id}`} item={item} badge={people[authorId(item)]} />)}</div>
           {nextBefore && (
             <button type="button" className="button feed__more" disabled={more} onClick={() => void loadMore()}>
-              {more ? "Laddar…" : "Visa äldre"}
+              {more ? t("Laddar…") : t("Visa äldre")}
             </button>
           )}
         </>
@@ -109,12 +109,12 @@ function PeopleSearch({ token }: { token: string }) {
   return (
     <section className="people-search">
       <label className="form__field">
-        Hitta kompisar
-        <input type="search" value={q} placeholder="Sök på namn" onChange={(e) => setQ(e.target.value)} />
+        {t("Hitta kompisar")}
+        <input type="search" value={q} placeholder={t("Sök på namn")} onChange={(e) => setQ(e.target.value)} />
       </label>
       {q.trim().length >= 2 && people && (
         <ul className="people-list">
-          {people.length === 0 && <li className="people-list__empty">Ingen hittades.</li>}
+          {people.length === 0 && <li className="people-list__empty">{t("Ingen hittades.")}</li>}
           {people.map((p) => (
             <li key={p.id}>
               <Link to={`/person/${p.id}`} className="people-list__name">

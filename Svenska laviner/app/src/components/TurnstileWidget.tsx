@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { lang } from "../i18n";
 
 interface TurnstileApi {
   render(el: HTMLElement, opts: Record<string, unknown>): string;
@@ -52,7 +53,7 @@ export default function TurnstileWidget({ siteKey, onToken, resetSignal, onLoadE
         if (cancelled || !box.current || !window.turnstile) return;
         widgetId.current = window.turnstile.render(box.current, {
           sitekey: siteKey,
-          language: "sv",
+          language: lang(),
           theme: "dark",
           callback: (token: string) => onToken(token),
           "expired-callback": () => onToken(null),

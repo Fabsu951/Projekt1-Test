@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { loadSnowDepth, type SnowStation } from "../services/snowDepthService";
+import { t, locale } from "../i18n";
 
 function measured(iso: string): string {
-  return new Date(iso).toLocaleString("sv-SE", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleString(locale(), { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
 function change(cm: number | null): string | null {
   if (cm === null) return null;
-  if (cm === 0) return "oförändrat på 3 dygn";
-  return `${cm > 0 ? "+" : "−"}${Math.abs(cm)} cm på 3 dygn`;
+  if (cm === 0) return t("oförändrat på 3 dygn");
+  return t("{change} cm på 3 dygn", { change: `${cm > 0 ? "+" : "−"}${Math.abs(cm)}` });
 }
 
 interface Props {
@@ -38,26 +39,25 @@ export default function SnowDepthCard({ regionId, lat, lon }: Props) {
 
   return (
     <section className="section">
-      <h2>Snödjup</h2>
+      <h2>{t("Snödjup")}</h2>
       <ul className="snow-depth">
         {stations.map((s) => (
           <li key={s.id} className="snow-depth__station">
-            <span className="snow-depth__value">{s.depthCm === 0 ? "Barmark" : `${s.depthCm} cm`}</span>
+            <span className="snow-depth__value">{s.depthCm === 0 ? t("Barmark") : `${s.depthCm} cm`}</span>
             <span className="snow-depth__info">
               <strong>{s.name}</strong>
               <span className="muted">
-                {[s.heightM !== null ? `${s.heightM} m ö.h.` : null, `${Math.round(s.distanceKm)} km bort`, change(s.changeCm)]
+                {[s.heightM !== null ? t("{m} m ö.h.", { m: s.heightM }) : null, t("{km} km bort", { km: Math.round(s.distanceKm) }), change(s.changeCm)]
                   .filter(Boolean)
                   .join(" · ")}
               </span>
-              <span className="muted">Mätt {measured(s.measuredAt)}</span>
+              <span className="muted">{t("Mätt")}{" "}{measured(s.measuredAt)}</span>
             </span>
           </li>
         ))}
       </ul>
       <p className="muted snow-depth__note">
-        Uppmätt av SMHI en gång om dygnet, oftast i dalgång eller by. Snödjupet på fjället kan vara helt annat, och
-        vinden flyttar snön. Källa: SMHI:s öppna data.
+        {t("Uppmätt av SMHI en gång om dygnet, oftast i dalgång eller by. Snödjupet på fjället kan vara helt annat, och vinden flyttar snön. Källa: SMHI:s öppna data.")}
       </p>
     </section>
   );

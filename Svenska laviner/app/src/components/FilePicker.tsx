@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { t } from "../i18n";
 
 /**
  * A file input with a Swedish, app-styled button instead of the browser's
@@ -6,7 +7,7 @@ import { useState } from "react";
  */
 export default function FilePicker({
   accept,
-  buttonLabel = "Välj fil",
+  buttonLabel = t("Välj fil"),
   onFile,
 }: {
   accept: string;
@@ -29,7 +30,7 @@ export default function FilePicker({
       <span className="button file-picker__button" aria-hidden="true">
         {buttonLabel}
       </span>
-      <span className="file-picker__name">{name ?? "Ingen fil vald"}</span>
+      <span className="file-picker__name">{name ?? t("Ingen fil vald")}</span>
     </span>
   );
 }
