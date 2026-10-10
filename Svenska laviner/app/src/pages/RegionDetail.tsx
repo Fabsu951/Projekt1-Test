@@ -7,6 +7,7 @@ import FavoriteButton from "../components/FavoriteButton";
 import ShareButton from "../components/ShareButton";
 import OfflineMapCard from "../components/OfflineMapCard";
 import TripPlanCard from "../components/TripPlanCard";
+import SnowDepthCard from "../components/SnowDepthCard";
 import TourCard from "../components/TourCard";
 import { fetchTours } from "../services/tourService";
 import type { Tour } from "../types/tour";
@@ -217,6 +218,8 @@ export default function RegionDetail() {
           </div>
         )}
       </section>
+
+      <SnowDepthCard regionId={region.id} lat={region.lat} lon={region.lon} />
 
       {(weather || stationSeries || stationError) && (
         <section className="section">

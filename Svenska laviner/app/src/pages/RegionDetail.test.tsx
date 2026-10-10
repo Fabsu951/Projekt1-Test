@@ -8,6 +8,7 @@ import type { WeatherPoint } from "../types/weather";
 const { mockWeather } = vi.hoisted(() => ({ mockWeather: vi.fn() }));
 
 vi.mock("../components/TripPlanCard", () => ({ default: () => null }));
+vi.mock("../components/SnowDepthCard", () => ({ default: () => null }));
 vi.mock("../services/weatherService", () => ({ fetchWeather: mockWeather }));
 vi.mock("../services/avalancheService", () => ({
   loadForecasts: vi.fn().mockResolvedValue({ byId: {}, stale: false, cachedAt: null }),

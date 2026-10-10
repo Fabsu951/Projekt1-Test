@@ -4086,3 +4086,43 @@ h1 .admin-badge {
   margin-top: 10px;
   font-size: 0.85rem;
 }
+
+/* "Snödjup" on area pages (SMHI stations) */
+.snow-depth {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.snow-depth__station {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+}
+
+.snow-depth__value {
+  flex: none;
+  min-width: 78px;
+  font-family: "Barlow Condensed", system-ui, sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--snow);
+}
+
+.snow-depth__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.85rem;
+}
+
+.snow-depth__note {
+  margin-top: 8px;
+  font-size: 0.82rem;
+}

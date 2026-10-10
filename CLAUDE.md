@@ -879,6 +879,14 @@ the start, exact map point.
   on area pages: day chips today…+7, toggle = plan/unplan, log-in link when
   signed out), `services/tripService.ts`; trip notices use the neutral
   "Snöläge" avatar. Privacy policy lists it.
+- **Snödjup (2026-10-10):** `services/snowDepthService.ts` — SMHI metobs
+  parameter 8 (daily snow depth, metres; same direct-from-app API as the
+  wind stations, shape from SMHI docs, not verified live from cloud):
+  active stations ≤ 60 km, nearest first (≤ 6 tried), shown when the latest
+  value is ≤ 3 days old (max 3 stations); change vs the value ~3 days
+  earlier (±12 h). `cached("snow-depth:<region>")` for offline.
+  `SnowDepthCard` (section "Snödjup" after Väder on area pages, hidden when
+  nothing fresh; 0 cm → "Barmark"; note that valley stations ≠ mountain).
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -933,6 +941,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (220 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  (225 tests as of 2026-10-10, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 134 tests, including the
   real-page fixtures).
