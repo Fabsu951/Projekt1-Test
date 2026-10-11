@@ -37,12 +37,14 @@ describe("NewTourPage", () => {
     expect(screen.getByLabelText("Titel")).toHaveValue("Kebnekaise sydtopp");
     expect(screen.queryByLabelText(/Datum/)).not.toBeInTheDocument(); // the track has times
 
+    fireEvent.click(screen.getByRole("button", { name: "Inga varningstecken" }));
+    expect(screen.getByRole("button", { name: "Inga varningstecken" })).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(screen.getByRole("button", { name: "Spara tur" }));
     expect(await screen.findByText("Turens sida")).toBeInTheDocument();
     await waitFor(() =>
       expect(createTour).toHaveBeenCalledWith(
         "t",
-        expect.objectContaining({ title: "Kebnekaise sydtopp", visibility: "public", hideEndsM: 500, date: null })
+        expect.objectContaining({ title: "Kebnekaise sydtopp", visibility: "public", hideEndsM: 500, date: null, dangerSigns: [] })
       )
     );
     expect(createTour.mock.calls[0][1].points).toHaveLength(2);

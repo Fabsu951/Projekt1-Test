@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { quickObservation, toggleChoice } from "./quickObservation";
+import { QUICK_CHOICES, quickObservation, toggleChoice } from "./quickObservation";
 
 describe("quick observations", () => {
   it("takes the type from the most serious sign and writes a description", () => {
@@ -11,20 +11,12 @@ describe("quick observations", () => {
     expect(quickObservation(["snodrev"], "  Kraftigt på krönet ")?.description).toBe(
       "Snabbobservation: Pågående snödrev. Kraftigt på krönet"
     );
-  });
-
-  it("records 'no warning signs' too, and nothing before a choice", () => {
-    expect(quickObservation(["inga_tecken"], "")).toEqual({
-      type: "ovrigt",
-      dangerSigns: [],
-      description: "Snabbobservation: inga varningstecken.",
-    });
     expect(quickObservation([], "text")).toBeNull();
   });
 
-  it("never combines 'no warning signs' with a sign", () => {
-    expect(toggleChoice(["wumpf"], "inga_tecken")).toEqual(["inga_tecken"]);
-    expect(toggleChoice(["inga_tecken"], "wumpf")).toEqual(["wumpf"]);
+  it("only offers things you see; 'no warning signs' is asked on the tour instead", () => {
+    expect(QUICK_CHOICES.map((c) => c.label)).not.toContain("Inga varningstecken");
     expect(toggleChoice(["wumpf", "snodrev"], "wumpf")).toEqual(["snodrev"]);
+    expect(toggleChoice(["snodrev"], "wumpf")).toEqual(["snodrev", "wumpf"]);
   });
 });

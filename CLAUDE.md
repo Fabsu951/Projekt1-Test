@@ -1131,6 +1131,16 @@ the start, exact map point.
   holds only the rest (`tab: true` items filtered out of `NAV_GROUPS`, empty
   groups dropped, language + theme). Desktop unchanged. z-index 30 (the
   full-screen map at 50 covers it); `main` gets bottom padding.
+- **Warning signs on tours (2026-10-11, Fabian: "Inga varningstecken" belongs
+  to the tour, not an observation):** migration `0024` `tours.danger_signs`
+  (NULL = not answered, `'[]'` = none seen, else sign ids as in
+  `DANGER_SIGNS`); `dangerSigns` on create/update (`readSigns`, undefined on
+  update keeps it) and in `Tour`. App: `TourSignsPicker` (chips + "Inga
+  varningstecken", exclusive; `data/tourSigns.ts` `toggleTourSign` —
+  unticking the last sign returns to "not answered") on `/turer/ny` and the
+  owner's settings on `TourPage`; `TourSignsList` on TourPage, TourCard and
+  FeedCard. The quick observation no longer offers "Inga varningstecken" —
+  a hint links to Turer instead. Health-imported tours start unanswered.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -1185,6 +1195,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (267 tests as of 2026-10-10, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 177 tests, including the
+  (268 tests as of 2026-10-11, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 178 tests, including the
   real-page fixtures).

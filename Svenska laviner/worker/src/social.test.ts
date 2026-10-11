@@ -4,7 +4,7 @@ import type { CommunityEnv } from "./auth";
 import { deleteAccount, setLanguage } from "./auth";
 import { HttpError } from "./http";
 import { addComment, deleteComment, feed, follow, getPerson, listComments, searchPeople, setLike, unfollow } from "./social";
-import { createTour, importedSources, listTours, tourLines } from "./tours";
+import { createTour, importedSources, listTours, tourLines, updateTour } from "./tours";
 import { migratedD1 } from "./testing/sqliteD1";
 import { experiencePoints, removeAvatar, uploadAvatar } from "./profile";
 import { serveImage } from "./observations";
@@ -345,5 +345,20 @@ describe("imported tours", () => {
     expect(await status(upload("javascript:alert(1) "))).toBe(400);
     expect(await status(upload(42))).toBe(400);
     expect((await upload()).tour.title).toBe("Skidtur");
+  });
+
+  it("keeps the warning signs seen on the tour, and 'none seen' apart from 'not answered'", async () => {
+    expect((await upload()).tour.dangerSigns).toBeNull();
+    const calm = await upload(undefined, { dangerSigns: [], allowDuplicate: true });
+    expect(calm.tour.dangerSigns).toEqual([]);
+    const changed = await updateTour(
+      req(`/tours/${calm.tour.id}`, "anna", { method: "POST", json: { dangerSigns: ["wumpf", "hittepå", "farska_laviner"] } }),
+      env,
+      calm.tour.id
+    );
+    expect(changed.tour.dangerSigns).toEqual(["farska_laviner", "wumpf"]);
+    const untouched = await updateTour(req(`/tours/${calm.tour.id}`, "anna", { method: "POST", json: { title: "Ny titel" } }), env, calm.tour.id);
+    expect(untouched.tour.dangerSigns).toEqual(["farska_laviner", "wumpf"]);
+    expect(await status(upload(undefined, { dangerSigns: "wumpf", allowDuplicate: true }))).toBe(400);
   });
 });

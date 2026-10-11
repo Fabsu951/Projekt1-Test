@@ -54,7 +54,7 @@ describe("QuickObservationPage", () => {
     mocks.getCurrentPosition.mockRejectedValue(new Error("denied"));
     show();
     expect(await screen.findByText("Karta för att välja plats")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Inga varningstecken" }));
+    fireEvent.click(screen.getByRole("button", { name: "Snödrev" }));
     await waitFor(() => expect(screen.getByRole("button", { name: "Väntar på position…" })).toBeDisabled());
   });
 });

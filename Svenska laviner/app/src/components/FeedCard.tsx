@@ -11,6 +11,7 @@ import AdminBadge from "./AdminBadge";
 import ReportButton from "./ReportButton";
 import { t, locale } from "../i18n";
 import Icon from "./Icon";
+import { TourSignsList } from "./TourSigns";
 
 const ago = (iso: string) =>
   new Date(iso).toLocaleString(locale(), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -69,6 +70,7 @@ function TourBody({ item }: { item: Extract<FeedItem, { type: "tour" }> }) {
           <li>↑ {tour.ascentM} m</li>
           {duration && <li>{duration}</li>}
         </ul>
+        <TourSignsList signs={tour.dangerSigns} />
         {tour.description && <p className="feed-card__text">{tour.description}</p>}
       </div>
       {item.line && <TrackSketch points={item.line} label={t("Spåret för {title}", { title: tour.title })} />}

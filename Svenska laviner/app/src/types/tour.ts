@@ -1,4 +1,5 @@
 import type { TrackPoint } from "../utils/trackImport";
+import type { DangerSign } from "./observation";
 
 /** Everyone, the owner's followers, or only the owner. */
 export type TourVisibility = "public" | "followers" | "private";
@@ -24,6 +25,8 @@ export interface Tour {
   hideEndsM: number;
   /** Map position after the hidden start, or null when nothing is shown. */
   pin: [number, number] | null;
+  /** Warning signs seen on the tour: null/missing = not answered, [] = none seen. */
+  dangerSigns?: DangerSign[] | null;
   createdAt: string;
 }
 

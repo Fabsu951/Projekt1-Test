@@ -1258,4 +1258,8 @@ export const EN: Record<string, string> = {
   "Notiser går inte att slå på här just nu. Du kan göra det senare under Mina områden på startsidan.": "Notifications can't be turned on here right now. You can do it later under My areas on the start page.",
   "Observera": "Observe",
   "Flikar": "Tabs",
+  "Varningstecken under turen": "Warning signs on the tour",
+  "(valfritt – även inga varningstecken säger andra något)": "(optional – no warning signs tells others something too)",
+  "Inga varningstecken under dagen? Det anger du på": "No warning signs during the day? Add that to",
+  "din tur": "your tour",
 };

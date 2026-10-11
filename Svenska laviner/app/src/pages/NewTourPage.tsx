@@ -12,6 +12,8 @@ import { createTour, SimilarTourError, type SimilarTour } from "../services/tour
 import { distanceM, importTrackFile, type TrackPoint } from "../utils/trackImport";
 import { formatDistance } from "../utils/tourFormat";
 import { t, locale } from "../i18n";
+import { TourSignsPicker } from "../components/TourSigns";
+import type { TourSigns } from "../data/tourSigns";
 
 export default function NewTourPage() {
   const { user, token, loading } = useAuth();
@@ -23,6 +25,7 @@ export default function NewTourPage() {
   const [date, setDate] = useState("");
   const [visibility, setVisibility] = useState<TourVisibility>("public");
   const [hideEndsM, setHideEndsM] = useState(500);
+  const [signs, setSigns] = useState<TourSigns>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   /** One of your tours that looks like the same outing; saving again needs a yes. */
@@ -68,6 +71,7 @@ export default function NewTourPage() {
         description: description.trim(),
         visibility,
         hideEndsM,
+        dangerSigns: signs,
         date: hasTimes ? null : date,
         points,
       });
@@ -120,6 +124,8 @@ export default function NewTourPage() {
           <span className="form__hint">{t("(förhållanden, vägval, var det var bra åkning, vad du undvek och varför)")}</span>
           <textarea rows={5} maxLength={4000} value={description} onChange={(e) => setDescription(e.target.value)} />
         </label>
+
+        <TourSignsPicker value={signs} onChange={setSigns} />
 
         <label className="form__field">
           {t("Vem ska se turen?")}

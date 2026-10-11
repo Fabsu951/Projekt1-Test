@@ -16,7 +16,7 @@ export const DANGER_SIGNS = [
   "mycket_nysno",
   "snabb_uppvarmning",
 ] as const;
-type DangerSign = (typeof DANGER_SIGNS)[number];
+export type DangerSign = (typeof DANGER_SIGNS)[number];
 
 export const MAX_SNOW_DEPTH_CM = 1000;
 

@@ -4,6 +4,7 @@ import { socialCleanup } from "./socialCleanup";
 import { d1Store, enforce, record } from "./rateLimit";
 import { REGION_SOURCES } from "./regions";
 import { cleanPoints, distanceM, previewLine, trackStats, trimEnds, type TrackPoint } from "./track";
+import { cleanDangerSigns, type DangerSign } from "./observations";
 
 export const HIDE_ENDS_OPTIONS = [0, 200, 500, 1000] as const;
 const MAX_TITLE = 100;
@@ -33,6 +34,7 @@ export interface TourRow {
   pin_lon: number | null;
   track_key: string;
   preview: string | null;
+  danger_signs?: string | null;
   created_at: string;
 }
 
@@ -56,6 +58,8 @@ export interface Tour {
   hideEndsM: number;
   /** Where to put the tour on a map (after the hidden start), or null if nothing is shown. */
   pin: [number, number] | null;
+  /** Warning signs seen on the tour: null = not answered, [] = none seen. */
+  dangerSigns: DangerSign[] | null;
   createdAt: string;
 }
 
@@ -105,6 +109,7 @@ export function toTour(row: TourRow): Tour {
     visibility: visibilityOf(row),
     hideEndsM: row.hide_ends_m,
     pin: row.pin_lat !== null && row.pin_lon !== null ? [row.pin_lat, row.pin_lon] : null,
+    dangerSigns: storedSigns(row.danger_signs ?? null),
     createdAt: row.created_at,
   };
 }
@@ -119,6 +124,23 @@ export function nearestRegion(point: TrackPoint): string | null {
     if (!best || d < best.d) best = { id: r.id, d };
   }
   return best && best.d <= REGION_RADIUS_M ? best.id : null;
+}
+
+function storedSigns(json: string | null): DangerSign[] | null {
+  if (json === null) return null;
+  try {
+    const parsed = JSON.parse(json);
+    return Array.isArray(parsed) ? cleanDangerSigns(parsed) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The request's warning signs as stored text: null = not answered, "[]" = none seen. */
+function readSigns(value: unknown): string | null {
+  if (value === null || value === undefined) return null;
+  if (!Array.isArray(value)) throw new HttpError(400, "Ogiltiga varningstecken.");
+  return JSON.stringify(cleanDangerSigns(value));
 }
 
 function hideEnds(value: unknown): number {
@@ -152,6 +174,8 @@ interface CreateBody {
   sourceRef?: unknown;
   /** Save even though a tour starting at the same time already exists. */
   allowDuplicate?: unknown;
+  /** Warning signs seen: an array of sign ids ([] = none seen), or null for not answered. */
+  dangerSigns?: unknown;
 }
 
 /** Tours this close in start time, with lengths this close, count as the same outing. */
@@ -234,6 +258,7 @@ export async function createTour(request: Request, env: CommunityEnv) {
   }
 
   const visibility = readVisibility(body, "public");
+  const signs = readSigns(body.dangerSigns);
   const hide = hideEnds(body.hideEndsM);
   const pin = publicPin(points, hide);
   const preview = previewLine(points, hide);
@@ -242,8 +267,8 @@ export async function createTour(request: Request, env: CommunityEnv) {
 
   const result = await env.DB.prepare(
     `INSERT INTO tours (user_id, title, description, started_at, duration_s, distance_m, ascent_m, descent_m,
-       max_elevation_m, region_id, shared, followers_only, hide_ends_m, pin_lat, pin_lon, track_key, preview, source_ref, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       max_elevation_m, region_id, shared, followers_only, hide_ends_m, pin_lat, pin_lon, track_key, preview, source_ref, danger_signs, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       user.id,
@@ -264,6 +289,7 @@ export async function createTour(request: Request, env: CommunityEnv) {
       trackKey,
       preview ? JSON.stringify(preview) : null,
       sourceRef,
+      signs,
       nowIso()
     )
     .run()
@@ -404,6 +430,7 @@ export async function updateTour(request: Request, env: CommunityEnv, id: number
   const description = body.description === undefined ? row.description : text(body.description, MAX_DESCRIPTION, "beskrivningen");
   const visibility = readVisibility(body, visibilityOf(row));
   const hide = body.hideEndsM === undefined ? row.hide_ends_m : hideEnds(body.hideEndsM);
+  const signs = body.dangerSigns === undefined ? (row.danger_signs ?? null) : readSigns(body.dangerSigns);
 
   let pin: [number, number] | null = row.pin_lat !== null && row.pin_lon !== null ? [row.pin_lat, row.pin_lon] : null;
   let preview = row.preview;
@@ -415,9 +442,9 @@ export async function updateTour(request: Request, env: CommunityEnv, id: number
     preview = line ? JSON.stringify(line) : null;
   }
   await env.DB.prepare(
-    "UPDATE tours SET title = ?, description = ?, shared = ?, followers_only = ?, hide_ends_m = ?, pin_lat = ?, pin_lon = ?, preview = ? WHERE id = ?"
+    "UPDATE tours SET title = ?, description = ?, shared = ?, followers_only = ?, hide_ends_m = ?, pin_lat = ?, pin_lon = ?, preview = ?, danger_signs = ? WHERE id = ?"
   )
-    .bind(title, description, visibility === "private" ? 0 : 1, visibility === "followers" ? 1 : 0, hide, pin?.[0] ?? null, pin?.[1] ?? null, preview, id)
+    .bind(title, description, visibility === "private" ? 0 : 1, visibility === "followers" ? 1 : 0, hide, pin?.[0] ?? null, pin?.[1] ?? null, preview, signs, id)
     .run();
   return { tour: toTour(await getRow(env, id)) };
 }

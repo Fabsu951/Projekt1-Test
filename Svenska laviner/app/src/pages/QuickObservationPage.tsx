@@ -104,7 +104,7 @@ export default function QuickObservationPage() {
             <button
               key={c.choice}
               type="button"
-              className={`quick-obs__choice${on ? " quick-obs__choice--on" : ""}${c.choice === "inga_tecken" ? " quick-obs__choice--none" : ""}`}
+              className={`quick-obs__choice${on ? " quick-obs__choice--on" : ""}`}
               aria-pressed={on}
               onClick={() => setChosen((list) => toggleChoice(list, c.choice))}
             >
@@ -113,6 +113,11 @@ export default function QuickObservationPage() {
           );
         })}
       </div>
+
+      <p className="form__hint quick-obs__tour-hint">
+        {t("Inga varningstecken under dagen? Det anger du på")}{" "}
+        <Link to="/turer">{t("din tur")}</Link>.
+      </p>
 
       <label className="form__field quick-obs__note">
         {t("Kort kommentar")}{" "}<span className="form__hint">{t("(valfritt)")}</span>

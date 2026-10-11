@@ -52,6 +52,8 @@ export interface NewTour {
   sourceRef?: string;
   /** Save even though one of your tours started at the same time. */
   allowDuplicate?: boolean;
+  /** Warning signs seen; [] = none seen, null/missing = not answered. */
+  dangerSigns?: Tour["dangerSigns"];
 }
 
 export interface SimilarTour {
@@ -87,7 +89,7 @@ export async function fetchImportedSources(token: string, prefix: string): Promi
 export async function updateTour(
   token: string,
   id: number,
-  changes: Partial<Pick<Tour, "title" | "description" | "hideEndsM">> & { visibility?: TourVisibility }
+  changes: Partial<Pick<Tour, "title" | "description" | "hideEndsM" | "dangerSigns">> & { visibility?: TourVisibility }
 ): Promise<Tour> {
   return (await api<{ tour: Tour }>(`/tours/${id}`, { method: "POST", token, json: changes })).tour;
 }

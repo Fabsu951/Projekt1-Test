@@ -4,6 +4,7 @@ import type { Tour } from "../types/tour";
 import { formatDistance, formatDuration, formatTourDate } from "../utils/tourFormat";
 import AdminBadge from "./AdminBadge";
 import { t } from "../i18n";
+import { TourSignsList } from "./TourSigns";
 
 export default function TourCard({ tour }: { tour: Tour }) {
   const region = tour.regionId ? getRegionById(tour.regionId) : undefined;
@@ -27,6 +28,7 @@ export default function TourCard({ tour }: { tour: Tour }) {
         <li>↑ {tour.ascentM} m</li>
         {duration && <li>{duration}</li>}
       </ul>
+      <TourSignsList signs={tour.dangerSigns} />
     </article>
   );
 }

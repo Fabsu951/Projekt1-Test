@@ -4,8 +4,10 @@ import { t } from "../i18n";
 
 // "Snabbobservation": big buttons for what you saw, turned into an ordinary
 // observation (type, warning signs, a description the worker accepts).
+// "Inga varningstecken" belongs to a tour instead (data/tourSigns.ts): it
+// describes a whole day out, not one thing seen at one place.
 
-export type QuickChoice = DangerSign | "inga_tecken";
+export type QuickChoice = DangerSign;
 
 /** In priority order: the first chosen one decides the observation type. */
 export const QUICK_CHOICES: Array<{ choice: QuickChoice; label: string; type: ObservationType }> = [
@@ -15,7 +17,6 @@ export const QUICK_CHOICES: Array<{ choice: QuickChoice; label: string; type: Ob
   { choice: "snodrev", label: t("Snödrev"), type: "ovrigt" },
   { choice: "mycket_nysno", label: t("Mycket nysnö"), type: "ovrigt" },
   { choice: "snabb_uppvarmning", label: t("Värme eller regn"), type: "ovrigt" },
-  { choice: "inga_tecken", label: t("Inga varningstecken"), type: "ovrigt" },
 ];
 
 export interface QuickObservation {
@@ -24,21 +25,16 @@ export interface QuickObservation {
   description: string;
 }
 
-/** Null until something is chosen. "Inga varningstecken" can't be combined with signs. */
+/** Null until something is chosen. */
 export function quickObservation(chosen: QuickChoice[], note: string): QuickObservation | null {
   const ordered = QUICK_CHOICES.filter((c) => chosen.includes(c.choice));
   if (ordered.length === 0) return null;
-  const signs = ordered.map((c) => c.choice).filter((c): c is DangerSign => c !== "inga_tecken");
-  const summary = signs.length
-    ? t("Snabbobservation: {signs}.", { signs: signs.map((s) => dangerSignLabel(s)).join(", ") })
-    : t("Snabbobservation: inga varningstecken.");
+  const signs = ordered.map((c) => c.choice);
+  const summary = t("Snabbobservation: {signs}.", { signs: signs.map((s) => dangerSignLabel(s)).join(", ") });
   const extra = note.trim();
   return { type: ordered[0].type, dangerSigns: signs, description: extra ? `${summary} ${extra}` : summary };
 }
 
-/** Tapping "Inga varningstecken" clears the signs, and a sign clears "Inga varningstecken". */
 export function toggleChoice(chosen: QuickChoice[], choice: QuickChoice): QuickChoice[] {
-  if (chosen.includes(choice)) return chosen.filter((c) => c !== choice);
-  if (choice === "inga_tecken") return ["inga_tecken"];
-  return [...chosen.filter((c) => c !== "inga_tecken"), choice];
+  return chosen.includes(choice) ? chosen.filter((c) => c !== choice) : [...chosen, choice];
 }

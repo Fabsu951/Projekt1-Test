@@ -5058,3 +5058,42 @@ h1 .admin-badge {
 .app-shell--tabs .app-shell__menu-button {
   padding: 6px 10px;
 }
+
+/* Warning signs on a tour (new tour form and the owner's settings). */
+.tour-signs {
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+}
+.tour-signs legend {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.tour-signs__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tour-signs .chip {
+  min-height: 36px;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+.chip--calm.chip--on {
+  border-color: var(--ok);
+  background: var(--ok-bg);
+  color: var(--ok-text);
+}
+.observation-card__sign--none {
+  border-color: var(--ok-border);
+  background: var(--ok-bg);
+  color: var(--ok-text);
+}
+.quick-obs__tour-hint {
+  margin: 12px 0 18px;
+}
+.quick-obs__tour-hint a {
+  color: var(--accent);
+  text-decoration: underline;
+}

@@ -17,6 +17,7 @@ import ReportButton from "../components/ReportButton";
 import ShareButton from "../components/ShareButton";
 import { t } from "../i18n";
 import Icon from "../components/Icon";
+import { TourSignsList, TourSignsPicker } from "../components/TourSigns";
 
 export default function TourPage() {
   const { id = "" } = useParams();
@@ -124,6 +125,7 @@ export default function TourPage() {
         <p className="form__hint">{t("Början och slutet av spåret visas inte, av hänsyn till den som delat turen.")}</p>
       )}
 
+      {!isOwner && <TourSignsList signs={tour.dangerSigns} />}
       {tour.description && <p className="tour-page__description">{tour.description}</p>}
 
       {tourVisibility(tour) !== "private" && (
@@ -136,6 +138,7 @@ export default function TourPage() {
       {isOwner && (
         <section className="section">
           <h2>{t("Dina inställningar")}</h2>
+          <TourSignsPicker value={tour.dangerSigns ?? null} disabled={busy} onChange={(next) => void change({ dangerSigns: next })} />
           <label className="form__field">
             {t("Vem ska se turen?")}
             <select
