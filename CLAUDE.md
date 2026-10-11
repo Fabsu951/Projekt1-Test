@@ -859,6 +859,9 @@ the start, exact map point.
   profile index `PROFILER.md`; per platform `marknad/profiler/<n>-<platform>/`
   (TEXT.md + that platform's images)
   (covers rendered with Playwright, fonts embedded as data URLs).
+  Word copies of every text in `marknad/word/` (pandoc -f gfm with the
+  styled `marknad/word/.mall-reference.docx`; regenerate after editing the .md)
+  and all images flat in `marknad/bilder/`.
 - **Reporting everything else (DSA, 2026-10-08):** migration `0017`
   `content_reports` (item_type tour|route|comment|profile, one row per
   reporter), `comments.hidden`, `notifications.note`. `worker/src/reports.ts`:
