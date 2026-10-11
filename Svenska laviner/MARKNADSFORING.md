@@ -290,6 +290,8 @@ dem:
 
 ### 6.4 Sociala medier
 
+Detaljerad spelbok med manus, inlägg och schema: `SOCIALA-MEDIER.md`.
+
 **Instagram är huvudkanalen** (det är där toppturåkare finns). Facebook för
 grupperna. TikTok och Reels är valfria, samma korta klipp kan läggas på
 båda.

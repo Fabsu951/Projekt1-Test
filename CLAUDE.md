@@ -853,7 +853,8 @@ the start, exact map point.
   endorsement, no tracking pixels — the privacy policy promises no
   analytics and no marketing email), store texts, launch on the season's
   first forecast day, sportlov/påsk pushes, measurement via
-  `/admin/oversikt` + store consoles.
+  `/admin/oversikt` + store consoles. Social media playbook (video
+  scripts, group/forum posts, schedule): `Svenska laviner/SOCIALA-MEDIER.md`.
 - **Reporting everything else (DSA, 2026-10-08):** migration `0017`
   `content_reports` (item_type tour|route|comment|profile, one row per
   reporter), `comments.hidden`, `notifications.note`. `worker/src/reports.ts`:
