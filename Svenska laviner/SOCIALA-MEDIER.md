@@ -45,7 +45,8 @@ och källa anges.
 **Verktyg som är gratis:**
 
 - **CapCut** för att klippa, lägga text och textremsor.
-- **Meta Business Suite** för att schemalägga Instagram och Facebook.
+- **Instagram-appen och Facebook-sidan** schemalägger var för sig. Meta Business
+  Suite kräver att kontona kopplas ihop i Metas kontocenter, vilket du valt bort.
 - **TikToks webbversion** för att schemalägga TikTok.
 - Telefonens skärminspelning för klipp ur appen. Slå på "stör ej" först så
   att inga notiser syns.

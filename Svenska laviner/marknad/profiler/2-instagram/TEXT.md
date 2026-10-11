@@ -21,8 +21,11 @@ Gratis. Ingen reklam. Byggd av en toppturåkare.
 ⬇️ snolage.se
 ```
 
-Koppla Instagram till Facebook-sidan (Kontocenter), så kan du schemalägga
-båda i Meta Business Suite.
+**Kontocenter:** Fabian valde (11 okt 2026) att inte lägga in sina privata
+Instagram- och Facebook-konton i samma Meta-konto som `snolage`. Tryck på
+krysset när Meta frågar igen. Schemalägg i stället direkt i Instagram-appen
+(Avancerade inställningar → Schemalägg när du lägger upp), och lägg upp på
+Facebook-sidan separat.
 
 **Höjdpunkter:** när du har lagt upp stories, skapa en höjdpunkt per ämne och välj bilden med samma namn som omslag: `hojdpunkt-sa-funkar-det.png` (Så funkar det), `hojdpunkt-lavinproblem.png` (Lavinproblem), `hojdpunkt-snolaget.png` (Snöläget), `hojdpunkt-fran-faltet.png` (Från fältet).
 
