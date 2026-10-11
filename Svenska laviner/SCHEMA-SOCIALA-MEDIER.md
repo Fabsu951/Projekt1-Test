@@ -32,7 +32,7 @@ Ett klipp i veckan om dig och appen, och du lär känna grupperna. Ca 1–2 timm
 - **mån 12 okt kl 19:00** (45 min): **Skaffa kontona**  
   @snolage på TikTok (företagskonto), Instagram (professionellt), Facebook-sida, YouTube och Strava-klubben "Snöläge". Samma namn överallt. Lägg in loggan och bion (SOCIALA-MEDIER.md avsnitt 1).
 - **tis 13 okt kl 19:00** (30 min): **Installera verktygen**  
-  CapCut (klippa). Schemalägg Instagram direkt i Instagram-appen och Facebook-sidan i Facebook. Koppla inte ihop dina privata konton med snolage i Metas kontocenter (tryck på krysset).
+  CapCut (klippa), Meta Business Suite (schemalägga Instagram och Facebook). Kontona är ihopkopplade i Metas kontocenter: kolla att Dela mellan profiler är av mellan snolage och dina privata konton.
 - **ons 14 okt kl 19:00** (30 min): **Gå med i grupper och forum**  
   Sök på topptur, offpist, randonnée, backcountry och orterna (Riksgränsen, Abisko, Hemavan, Åre, Funäsdalen). Gå med i de 5–10 mest aktiva Facebookgrupperna. Skapa konto på Utsidan. Läs reglerna om reklam överallt. Skriv inget om Snöläge än.
 - **tor 15 okt kl 19:00** (45 min): **Filma klipp A1: "Jag har byggt en lavinapp. Själv."**  
@@ -74,7 +74,7 @@ Ett klipp i veckan om dig och appen, och du lär känna grupperna. Ca 1–2 timm
 - **lör 14 nov kl 10:00** (20 min): **Publicera A5: "Vad ska jag bygga härnäst?"**  
   Alla fyra. 20 s: du i bild, fråga tittarna vad de saknar i en lavinapp. Svaren blir nya klipp.
 - **sön 15 nov kl 18:00** (30 min): **Schemalägg nästa vecka**  
-  Schemalägg B1, karusellen och B2 i Instagram-appen, på Facebook-sidan och i TikToks schemaläggare.
+  Lägg B1, karusellen och B2 i Meta Business Suite och TikToks schemaläggare.
 
 ---
 

@@ -21,11 +21,15 @@ Gratis. Ingen reklam. Byggd av en toppturåkare.
 ⬇️ snolage.se
 ```
 
-**Kontocenter:** Fabian valde (11 okt 2026) att inte lägga in sina privata
-Instagram- och Facebook-konton i samma Meta-konto som `snolage`. Tryck på
-krysset när Meta frågar igen. Schemalägg i stället direkt i Instagram-appen
-(Avancerade inställningar → Schemalägg när du lägger upp), och lägg upp på
-Facebook-sidan separat.
+**Kontocenter:** `snolage` ligger i samma Meta-konto som dina privata
+Instagram- och Facebook-konton (valt 11 okt 2026). Det gör att du kan
+schemalägga Instagram och Facebook-sidan i Meta Business Suite. Två saker
+att hålla koll på:
+
+- Kontocenter → **Dela mellan profiler**: allt ska vara av mellan
+  `snolage` och dina privata konton.
+- När du lägger upp: kolla att du står som `snolage` och att knappen för
+  att dela till Facebook pekar på Snöläges sida, inte din privata profil.
 
 **Höjdpunkter:** när du har lagt upp stories, skapa en höjdpunkt per ämne och välj bilden med samma namn som omslag: `hojdpunkt-sa-funkar-det.png` (Så funkar det), `hojdpunkt-lavinproblem.png` (Lavinproblem), `hojdpunkt-snolaget.png` (Snöläget), `hojdpunkt-fran-faltet.png` (Från fältet).
 

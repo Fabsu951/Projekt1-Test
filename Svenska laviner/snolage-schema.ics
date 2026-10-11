@@ -24,9 +24,9 @@ DTSTAMP:20261011T120000Z
 DTSTART:20261013T190000
 DTEND:20261013T193000
 SUMMARY:Snöläge: Installera verktygen
-DESCRIPTION:CapCut (klippa). Schemalägg Instagram direkt i Instagram-appen
-  och Facebook-sidan i Facebook. Koppla inte ihop dina privata konton med s
- nolage i Metas kontocenter (tryck på krysset).
+DESCRIPTION:CapCut (klippa)\, Meta Business Suite (schemalägga Instagram o
+ ch Facebook). Kontona är ihopkopplade i Metas kontocenter: kolla att Dela
+  mellan profiler är av mellan snolage och dina privata konton.
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:Installera verktygen
@@ -239,8 +239,8 @@ DTSTAMP:20261011T120000Z
 DTSTART:20261115T180000
 DTEND:20261115T183000
 SUMMARY:Snöläge: Schemalägg nästa vecka
-DESCRIPTION:Schemalägg B1\, karusellen och B2 i Instagram-appen\, på Face
- book-sidan och i TikToks schemaläggare.
+DESCRIPTION:Lägg B1\, karusellen och B2 i Meta Business Suite och TikToks 
+ schemaläggare.
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:Schemalägg nästa vecka
