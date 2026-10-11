@@ -304,20 +304,23 @@ export default function MapPage() {
       )}
 
       <div className="map-controls">
-        <div className="map-presets" role="group" aria-label={t("Kartläge")}>
-          {PRESETS.map(([id, label, hint]) => (
-            <button
-              key={id}
-              type="button"
-              className="map-presets__button"
-              aria-pressed={currentPreset === id}
-              onClick={() => applyPreset(id)}
-            >
-              <span className="map-presets__label">{label}</span>
-              <span className="map-presets__hint">{hint}</span>
-            </button>
-          ))}
-        </div>
+        {/* In full screen the map gets the room; the modes are a tap away outside it. */}
+        {!fullscreen && (
+          <div className="map-presets" role="group" aria-label={t("Kartläge")}>
+            {PRESETS.map(([id, label, hint]) => (
+              <button
+                key={id}
+                type="button"
+                className="map-presets__button"
+                aria-pressed={currentPreset === id}
+                onClick={() => applyPreset(id)}
+              >
+                <span className="map-presets__label">{label}</span>
+                <span className="map-presets__hint">{hint}</span>
+              </button>
+            ))}
+          </div>
+        )}
         <div className="map-toolbar">
           <button
             type="button"

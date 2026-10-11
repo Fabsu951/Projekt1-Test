@@ -4603,6 +4603,7 @@ h1 .admin-badge {
 }
 .map-presets__label {
   font-weight: 600;
+  white-space: nowrap;
 }
 .map-presets__hint {
   font-size: 0.78rem;

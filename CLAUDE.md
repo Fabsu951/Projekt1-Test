@@ -1096,7 +1096,7 @@ the start, exact map point.
   observations before tours, Om området/Karta offline near the end. Map
   presets (`map-presets` on `/karta`: Läget nu / Planera tur — slope:
   detailed if imported, else NV's lutning, else our own — / Turer; pressed
-  state derived from the layer state). Start page `TodayTrip` leads with a
+  state derived from the layer state; hidden in full screen so the map gets the room — Fabian's ask 2026-10-11). Start page `TodayTrip` leads with a
   planned day today or tomorrow (`cached(USER_SCOPE + "trips")`; tomorrow's
   level only from `/forecasts/history`, else "publiceras runt kl 18").
 - **Design + themes (2026-10-10, "så att man inte ser att den är gjord av
@@ -1185,6 +1185,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (266 tests as of 2026-10-10, all passing). Worker has its own Vitest
+  (267 tests as of 2026-10-10, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 177 tests, including the
   real-page fixtures).

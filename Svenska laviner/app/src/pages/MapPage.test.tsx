@@ -147,4 +147,11 @@ describe("MapPage layer menu", () => {
     expect(screen.getByRole("checkbox", { name: "Observationer" })).not.toBeChecked();
     expect(plan()).toHaveAttribute("aria-pressed", "false");
   });
+
+  it("leaves the map modes out in full screen, to give the map the room", () => {
+    render(<MemoryRouter><MapPage /></MemoryRouter>);
+    expect(screen.getByRole("group", { name: "Kartläge" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Helskärm" }));
+    expect(screen.queryByRole("group", { name: "Kartläge" })).not.toBeInTheDocument();
+  });
 });
