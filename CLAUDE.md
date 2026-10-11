@@ -856,7 +856,8 @@ the start, exact map point.
   `/admin/oversikt` + store consoles. Social media playbook (video
   scripts, group/forum posts, schedule): `Svenska laviner/SOCIALA-MEDIER.md`;
   dated schedule `SCHEMA-SOCIALA-MEDIER.md` + phone calendar `snolage-schema.ics`;
-  profile texts per channel `PROFILER.md`, images in `marknad/profiler/`
+  profile index `PROFILER.md`; per platform `marknad/profiler/<n>-<platform>/`
+  (TEXT.md + that platform's images)
   (covers rendered with Playwright, fonts embedded as data URLs).
 - **Reporting everything else (DSA, 2026-10-08):** migration `0017`
   `content_reports` (item_type tour|route|comment|profile, one row per
