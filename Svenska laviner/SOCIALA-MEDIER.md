@@ -160,6 +160,24 @@ Från dig eller ambassadörerna (med lov).
 Använd `#snöläge` alltid, så att ambassadörer och användare kan tagga sina
 egna inlägg.
 
+### Språk
+
+**Svenska i ungefär 9 av 10 inlägg.** De som ska använda Snöläge åker i
+svenska fjällen och läser svenska prognoser. Norrmän och danskar förstår
+svenska, och appen visar svenska för dem.
+
+- **Profiler och bios:** bara svenska.
+- **Klipp:** prata svenska, med svensk text i bild och textremsor.
+  TikTok och Instagram kan översätta texten åt den som vill.
+- **Hashtaggar:** mest svenska, plus 1–2 engelska per inlägg
+  (`#skitouring`, `#backcountryskiing`, `#swedishlapland`).
+- **Engelska ungefär en gång i månaden**, under säsongen: riktat till
+  besökare i Riksgränsen och Abisko, till exempel "Skiing in Swedish
+  Lapland? Read the avalanche forecast in English". Samma konton, inga
+  separata engelska konton, så att följarna inte delas upp.
+- **Reddit (r/Backcountry, r/skiing) och appbutikernas engelska sida:**
+  engelska.
+
 ---
 
 ## 4. Facebookgrupper och forum
