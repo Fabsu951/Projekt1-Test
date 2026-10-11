@@ -12,7 +12,7 @@ plattformen. Mapparna står i den ordning du skaffar kontona.
 | `4-youtube/` | YouTube | profilbild, banner (2560×1440) |
 | `5-strava/` | Strava-klubb | profilbild, omslag (1584×396) |
 | `6-reddit/` | Reddit (ditt eget konto) | inga |
-| `7-linkedin/` | LinkedIn | profilbild, omslag till profil (1584×396) och företagssida (1128×191) |
+| `7-linkedin/` | LinkedIn (på engelska) | profilbild, engelska omslag till profil (1584×396) och företagssida (1128×191) |
 
 **Samma överallt:**
 

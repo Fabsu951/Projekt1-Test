@@ -175,8 +175,8 @@ svenska, och appen visar svenska för dem.
   besökare i Riksgränsen och Abisko, till exempel "Skiing in Swedish
   Lapland? Read the avalanche forecast in English". Samma konton, inga
   separata engelska konton, så att följarna inte delas upp.
-- **Reddit (r/Backcountry, r/skiing) och appbutikernas engelska sida:**
-  engelska.
+- **Reddit (r/Backcountry, r/skiing), LinkedIn och appbutikernas engelska
+  sida:** engelska.
 
 ---
 
