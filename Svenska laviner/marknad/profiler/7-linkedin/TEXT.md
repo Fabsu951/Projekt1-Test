@@ -44,6 +44,36 @@ till höger på omslaget.
 
 ---
 
+### 1 b. Snöläge som erfarenhet (skapa företagssidan först, avsnitt 3)
+
+Profil → **Lägg till profilavsnitt** → **Erfarenhet** → **Lägg till
+befattning**.
+
+**Titel:** `Grundare och utvecklare`
+
+**Anställningstyp:** `Egenföretagare`
+
+**Företag:** `Snöläge` (välj sidan i listan, så kommer loggan med)
+
+**Ort:** `Sverige` och **Typ av arbetsplats:** `Distans`
+
+**Startdatum:** september 2026, kryssa i att det är din nuvarande roll.
+
+**Beskrivning:**
+
+```
+Jag bygger Snöläge, en gratis app och webbplats för toppturåkare i de svenska fjällen: lavinprognoser, väder, karta med lutning och turplanering som jämförs med dagens lavinproblem.
+
+Jag gör allt själv: idé, design, utveckling (TypeScript, React, Capacitor, Cloudflare Workers), appbutiker, juridik och marknadsföring.
+```
+
+**Kompetenser:** samma fem som i projektet.
+
+**Dela med nätverket:** av nu, så kommer lanseringsinlägget i december
+som en nyhet.
+
+---
+
 ### 2. Inlägg när du lanserar (eller redan nu, som berättelsen om dig)
 
 Lägg upp det från din egen profil. Bifoga 2–3 skärmbilder från appen
