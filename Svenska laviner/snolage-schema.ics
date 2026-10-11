@@ -1,0 +1,887 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Snolage//Schema sociala medier//SV
+CALSCALE:GREGORIAN
+X-WR-CALNAME:Snöläge sociala medier
+BEGIN:VEVENT
+UID:snolage-schema-0@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261012T190000
+DTEND:20261012T194500
+SUMMARY:Snöläge: Skaffa kontona
+DESCRIPTION:@snolage på TikTok (företagskonto)\, Instagram (professionell
+ t)\, Facebook-sida\, YouTube och Strava-klubben "Snöläge". Samma namn ö
+ verallt. Lägg in loggan och bion (SOCIALA-MEDIER.md avsnitt 1).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Skaffa kontona
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-1@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261013T190000
+DTEND:20261013T193000
+SUMMARY:Snöläge: Installera verktygen
+DESCRIPTION:CapCut (klippa)\, Meta Business Suite (schemalägga Instagram o
+ ch Facebook). Koppla Instagram till Facebook-sidan.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Installera verktygen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-2@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261014T190000
+DTEND:20261014T193000
+SUMMARY:Snöläge: Gå med i grupper och forum
+DESCRIPTION:Sök på topptur\, offpist\, randonnée\, backcountry och orter
+ na (Riksgränsen\, Abisko\, Hemavan\, Åre\, Funäsdalen). Gå med i de 5
+ –10 mest aktiva Facebookgrupperna. Skapa konto på Utsidan. Läs reglern
+ a om reklam överallt. Skriv inget om Snöläge än.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Gå med i grupper och forum
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-3@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261015T190000
+DTEND:20261015T194500
+SUMMARY:Snöläge: Filma klipp A1: "Jag har byggt en lavinapp. Själv."
+DESCRIPTION:Manus i SOCIALA-MEDIER.md 2A\, klipp 1. 30 s\, lodrätt\, text 
+ i bild\, textremsor i CapCut.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Filma klipp A1: "Jag har byggt en lavinapp. Själv."
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-4@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261017T100000
+DTEND:20261017T102000
+SUMMARY:Snöläge: Publicera A1
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts. Tex
+ t: kroken + 2 meningar + "Länk i bion". Hashtaggar: #topptur #offpist #la
+ vin #snöläge #fjällen.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera A1
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-5@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261018T180000
+DTEND:20261018T181500
+SUMMARY:Snöläge: Svara på kommentarer
+DESCRIPTION:Svara på alla kommentarer. Notera visningar per kanal i en ant
+ eckning.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Svara på kommentarer
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-6@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261020T190000
+DTEND:20261020T192000
+SUMMARY:Snöläge: Var med i grupperna
+DESCRIPTION:Svara på 2–3 frågor om prognoser\, väder eller terräng. I
+ ngen reklam.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Var med i grupperna
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-7@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261022T190000
+DTEND:20261022T193000
+SUMMARY:Snöläge: Filma A2: "Så funkar ruttkollen"
+DESCRIPTION:Skärminspelning: rita en rutt\, visa höjdprofilen och de mark
+ erade bitarna. Slå på stör ej först.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Filma A2: "Så funkar ruttkollen"
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-8@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261024T100000
+DTEND:20261024T102000
+SUMMARY:Snöläge: Publicera A2
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera A2
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-9@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261025T170000
+DTEND:20261025T190000
+SUMMARY:Snöläge: Filmdag 1
+DESCRIPTION:Spela in och klipp: B1 Lavinskalan\, B2 Nysnöflak\, B3 Drevsn
+ öflak\, B4 Bestående flak\, A3 "Offline: kartan funkar utan täckning"\,
+  A4 "Snabbobservation på tio sekunder". Spara allt i en mapp\, publicera 
+ inget än.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Filmdag 1
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-10@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261028T190000
+DTEND:20261028T194500
+SUMMARY:Snöläge: Lista folk att höra av dig till
+DESCRIPTION:10–20 toppturkonton och guider med 2 000–30 000 följare. G
+ å igenom #topptur\, #riksgränsen\, #abisko\, #hemavan\, #åre. Välj de 
+ som pratar planering och säkerhet.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Lista folk att höra av dig till
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-11@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261031T100000
+DTEND:20261031T102000
+SUMMARY:Snöläge: Publicera A3 (offline)
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera A3 (offline)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-12@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261103T190000
+DTEND:20261103T192000
+SUMMARY:Snöläge: Var med i grupperna
+DESCRIPTION:Svara på 2–3 frågor. Ingen reklam.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Var med i grupperna
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-13@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261107T100000
+DTEND:20261107T102000
+SUMMARY:Snöläge: Publicera A4 (snabbobservation)
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera A4 (snabbobservation)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-14@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261109T190000
+DTEND:20261109T194500
+SUMMARY:Snöläge: Fråga gruppernas administratörer
+DESCRIPTION:Skriv till administratören i varje grupp: du har byggt en grat
+ is lavinapp och vill göra ett presentationsinlägg när säsongen börjar
+  i december. Fråga om det är ok. Notera svaren.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Fråga gruppernas administratörer
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-15@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261114T100000
+DTEND:20261114T102000
+SUMMARY:Snöläge: Publicera A5: "Vad ska jag bygga härnäst?"
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts. 20 
+ s: du i bild\, fråga tittarna vad de saknar i en lavinapp. Svaren blir ny
+ a klipp.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera A5: "Vad ska jag bygga härnäst?"
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-16@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261115T180000
+DTEND:20261115T183000
+SUMMARY:Snöläge: Schemalägg nästa vecka
+DESCRIPTION:Lägg B1\, karusellen och B2 i Meta Business Suite och TikToks 
+ schemaläggare.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Schemalägg nästa vecka
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-17@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261116T190000
+DTEND:20261116T194500
+SUMMARY:Snöläge: Kontakta 5 konton från listan
+DESCRIPTION:Kort DM: vem du är\, vad Snöläge är\, att du gärna vill at
+ t de testar och säger vad de tycker. Inget krav på inlägg. Får de någ
+ ot av värde för ett inlägg ska det märkas som reklam.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Kontakta 5 konton från listan
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-18@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261117T190000
+DTEND:20261117T191500
+SUMMARY:Snöläge: Publicera B1 Lavinskalan
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts. Kon
+ trollera siffran om farograd 3 mot en källa och ange källan.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera B1 Lavinskalan
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-19@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261119T190000
+DTEND:20261119T193000
+SUMMARY:Snöläge: Instagram-karusell: De sex lavinproblemen
+DESCRIPTION:En bild per problem med Snöläges symboler och en mening var. 
+ Även som Facebook-inlägg.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Instagram-karusell: De sex lavinproblemen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-20@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261121T100000
+DTEND:20261121T101500
+SUMMARY:Snöläge: Publicera B2 Nysnöflak
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera B2 Nysnöflak
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-21@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261122T170000
+DTEND:20261122T190000
+SUMMARY:Snöläge: Filmdag 2
+DESCRIPTION:Spela in och klipp: B5 Våta laviner\, B6 Glidlaviner\, B7 Hän
+ gdrivor\, B8 Varningstecken\, B9 Lutning 30 grader\, E1 Myt: i skogen är 
+ det inga laviner\, E2 Myt: har någon åkt där är det lugnt.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Filmdag 2
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-22@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261123T190000
+DTEND:20261123T194500
+SUMMARY:Snöläge: Kontakta 5 konton till
+DESCRIPTION:Samma DM som förra veckan.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Kontakta 5 konton till
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-23@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261124T190000
+DTEND:20261124T191500
+SUMMARY:Snöläge: Publicera B3 Drevsnöflak
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera B3 Drevsnöflak
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-24@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261126T190000
+DTEND:20261126T193000
+SUMMARY:Snöläge: Instagram-karusell: Varningstecken
+DESCRIPTION:Färska laviner\, skjutsprickor\, wumpf\, snödrev\, mycket nys
+ nö\, snabb uppvärmning. En bild var.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Instagram-karusell: Varningstecken
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-25@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261128T100000
+DTEND:20261128T101500
+SUMMARY:Snöläge: Publicera E1 (myt: skogen)
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera E1 (myt: skogen)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-26@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261201T190000
+DTEND:20261201T191500
+SUMMARY:Snöläge: Publicera B4 Bestående flak
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera B4 Bestående flak
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-27@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261202T190000
+DTEND:20261202T191000
+SUMMARY:Snöläge: Instagram-story: "Snart"
+DESCRIPTION:Skärmbild från appen + "Lavinsäsongen börjar snart. Det gö
+ r Snöläge också."
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Instagram-story: "Snart"
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-28@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261203T190000
+DTEND:20261203T193000
+SUMMARY:Snöläge: Instagram-karusell: Därför är 30 grader viktigt
+DESCRIPTION:Lutningskartan med förklaring. Även på Facebook.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Instagram-karusell: Därför är 30 grader viktigt
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-29@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261205T100000
+DTEND:20261205T101500
+SUMMARY:Snöläge: Publicera E2 (myt: spår)
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera E2 (myt: spår)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-30@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261208T190000
+DTEND:20261208T191500
+SUMMARY:Snöläge: Publicera B9 Lutning
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera B9 Lutning
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-31@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261210T190000
+DTEND:20261210T193000
+SUMMARY:Snöläge: Filma och publicera A6: nedräkning
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts. "Om
+  några dagar börjar lavinprognoserna\, och då lanseras Snöläge."
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Filma och publicera A6: nedräkning
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-32@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261212T100000
+DTEND:20261212T101500
+SUMMARY:Snöläge: Publicera B8 Varningstecken
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera B8 Varningstecken
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-33@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261213T170000
+DTEND:20261213T190000
+SUMMARY:Snöläge: Filmdag 3: förbered lanseringen
+DESCRIPTION:Spela in lanseringsklippet A7 ("Säsongen har börjat och i dag
+  lanserar jag Snöläge"). Skriv färdigt presentationsinläggen till grup
+ perna och Reddit (SOCIALA-MEDIER.md avsnitt 4). Gör en lista: vilka grupp
+ er som sagt ja\, i vilken ordning.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Filmdag 3: förbered lanseringen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-34@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261214T190000
+DTEND:20261214T193000
+SUMMARY:Snöläge: Kolla startdatum och schemalägg
+DESCRIPTION:Kolla när Naturvårdsverket publicerar första prognosen. Flyt
+ ta lanseringsveckan i kalendern om datumet är ett annat än 15 dec. Schem
+ alägg dag 1–3.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Kolla startdatum och schemalägg
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-35@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261215T073000
+DTEND:20261215T080000
+SUMMARY:Snöläge: LANSERING dag 1: publicera A7
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts + in
+ lägg på Instagram och Facebook-sidan. Flytta hela veckan om första prog
+ nosen kommer en annan dag.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:LANSERING dag 1: publicera A7
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-36@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261215T120000
+DTEND:20261215T123000
+SUMMARY:Snöläge: Presentationsinlägg i 2–3 grupper
+DESCRIPTION:Bara grupper där administratören sagt ja. Max 3 per dag så a
+ tt Facebook inte ser det som spam.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Presentationsinlägg i 2–3 grupper
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-37@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261215T200000
+DTEND:20261215T203000
+SUMMARY:Snöläge: Svara på allt
+DESCRIPTION:Kommentarer\, DM\, frågor i grupperna. Tacka för synpunkter.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Svara på allt
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-38@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261216T190000
+DTEND:20261216T193000
+SUMMARY:Snöläge: Dag 2: "Så funkar ruttkollen" med dagens riktiga progno
+ s
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts. Pre
+ sentationsinlägg i 2–3 grupper till.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Dag 2: "Så funkar ruttkollen" med dagens riktiga prognos
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-39@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261217T193000
+DTEND:20261217T201000
+SUMMARY:Snöläge: Dag 3: Snöläget inför helgen #1
+DESCRIPTION:Efter kvällens prognos. Instagram-karusell (en bild per områd
+ e) + 20 s klipp på alla kanaler. Datum och "Källa: Naturvårdsverket och
+  SMHI" i bild. Visa bara publicerade farograder. Presentationsinlägg i 2
+ –3 grupper till.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Dag 3: Snöläget inför helgen #1
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-40@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261218T190000
+DTEND:20261218T192000
+SUMMARY:Snöläge: Dag 4: "Spara kartan offline före resan"
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts. Sis
+ ta grupperna.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Dag 4: "Spara kartan offline före resan"
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-41@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261219T100000
+DTEND:20261219T103000
+SUMMARY:Snöläge: Dag 5: Reddit + klipp om varningstecken
+DESCRIPTION:Inlägget i r/Backcountry eller r/skiing (läs reglerna). Lägg
+  ut B8 igen eller ett nytt fältklipp.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Dag 5: Reddit + klipp om varningstecken
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-42@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261220T180000
+DTEND:20261220T183000
+SUMMARY:Snöläge: Dag 6: "En vecka med Snöläge: det här har ni sagt"
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts. Ber
+ ätta vad folk tyckt och vad du fixar. Notera siffror från /admin/oversik
+ t.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Dag 6: "En vecka med Snöläge: det här har ni sagt"
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-43@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261222T190000
+DTEND:20261222T191500
+SUMMARY:Snöläge: "Ska du till fjällen i jul? Spara kartan offline"
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:"Ska du till fjällen i jul? Spara kartan offline"
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-44@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261223T193000
+DTEND:20261223T201000
+SUMMARY:Snöläge: Snöläget inför julhelgen
+DESCRIPTION:Karusell + klipp. Publiceras dagen före julafton i stället f
+ ör torsdag.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Snöläget inför julhelgen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-45@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261228T190000
+DTEND:20261228T191500
+SUMMARY:Snöläge: Myt: låg farograd = inget att tänka på
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Myt: låg farograd = inget att tänka på
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-46@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261230T193000
+DTEND:20261230T201000
+SUMMARY:Snöläge: Snöläget inför nyårshelgen
+DESCRIPTION:Karusell + klipp.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Snöläget inför nyårshelgen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-47@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270102T100000
+DTEND:20270102T102000
+SUMMARY:Snöläge: "Säsongen hittills"
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts. Vad
+  har hänt i fjällen och i Snöläge.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:"Säsongen hittills"
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-48@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270110T170000
+DTEND:20270110T190000
+SUMMARY:Snöläge: Filmdag
+DESCRIPTION:Januari: "Så planerar du en turdag med kompisar"\, repetition 
+ av nysnö och drevsnö\, 2 fältklipp.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Filmdag
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-49@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270207T170000
+DTEND:20270207T190000
+SUMMARY:Snöläge: Filmdag
+DESCRIPTION:Sportlovet: planera turen\, karta offline\, varningstecken\, la
+ vinskalan igen\, 2 fältklipp.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Filmdag
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-50@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270208T090000
+DTEND:20270208T093000
+SUMMARY:Snöläge: Valfritt: starta sportlovsannonser
+DESCRIPTION:Bara om du kör nivå 5 000 kr: 100–150 kr/dag på Instagram 
+ och Facebook till 28 feb. Ruttkollen som bild. Ingen spårningskod på web
+ ben.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Valfritt: starta sportlovsannonser
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-51@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270215T073000
+DTEND:20270215T075000
+SUMMARY:Snöläge: Sportlovet börjar: "Planerar du topptur på sportlovet?
+ "
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Sportlovet börjar: "Planerar du topptur på sportlovet?"
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-52@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270307T170000
+DTEND:20270307T190000
+SUMMARY:Snöläge: Filmdag
+DESCRIPTION:Mars: våta laviner\, glidlaviner\, påskturen för fjällvandr
+ are\, 2 fältklipp.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Filmdag
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-53@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270323T190000
+DTEND:20270323T192000
+SUMMARY:Snöläge: Påsk: "Kolla lavinläget innan påskturen"
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts + Fa
+ cebook-sidan. Riktat till fjällvandrare på skidor.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Påsk: "Kolla lavinläget innan påskturen"
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-54@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270325T193000
+DTEND:20270325T201000
+SUMMARY:Snöläge: Snöläget inför påskhelgen
+DESCRIPTION:Karusell + klipp. Långfredag 26 mars\, påskdagen 28 mars.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Snöläget inför påskhelgen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-55@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270404T170000
+DTEND:20270404T190000
+SUMMARY:Snöläge: Filmdag
+DESCRIPTION:April: vårförhållanden\, våta laviner efter lunch\, "tack f
+ ör säsongen".
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Filmdag
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-schema-56@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270503T190000
+DTEND:20270503T194500
+SUMMARY:Snöläge: Tack för säsongen + säsongsrapport
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts. Sif
+ fror från /admin/oversikt: observationer\, turer\, områden. Tacka ambass
+ adörerna. Därefter ett inlägg varannan vecka till oktober.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tack för säsongen + säsongsrapport
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-veckorytm-0@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270105T190000
+DTEND:20270105T192000
+SUMMARY:Snöläge: Lär dig-klipp (tisdag)
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts. Äm
+ ne: se månadens lista i SCHEMA-SOCIALA-MEDIER.md.
+RRULE:FREQ=WEEKLY;UNTIL=20270430T235959
+EXDATE:20270323T190000
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Lär dig-klipp (tisdag)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-veckorytm-1@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270106T190000
+DTEND:20270106T191500
+SUMMARY:Snöläge: Var med i grupperna (onsdag)
+DESCRIPTION:Svara på 2–3 frågor i grupperna och på Utsidan. Dela Snöl
+ äget bara där det är ok.
+RRULE:FREQ=WEEKLY;UNTIL=20270430T235959
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Var med i grupperna (onsdag)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-veckorytm-2@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270107T193000
+DTEND:20270107T201000
+SUMMARY:Snöläge: Snöläget inför helgen (torsdag)
+DESCRIPTION:Efter kvällens prognos. Instagram-karusell + 20 s klipp på al
+ la kanaler + Strava-klubben. Datum och källa i bild. Bara publicerade far
+ ograder.
+RRULE:FREQ=WEEKLY;UNTIL=20270430T235959
+EXDATE:20270325T193000
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Snöläget inför helgen (torsdag)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-veckorytm-3@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270109T100000
+DTEND:20270109T102000
+SUMMARY:Snöläge: Fältklipp eller berättelse (lördag)
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts. Fr
+ ån dig eller en ambassadör (med lov): planering vid bilen\, en observati
+ on\, "det här såg vi i dag".
+RRULE:FREQ=WEEKLY;UNTIL=20270430T235959
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Fältklipp eller berättelse (lördag)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-veckorytm-4@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270111T184500
+DTEND:20270111T191000
+SUMMARY:Snöläge: Uppföljning + Veckans observation (måndag)
+DESCRIPTION:10 min: /admin/oversikt + kanalernas statistik (visningar\, spa
+ rningar\, delningar\, nya konton). 15 min: Veckans observation på Instagr
+ am och Facebook\, bara med personens lov.
+RRULE:FREQ=WEEKLY;UNTIL=20270430T235959
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Uppföljning + Veckans observation (måndag)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+END:VCALENDAR

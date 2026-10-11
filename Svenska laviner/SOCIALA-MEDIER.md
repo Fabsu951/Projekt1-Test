@@ -255,6 +255,8 @@ stora konton: deras följare åker faktiskt.
 
 ### Hur ofta
 
+Datum för datum, med kalenderfil: `SCHEMA-SOCIALA-MEDIER.md` och `snolage-schema.ics`.
+
 | Period | TikTok/Reels/Shorts | Instagram-karusell/bild | Grupper och forum |
 | --- | --- | --- | --- |
 | Nu–15 nov | 1 i veckan (berättelsen om dig) | – | Gå med, läs, svara |
