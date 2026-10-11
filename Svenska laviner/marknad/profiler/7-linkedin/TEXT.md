@@ -1,46 +1,42 @@
-## LinkedIn (på engelska)
+## LinkedIn
 
-LinkedIn når yrkesfolk, rekryterare och tänkbara partners även utanför
-Sverige, så allt här är på engelska. Instruktionerna till dig är på
-svenska. Det du ska klistra in ligger i de grå rutorna.
+Allt på svenska (Fabians val 11 okt 2026). Det du ska klistra in ligger i
+de grå rutorna.
 
 ---
 
-### 1. Din egen profil: lägg till Snöläge som projekt
+### 1. Din egen profil: Snöläge som projekt
 
 Profil → **Lägg till profilavsnitt** → **Rekommenderat** → **Lägg till
-projekt** (eller **Erfarenhet** om du hellre vill ha det där).
+projekt**.
 
-**Project name:**
-
-```
-Snöläge – avalanche forecasts and trip planning for the Swedish mountains
-```
-
-**Role / position:** `Founder and developer`
-
-**Start date:** September 2026, kryssa i att du fortfarande jobbar med det.
-
-**Project URL:** `https://snolage.se`
-
-**Skills:** TypeScript, React, Cloudflare Workers, Mobile app development,
-Product development
-
-**Description:**
+**Projektnamn:**
 
 ```
-I built Snöläge, a free app and website for backcountry skiers in the Swedish mountains.
-
-It brings together the official avalanche forecasts from the Swedish Environmental Protection Agency, weather and warnings from SMHI, snow depth, and Lantmäteriet's topographic maps with slope angles – on one screen, and offline when there is no coverage. You can draw a route and see which parts cross steep terrain where today's avalanche problems are, log observations from the field, and share tours with friends.
-
-Built solo in TypeScript with React and Capacitor (web, Android and iPhone from one codebase) and Cloudflare Workers, D1 and R2 on the server. Free, no ads, no tracking.
+Snöläge – lavinprognos och turplanering för svenska fjällen
 ```
 
-**Rubrik (headline), valfritt:** lägg till en bit sist i din rubrik, till
-exempel:
+**Beskrivning:**
 
 ```
-Building Snöläge – avalanche forecasts and trip planning for the Swedish mountains
+Jag har byggt Snöläge, en gratis app och webbplats för toppturåkare i de svenska fjällen.
+
+Snöläge samlar Naturvårdsverkets lavinprognoser, SMHI:s väder och varningar, snödjup och Lantmäteriets karta med lutning på ett ställe, och fungerar även utan täckning. Man kan rita en rutt och se vilka delar som går i brant terräng där dagens lavinproblem finns, rapportera observationer från fältet och dela turer med vänner.
+
+Byggd på egen hand i TypeScript med React och Capacitor (webb, Android och iPhone från samma kod) och Cloudflare Workers, D1 och R2 som server. Gratis, utan reklam och utan spårning.
+```
+
+**Kompetenser** (sök och välj LinkedIns förslag): TypeScript, React.js,
+Cloudflare, Apputveckling, Produktutveckling.
+
+**Medier:** Lägg till mediefil → **Lägg till en länk** → `https://snolage.se`.
+
+**Startdatum:** september 2026, kryssa i att du fortfarande arbetar med det.
+
+**Rubrik (headline), valfritt:** lägg till sist i din rubrik:
+
+```
+Bygger Snöläge – lavinprognos och turplanering för svenska fjällen
 ```
 
 **Omslagsbild:** `omslag-profil.png` (1584×396). Profil → kameran uppe
@@ -51,75 +47,74 @@ till höger på omslaget.
 ### 2. Inlägg när du lanserar (eller redan nu, som berättelsen om dig)
 
 Lägg upp det från din egen profil. Bifoga 2–3 skärmbilder från appen
-eller ett kort klipp. Byt ut hakparenteserna.
+eller ett kort klipp.
 
 ```
-I've spent the past weeks building something I wanted for myself: Snöläge, a free avalanche and trip-planning app for the Swedish mountains.
+De senaste veckorna har jag byggt något jag själv saknat: Snöläge, en gratis app för lavinläge och turplanering i de svenska fjällen.
 
-Before every ski tour I used to jump between the official avalanche forecast, the weather service and a map app. Snöläge puts it all in one place:
+Innan varje topptur hoppade jag mellan lavinprognosen, SMHI och en kartapp. I Snöläge finns allt på ett ställe:
 
-🏔️ Official avalanche forecasts for all six Swedish forecast areas
-🌨️ Weather, warnings and measured snow depth
-🗺️ Topographic maps with slope angles, saved for offline use
-📍 Route planning that flags the parts of your route on steep slopes where today's avalanche problems are
-👥 Field observations and shared tours
+🏔️ Naturvårdsverkets lavinprognoser för alla sex prognosområden
+🌨️ Väder, varningar och uppmätt snödjup
+🗺️ Lantmäteriets karta med lutning, som går att spara för användning utan täckning
+📍 Ruttplanering som visar var rutten går i brant terräng där dagens lavinproblem finns
+👥 Observationer från fältet och delade turer
 
-It runs on the web, Android and iPhone from one TypeScript codebase, with Cloudflare Workers on the server – built solo.
+Appen fungerar på webben, Android och iPhone från samma kod i TypeScript, med Cloudflare Workers som server. Byggd på egen hand.
 
-It's decision support, not a guarantee: take an avalanche course and bring your transceiver, shovel and probe.
+Snöläge är ett stöd i planeringen, inte en garanti. Gå en lavinkurs och ha med sändare, spade och sond.
 
-If you ski in Sweden, I'd love your feedback: snolage.se
+Åker du i svenska fjällen vill jag gärna höra vad du tycker. Länk i första kommentaren.
 
-#backcountryskiing #avalanchesafety #buildinpublic #sweden #typescript
+#topptur #lavin #offpist #fjällen #apputveckling
 ```
 
-**Tips:** lägg länken i första kommentaren i stället för i inlägget om
-du vill. LinkedIn visar inlägg med länkar för färre personer. Skriv då
-"Link in the comments" sist i texten.
+Lägg sedan `https://snolage.se` som första kommentar. LinkedIn visar
+inlägg med länkar för färre personer.
 
 ---
 
 ### 3. Företagssida (valfritt, senare)
 
-Profil → **Fler** → **Skapa en företagssida** → **Företag**. Det kräver
-inget registrerat företag.
+Profil → **Fler** → **Skapa en företagssida** → **Företag**. Kräver inget
+registrerat företag.
 
-**Name:** `Snöläge`
+**Namn:** `Snöläge`
 
-**LinkedIn public URL:** `linkedin.com/company/snolage`
+**Offentlig URL:** `linkedin.com/company/snolage`
 
-**Website:** `https://snolage.se`
+**Webbplats:** `https://snolage.se`
 
-**Industry:** `Software Development`
+**Bransch:** `Programvaruutveckling`
 
-**Organization size:** `0–1 employees`
+**Organisationsstorlek:** `0–1 anställda`
 
-**Organization type:** `Self-employed` (byt till `Sole proprietorship` när
-du har registrerat enskild firma)
+**Organisationstyp:** `Egenföretagare` (byt till `Enskild firma` när du
+har registrerat en)
 
-**Logo:** `profilbild.png`
+**Logotyp:** `profilbild.png`
 
-**Cover:** `omslag-foretagssida.png` (1128×191)
+**Omslag:** `omslag-foretagssida.png` (1128×191)
 
-**Tagline (max 120):**
-
-```
-Avalanche forecasts, weather, maps and trip planning for the Swedish mountains. Free, no ads.
-```
-
-**About / Overview:**
+**Slogan (max 120):**
 
 ```
-Snöläge is a free app and website for backcountry skiers and ski tourers in the Swedish mountains.
+Lavinprognos, väder, karta och turplanering för svenska fjällen. Gratis och utan reklam.
+```
 
-It brings together the official avalanche forecasts for all six Swedish forecast areas, weather and warnings, measured snow depth, and topographic maps with slope angles – on one screen, and offline when there is no coverage. Plan a route and see which parts cross steep terrain where today's avalanche problems are, report what you see in the field, and share tours with friends.
+**Om / Översikt:**
 
-Available in Swedish and English on the web, Android and iPhone. No ads, no tracking.
+```
+Snöläge är en gratis app och webbplats för dig som åker topptur och offpist i de svenska fjällen.
 
-Snöläge is decision support and does not replace your own judgement, avalanche training or equipment.
+Här finns Naturvårdsverkets lavinprognoser för alla sex prognosområden, SMHI:s väder och varningar, uppmätt snödjup och Lantmäteriets karta med lutning, på ett ställe och även utan täckning. Planera en rutt och se var den går i brant terräng där dagens lavinproblem finns, rapportera vad du ser i fältet och dela turer med vänner.
+
+Finns på svenska och engelska, på webben, Android och iPhone. Ingen reklam, ingen spårning.
+
+Snöläge är ett stöd för din planering och ersätter inte egen bedömning, lavinkurs och utrustning.
 ```
 
 ---
 
 **Bilder i den här mappen:** `omslag-profil.png`, `omslag-foretagssida.png`,
-`profilbild.png`. Omslagen har svensk text (Fabians val), texterna är på engelska.
+`profilbild.png`.
