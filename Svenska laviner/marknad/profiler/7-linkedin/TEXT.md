@@ -80,7 +80,9 @@ Profil → **Lägg till profilavsnitt** → **+ vid Tjänst**.
 ```
 Jag bygger Snöläge, en gratis app och webbplats för toppturåkare i de svenska fjällen: lavinprognoser, väder, karta med lutning och turplanering som jämförs med dagens lavinproblem.
 
-Jag gör allt själv: idé, design, utveckling (TypeScript, React, Capacitor, Cloudflare Workers), appbutiker, juridik och marknadsföring.
+Jag ansvarar för hela kedjan: idé, design, utveckling (TypeScript, React, Capacitor, Cloudflare Workers), lansering i appbutikerna, juridik och marknadsföring.
+
+Lansering inför lavinsäsongen 2026/27.
 ```
 
 - **Kompetenser:** TypeScript, React.js, Cloudflare, Apputveckling,
