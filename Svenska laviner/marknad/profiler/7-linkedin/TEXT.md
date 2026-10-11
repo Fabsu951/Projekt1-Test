@@ -122,4 +122,4 @@ Snöläge is decision support and does not replace your own judgement, avalanche
 ---
 
 **Bilder i den här mappen:** `omslag-profil.png`, `omslag-foretagssida.png`,
-`profilbild.png`. Omslagen har engelsk text.
+`profilbild.png`. Omslagen har svensk text (Fabians val), texterna är på engelska.
