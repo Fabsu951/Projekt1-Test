@@ -848,6 +848,12 @@ the start, exact map point.
   art. 9, age, DPAs, transfers) in `Svenska laviner/JURIDIK.md`. Name
   check 2026-10-07: no "Snöläge"/"Snolage" trademarks at PRV or TMview
   (only an unrelated vehicle patent) — free to use; registering is optional.
+- **Marketing plan (2026-10-11):** `Svenska laviner/MARKNADSFORING.md`
+  (Swedish): target groups, messaging rules (never "säker", no NV
+  endorsement, no tracking pixels — the privacy policy promises no
+  analytics and no marketing email), store texts, launch on the season's
+  first forecast day, sportlov/påsk pushes, measurement via
+  `/admin/oversikt` + store consoles.
 - **Reporting everything else (DSA, 2026-10-08):** migration `0017`
   `content_reports` (item_type tour|route|comment|profile, one row per
   reporter), `comments.hidden`, `notifications.note`. `worker/src/reports.ts`:
