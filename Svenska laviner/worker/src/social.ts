@@ -7,6 +7,7 @@ import { canSeeTour, SELECT_TOURS, toTour, type Tour, type TourRow } from "./tou
 import type { ItemType } from "./socialCleanup";
 import { badgesOf, experienceOf, type Badge } from "./profile";
 import { notify, type Defer, type NotifyEnv } from "./notifications";
+import { blockedBetween, iBlocked, notBlockedSql } from "./blocks";
 
 // Strava-style social layer: follow people (one-way, no approval needed),
 // a feed of what the people you follow share, and comments and likes on
@@ -75,6 +76,7 @@ export async function getPerson(request: Request, env: CommunityEnv, id: number)
     .first<{ id: number; display_name: string; followers: number; following: number; i_follow: number; follows_me: number }>();
   if (!row) throw new HttpError(404, "Personen finns inte.");
   const exp = (await experienceOf(env, [row.id])).get(row.id)!;
+  const blocked = viewer ? await blockedBetween(env, viewer.id, row.id) : false;
   return {
     person: {
       ...exp,
@@ -85,6 +87,10 @@ export async function getPerson(request: Request, env: CommunityEnv, id: number)
       iFollow: row.i_follow === 1,
       followsMe: row.follows_me === 1,
       isMe: viewer?.id === row.id,
+      /** A block either way: no following, comments or likes between the two. */
+      blocked,
+      /** I blocked them (only I can lift it). */
+      blockedByMe: blocked && !!viewer && (await iBlocked(env, viewer.id, row.id)),
     },
   };
 }
@@ -109,10 +115,10 @@ export async function searchPeople(request: Request, env: CommunityEnv) {
   const rows = await env.DB.prepare(
     `SELECT u.id, u.display_name,
             EXISTS (SELECT 1 FROM follows WHERE follower_id = ? AND followee_id = u.id) AS i_follow
-       FROM users u WHERE ${foldSql("u.display_name")} LIKE ? ESCAPE '\\' AND u.id != ?
+       FROM users u WHERE ${foldSql("u.display_name")} LIKE ? ESCAPE '\\' AND u.id != ? AND ${notBlockedSql("u.id")}
       ORDER BY u.display_name LIMIT 20`
   )
-    .bind(viewer.id, pattern, viewer.id)
+    .bind(viewer.id, pattern, viewer.id, viewer.id, viewer.id)
     .all<{ id: number; display_name: string; i_follow: number }>();
   return { people: await withBadges(env, rows.results.map((r) => ({ id: r.id, displayName: r.display_name, iFollow: r.i_follow === 1 }))) };
 }
@@ -143,11 +149,24 @@ export async function myFollows(request: Request, env: CommunityEnv) {
   };
 }
 
+/** The people I have blocked (to undo it from the profile page). */
+export async function myBlocks(request: Request, env: CommunityEnv) {
+  const me = await requireUser(request, env);
+  const rows = await env.DB.prepare(
+    `SELECT u.id, u.display_name FROM blocks b JOIN users u ON u.id = b.blocked_id
+      WHERE b.blocker_id = ? ORDER BY u.display_name`
+  )
+    .bind(me.id)
+    .all<{ id: number; display_name: string }>();
+  return { people: await withBadges(env, rows.results.map((r) => ({ id: r.id, displayName: r.display_name, iFollow: false }))) };
+}
+
 export async function follow(request: Request, env: NotifyEnv, id: number, defer?: Defer) {
   const me = await requireUser(request, env);
   if (me.id === id) throw new HttpError(400, "Du kan inte följa dig själv.");
   const exists = await env.DB.prepare("SELECT 1 AS x FROM users WHERE id = ?").bind(id).first();
   if (!exists) throw new HttpError(404, "Personen finns inte.");
+  if (await blockedBetween(env, me.id, id)) throw new HttpError(403, "Du kan inte följa den här personen.");
   const store = d1Store(env.DB);
   const key = `follow:${me.id}`;
   await enforce(store, [{ key, ...FOLLOW_LIMIT }], "Du har följt väldigt många den senaste timmen. Försök igen senare.");
@@ -303,10 +322,10 @@ export async function listComments(request: Request, env: CommunityEnv) {
   const owner = await itemOwner(env, type, id, viewer);
   const rows = await env.DB.prepare(
     `SELECT c.id, c.user_id, c.body, c.created_at, u.display_name FROM comments c JOIN users u ON u.id = c.user_id
-      WHERE c.item_type = ? AND c.item_id = ? AND (c.hidden = 0 OR c.user_id = ? OR ? = 1)
+      WHERE c.item_type = ? AND c.item_id = ? AND (c.hidden = 0 OR c.user_id = ? OR ? = 1) AND ${notBlockedSql("c.user_id")}
       ORDER BY c.created_at LIMIT 500`
   )
-    .bind(type, id, viewer?.id ?? -1, viewer?.isAdmin ? 1 : 0)
+    .bind(type, id, viewer?.id ?? -1, viewer?.isAdmin ? 1 : 0, viewer?.id ?? -1, viewer?.id ?? -1)
     .all<{ id: number; user_id: number; body: string; created_at: string; display_name: string }>();
   const counts = viewer ? (await reactions(env, [{ type, id }], viewer.id)).get(`${type}:${id}`)! : null;
   const likes = counts?.likes ?? ((await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE item_type = ? AND item_id = ?").bind(type, id).first<{ n: number }>())?.n ?? 0);
@@ -333,6 +352,7 @@ export async function addComment(request: Request, env: NotifyEnv, defer?: Defer
   const type = itemType(body.type);
   const id = Number(body.id);
   const owner = await itemOwner(env, type, id, me);
+  if (await blockedBetween(env, me.id, owner)) throw new HttpError(403, "Du kan inte kommentera det här.");
   const text = typeof body.body === "string" ? body.body.trim() : "";
   if (!text) throw new HttpError(400, "Skriv något först.");
   if (text.length > MAX_COMMENT) throw new HttpError(400, `En kommentar får vara högst ${MAX_COMMENT} tecken.`);
@@ -388,6 +408,7 @@ export async function setLike(request: Request, env: NotifyEnv, defer?: Defer) {
   const type = itemType(body.type);
   const id = Number(body.id);
   const owner = await itemOwner(env, type, id, me);
+  if (body.liked !== false && (await blockedBetween(env, me.id, owner))) throw new HttpError(403, "Du kan inte gilla det här.");
   if (body.liked === false) {
     await env.DB.prepare("DELETE FROM likes WHERE item_type = ? AND item_id = ? AND user_id = ?").bind(type, id, me.id).run();
   } else {

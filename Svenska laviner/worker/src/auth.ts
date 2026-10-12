@@ -414,6 +414,7 @@ export async function deleteAccount(request: Request, env: CommunityEnv) {
     env.DB.prepare("DELETE FROM comments WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM likes WHERE user_id = ?").bind(user.id),
     env.DB.prepare("DELETE FROM follows WHERE follower_id = ? OR followee_id = ?").bind(user.id, user.id),
+    env.DB.prepare("DELETE FROM blocks WHERE blocker_id = ? OR blocked_id = ?").bind(user.id, user.id),
     env.DB.prepare("DELETE FROM notifications WHERE user_id = ? OR actor_id = ?").bind(user.id, user.id),
     env.DB.prepare("DELETE FROM user_push_subscriptions WHERE user_id = ?").bind(user.id),
     // Phones keep their area notices but stop getting the account's.

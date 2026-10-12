@@ -36,11 +36,13 @@ import {
   follow,
   getPerson,
   listComments,
+  myBlocks,
   myFollows,
   searchPeople,
   setLike,
   unfollow,
 } from "./social";
+import { block, unblock } from "./blocks";
 import { parseTerrainPath, serveTerrain } from "./terrain";
 import { parseSlopePath, parseTilePath, saveSlopeMeta, serveSlopeTile, serveTile, slopeMeta, uploadTiles, type TilesEnv } from "./tiles";
 import { notifyChanges, publicKey, setPushLanguage, subscribe, unsubscribe, type PushEnv } from "./push";
@@ -311,6 +313,10 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
     if (pathname === "/feed" && method === "GET") return json(await feed(request, env), origin);
     if (pathname === "/people" && method === "GET") return json(await searchPeople(request, env), origin);
     if (pathname === "/people/me/follows" && method === "GET") return json(await myFollows(request, env), origin);
+    if (pathname === "/people/me/blocks" && method === "GET") return json(await myBlocks(request, env), origin);
+    const blockMatch = pathname.match(/^\/people\/(\d+)\/block$/);
+    if (blockMatch && method === "POST") return json(await block(request, env, Number(blockMatch[1])), origin);
+    if (blockMatch && method === "DELETE") return json(await unblock(request, env, Number(blockMatch[1])), origin);
     if (pathname === "/auth/avatar" && method === "POST") return json(await uploadAvatar(request, env), origin);
     if (pathname === "/auth/avatar" && method === "DELETE") return json(await removeAvatar(request, env), origin);
     const avatarMatch = pathname.match(/^\/people\/(\d+)\/avatar$/);

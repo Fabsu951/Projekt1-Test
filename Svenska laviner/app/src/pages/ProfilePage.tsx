@@ -15,7 +15,7 @@ import type { PlannedRoute } from "../types/route";
 import { formatDistance } from "../utils/tourFormat";
 import FollowButton from "../components/FollowButton";
 import Avatar from "../components/Avatar";
-import { fetchMyFollows, fetchPerson, removeAvatar, uploadAvatar } from "../services/socialService";
+import { fetchMyBlocks, fetchMyFollows, fetchPerson, removeAvatar, setBlocked, uploadAvatar } from "../services/socialService";
 import LevelCard, { XpExplainer } from "../components/LevelCard";
 import { prepareAvatar } from "../utils/image";
 import type { Person, PersonSummary } from "../types/social";
@@ -32,6 +32,7 @@ export default function ProfilePage() {
   const [avatarBusy, setAvatarBusy] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [follows, setFollows] = useState<{ following: PersonSummary[]; followers: PersonSummary[] } | null>(null);
+  const [blocks, setBlocks] = useState<PersonSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(() => {
@@ -53,6 +54,9 @@ export default function ProfilePage() {
     fetchMyFollows(token)
       .then(setFollows)
       .catch(() => setFollows({ following: [], followers: [] }));
+    fetchMyBlocks(token)
+      .then(setBlocks)
+      .catch(() => setBlocks([]));
   }, [token, user]);
 
   useEffect(load, [load]);
@@ -178,6 +182,32 @@ export default function ProfilePage() {
       <CollapsibleSection id="profile-followers" title={t("Följare")} count={follows?.followers.length}>
         <PeopleList people={follows?.followers ?? null} empty={t("Ingen följer dig än.")} />
       </CollapsibleSection>
+
+      {blocks.length > 0 && (
+        <CollapsibleSection id="profile-blocked" title={t("Blockerade")} count={blocks.length}>
+          <ul className="people-list">
+            {blocks.map((p) => (
+              <li key={p.id}>
+                <span className="people-list__name">
+                  <Avatar name={p.displayName} avatarPath={p.avatarPath} xp={p.xp} size={36} />
+                  {p.displayName}
+                </span>
+                <button
+                  type="button"
+                  className="button"
+                  onClick={async () => {
+                    if (!token) return;
+                    await setBlocked(token, p.id, false);
+                    setBlocks((list) => list.filter((b) => b.id !== p.id));
+                  }}
+                >
+                  {t("Sluta blockera")}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </CollapsibleSection>
+      )}
 
       <CollapsibleSection id="profile-observations" title={t("Mina observationer")} count={mine?.length}>
         {error && <p className="error">{error}</p>}

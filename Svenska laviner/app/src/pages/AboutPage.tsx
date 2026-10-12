@@ -128,7 +128,7 @@ export default function AboutPage() {
 
       <section className="section terms" id="villkor">
         <h2>{t("Användarvillkor")}</h2>
-        <p className="muted">{t("Senast uppdaterade 7 oktober 2026.")}</p>
+        <p className="muted">{t("Senast uppdaterade 12 oktober 2026.")}</p>
         {isEnglish() && <p className="muted">This is a translation. The Swedish version of the terms is the one that applies.</p>}
         <p>
           {t("Snöläge drivs av Fabian Sund som privatperson")}
@@ -168,7 +168,7 @@ export default function AboutPage() {
 
         <h3>{t("Anmälan och borttagning")}</h3>
         <p>
-          {t("Den som är inloggad kan anmäla observationer, turer, delade rutter, kommentarer och profiler som bryter mot villkoren eller mot lag. Observationer och kommentarer döljs efter tre anmälningar tills en administratör har granskat dem; övrigt granskas av en administratör. Vi får ta bort innehåll som bryter mot villkoren eller mot lag, och stänga av konton som gör det upprepade gånger. Tar vi bort något du publicerat får du en notis om vad som togs bort och varför. Tycker du att det blev fel, mejla oss.")}
+          {t("Den som är inloggad kan anmäla observationer, turer, delade rutter, kommentarer och profiler som bryter mot villkoren eller mot lag. Observationer och kommentarer döljs efter tre anmälningar tills en administratör har granskat dem; övrigt granskas av en administratör. Vi får ta bort innehåll som bryter mot villkoren eller mot lag, och stänga av konton som gör det upprepade gånger. Tar vi bort något du publicerat får du en notis om vad som togs bort och varför. Tycker du att det blev fel, mejla oss. Du kan också blockera någon från deras profil. Då ser ni inte längre varandras turer, observationer eller kommentarer och kan inte följa, kommentera eller gilla varandras inlägg.")}
         </p>
 
         <h3>{t("Ansvar och ändringar")}</h3>
@@ -179,7 +179,7 @@ export default function AboutPage() {
 
       <section className="section privacy" id="integritet">
         <h2>{t("Integritetspolicy")}</h2>
-        <p className="muted">{t("Senast uppdaterad 10 oktober 2026.")}</p>
+        <p className="muted">{t("Senast uppdaterad 12 oktober 2026.")}</p>
         {isEnglish() && <p className="muted">This is a translation. The Swedish version of the privacy policy is the one that applies.</p>}
         <p>
           <strong>{t("Personuppgiftsansvarig")}</strong>{" "}{t("är Fabian Sund, som driver Snöläge som privatperson")}
@@ -216,7 +216,7 @@ export default function AboutPage() {
             <strong>{t("Planerade turdagar:")}</strong>{" "}{t("om du väljer en dag under \"Prognos inför din tur\" sparar vi området och datumet i ditt konto, för att kunna skicka dig prognosen för den dagen. Väljer du också en av dina sparade rutter sparar vi vilken, och en sammanfattning av den branta marken under den (väderstreck, höjd och längd), så att notisen kan jämföra rutten med prognosen. Bjuder du in någon du följer sparar vi inbjudan och svaret; den som går med får samma jämförelse och ser vilka mer som är med, men inte rutten själv. De tas bort en vecka efter dagen, eller när du tar bort dem, rutten eller ditt konto.")}
           </li>
           <li>
-            <strong>{t("Följare, kommentarer och gilla:")}</strong>{" "}{t("vilka du följer, vilka som följer dig, och de kommentarer och gillamarkeringar du gör. Antalet följare syns för alla, men bara du ser vilka det är. Kommentarer syns för alla som kan se inlägget. Turer du delar med \"Bara de som följer mig\" syns bara för dina följare och finns inte med i värmekartan.")}
+            <strong>{t("Följare, kommentarer och gilla:")}</strong>{" "}{t("vilka du följer, vilka som följer dig, och de kommentarer och gillamarkeringar du gör. Antalet följare syns för alla, men bara du ser vilka det är. Kommentarer syns för alla som kan se inlägget. Turer du delar med \"Bara de som följer mig\" syns bara för dina följare och finns inte med i värmekartan. Blockerar du någon sparar vi det tills du slutar blockera personen eller raderar kontot.")}
           </li>
           <li>
             <strong>{t("Notiser:")}</strong>{" "}{t("när någon följer dig, kommenterar, gillar eller svarar sparas en notis till dig (vem, vad och när). Notiser raderas efter 90 dagar. Slår du på \"Skicka notiserna till den här enheten\" sparar vi webbläsarens push-adress kopplad till ditt konto, tills du stänger av det.")}

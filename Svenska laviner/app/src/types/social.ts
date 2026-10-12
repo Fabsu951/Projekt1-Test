@@ -25,6 +25,10 @@ export interface Person extends PersonSummary {
   following: number;
   followsMe: boolean;
   isMe: boolean;
+  /** A block either way between you and them (no following, comments or likes). */
+  blocked?: boolean;
+  /** You blocked them; only you can lift it. */
+  blockedByMe?: boolean;
 }
 
 export interface Reactions {

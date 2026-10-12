@@ -5,6 +5,7 @@ import { d1Store, enforce, record } from "./rateLimit";
 import { REGION_SOURCES } from "./regions";
 import { cleanPoints, distanceM, previewLine, trackStats, trimEnds, type TrackPoint } from "./track";
 import { cleanDangerSigns, type DangerSign } from "./observations";
+import { blockedBetween, notBlockedSql } from "./blocks";
 
 export const HIDE_ENDS_OPTIONS = [0, 200, 500, 1000] as const;
 const MAX_TITLE = 100;
@@ -345,6 +346,10 @@ export async function listTours(request: Request, env: CommunityEnv) {
     // Lists of others' tours never include private ones, not even your own.
     where.push("t.shared = 1", visible.sql);
     binds.push(...visible.binds);
+    if (viewer) {
+      where.push(notBlockedSql("t.user_id"));
+      binds.push(viewer.id, viewer.id);
+    }
     const author = Number(url.searchParams.get("user"));
     if (Number.isInteger(author) && author > 0) {
       where.push("t.user_id = ?");
@@ -368,6 +373,11 @@ export async function tourLines(request: Request, env: CommunityEnv) {
   // Followers-only tours stay out of the public heatmap.
   const where = ["t.shared = 1", "t.followers_only = 0", "t.preview IS NOT NULL"];
   const binds: unknown[] = [];
+  const viewer = await currentUser(request, env);
+  if (viewer) {
+    where.push(notBlockedSql("t.user_id"));
+    binds.push(viewer.id, viewer.id);
+  }
   addFilters(url, where, binds);
   const rows = await env.DB.prepare(
     `SELECT t.id, t.title, t.started_at, t.preview FROM tours t WHERE ${where.join(" AND ")} ORDER BY t.started_at DESC LIMIT ?`
@@ -414,6 +424,7 @@ export async function getTour(request: Request, env: CommunityEnv, id: number) {
   const viewer = await currentUser(request, env);
   const isOwner = viewer?.id === row.user_id;
   if (!(await canSeeTour(env, row, viewer?.id ?? null))) throw new HttpError(404, "Turen finns inte.");
+  if (viewer && !viewer.isAdmin && (await blockedBetween(env, viewer.id, row.user_id))) throw new HttpError(404, "Turen finns inte.");
 
   const object = await env.IMAGES.get(row.track_key);
   const points = object ? ((await object.json()) as TrackPoint[]) : [];

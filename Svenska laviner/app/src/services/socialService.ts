@@ -27,6 +27,14 @@ export async function setFollowing(token: string, id: number, follow: boolean): 
   return (await api<{ person: Person }>(`/people/${id}/follow`, { method: follow ? "POST" : "DELETE", token })).person;
 }
 
+export async function setBlocked(token: string, id: number, block: boolean): Promise<void> {
+  await api(`/people/${id}/block`, { method: block ? "POST" : "DELETE", token });
+}
+
+export async function fetchMyBlocks(token: string): Promise<PersonSummary[]> {
+  return (await api<{ people: PersonSummary[] }>("/people/me/blocks", { token })).people;
+}
+
 export async function fetchComments(type: ItemType, id: number, token: string | null): Promise<CommentThread> {
   return cached(`${token ? USER_SCOPE : ""}comments:${type}:${id}`, () => api(`/comments?type=${type}&id=${id}`, { token }));
 }

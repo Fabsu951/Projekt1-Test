@@ -6,6 +6,7 @@ import { fcmConfigured, type FcmEnv } from "./fcm";
 import { sendNativeToUser } from "./nativePush";
 import { isPushEndpoint, sendPush, vapidConfigured, type VapidEnv } from "./webpush";
 import { userLang, type Lang } from "./lang";
+import { blockedBetween } from "./blocks";
 
 // Notifications about people: new followers, comments and likes on your
 // things, and replies in comment threads you've joined. Always stored for
@@ -52,6 +53,7 @@ export async function notify(env: NotifyEnv, list: NewNotification[], defer?: De
   const stored: Array<NewNotification & { id: number }> = [];
   for (const n of list) {
     if (n.userId === n.actorId && n.kind !== "trip") continue;
+    if (await blockedBetween(env, n.userId, n.actorId)) continue;
     if (n.kind === "follow" || n.kind === "like") {
       const recent = await env.DB.prepare(
         `SELECT 1 AS x FROM notifications WHERE user_id = ? AND kind = ? AND actor_id = ?

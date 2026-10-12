@@ -13,6 +13,7 @@ import type { Person } from "../types/social";
 import type { Tour } from "../types/tour";
 import AdminBadge from "../components/AdminBadge";
 import ReportButton from "../components/ReportButton";
+import BlockButton from "../components/BlockButton";
 import { t } from "../i18n";
 
 /** Someone's public page: follow them and see the tours they share with you. */
@@ -62,9 +63,22 @@ export default function PersonPage() {
                     {t("Till din profil")}
                   </Link>
                 ) : (
-                  <FollowButton personId={person.id} following={person.iFollow} onChange={(p) => setPerson({ ...person, ...p })} />
+                  !person.blocked && (
+                    <FollowButton personId={person.id} following={person.iFollow} onChange={(p) => setPerson({ ...person, ...p })} />
+                  )
                 )}
                 {!person.isMe && <ReportButton type="profile" id={person.id} ownerId={person.id} className="button" />}
+                {!person.isMe && (!person.blocked || person.blockedByMe) && (
+                  <BlockButton
+                    personId={person.id}
+                    name={person.displayName}
+                    blocked={!!person.blockedByMe}
+                    onChange={(blocked) => {
+                      setPerson({ ...person, blocked, blockedByMe: blocked, iFollow: blocked ? false : person.iFollow });
+                      if (blocked) setTours([]);
+                    }}
+                  />
+                )}
                 {user?.isAdmin && !person.isMe && person.avatarPath && token && (
                   <button
                     type="button"
@@ -79,6 +93,11 @@ export default function PersonPage() {
                   </button>
                 )}
               </div>
+              {person.blockedByMe && (
+                <p className="notice" role="status">
+                  {t("Du har blockerat {name}. Ni ser inte varandras turer, observationer eller kommentarer.", { name: person.displayName })}
+                </p>
+              )}
             </>
           }
         />

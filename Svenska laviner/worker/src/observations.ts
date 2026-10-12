@@ -1,5 +1,6 @@
 import { tellAdminsAboutReport } from "./reportMail";
-import { type CommunityEnv, type User, requirePoster, requireUser } from "./auth";
+import { type CommunityEnv, type User, currentUser, requirePoster, requireUser } from "./auth";
+import { notBlockedSql } from "./blocks";
 import { HttpError, nowIso } from "./http";
 import { socialCleanup } from "./socialCleanup";
 import { REGION_SOURCES } from "./regions";
@@ -133,6 +134,11 @@ export async function listObservations(request: Request, env: CommunityEnv) {
     binds.push(user.id);
   } else {
     where.push("o.hidden = 0");
+    const viewer = await currentUser(request, env);
+    if (viewer) {
+      where.push(notBlockedSql("o.user_id"));
+      binds.push(viewer.id, viewer.id);
+    }
   }
   if (region) {
     where.push("o.region_id = ?");
