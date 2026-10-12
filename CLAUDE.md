@@ -1145,6 +1145,34 @@ the start, exact map point.
   owner's settings on `TourPage`; `TourSignsList` on TourPage, TourCard and
   FeedCard. The quick observation no longer offers "Inga varningstecken" —
   a hint links to Turer instead. Health-imported tours start unanswered.
+- **App Store readiness (2026-10-12, Fabian: "allt du kan så att bara mina
+  steg är kvar"):** **Blocking** (App Store guideline 1.2): migration `0025`
+  `blocks` (blocker_id, blocked_id); `worker/src/blocks.ts` (`notBlockedSql`
+  — bind the viewer twice, `blockedBetween`, `POST/DELETE /people/:id/block`;
+  blocking removes follows both ways, notices between them and pending trip
+  invites), `GET /people/me/blocks` (`myBlocks` in social.ts). Works both
+  ways: tours/observations/heatmap lists, comments, people search hide the
+  other; follow/comment/like → 403; `notify` skips; `getTour` 404s; person has
+  `blocked`/`blockedByMe`; deleted with the account. App: `BlockButton` on
+  PersonPage (confirm; only the blocker can unblock), "Blockerade" list on
+  `/profil`; terms + privacy policy (updated 12 Oct). **iOS project:**
+  `PrivacyInfo.xcprivacy` (no tracking, collected types = App Privacy answers,
+  UserDefaults CA92.1, FileTimestamp C617.1), permission texts English in
+  Info.plist + `en.lproj`/`sv.lproj` `InfoPlist.strings`, `CFBundleLocalizations`
+  en/sv, `TARGETED_DEVICE_FAMILY = 1` (iPhone only → no iPad screenshots);
+  CI build + simulator start OK. **Store screenshots:** workflow
+  `store-screenshots.yml` ("Butiksbilder", on changes to
+  `app/scripts/store-screenshots.mjs` or by hand via the API) builds the site,
+  takes 1320×2868 shots (sv + en, sample forecasts/people, real tiles and
+  Mapterhorn heights) and commits them to `Svenska laviner/app-store/`
+  (artifacts can't be downloaded from cloud sessions). **`Svenska
+  laviner/APPSTORE.md`:** every App Store Connect field (sv + en texts with
+  checked lengths, keywords, URLs, App Privacy table, age 13+, review notes
+  incl. demo account `fabian.n.sund+apple@gmail.com` that Fabian creates).
+  Workflows on non-default branches have no "Run workflow" button (default
+  branch is `main`) — start them with `gh api -X POST
+  repos/Fabsu951/Projekt1-Test/actions/workflows/<file>/dispatches -f
+  ref=claude/bold-lamport-juktha`.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -1199,6 +1227,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (268 tests as of 2026-10-11, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 178 tests, including the
+  (270 tests as of 2026-10-12, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 182 tests, including the
   real-page fixtures).
