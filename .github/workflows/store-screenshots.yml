@@ -1,7 +1,7 @@
 # Screenshots for App Store Connect and Google Play (1320×2868, Swedish and
 # English), with sample forecasts and people but the real map from the worker.
-# Runs when the screenshot script changes, or by hand; the pictures end up
-# as the artifact "butiksbilder" on the run's page.
+# Runs when the screenshot script changes, or by hand; the pictures are
+# committed to "Svenska laviner/app-store/" on the same branch.
 
 name: Butiksbilder
 
@@ -12,6 +12,9 @@ on:
       - "Svenska laviner/app/scripts/store-screenshots.mjs"
       - ".github/workflows/store-screenshots.yml"
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   shots:
@@ -37,10 +40,17 @@ jobs:
         run: |
           npx vite preview --port 4173 --strictPort &
           for i in $(seq 1 30); do curl -sf http://localhost:4173 >/dev/null && break; sleep 1; done
-          LANG_UI=sv node scripts/store-screenshots.mjs "$RUNNER_TEMP/butiksbilder"
-          LANG_UI=en node scripts/store-screenshots.mjs "$RUNNER_TEMP/butiksbilder"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: butiksbilder
-          path: ${{ runner.temp }}/butiksbilder
-          retention-days: 30
+          LANG_UI=sv node scripts/store-screenshots.mjs ../app-store
+          LANG_UI=en node scripts/store-screenshots.mjs ../app-store
+      - name: Commit the pictures
+        working-directory: Svenska laviner/app-store
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A .
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "Store screenshots (automatic)"
+          for i in 1 2 3; do git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH" && exit 0; sleep 5; done
+          exit 1
