@@ -4,6 +4,7 @@ const store = new Map<string, string>();
 const calls: Array<{ path: string; token?: string | null; json?: unknown }> = [];
 const listeners: Record<string, (e: unknown) => void> = {};
 let permission = "granted";
+let tokenError: string | null = null;
 
 vi.mock("@capacitor/core", () => ({ Capacitor: { isNativePlatform: () => true, getPlatform: () => "android" } }));
 vi.mock("@capacitor/preferences", () => ({
@@ -16,7 +17,10 @@ vi.mock("@capacitor-firebase/messaging", () => ({
   FirebaseMessaging: {
     checkPermissions: async () => ({ receive: permission }),
     requestPermissions: async () => ({ receive: permission === "prompt" ? (permission = "granted") : permission }),
-    getToken: async () => ({ token: "fcm-token-1" }),
+    getToken: async () => {
+      if (tokenError) throw new Error(tokenError);
+      return { token: "fcm-token-1" };
+    },
     addListener: async (name: string, fn: (e: unknown) => void) => {
       listeners[name] = fn;
       return { remove: async () => {} };
@@ -37,6 +41,7 @@ beforeEach(() => {
   store.clear();
   calls.length = 0;
   permission = "prompt";
+  tokenError = null;
 });
 
 describe("app push (Firebase)", () => {
@@ -49,6 +54,16 @@ describe("app push (Firebase)", () => {
       json: { token: "fcm-token-1", platform: "android", regions: ["riksgransfjallen"], account: false, lang: "sv" },
     });
     expect(await push.nativeRegionPushEnabled()).toBe(true);
+  });
+
+  it("hides Firebase's raw error when the app was built without its settings, and stops offering push", async () => {
+    tokenError =
+      "Default FirebaseApp is not initialized in this process se.snolage.app. Make sure to call FirebaseApp.initializeApp(Context) first.";
+    const attempt = push.enableNativeRegionPush(["riksgransfjallen"], null);
+    await expect(attempt).rejects.toBeInstanceOf(push.NativePushMissingError);
+    await expect(push.enableNativeAccountPush("auth-1")).rejects.toThrow(/den här versionen av appen/);
+    expect(calls.filter((c) => c.path === "/native/register")).toHaveLength(0);
+    expect(await push.nativePushAvailable()).toBe(false);
   });
 
   it("explains in Swedish when notifications are blocked, and sends nothing", async () => {

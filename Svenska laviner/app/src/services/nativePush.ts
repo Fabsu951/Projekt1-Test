@@ -23,13 +23,55 @@ interface NativePushState {
 
 const EMPTY: NativePushState = { regions: [], account: false };
 
+/** The app build that turned out to lack Firebase settings (no google-services.json / plist). */
+const MISSING_KEY = "fjallkoll:native-push-missing";
+
+/** Firebase's own words when the app was built without its settings file. */
+const NOT_CONFIGURED = /FirebaseApp|Firebase app|initializeApp|not (yet )?been configured|google-services/i;
+
+/** Thrown instead of Firebase's raw English when this build can't get app notices. */
+export class NativePushMissingError extends Error {
+  constructor() {
+    super(t("Notiser fungerar inte i den här versionen av appen ännu. De kommer med en senare uppdatering."));
+    this.name = "NativePushMissingError";
+  }
+}
+
+async function appBuild(): Promise<string> {
+  try {
+    const { App } = await import("@capacitor/app");
+    const info = await App.getInfo();
+    return `${info.version}+${info.build}`;
+  } catch {
+    return "unknown";
+  }
+}
+
+/** Remembered per build, so a new version with Firebase settings tries again. */
+async function knownMissing(): Promise<boolean> {
+  try {
+    const { value } = await Preferences.get({ key: MISSING_KEY });
+    return value !== null && value === (await appBuild());
+  } catch {
+    return false;
+  }
+}
+
+async function markMissing(): Promise<void> {
+  try {
+    await Preferences.set({ key: MISSING_KEY, value: await appBuild() });
+  } catch {
+    // Only a memory; the friendly message is shown anyway.
+  }
+}
+
 export function isNativeApp(): boolean {
   return Capacitor.isNativePlatform();
 }
 
 /** Whether the worker can send app notices (it has the Firebase secret). */
 export async function nativePushAvailable(): Promise<boolean> {
-  if (!isNativeApp()) return false;
+  if (!isNativeApp() || (await knownMissing())) return false;
   try {
     return (await api<{ enabled: boolean }>("/native/status")).enabled;
   } catch {
@@ -57,6 +99,18 @@ async function saveState(state: NativePushState) {
 
 /** Asks for permission (must follow a tap the first time) and returns this device's FCM token. */
 async function deviceToken(ask: boolean): Promise<string> {
+  try {
+    return await firebaseToken(ask);
+  } catch (err) {
+    if (err instanceof Error && NOT_CONFIGURED.test(err.message)) {
+      await markMissing();
+      throw new NativePushMissingError();
+    }
+    throw err;
+  }
+}
+
+async function firebaseToken(ask: boolean): Promise<string> {
   let { receive } = await FirebaseMessaging.checkPermissions();
   if (receive !== "granted" && ask) receive = (await FirebaseMessaging.requestPermissions()).receive;
   if (receive !== "granted") {

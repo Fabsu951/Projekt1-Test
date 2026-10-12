@@ -384,6 +384,7 @@ export const EN: Record<string, string> = {
   "Terrängkarta: <a href=\"https://www.lavinprognoser.se/\">Naturvårdsverket</a>": "Terrain map: <a href=\"https://www.lavinprognoser.se/\">Naturvårdsverket</a>",
   "Lutning beräknad från &copy; Lantmäteriet Markhöjdmodell, <a href=\"https://creativecommons.org/licenses/by/4.0/deed.sv\">CC BY 4.0</a>": "Slope calculated from &copy; Lantmäteriet Markhöjdmodell, <a href=\"https://creativecommons.org/licenses/by/4.0/\">CC BY 4.0</a>",
   "Spara eller skicka filen": "Save or send the file",
+  "Notiser fungerar inte i den här versionen av appen ännu. De kommer med en senare uppdatering.": "Notifications don't work in this version of the app yet. They will come with a later update.",
   "Notiser är avstängda för Snöläge. Slå på dem under Inställningar → Appar → Snöläge → Notiser.": "Notifications are turned off for Snöläge. Turn them on under Settings → Apps → Snöläge → Notifications.",
   "Det finns redan {n} observationer som väntar på att skickas.": "There are already {n} observations waiting to be sent.",
   "Det finns inte plats att spara observationen på telefonen. Prova utan bild.": "There's no room to save the observation on the phone. Try without a photo.",

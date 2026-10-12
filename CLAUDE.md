@@ -465,6 +465,10 @@ the start, exact map point.
   project, google-services.json, GoogleService-Info.plist, APNs .p8, Xcode
   Push capability, service-account secret) in `Svenska laviner/NOTISER.md`.
   Privacy policy mentions Google/Firebase + Apple. Not compiled here.
+  **Builds without Firebase settings (2026-10-12):** the CI APK has none until the
+  `GOOGLE_SERVICES_JSON` secret exists; Firebase's "Default FirebaseApp is not
+  initialized" is turned into `NativePushMissingError` (friendly text) and
+  remembered per app build (`fjallkoll:native-push-missing`), so the toggles hide.
   **Set up 2026-10-07:** Firebase project `snolage-1ce89` (Spark, no
   Analytics), Android app `se.snolage.app` with `google-services.json` on
   Fabian's PC (not in git), `FCM_SERVICE_ACCOUNT` secret uploaded. iOS
