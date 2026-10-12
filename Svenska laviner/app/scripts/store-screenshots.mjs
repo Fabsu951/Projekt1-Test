@@ -17,8 +17,8 @@ const now = Date.now();
 const iso = (h) => new Date(now + h * 3600e3).toISOString();
 const day = (d) => new Date(now + d * 864e5).toISOString().slice(0, 10);
 
-// The planned route: Kebnekaise fjällstation up Tarfaladalen to Tarfala.
-const PLAN = [[67.8496, 18.6094], [67.8565, 18.6150], [67.8640, 18.6185], [67.8735, 18.6215], [67.8830, 18.6205], [67.8925, 18.6170], [67.9030, 18.6130], [67.9115, 18.6110]];
+// The planned route: up Tarfaladalen along the summer trail to Tarfalastugan.
+const PLAN = [[67.8774,18.6468], [67.886,18.6462], [67.8924,18.6445], [67.8954,18.6401], [67.901,18.6266], [67.9074,18.6177], [67.9143,18.611], [67.9199,18.606]];
 // A recorded tour: Kebnekaise fjällstation up to the south summit, roughly.
 const ROUTE = [[67.8496, 18.6094], [67.8585, 18.5935], [67.8668, 18.5760], [67.8768, 18.5590], [67.8868, 18.5420], [67.8960, 18.5250], [67.9008, 18.5172]];
 const TRACK = ROUTE.flatMap(([lat, lon], i) => {
