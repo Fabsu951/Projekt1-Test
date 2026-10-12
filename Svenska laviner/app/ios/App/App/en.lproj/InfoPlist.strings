@@ -1,0 +1,6 @@
+/* Permission texts in English (also the defaults in Info.plist). */
+"NSHealthShareUsageDescription" = "Snöläge can read your workouts with a GPS route from Health so you can add them to your tour diary, and remind you of new ski workouts if you turn that on. Nothing else is read.";
+"NSHealthUpdateUsageDescription" = "Snöläge doesn't save anything in Health.";
+"NSCameraUsageDescription" = "Used when you take a photo for an observation or as your profile picture.";
+"NSPhotoLibraryUsageDescription" = "Used when you choose a photo for an observation or as your profile picture.";
+"NSLocationWhenInUseUsageDescription" = "Used to show where you are on the map, which forecast area is closest and where an observation was made.";

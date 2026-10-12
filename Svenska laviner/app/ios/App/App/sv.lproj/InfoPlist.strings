@@ -1,0 +1,6 @@
+/* Behörighetstexter på svenska. */
+"NSHealthShareUsageDescription" = "Snöläge kan hämta dina träningspass med GPS-rutt från Hälsa, så att du kan lägga in dem i din turdagbok, och påminna dig om nya skidpass om du slår på det. Inget annat läses.";
+"NSHealthUpdateUsageDescription" = "Snöläge sparar ingenting i Hälsa.";
+"NSCameraUsageDescription" = "Används när du tar en bild till en observation eller som profilbild.";
+"NSPhotoLibraryUsageDescription" = "Används när du väljer en bild till en observation eller som profilbild.";
+"NSLocationWhenInUseUsageDescription" = "Används för att visa var du är på kartan, vilket prognosområde som ligger närmast och var en observation gjordes.";

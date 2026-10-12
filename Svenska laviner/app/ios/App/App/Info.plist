@@ -6,6 +6,11 @@
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>sv</string>
+	</array>
 	<key>CFBundleDisplayName</key>
         <string>Snöläge</string>
 	<key>CFBundleExecutable</key>
@@ -25,17 +30,17 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Snöläge kan hämta dina träningspass med GPS-rutt från Hälsa, så att du kan lägga in dem i din turdagbok, och påminna dig om nya skidpass om du slår på det. Inget annat läses.</string>
+	<string>Snöläge can read your workouts with a GPS route from Health so you can add them to your tour diary, and remind you of new ski workouts if you turn that on. Nothing else is read.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>Snöläge sparar ingenting i Hälsa.</string>
+	<string>Snöläge doesn't save anything in Health.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Används när du tar en bild till en observation eller som profilbild.</string>
+	<string>Used when you take a photo for an observation or as your profile picture.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Används när du väljer en bild till en observation eller som profilbild.</string>
+	<string>Used when you choose a photo for an observation or as your profile picture.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Används för att visa var du är på kartan, vilket prognosområde som ligger närmast och var en observation gjordes.</string>
+	<string>Used to show where you are on the map, which forecast area is closest and where an observation was made.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
