@@ -17,7 +17,9 @@ const now = Date.now();
 const iso = (h) => new Date(now + h * 3600e3).toISOString();
 const day = (d) => new Date(now + d * 864e5).toISOString().slice(0, 10);
 
-// Kebnekaise fjällstation up to the south summit, roughly.
+// The planned route: Kebnekaise fjällstation up Tarfaladalen to Tarfala.
+const PLAN = [[67.8496, 18.6094], [67.8565, 18.6150], [67.8640, 18.6185], [67.8735, 18.6215], [67.8830, 18.6205], [67.8925, 18.6170], [67.9030, 18.6130], [67.9115, 18.6110]];
+// A recorded tour: Kebnekaise fjällstation up to the south summit, roughly.
 const ROUTE = [[67.8496, 18.6094], [67.8585, 18.5935], [67.8668, 18.5760], [67.8768, 18.5590], [67.8868, 18.5420], [67.8960, 18.5250], [67.9008, 18.5172]];
 const TRACK = ROUTE.flatMap(([lat, lon], i) => {
   const next = ROUTE[i + 1];
@@ -65,7 +67,7 @@ const observations = [
   obs(9, "sprickor", -26, "Skjutsprickor i en liten läsida på 1500 m.", ["skjutsprickor"], 67.875, 18.56, "Sara Berg"),
   obs(10, "ovrigt", -50, "Kraftigt snödrev på kalfjället, vind ca 15 m/s från väst.", ["snodrev"], 67.86, 18.6, "Sara Berg"),
 ];
-const route = { id: 3, title: "Sydtoppen via Västra leden", waypoints: ROUTE, distanceM: 9800, ascentM: 1400, descentM: 0, regionId: "kebnekaisefjallen", shared: false, mine: true, createdAt: iso(-48), updatedAt: iso(-48) };
+const route = { id: 3, title: "Tarfaladalen", waypoints: PLAN, distanceM: 7100, ascentM: 450, descentM: 20, regionId: "kebnekaisefjallen", shared: false, mine: true, createdAt: iso(-48), updatedAt: iso(-48) };
 
 function mock(url) {
   const u = new URL(url);
