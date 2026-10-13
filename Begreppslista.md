@@ -185,21 +185,54 @@ $$\text{ROE} = \dfrac{\text{Net income}}{\text{EBT}} \times \dfrac{\text{EBT}}{\
 - **EVA (Economic value added)**: positive EVA means value is created. $= \text{NOPAT} - \text{Invested capital} \times \text{WACC} = (\text{ROC} - \text{WACC}) \times \text{Invested capital}$
 - **MVA (Market value added)**: market value of equity minus book value of equity. $= \text{MV} - \text{BV}$
 - **Abnormal (residual) earnings**: profit above what the owners require. $= \text{Net income}_t - r_e \times \text{BVE}_{t-1}$
-- **Residual income valuation**: $\text{MV} = \text{BVE} + \sum_{t=1}^{\infty} \dfrac{\text{Abnormal earnings}_t}{(1 + r_e)^t}$
+- **Residual income valuation**: $\text{MV} = \text{BVE} + \displaystyle\sum_{t=1}^{\infty} \dfrac{\text{Abnormal earnings}_t}{(1 + r_e)^t}$
 - **FMCG (Fast-moving consumer goods)**: everyday goods sold quickly at low margins, e.g. Procter & Gamble's personal care, household items, beverages and OTC drugs.
 
 ## 11. Time value of money
 - **Time value of money (TVM)**: money today is worth more than the same amount later, because it can earn interest.
-- **Future value (FV)**: $= \text{PV} \times (1 + r)^n$
-- **Present value (PV)**: today's value of a future amount (discounting). $= \dfrac{\text{FV}}{(1 + r)^n} = \text{FV} \times \text{DF}$
 - **Discount rate**: the rate r used to discount future cash flows, e.g. the required return or WACC. Higher r gives lower PV.
+- **Discounting / compounding**: discounting moves money back in time (FV → PV); compounding moves it forward (PV → FV).
+
+**Single amounts**
+- **Future value (FV)**: $\text{FV} = \text{PV} \times (1 + r)^n$
+- **Present value (PV)**: $\text{PV} = \dfrac{\text{FV}}{(1 + r)^n} = \text{FV} \times \text{DF}$
 - **Discount factor (DF)**: today's value of 1 kr received in n periods. $\text{DF} = \dfrac{1}{(1 + r)^n}$
+- **Compound factor**: what 1 kr today grows to in n periods. $= (1 + r)^n$
 - **Simple interest**: interest only on the original amount. $\text{FV} = \text{PV} \times (1 + r \times n)$
 - **Compound interest**: interest on interest. $\text{FV} = \text{PV} \times (1 + r)^n$
-- **Compounding m times per year**: $\text{FV} = \text{PV} \times \left(1 + \dfrac{r}{m}\right)^{m \times n}$
-- **Effective annual rate (EAR)**: $= \left(1 + \dfrac{r}{m}\right)^m - 1$
-- **Continuous compounding**: $\text{FV} = \text{PV} \times e^{r \times n}$
-- **Future value of an annuity**: equal payments C each period. $\text{FV} = C \times \dfrac{(1 + r)^n - 1}{r}$
-- **Perpetuity**: the same cash flow forever, starting in one period. $\text{PV} = \dfrac{C}{r}$
-- **Growing perpetuity**: the cash flow grows at rate g; requires r > g. $\text{PV} = \dfrac{C_1}{r - g}$
+
+**Compounding frequency (m = periods per year)**
+- **FV with m periods per year**: $\text{FV} = \text{PV} \times \left(1 + \dfrac{r}{m}\right)^{m \times n}$
+- **PV with m periods per year**: $\text{PV} = \dfrac{\text{FV}}{\left(1 + \dfrac{r}{m}\right)^{m \times n}}$
+- **Effective annual rate (EAR)**: $\text{EAR} = \left(1 + \dfrac{r}{m}\right)^m - 1$
+- **Continuous compounding, FV**: $\text{FV} = \text{PV} \times e^{r \times n}$
+- **Continuous compounding, PV**: $\text{PV} = \text{FV} \times e^{-r \times n}$
+- **EAR with continuous compounding**: $\text{EAR} = e^r - 1$
+- **Real interest rate (Fisher)**: $(1 + r_{\text{nominal}}) = (1 + r_{\text{real}}) \times (1 + \text{inflation})$
+
+**Multiple cash flows**
+- **PV of uneven cash flows**: $\text{PV} = \displaystyle\sum_{t=1}^{n} \dfrac{\text{CF}_t}{(1 + r)^t}$
+- **FV of uneven cash flows**: $\text{FV} = \displaystyle\sum_{t=1}^{n} \text{CF}_t \times (1 + r)^{n-t}$
+- **NPV (Net present value)**: invest if NPV > 0. $\text{NPV} = -\text{CF}_0 + \displaystyle\sum_{t=1}^{n} \dfrac{\text{CF}_t}{(1 + r)^t}$
+
+**Annuities (equal payment C every period for n periods)**
+- **PV of an annuity**: $\text{PV} = C \times \dfrac{1 - (1 + r)^{-n}}{r}$
+- **Annuity factor**: PV of 1 kr per period. $\text{AF} = \dfrac{1 - (1 + r)^{-n}}{r}$
+- **FV of an annuity**: $\text{FV} = C \times \dfrac{(1 + r)^n - 1}{r}$
+- **Annuity due**: payments at the start of each period, so multiply by (1 + r). $\text{PV}_{\text{due}} = \text{PV}_{\text{annuity}} \times (1 + r)$
+- **FV of an annuity due**: $\text{FV}_{\text{due}} = \text{FV}_{\text{annuity}} \times (1 + r)$
+- **Loan / annuity payment**: the equal payment that repays a loan. $C = \dfrac{\text{PV} \times r}{1 - (1 + r)^{-n}}$
+- **PV of a growing annuity**: grows at rate g. $\text{PV} = \dfrac{C_1}{r - g} \times \left[1 - \left(\dfrac{1 + g}{1 + r}\right)^n\right]$
+- **FV of a growing annuity**: $\text{FV} = C_1 \times \dfrac{(1 + r)^n - (1 + g)^n}{r - g}$
+
+**Perpetuities (cash flows forever)**
+- **Perpetuity**: first payment in one period. $\text{PV} = \dfrac{C}{r}$
+- **Perpetuity due**: first payment today. $\text{PV} = C + \dfrac{C}{r}$
+- **Delayed perpetuity**: first payment at time t. $\text{PV}_0 = \dfrac{C}{r} \times \dfrac{1}{(1 + r)^{t-1}}$
+- **Growing perpetuity**: requires r > g. Used in the Gordon growth model and terminal value. $\text{PV} = \dfrac{C_1}{r - g}$
+
+**Solving for r and n**
+- **Interest rate**: $r = \left(\dfrac{\text{FV}}{\text{PV}}\right)^{\frac{1}{n}} - 1$
+- **Number of periods**: $n = \dfrac{\ln\left(\dfrac{\text{FV}}{\text{PV}}\right)}{\ln(1 + r)}$
+- **Doubling time (exact)**: $n = \dfrac{\ln 2}{\ln(1 + r)}$
 - **Rule of 72**: approximate years to double, with r in percent. $\text{Years to double} \approx \dfrac{72}{r}$
