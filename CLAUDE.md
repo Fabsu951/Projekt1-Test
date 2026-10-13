@@ -209,6 +209,14 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
     postinstall downloading `libvips` from a GitHub release times out) — this
     is transient, just retry `npm install`.
 
+## Front-end design
+
+Fabian (2026-10-13): all UI/design work follows the **frontend-design**
+skill (`.claude/skills/frontend-design/SKILL.md`, copied from Anthropic's
+official plugin; source in `SOURCE.md` there). Load it before changing how
+anything looks. The brief's own words win: keep the danger-scale colours,
+Swedish en dash, sentence case etc. from "Design + themes" below.
+
 ## Feature priority (user's explicit order: E → C+D → B → A)
 
 - **E** — source citations everywhere: **done**. `SourceList` component,
