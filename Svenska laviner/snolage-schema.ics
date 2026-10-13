@@ -54,12 +54,12 @@ UID:snolage-schema-3@snolage.se
 DTSTAMP:20261011T120000Z
 DTSTART:20261015T190000
 DTEND:20261015T194500
-SUMMARY:Snöläge: Filma klipp A1: "Jag har byggt en lavinapp. Själv."
-DESCRIPTION:Manus i SOCIALA-MEDIER.md 2A\, klipp 1. 30 s\, lodrätt\, text 
- i bild\, textremsor i CapCut.
+SUMMARY:Snöläge: Filma klipp A1: "Tre appar före varje topptur?"
+DESCRIPTION:Manus i marknad/manus/A1.md. 30–35 s\, lodrätt\, text i bild
+ \, textremsor i CapCut.
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Filma klipp A1: "Jag har byggt en lavinapp. Själv."
+DESCRIPTION:Filma klipp A1: "Tre appar före varje topptur?"
 TRIGGER:-PT15M
 END:VALARM
 END:VEVENT

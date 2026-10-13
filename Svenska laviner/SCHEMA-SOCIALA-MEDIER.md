@@ -35,8 +35,8 @@ Ett klipp i veckan om dig och appen, och du lär känna grupperna. Ca 1–2 timm
   CapCut (klippa), Meta Business Suite (schemalägga Instagram och Facebook). Kontona är ihopkopplade i Metas kontocenter: kolla att Dela mellan profiler är av mellan snolage och dina privata konton.
 - **ons 14 okt kl 19:00** (30 min): **Gå med i grupper och forum**  
   Sök på topptur, offpist, randonnée, backcountry och orterna (Riksgränsen, Abisko, Hemavan, Åre, Funäsdalen). Gå med i de 5–10 mest aktiva Facebookgrupperna. Skapa konto på Utsidan. Läs reglerna om reklam överallt. Skriv inget om Snöläge än.
-- **tor 15 okt kl 19:00** (45 min): **Filma klipp A1: "Jag har byggt en lavinapp. Själv."**  
-  Manus i SOCIALA-MEDIER.md 2A, klipp 1. 30 s, lodrätt, text i bild, textremsor i CapCut.
+- **tor 15 okt kl 19:00** (45 min): **Filma klipp A1: "Tre appar före varje topptur?"**  
+  Manus i marknad/manus/A1.md. 30–35 s, lodrätt, text i bild, textremsor i CapCut.
 - **lör 17 okt kl 10:00** (20 min): **Publicera A1**  
   Alla fyra. Text: kroken + 2 meningar + "Länk i bion". Hashtaggar: #topptur #offpist #lavin #snöläge #fjällen.
 - **sön 18 okt kl 18:00** (15 min): **Svara på kommentarer**  

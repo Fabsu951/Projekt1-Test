@@ -15,7 +15,7 @@ och källa anges.
   **Facebookgrupperna och forumen** är där toppturfolket faktiskt pratar.
 - **Mest värde, lite reklam.** Ungefär 4 av 5 inlägg ska lära ut något
   eller visa läget. Högst 1 av 5 handlar om själva appen.
-- **Du är en del av berättelsen.** "Jag byggde en svensk lavinapp själv"
+- **Problemet är kroken.** "Tre appar före varje topptur? Inte längre."
   är en starkare krok än "Ladda ner Snöläge".
 
 ---
@@ -65,13 +65,16 @@ bara din röst.
 
 Det här brukar gå bäst på TikTok. Gör en serie.
 
-**Klipp 1, 30 s:**
-- 0–2 s, du i bild, text: *"Jag har byggt en lavinapp. Själv."*
-- 2–10 s: "Innan varje topptur hoppade jag mellan lavinprognoser.se, SMHI
-  och en kartapp. Så jag byggde en app som har allt på ett ställe."
-- 10–25 s, skärminspelning: områdessidan → kartan med lutning → rita en
-  rutt → de markerade bitarna.
-- 25–30 s: "Den heter Snöläge, den är gratis. Vad ska jag bygga härnäst?"
+**Klipp 1, 30–35 s** (ord för ord i `marknad/manus/A1.md`):
+- 0–2 s, du i bild: "Tre appar före varje topptur? Inte längre."
+  Text i bild: *"3 appar före varje topptur?"*
+- 2–8 s: "Jag hoppade alltid mellan lavinprognosen, SMHI och en kartapp.
+  Så jag byggde en app som har allt på ett ställe."
+- 8–27 s, skärminspelning: startsidan → ett område → kartan med lutning →
+  rita en rutt med höjdprofil. Före säsongen: säg att ruttkollen mot
+  dagens lavinproblem kommer när prognoserna börjar.
+- 27–33 s: "Gratis och utan reklam, och den ersätter inte lavinkurs eller
+  egen bedömning. Vad saknar du i en lavinapp?"
 
 Följ upp med: "Dag 1 av säsongen", "Så funkar ruttkollen", "Första
 observationen kom in", "Ni bad om X, nu finns det". Svara på kommentarer
