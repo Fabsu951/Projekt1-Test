@@ -216,20 +216,32 @@ $$\text{ROE} = \dfrac{\text{Net income}}{\text{EBT}} \times \dfrac{\text{EBT}}{\
 - **NPV (Net present value)**: invest if NPV > 0. $\text{NPV} = -\text{CF}_0 + \displaystyle\sum_{t=1}^{n} \dfrac{\text{CF}_t}{(1 + r)^t}$
 
 **Annuities (equal payment C every period for n periods)**
-- **PV of an annuity**: $\text{PV} = C \times \dfrac{1 - (1 + r)^{-n}}{r}$
-- **Annuity factor**: PV of 1 kr per period. $\text{AF} = \dfrac{1 - (1 + r)^{-n}}{r}$
-- **FV of an annuity**: $\text{FV} = C \times \dfrac{(1 + r)^n - 1}{r}$
-- **Annuity due**: payments at the start of each period, so multiply by (1 + r). $\text{PV}_{\text{due}} = \text{PV}_{\text{annuity}} \times (1 + r)$
-- **FV of an annuity due**: $\text{FV}_{\text{due}} = \text{FV}_{\text{annuity}} \times (1 + r)$
-- **Loan / annuity payment**: the equal payment that repays a loan. $C = \dfrac{\text{PV} \times r}{1 - (1 + r)^{-n}}$
+- **Ordinary annuity**: payments at the end of each period. $\text{PV} = C \times \dfrac{1 - (1 + r)^{-n}}{r} = C \times \text{PVAF}$
+- **PVAF (Present value annuity factor)**: PV of 1 kr per period; the sum of the discount factors. $\text{PVAF} = \dfrac{1 - (1 + r)^{-n}}{r} = \text{DF}_1 + \text{DF}_2 + \dots + \text{DF}_n$
+- **FV of an annuity**: $\text{FV} = C \times \dfrac{(1 + r)^n - 1}{r} = C \times \text{FVAF}$
+- **FVAF (Future value annuity factor)**: $\text{FVAF} = \dfrac{(1 + r)^n - 1}{r}$
+- **Annuity = difference of two perpetuities**: one starting now minus one starting after n periods. $\text{PV} = \dfrac{C}{r} - \dfrac{C}{r} \times \dfrac{1}{(1 + r)^n}$
+- **Annuity due**: payments at the start of each period (rent, leasing, "starting today"). Always worth more. $\text{PV}_{\text{due}} = C \times \text{PVAF} \times (1 + r) = C + C \times \text{PVAF}_{n-1}$
+- **FV of an annuity due**: $\text{FV}_{\text{due}} = C \times \text{FVAF} \times (1 + r)$
+- **Loan / annuity payment**: the equal payment that repays a loan. $C = \dfrac{\text{PV}}{\text{PVAF}} = \dfrac{\text{PV} \times r}{1 - (1 + r)^{-n}}$
+- **Loan payment, annuity due**: $C = \dfrac{\text{PV}}{\text{PVAF} \times (1 + r)}$
+- **Savings needed per period**: $C = \dfrac{\text{FV}}{\text{FVAF}}$
 - **PV of a growing annuity**: grows at rate g. $\text{PV} = \dfrac{C_1}{r - g} \times \left[1 - \left(\dfrac{1 + g}{1 + r}\right)^n\right]$
 - **FV of a growing annuity**: $\text{FV} = C_1 \times \dfrac{(1 + r)^n - (1 + g)^n}{r - g}$
+- **Monthly payments**: use the monthly rate and number of months. $r_{\text{month}} = \dfrac{r}{12}, \quad n_{\text{months}} = 12 \times n$
+
+**Retirement planning (two annuities)**
+- **Step 1, amount needed at retirement**: PV of the withdrawals X over the retirement years. $\text{Needed} = X \times \text{PVAF}$
+- **Step 2, saving per year**: the savings must grow to the amount needed. $C = \dfrac{\text{Needed}}{\text{FVAF}}$
+- **Lump sum today instead**: $\text{PV}_0 = \dfrac{\text{Needed}}{(1 + r)^n}$
+- **Withdrawals forever**: use a perpetuity. $\text{Needed} = \dfrac{X}{r}$
 
 **Perpetuities (cash flows forever)**
 - **Perpetuity**: first payment in one period. $\text{PV} = \dfrac{C}{r}$
-- **Perpetuity due**: first payment today. $\text{PV} = C + \dfrac{C}{r}$
+- **Perpetuity due**: first payment today. $\text{PV} = C + \dfrac{C}{r} = \dfrac{C}{r} \times (1 + r)$
 - **Delayed perpetuity**: first payment at time t. $\text{PV}_0 = \dfrac{C}{r} \times \dfrac{1}{(1 + r)^{t-1}}$
 - **Growing perpetuity**: requires r > g. Used in the Gordon growth model and terminal value. $\text{PV} = \dfrac{C_1}{r - g}$
+- **Growing perpetuity due**: first payment C today, then growing at g. $\text{PV} = C + \dfrac{C \times (1 + g)}{r - g} = \dfrac{C \times (1 + r)}{r - g}$
 
 **Solving for r and n**
 - **Interest rate**: $r = \left(\dfrac{\text{FV}}{\text{PV}}\right)^{\frac{1}{n}} - 1$
