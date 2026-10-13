@@ -88,7 +88,7 @@ export default function RouteOfflineBox({
         </div>
       ) : saved && !outdated ? (
         <div className="offline-box__row">
-          <span>{t("✓ Sparad offline ·")}{" "}{formatMegabytes(saved.bytes)}{" "}{t("karta längs rutten")}</span>
+          <span>{t("✓ Sparad offline:")}{" "}{formatMegabytes(saved.bytes)}{" "}{t("karta längs rutten")}</span>
           <button
             type="button"
             className="link-button"
@@ -112,7 +112,7 @@ export default function RouteOfflineBox({
             {outdated ? t("Uppdatera offline-kopian") : t("Spara offline")}
           </button>
           <span className="offline-box__hint">
-            {t("Karta längs rutten, höjdprofil och siffror utan täckning · ca")}{" "}{formatMegabytes(estimateRouteBytes(draft.points))}
+            {t("Karta längs rutten, höjdprofil och siffror utan täckning, ca")}{" "}{formatMegabytes(estimateRouteBytes(draft.points))}
           </span>
         </div>
       )}
@@ -135,7 +135,7 @@ export function OfflineRouteList({ onOpen, refreshKey }: { onOpen: (r: OfflineRo
         {routes.map((r) => (
           <li key={r.key}>
             <span>
-              {r.title} · {formatMegabytes(r.bytes)}
+              {r.title}, {formatMegabytes(r.bytes)}
             </span>
             <button type="button" className="link-button" onClick={() => onOpen(r)}>
               {t("Öppna")}

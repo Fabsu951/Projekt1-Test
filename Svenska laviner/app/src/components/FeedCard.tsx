@@ -37,7 +37,7 @@ export default function FeedCard({ item, badge }: { item: FeedItem; badge?: Badg
             {author.name}
           </Link>
           <AdminBadge show={badge?.isAdmin} />{" "}
-          {what} · <time dateTime={item.createdAt}>{ago(item.createdAt)}</time>
+          {what}, <time dateTime={item.createdAt}>{ago(item.createdAt)}</time>
         </p>
       </div>
 
@@ -62,8 +62,8 @@ function TourBody({ item }: { item: Extract<FeedItem, { type: "tour" }> }) {
         </Link>
         <p className="feed-card__meta">
           {formatTourDate(tour.startedAt)}
-          {region && ` · ${region.name}`}
-          {tour.visibility === "followers" && t(" · bara följare")}
+          {region && `, ${region.name}`}
+          {tour.visibility === "followers" && t(", bara följare")}
         </p>
         <ul className="tour-card__stats" aria-label={t("Turens fakta")}>
           <li>{formatDistance(tour.distanceM)}</li>
@@ -87,7 +87,7 @@ function ObservationBody({ item }: { item: Extract<FeedItem, { type: "observatio
         <p className="feed-card__title">{observationTypeLabel(o.type)}</p>
         <p className="feed-card__meta">
           {t("Observerad")}{" "}{ago(o.observedAt)}
-          {region && ` · ${region.name}`}
+          {region && `, ${region.name}`}
         </p>
         <p className="feed-card__text">{o.description}</p>
       </div>

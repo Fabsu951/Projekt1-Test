@@ -14,9 +14,9 @@ describe("SnowDepthCard", () => {
     ]);
     render(<SnowDepthCard regionId="riksgransfjallen" lat={68.4} lon={18.1} />);
     expect(await screen.findByText("45 cm")).toBeInTheDocument();
-    expect(screen.getByText("388 m ö.h. · 12 km bort · +8 cm på 3 dygn")).toBeInTheDocument();
+    expect(screen.getByText("388 m ö.h., 12 km bort, +8 cm på 3 dygn")).toBeInTheDocument();
     expect(screen.getByText("Barmark")).toBeInTheDocument();
-    expect(screen.getByText("30 km bort · −3 cm på 3 dygn")).toBeInTheDocument();
+    expect(screen.getByText("30 km bort, −3 cm på 3 dygn")).toBeInTheDocument();
   });
 
   it("is hidden without stations or when SMHI can't be reached", async () => {

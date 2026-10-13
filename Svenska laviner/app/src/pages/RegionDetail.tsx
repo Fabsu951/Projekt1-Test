@@ -14,7 +14,7 @@ import type { Tour } from "../types/tour";
 import { fetchWeather } from "../services/weatherService";
 import type { AvalancheForecast } from "../types/avalanche";
 import type { WeatherPoint } from "../types/weather";
-import ForecastBadge from "../components/ForecastBadge";
+import DangerHero from "../components/DangerHero";
 import OfficialForecast from "../components/OfficialForecast";
 import ForecastNotes from "../components/ForecastNotes";
 import DangerAdvice from "../components/DangerAdvice";
@@ -128,11 +128,11 @@ export default function RegionDetail() {
             label={t("Dela prognosen för {name}", { name: region.name })}
           />
         </div>
-        <p className="page__lead">{region.subAreas.join(" · ")}</p>
+        <p className="page__lead">{region.subAreas.join(", ")}</p>
         {forecast ? (
-          <ForecastBadge forecast={forecast} size="large" />
+          <DangerHero forecast={forecast} />
         ) : (
-          <span className="skeleton skeleton--badge skeleton--badge-large" aria-label={t("Laddar farograd")} />
+          <span className="skeleton danger-hero danger-hero--loading" aria-label={t("Laddar farograd")} />
         )}
       </header>
 

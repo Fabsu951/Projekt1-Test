@@ -203,7 +203,7 @@ export default function SeasonPage() {
                 <strong>{dayText(selected)}</strong>
                 {selected.problems.length > 0 && (
                   <span>
-                    {" · "}
+                    {", "}
                     {selected.problems
                       .map((p) => data.problems.find((x) => x.type === p)?.name ?? p)
                       .join(", ")}
@@ -274,7 +274,7 @@ export default function SeasonPage() {
               {data.days.map((d) => (
                 <li key={d.date}>
                   {dayText(d)}
-                  {d.problems.length > 0 && ` · ${d.problems.map((p) => data.problems.find((x) => x.type === p)?.name ?? p).join(", ")}`}
+                  {d.problems.length > 0 && `, ${d.problems.map((p) => data.problems.find((x) => x.type === p)?.name ?? p).join(", ")}`}
                 </li>
               ))}
             </ul>

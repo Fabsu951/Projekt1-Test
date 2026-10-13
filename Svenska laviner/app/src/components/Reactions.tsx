@@ -115,7 +115,7 @@ export default function Reactions({
             onClick={() => void toggleLike()}
           >
             <span aria-hidden="true">{liked ? "♥" : "♡"}</span>{" "}{t("Gilla")}
-            {likes > 0 && ` · ${likes}`}
+            {likes > 0 && ` (${likes})`}
           </button>
         ) : (
           likes > 0 && <span className="reactions__count">♥ {likes}</span>
@@ -134,7 +134,7 @@ export default function Reactions({
               <div>
                 <p className="comment__meta">
                   <Link to={`/person/${c.userId}`}>{c.author}</Link>
-                  <AdminBadge show={people[c.userId]?.isAdmin} /> · {when(c.createdAt)}
+                  <AdminBadge show={people[c.userId]?.isAdmin} />, {when(c.createdAt)}
                   {c.canDelete && (
                     <button type="button" className="comment__delete" onClick={() => void remove(c)}>
                       {t("Ta bort")}

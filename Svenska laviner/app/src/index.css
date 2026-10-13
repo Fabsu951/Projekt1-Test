@@ -7,33 +7,37 @@
   --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
   --safe-left: max(env(safe-area-inset-left, 0px), var(--safe-area-inset-left, 0px));
 
-  --font-display: "Familjen Grotesk Variable", "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  /* One family, two widths: narrow like trail signs for headings and
+     numbers, normal width for reading. */
   --font-body: "Instrument Sans Variable", "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-body);
+  --display-stretch: 78%;
   --radius: 8px;
   --radius-lg: 12px;
   --tap: 44px;
 
-  /* Night on the fell (default). Ink-blue surfaces, a lake-blue for
-     anything you can press, and a snow-white ring around danger colours so
-     every level, the black 5 included, stands out. */
-  --bg: #0f1418;
-  --bg-elevated: #161d23;
-  --bg-raised: #1f2830;
-  --header-bg: #0f1418;
-  --text: #edf1f3;
-  --text-soft: #cfd8df;
-  --text-muted: #9ba8b3;
+  /* Night (default): polar-night blue. Like the paper map below, colour is
+     kept for danger – UI chrome is ink, lake blue and contour lines – and a
+     snow ring keeps every danger colour, the black 5 included, legible. */
+  --bg: #0b1722;
+  --bg-elevated: #112231;
+  --bg-raised: #1a2d3d;
+  --header-bg: #0b1722;
+  --text: #e6edf2;
+  --text-soft: #c9d5de;
+  --text-muted: #9aabb8;
   --accent: #8ec5f0;
   --accent-strong: #b8dbf6;
-  --on-accent: #0b1620;
-  --signal: #f2a65a;
-  --on-signal: #1a1205;
+  --on-accent: #0a1622;
+  --signal: var(--text);
+  --on-signal: var(--bg);
   --snow: #e9eff4;
-  --border: #2a353f;
-  --divider: rgba(255, 255, 255, 0.1);
+  --border: #253a4b;
+  --contour-line: #4a3d33;
+  --divider: rgba(201, 170, 130, 0.16);
   --hover-bg: rgba(255, 255, 255, 0.05);
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  --contour: rgba(142, 197, 240, 0.09);
+  --contour: rgba(201, 170, 130, 0.1);
 
   --warn-bg: #2a2210;
   --warn-border: #6b5420;
@@ -63,26 +67,28 @@
   text-rendering: optimizeLegibility;
 }
 
-/* Day: a paper map. Warm off-white, ink text, lake-blue links. */
+/* Day: Fjällkartan – white paper, black ink, lake-blue links, brown
+   contour lines for structure. */
 :root[data-theme="light"] {
-  --bg: #f5f3ee;
+  --bg: #f6f7f6;
   --bg-elevated: #ffffff;
-  --bg-raised: #ece8e0;
-  --header-bg: #fbfaf7;
-  --text: #18212a;
-  --text-soft: #2f3a44;
-  --text-muted: #56626d;
+  --bg-raised: #edf0f0;
+  --header-bg: #ffffff;
+  --text: #17222b;
+  --text-soft: #2c3842;
+  --text-muted: #5c6873;
   --accent: #1c5d99;
   --accent-strong: #134a7c;
   --on-accent: #ffffff;
-  --signal: #b4530f;
+  --signal: var(--text);
   --on-signal: #ffffff;
-  --snow: rgba(24, 33, 42, 0.85);
-  --border: #dcd6cb;
-  --divider: rgba(24, 33, 42, 0.1);
-  --hover-bg: rgba(24, 33, 42, 0.04);
-  --shadow: 0 8px 24px rgba(24, 33, 42, 0.12);
-  --contour: rgba(28, 93, 153, 0.08);
+  --snow: rgba(23, 34, 43, 0.85);
+  --border: #d6dbdc;
+  --contour-line: #cdbba3;
+  --divider: rgba(141, 106, 66, 0.22);
+  --hover-bg: rgba(23, 34, 43, 0.04);
+  --shadow: 0 8px 24px rgba(23, 34, 43, 0.12);
+  --contour: rgba(141, 106, 66, 0.13);
 
   --warn-bg: #fbf1d6;
   --warn-border: #e3c977;
@@ -109,24 +115,25 @@
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --bg: #f5f3ee;
+    --bg: #f6f7f6;
     --bg-elevated: #ffffff;
-    --bg-raised: #ece8e0;
-    --header-bg: #fbfaf7;
-    --text: #18212a;
-    --text-soft: #2f3a44;
-    --text-muted: #56626d;
+    --bg-raised: #edf0f0;
+    --header-bg: #ffffff;
+    --text: #17222b;
+    --text-soft: #2c3842;
+    --text-muted: #5c6873;
     --accent: #1c5d99;
     --accent-strong: #134a7c;
     --on-accent: #ffffff;
-    --signal: #b4530f;
+    --signal: var(--text);
     --on-signal: #ffffff;
-    --snow: rgba(24, 33, 42, 0.85);
-    --border: #dcd6cb;
-    --divider: rgba(24, 33, 42, 0.1);
-    --hover-bg: rgba(24, 33, 42, 0.04);
-    --shadow: 0 8px 24px rgba(24, 33, 42, 0.12);
-    --contour: rgba(28, 93, 153, 0.08);
+    --snow: rgba(23, 34, 43, 0.85);
+    --border: #d6dbdc;
+    --contour-line: #cdbba3;
+    --divider: rgba(141, 106, 66, 0.22);
+    --hover-bg: rgba(23, 34, 43, 0.04);
+    --shadow: 0 8px 24px rgba(23, 34, 43, 0.12);
+    --contour: rgba(141, 106, 66, 0.13);
 
     --warn-bg: #fbf1d6;
     --warn-border: #e3c977;
@@ -163,8 +170,9 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
+  font-stretch: var(--display-stretch);
   font-weight: 650;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
   line-height: 1.15;
   text-wrap: balance;
 }

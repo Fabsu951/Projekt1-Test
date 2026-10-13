@@ -20,7 +20,7 @@ export default function TourCard({ tour }: { tour: Tour }) {
       </header>
       <p className="tour-card__meta">
         {formatTourDate(tour.startedAt)}
-        {region ? ` · ${region.name}` : ""} · <Link to={`/person/${tour.userId}`}>{tour.author}</Link>
+        {region ? `, ${region.name}` : ""}, <Link to={`/person/${tour.userId}`}>{tour.author}</Link>
         <AdminBadge show={tour.authorIsAdmin} />
       </p>
       <ul className="tour-card__stats" aria-label={t("Turens fakta")}>

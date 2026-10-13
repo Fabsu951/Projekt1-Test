@@ -71,10 +71,10 @@ async function readStatus(): Promise<DeviceStatus> {
     weather: weather.filter((w): w is { name: string; at: string } => !!w.at),
     areas: Object.entries(areas).map(([id, a]) => ({
       name: REGIONS.find((r) => r.id === id)?.name ?? id,
-      detail: `${OFFLINE_LEVELS[a.level]?.label ?? ""} · ${formatMegabytes(a.bytes)} · ${when(a.savedAt)}`,
+      detail: `${OFFLINE_LEVELS[a.level]?.label ?? ""}, ${formatMegabytes(a.bytes)}, ${when(a.savedAt)}`,
     })),
-    views: views.map((v) => ({ name: v.name, detail: `${formatMegabytes(v.bytes)} · ${when(v.savedAt)}` })),
-    routes: routes.map((r) => ({ name: r.title || t("Rutt utan namn"), detail: `${formatMegabytes(r.bytes)} · ${when(r.savedAt)}` })),
+    views: views.map((v) => ({ name: v.name, detail: `${formatMegabytes(v.bytes)}, ${when(v.savedAt)}` })),
+    routes: routes.map((r) => ({ name: r.title || t("Rutt utan namn"), detail: `${formatMegabytes(r.bytes)}, ${when(r.savedAt)}` })),
   };
 }
 
@@ -144,17 +144,17 @@ export default function OfflinePage() {
                 <ul>
                   {status.areas.map((a) => (
                     <li key={`a-${a.name}`}>
-                      {t("Område")}{" "}{a.name} <span className="muted">· {a.detail}</span>
+                      {t("Område")}{" "}{a.name} <span className="muted">– {a.detail}</span>
                     </li>
                   ))}
                   {status.views.map((v, i) => (
                     <li key={`v-${i}`}>
-                      {t("Kartvy")}{" "}{v.name} <span className="muted">· {v.detail}</span>
+                      {t("Kartvy")}{" "}{v.name} <span className="muted">– {v.detail}</span>
                     </li>
                   ))}
                   {status.routes.map((r, i) => (
                     <li key={`r-${i}`}>
-                      {t("Rutt")}{" "}{r.name} <span className="muted">· {r.detail}</span>
+                      {t("Rutt")}{" "}{r.name} <span className="muted">– {r.detail}</span>
                     </li>
                   ))}
                 </ul>

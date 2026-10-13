@@ -53,8 +53,8 @@ export default function TourHeatmap({ lines }: { lines: TourLine[] }) {
                 <Link to={`/turer/${tour.id}`}>{tour.title ?? t("Tur")}</Link>
                 {tour.startedAt && (
                   <span className="heat-popup__date">
-                    {" "}
-                    · {new Date(tour.startedAt).toLocaleDateString(locale(), { day: "numeric", month: "short", year: "numeric" })}
+                    {", "}
+                    {new Date(tour.startedAt).toLocaleDateString(locale(), { day: "numeric", month: "short", year: "numeric" })}
                   </span>
                 )}
               </li>

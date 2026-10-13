@@ -66,7 +66,7 @@ export default function ObservationCard({ observation: o, onChanged, showAdminAc
         </span>
         <span className="observation-card__meta">
           {formatWhen(o.observedAt)}
-          {region ? ` · ${region.name}` : ""}
+          {region ? `, ${region.name}` : ""}
         </span>
       </header>
       {((o.dangerSigns?.length ?? 0) > 0 || o.snowDepthCm != null) && (
@@ -94,8 +94,8 @@ export default function ObservationCard({ observation: o, onChanged, showAdminAc
           <Link to={`/person/${o.userId}`}>
             <strong>{o.author}</strong>
           </Link>
-          <AdminBadge show={o.authorIsAdmin} />{" "}
-          ·{" "}
+          <AdminBadge show={o.authorIsAdmin} />
+          {", "}
           <a href={`https://www.openstreetmap.org/?mlat=${o.lat}&mlon=${o.lon}#map=14/${o.lat}/${o.lon}`} target="_blank" rel="noreferrer">
             {o.lat.toFixed(4)}, {o.lon.toFixed(4)}
           </a>

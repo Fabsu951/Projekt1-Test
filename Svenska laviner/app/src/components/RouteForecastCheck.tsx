@@ -41,7 +41,7 @@ export default function RouteForecastCheck({
       ) : (
         <>
           <p className="route-forecast__area">
-            <ForecastBadge forecast={forecast} /> {regionName} ·{" "}
+            <ForecastBadge forecast={forecast} /> {regionName},{" "}
             <Link to={`/omrade/${check.regionId}`}>{t("hela prognosen")}</Link>
           </p>
           <ul className="route-forecast__list">

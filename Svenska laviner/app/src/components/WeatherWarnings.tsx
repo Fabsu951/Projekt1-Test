@@ -58,7 +58,7 @@ export default function WeatherWarnings({ regionId }: { regionId: string }) {
               <WarningChip level={w.level} /> <strong>{pick(w.event)}</strong>
             </p>
             <p className="muted">
-              {[pick(w.area), when(w)].filter(Boolean).join(" · ")}
+              {[pick(w.area), when(w)].filter(Boolean).join(", ")}
             </p>
             {pick(w.text) && (
               <details>

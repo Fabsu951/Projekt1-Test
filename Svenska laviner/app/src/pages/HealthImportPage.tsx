@@ -277,7 +277,7 @@ export default function HealthImportPage() {
                   <span className="health-list__text">
                     <strong>{w.label}</strong>
                     <span>
-                      {when(w.startDate)} · {duration(w)} · {formatDistance(w.distanceM)}
+                      {when(w.startDate)}, {duration(w)}, {formatDistance(w.distanceM)}
                     </span>
                   </span>
                 </label>
@@ -392,8 +392,8 @@ function RoutelessList({
         {items.map((w) => (
           <li key={w.id}>
             <span>
-              <strong>{w.label}</strong> · {when(w.startDate)}
-              {w.distanceM ? ` · ${formatDistance(w.distanceM)}` : ""}
+              <strong>{w.label}</strong>, {when(w.startDate)}
+              {w.distanceM ? `, ${formatDistance(w.distanceM)}` : ""}
               {status[w.id] === "none" && <span className="health-routeless__note">{t("Ingen GPS-rutt i det här passet.")}</span>}
               {status[w.id] === "error" && <span className="health-routeless__note">{t("Health Connect svarade inte. Försök igen.")}</span>}
             </span>

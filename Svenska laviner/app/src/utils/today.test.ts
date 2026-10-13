@@ -28,7 +28,7 @@ describe("today helpers", () => {
 
   it("summarises where a problem is", () => {
     const p: ForecastProblem = { type: null, name: "Drevsnöflak", aspects: ["S", "O"], elevations: ["kalfjall"], metersAbove: null, metersBelow: null, sensitivity: null, size: null, where: null, infoUrl: null };
-    expect(problemWhere(p)).toBe("O, S · kalfjället");
-    expect(problemWhere({ ...p, aspects: ["N", "NO", "O", "SO", "S", "SV", "V", "NV"], metersAbove: 800 })).toBe("alla väderstreck · över 800 m");
+    expect(problemWhere(p)).toBe("O/S, kalfjället");
+    expect(problemWhere({ ...p, aspects: ["N", "NO", "O", "SO", "S", "SV", "V", "NV"], metersAbove: 800 })).toBe("alla väderstreck, över 800 m");
   });
 });

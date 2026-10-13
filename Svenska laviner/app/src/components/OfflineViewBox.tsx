@@ -84,7 +84,7 @@ export default function OfflineViewBox({ bounds, onShow }: { bounds: Bounds | nu
           {views.map((v) => (
             <li key={v.key}>
               <span>
-                {v.name} · {formatMegabytes(v.bytes)}
+                {v.name}, {formatMegabytes(v.bytes)}
               </span>
               <span className="offline-box__actions">
                 <button type="button" className="link-button" onClick={() => onShow(v.bounds)}>

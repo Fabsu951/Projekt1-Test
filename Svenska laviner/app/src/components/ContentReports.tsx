@@ -86,12 +86,12 @@ function ReportedCard({
         <span className="content-report__type">{TYPE_LABEL[item.type]}</span>
         <span className="content-report__count">
           {plural(item.reports, "1 anmälan", "{n} anmälningar")}
-          {item.hidden && t(" · dold")}
+          {item.hidden && t(", dold")}
         </span>
       </header>
       <p className="content-report__summary">{item.summary}</p>
       <p className="content-report__meta">
-        {t("av")}{" "}<Link to={`/person/${item.owner.id}`}>{item.owner.displayName}</Link> ·{" "}
+        {t("av")}{" "}<Link to={`/person/${item.owner.id}`}>{item.owner.displayName}</Link>,{" "}
         <Link to={item.url}>{t("Visa")}</Link>
       </p>
       {item.reasons.length > 0 && (

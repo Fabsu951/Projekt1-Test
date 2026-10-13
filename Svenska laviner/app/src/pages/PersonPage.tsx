@@ -54,8 +54,8 @@ export default function PersonPage() {
           actions={
             <>
               <p className="page__lead">
-                {t("{followers} följare · följer {following}", { followers: person.followers, following: person.following })}
-                {person.followsMe && t(" · följer dig")}
+                {t("{followers} följare, följer {following}", { followers: person.followers, following: person.following })}
+                {person.followsMe && t(", följer dig")}
               </p>
               <div className="button-row">
                 {person.isMe ? (

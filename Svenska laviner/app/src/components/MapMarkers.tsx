@@ -66,7 +66,7 @@ export const RegionMarkers = memo(function RegionMarkers({ forecasts }: { foreca
           <Popup>
             <strong>{region.name}</strong>
             <br />
-            {region.subAreas.join(" · ")}
+            {region.subAreas.join(", ")}
             {forecasts[region.id] && (
               <>
                 <br />
@@ -88,7 +88,7 @@ const ObservationMarker = memo(function ObservationMarker({ o }: { o: Observatio
       <Popup>
         <strong>{observationTypeLabel(o.type)}</strong>
         <br />
-        {new Date(o.observedAt).toLocaleString(locale(), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} ·{" "}
+        {new Date(o.observedAt).toLocaleString(locale(), { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })},{" "}
         {o.author}
         <AdminBadge show={o.authorIsAdmin} />
         <br />
@@ -116,8 +116,8 @@ const TourMarker = memo(function TourMarker({ tour }: { tour: Tour }) {
       <Popup>
         <strong>{tour.title}</strong>
         <br />
-        {new Date(tour.startedAt).toLocaleDateString(locale(), { day: "numeric", month: "short", year: "numeric" })} ·{" "}
-        {formatDistance(tour.distanceM)} · ↑ {tour.ascentM} m
+        {new Date(tour.startedAt).toLocaleDateString(locale(), { day: "numeric", month: "short", year: "numeric" })},{" "}
+        {formatDistance(tour.distanceM)}, ↑ {tour.ascentM} m
         <br />
         <Link to={`/turer/${tour.id}`}>{t("Visa turen")}<Icon name="arrowRight" size={16} className="icon--link" /></Link>
       </Popup>

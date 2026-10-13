@@ -124,8 +124,8 @@ export default function ElevationProfile({
           style={{ left: Math.min(width - 90, Math.max(90, x(hovered.distM))) }}
           role="status"
         >
-          {km(hovered.distM)} · {Math.round(hovered.elevation)} m
-          {hovered.slope !== null && ` · ${Math.round(hovered.slope)}°`}
+          {km(hovered.distM)}, {Math.round(hovered.elevation)} m
+          {hovered.slope !== null && `, ${Math.round(hovered.slope)}°`}
         </div>
       )}
     </div>

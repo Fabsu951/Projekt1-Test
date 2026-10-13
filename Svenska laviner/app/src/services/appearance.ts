@@ -11,7 +11,7 @@ const FIELD_KEY = "fjallkoll:field-mode";
 export const APPEARANCE_EVENT = "snolage:appearance";
 
 /** Page background per theme, for the browser/phone chrome. */
-const CHROME = { light: "#f5f3ee", dark: "#0f1418" } as const;
+const CHROME = { light: "#ffffff", dark: "#0b1722" } as const;
 
 function read(key: string): string | null {
   try {

@@ -102,9 +102,10 @@ export default function TodayPage() {
       {showWelcome && <WelcomeGuide onClose={closeWelcome} />}
       <header className="today__hello">
         <Contours />
-        <p className="today__date">{todayText(now)}</p>
         <h1>{t("Idag i fjällen")}</h1>
-        {published && <p className="today__published">{t("Prognosen publicerad {time}", { time: published })}</p>}
+        <p className="today__published">
+          {todayText(now)}.{published && <> {t("Prognosen publicerad {time}", { time: published })}</>}
+        </p>
       </header>
 
       {stale && <p className="notice notice--stale">{t("Ingen kontakt just nu. Visar senast sparade prognoser.")}</p>}

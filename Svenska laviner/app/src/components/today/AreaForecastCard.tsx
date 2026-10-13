@@ -63,7 +63,7 @@ export default function AreaForecastCard({ region, forecast, history, now }: Pro
               {p.type && <ProblemIcon problem={p.type} size={20} />}
               <span>
                 <strong>{p.name}</strong>
-                {problemWhere(p) && ` · ${problemWhere(p)}`}
+                {problemWhere(p) && `: ${problemWhere(p)}`}
               </span>
             </li>
           ))}

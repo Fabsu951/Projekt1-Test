@@ -260,9 +260,9 @@ export default function ProfilePage() {
                       </Link>
                       <span className="route-card__meta">
                         {formatDistance(r.distanceM)}
-                        {r.ascentM !== null && ` · ↑ ${r.ascentM} m`} ·{" "}
+                        {r.ascentM !== null && `, ↑ ${r.ascentM} m`},{" "}
                         {new Date(r.updatedAt).toLocaleDateString(locale(), { day: "numeric", month: "short", year: "numeric" })}
-                        {r.shared && t(" · delad via länk")}
+                        {r.shared && t(", delad via länk")}
                       </span>
                     </div>
                     <div className="route-card__actions">

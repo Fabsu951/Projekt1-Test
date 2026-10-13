@@ -26,16 +26,16 @@ export function trendSinceYesterday(history: HistoryDay[], today: DangerLevel | 
   return { kind: today > yesterday ? "up" : today < yesterday ? "down" : "same", from: yesterday };
 }
 
-/** "Drevsnöflak · O–S · kalfjäll"-style summary of where a problem is found. */
+/** "O/S, kalfjället"-style summary of where a problem is found. */
 export function problemWhere(p: ForecastProblem): string {
   const parts: string[] = [];
   if (p.aspects.length > 0) {
-    parts.push(p.aspects.length === COMPASS_SECTORS.length ? t("alla väderstreck") : orderedAspects(p.aspects).map(compass).join(", "));
+    parts.push(p.aspects.length === COMPASS_SECTORS.length ? t("alla väderstreck") : orderedAspects(p.aspects).map(compass).join("/"));
   }
   if (p.metersAbove !== null) parts.push(t("över {m} m", { m: p.metersAbove }));
   else if (p.metersBelow !== null) parts.push(t("under {m} m", { m: p.metersBelow }));
-  else if (p.elevations.length > 0 && p.elevations.length < 3) parts.push(p.elevations.map((e) => ELEVATION_LABELS[e].toLowerCase()).join(", "));
-  return parts.join(" · ");
+  else if (p.elevations.length > 0 && p.elevations.length < 3) parts.push(p.elevations.map((e) => ELEVATION_LABELS[e].toLowerCase()).join(` ${t("och")} `));
+  return parts.join(", ");
 }
 
 function orderedAspects(aspects: ForecastProblem["aspects"]) {

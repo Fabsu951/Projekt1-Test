@@ -4,8 +4,8 @@
   "description": "Lavinprognos, väder, karta och turer för skidåkning i svenska fjällen.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f1418",
-  "theme_color": "#0f1418",
+  "background_color": "#0b1722",
+  "theme_color": "#0b1722",
   "icons": [
     {
       "src": "icons/icon-48.webp",

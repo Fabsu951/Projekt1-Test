@@ -99,11 +99,12 @@ export default function TourPage() {
           {formatTourDate(tour.startedAt)}
           {region ? (
             <>
-              {" · "}
+              {", "}
               <Link to={`/omrade/${region.id}`}>{region.name}</Link>
             </>
-          ) : null}{" "}
-          · <Link to={`/person/${tour.userId}`}>{tour.author}</Link>
+          ) : null}
+          {", "}
+          <Link to={`/person/${tour.userId}`}>{tour.author}</Link>
           <AdminBadge show={tour.authorIsAdmin} />
         </p>
       </header>

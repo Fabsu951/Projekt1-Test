@@ -82,7 +82,7 @@ export default function TodayTrip({ forecasts, now }: Props) {
           <article key={trip.id} className="today-trip__card">
             <div className="today-trip__head">
               <div>
-                <p className="today-trip__when">{when === "today" ? t("Idag") : t("Imorgon")}</p>
+                {shown.length > 1 && <p className="today-trip__when">{when === "today" ? t("Idag") : t("Imorgon")}</p>}
                 <h3>
                   <Link to={`/omrade/${region.id}`}>{region.name}</Link>
                 </h3>

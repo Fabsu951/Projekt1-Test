@@ -12,7 +12,7 @@
     "app:sync": "npm run build && cap sync",
     "app:android": "npm run app:sync && cap open android",
     "app:ios": "npm run app:sync && cap open ios",
-    "app:icons": "capacitor-assets generate --android --ios --iconBackgroundColor \"#1c5d99\" --iconBackgroundColorDark \"#1c5d99\" --splashBackgroundColor \"#f5f3ee\" --splashBackgroundColorDark \"#0f1418\""
+    "app:icons": "capacitor-assets generate --android --ios --iconBackgroundColor \"#1c5d99\" --iconBackgroundColorDark \"#1c5d99\" --splashBackgroundColor \"#f6f7f6\" --splashBackgroundColorDark \"#0b1722\""
   },
   "dependencies": {
     "@capacitor-firebase/messaging": "^8.5.2",
@@ -25,7 +25,6 @@
     "@capacitor/ios": "^8.5.2",
     "@capacitor/preferences": "^8.0.1",
     "@capacitor/share": "^8.0.3",
-    "@fontsource-variable/familjen-grotesk": "^5.3.0",
     "@fontsource-variable/instrument-sans": "^5.3.0",
     "@garmin/fitsdk": "^21.217.0",
     "capacitor-health": "^8.4.0",

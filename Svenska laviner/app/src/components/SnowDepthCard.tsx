@@ -49,7 +49,7 @@ export default function SnowDepthCard({ regionId, lat, lon }: Props) {
               <span className="muted">
                 {[s.heightM !== null ? t("{m} m ö.h.", { m: s.heightM }) : null, t("{km} km bort", { km: Math.round(s.distanceKm) }), change(s.changeCm)]
                   .filter(Boolean)
-                  .join(" · ")}
+                  .join(", ")}
               </span>
               <span className="muted">{t("Mätt")}{" "}{measured(s.measuredAt)}</span>
             </span>

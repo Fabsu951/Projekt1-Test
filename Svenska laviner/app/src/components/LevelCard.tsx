@@ -34,7 +34,7 @@ export default function LevelCard({ person, actions }: { person: Person; actions
           <p className="level-card__next">{t("Högsta nivån!")}</p>
         )}
         <p className="level-card__stats">
-          {t("{tours} turer · {ascent} höjdmeter · {observations} observationer", { tours: person.tours, ascent: person.ascentM.toLocaleString(locale()), observations: person.observations })}
+          {t("{tours} turer, {ascent} höjdmeter och {observations} observationer", { tours: person.tours, ascent: person.ascentM.toLocaleString(locale()), observations: person.observations })}
         </p>
         {actions}
       </div>

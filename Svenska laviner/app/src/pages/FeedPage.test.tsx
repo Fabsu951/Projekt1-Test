@@ -85,9 +85,9 @@ describe("FeedPage", () => {
     expect(screen.getByText(/bara följare/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Bertil" })).toHaveAttribute("href", "/person/2");
 
-    await act(async () => fireEvent.click(screen.getByRole("button", { name: /Gilla · 2/ })));
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: /Gilla \(2\)/ })));
     expect(setLiked).toHaveBeenCalledWith("t", "tour", 5, true);
-    expect(screen.getByRole("button", { name: /Gilla · 3/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /Gilla \(3\)/ })).toHaveAttribute("aria-pressed", "true");
 
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "1 kommentar" })));
     expect(await screen.findByText("Hur var snön?")).toBeInTheDocument();

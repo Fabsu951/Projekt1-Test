@@ -30,7 +30,7 @@ export default function RecentObservations({ observations, now, emptyText }: Pro
         <li key={o.id} className="today-obs__item">
           <p className="today-obs__text">
             <strong>{observationTypeLabel(o.type)}</strong>
-            {o.snowDepthCm != null && t(" · snödjup {cm} cm", { cm: o.snowDepthCm })}
+            {o.snowDepthCm != null && t(", snödjup {cm} cm", { cm: o.snowDepthCm })}
             {o.description && ` – ${o.description.length > 120 ? `${o.description.slice(0, 120)}…` : o.description}`}
           </p>
           {(o.dangerSigns?.length ?? 0) > 0 && (
@@ -45,7 +45,7 @@ export default function RecentObservations({ observations, now, emptyText }: Pro
           <p className="today-obs__meta">
             <Link to={`/person/${o.userId}`}>{o.author}</Link>
             <AdminBadge show={o.authorIsAdmin} />
-            {o.regionId && ` · ${getRegionById(o.regionId)?.name ?? ""}`} · {ago(o.observedAt, now)}
+            {o.regionId && `, ${getRegionById(o.regionId)?.name ?? ""}`}, {ago(o.observedAt, now)}
           </p>
         </li>
       ))}

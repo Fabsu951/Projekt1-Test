@@ -52,7 +52,7 @@ export default function RoutePanel({
             {t("Planera rutt")}
             {folded && analysis && (
               <span className="route-panel__summary">
-                {formatDistance(Math.round(analysis.distanceM))} · ↑ {analysis.ascentM} m · {formatHours(analysis.hours)}
+                {formatDistance(Math.round(analysis.distanceM))}, ↑ {analysis.ascentM} m, {formatHours(analysis.hours)}
               </span>
             )}
             <span className={folded ? "map-toolbar__chevron" : "map-toolbar__chevron map-toolbar__chevron--open"} aria-hidden="true" />

@@ -48,7 +48,7 @@ export default function QueuedObservationList() {
         {list.map((q) => (
           <li key={q.clientId} className="queued-obs__item">
             <span>
-              <strong>{observationTypeLabel(q.observation.type)}</strong> · {when(q.observation.observedAt)}
+              <strong>{observationTypeLabel(q.observation.type)}</strong>, {when(q.observation.observedAt)}
               <span className="muted queued-obs__text">{q.observation.description}</span>
               {q.failed && <span className="error queued-obs__failed">{t("Kunde inte skickas:")}{" "}{q.failed}</span>}
             </span>
