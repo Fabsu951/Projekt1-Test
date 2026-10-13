@@ -1135,6 +1135,24 @@ the start, exact map point.
   icons). Icons/splash/og-image regenerated (scratchpad scripts: sharp for
   `assets/*.png` + `public/icons/*.webp` + `favicon.svg`, then
   `npm run app:icons` with the new colours; og-image rendered with Playwright).
+- **Design pass "Fjällkartan" (2026-10-13, frontend-design skill, Fabian
+  approved before/after):** colour means danger – only EAWS colours carry
+  hue; chrome is paper/ink/lake blue + brown contour lines (`--contour-line`,
+  `--divider`). Day `#f6f7f6` bg, `#17222b` ink, `#1c5d99` accent; night
+  polar-night `#0b1722`/`#112231`/`#1a2d3d`. `--signal` now = ink (`var(--text)`),
+  the old orange is retired (it competed with level 3); bell count and XP bar
+  use accent. **One family:** Instrument Sans `wdth.css` (Familjen Grotesk
+  removed); headings and numbers at `font-stretch: var(--display-stretch)`
+  (78 %), `--font-display` = body family. **Signature:** `DangerHero` at the
+  top of area pages (band in the danger colour, big narrow numeral, label,
+  `DangerStair` = the scale as five rising steps, today's filled; neutral band
+  with `forecastLabel` when no published level); the stair is only there (and
+  in the og-image) – restraint. No all-caps labels; no "A · B · C" meta
+  strings (commas; `problemWhere` → "N/NO/O, kalfjället och trädgränsen");
+  observation/tour lists are rows with contour dividers, not cards; start
+  page date sits in the lead line, the "Imorgon" label only shows with two
+  trips. og-image re-rendered (scratchpad `og/og.html`). theme-color, manifest,
+  Capacitor background `#0b1722`.
 - **Phone tab bar (2026-10-10):** ≤ 640 px (`hooks/usePhoneLayout.ts`)
   `TabBar.tsx` fixed at the bottom: Idag (also active on `/omrade/*`) ·
   Karta · Observera (raised accent button → `/observationer/snabb`) · Flöde
