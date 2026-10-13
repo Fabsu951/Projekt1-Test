@@ -220,6 +220,24 @@ användarvillkoren och frågorna i `JURIDIK.md`.
 dagens lavinproblem (väderstreck, höjd och lutning över 30°), kombinerat
 med svenska officiella källor. Det är huvudnumret i all kommunikation.
 
+### Så används fördelarna i marknadsföringen
+
+Lyft fördelarna, men nämn aldrig andra tjänster som sämre. Prata om
+åkarens problem och vad Snöläge gör. Naturvårdsverket är källan och
+Facebookgrupperna är där du når folk, så dem ska du ha med dig.
+
+| Fördel | Säg så här | Inte så här |
+| --- | --- | --- |
+| Allt på ett ställe | "Prognos, väder och karta på ett ställe." | "Bättre än lavinprognoser.se." |
+| Ruttkollen | "Se var din rutt går i brant terräng där dagens lavinproblem finns." | "Appen säger om rutten är säker." |
+| Svenskt | "Byggd för svenska fjällen, på svenska." | "Varsom täcker inte Sverige." |
+| Turdagbok | "Importera passen från klockan och se dem bredvid lavinläget." | "Strava vet inget om laviner." |
+| Karta | "Lantmäteriets karta med lutning, gratis och offline." | "Kartappar kostar pengar." |
+| Observationer | "Observationer med plats, tid och varningstecken, på kartan." | "Facebookgrupperna är röriga." |
+
+Det som sägs om andra tjänster måste vara sant och gå att visa, enligt
+marknadsföringslagen. Det enklaste är att inte säga något om dem alls.
+
 ---
 
 ## 6. Kanaler och aktiviteter
