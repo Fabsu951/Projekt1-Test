@@ -1192,7 +1192,7 @@ the start, exact map point.
   takes 1320×2868 shots (sv + en, sample forecasts/people, real tiles and
   Mapterhorn heights) and commits them to `Svenska laviner/app-store/`
   (artifacts can't be downloaded from cloud sessions). **`Svenska
-  laviner/APPSTORE.md`:** every App Store Connect field (sv + en texts with
+  laviner/APPSTORE.docx`** (Word since 2026-10-14; markdown source in git history before `8310272`): every App Store Connect field (sv + en texts with
   checked lengths, keywords, URLs, App Privacy table, age 13+, review notes
   incl. demo account `fabian.n.sund+apple@gmail.com` that Fabian creates).
   Workflows on non-default branches have no "Run workflow" button (default
