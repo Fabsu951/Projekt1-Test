@@ -27,13 +27,35 @@ on:
         description: "Ladda upp till intern testning i Play Console (kräver PLAY_SERVICE_ACCOUNT_JSON)"
         type: boolean
         default: false
+  # A push of this file only checks whether the upload key secrets exist
+  # (and makes GitHub know the workflow, so it can be started via the API –
+  # the "Run workflow" button only shows on the default branch).
+  push:
+    branches: [claude/bold-lamport-juktha, svenska-laviner]
+    paths:
+      - ".github/workflows/android-release.yml"
 
 concurrency:
   group: android-release
   cancel-in-progress: false
 
 jobs:
+  key-check:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    env:
+      HAS_KEY: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 != '' && secrets.ANDROID_UPLOAD_STORE_PASSWORD != '' && secrets.ANDROID_UPLOAD_KEY_ALIAS != '' && secrets.ANDROID_UPLOAD_KEY_PASSWORD != '' }}
+    steps:
+      - name: Upload key secrets
+        run: |
+          if [ "$HAS_KEY" = "true" ]; then
+            echo "::notice::Uppladdningsnyckeln finns (alla fyra secrets)."
+          else
+            echo "::notice::Uppladdningsnyckeln saknas än."
+          fi
+
   aab:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
