@@ -1200,7 +1200,7 @@ the start, exact map point.
   repos/Fabsu951/Projekt1-Test/actions/workflows/<file>/dispatches -f
   ref=claude/bold-lamport-juktha`.
 - **Google Play (2026-10-14):** Fabian's Play Console account is verified.
-  `Svenska laviner/GOOGLEPLAY.md` has every step and answer (upload key +
+  `Svenska laviner/GOOGLEPLAY.docx` (Word, Fabian's wish; built from markdown with scratchpad `word/build.cjs` – the markdown source is in git history, commit `027ae43`) has every step and answer (upload key +
   4 secrets, release build via API dispatch of `android-release.yml` with
   input `version_name`, create app + Play App Signing, internal test, listing
   sv/en with checked lengths, App content incl. Data safety and the Health
