@@ -1199,6 +1199,16 @@ the start, exact map point.
   branch is `main`) — start them with `gh api -X POST
   repos/Fabsu951/Projekt1-Test/actions/workflows/<file>/dispatches -f
   ref=claude/bold-lamport-juktha`.
+- **Google Play (2026-10-14):** Fabian's Play Console account is verified.
+  `Svenska laviner/GOOGLEPLAY.md` has every step and answer (upload key +
+  4 secrets, release build via API dispatch of `android-release.yml` with
+  input `version_name`, create app + Play App Signing, internal test, listing
+  sv/en with checked lengths, App content incl. Data safety and the Health
+  Connect declaration text, 12 testers × 14 days, production). Assets in
+  `Svenska laviner/google-play/` (`ikon-512.png`, `funktionsbild-1024x500.jpg`
+  from scratchpad `og/feature.html`, `skarmbilder/` 1080×1920 from the
+  Butiksbilder workflow – Play allows at most 2:1). Reviewer account
+  `fabian.n.sund+google@gmail.com` (Fabian creates it).
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
