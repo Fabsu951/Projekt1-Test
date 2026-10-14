@@ -1,7 +1,8 @@
 # Screenshots for App Store Connect and Google Play (1320×2868, Swedish and
 # English), with sample forecasts and people but the real map from the worker.
 # Runs when the screenshot script changes, or by hand; the pictures are
-# committed to "Svenska laviner/app-store/" on the same branch.
+# committed to "Svenska laviner/app-store/" (App Store, 1320×2868) and
+# "Svenska laviner/google-play/skarmbilder/" (Google Play, 1080×1920).
 
 name: Butiksbilder
 
@@ -42,14 +43,16 @@ jobs:
           for i in $(seq 1 30); do curl -sf http://localhost:4173 >/dev/null && break; sleep 1; done
           LANG_UI=sv node scripts/store-screenshots.mjs ../app-store
           LANG_UI=en node scripts/store-screenshots.mjs ../app-store
+          W=432 H=768 DPR=2.5 LANG_UI=sv node scripts/store-screenshots.mjs ../google-play/skarmbilder
+          W=432 H=768 DPR=2.5 LANG_UI=en node scripts/store-screenshots.mjs ../google-play/skarmbilder
       - name: Commit the pictures
-        working-directory: Svenska laviner/app-store
+        working-directory: Svenska laviner
         env:
           BRANCH: ${{ github.ref_name }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A .
+          git add -A app-store google-play/skarmbilder
           if git diff --cached --quiet; then echo "No changes"; exit 0; fi
           git commit -m "Store screenshots (automatic)"
           for i in 1 2 3; do git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH" && exit 0; sleep 5; done

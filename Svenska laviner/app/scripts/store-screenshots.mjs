@@ -3,7 +3,8 @@
 // Run by .github/workflows/store-screenshots.yml; locally:
 //   npx vite preview --port 4173 &   (after a build with VITE_MAP_PROXY_URL)
 //   API=<VITE_MAP_PROXY_URL> node scripts/store-screenshots.mjs out/
-// Phone size: 440×956 at 3× = 1320×2868 (App Store 6.9", also fine for Play).
+// Phone size: 440×956 at 3× = 1320×2868 (App Store 6.9"). Google Play wants
+// at most 2:1, so the workflow also runs W=432 H=768 DPR=2.5 → 1080×1920.
 import { chromium } from "playwright";
 import fs from "node:fs";
 
@@ -119,7 +120,8 @@ const SHOTS = [
 const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {});
 for (const shot of SHOTS) {
   const ctx = await browser.newContext({
-    viewport: { width: 440, height: 956 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true,
+    viewport: { width: Number(process.env.W ?? 440), height: Number(process.env.H ?? 956) },
+    deviceScaleFactor: Number(process.env.DPR ?? 3), isMobile: true, hasTouch: true,
     colorScheme: shot.theme, locale: LANG === "sv" ? "sv-SE" : "en-GB", timezoneId: "Europe/Stockholm",
     permissions: ["geolocation"], geolocation: { latitude: 67.85, longitude: 18.6, accuracy: 8 },
   });
