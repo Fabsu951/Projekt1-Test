@@ -1209,6 +1209,11 @@ the start, exact map point.
   from scratchpad `og/feature.html`, `skarmbilder/` 1080×1920 from the
   Butiksbilder workflow – Play allows at most 2:1). Reviewer account
   `fabian.n.sund+google@gmail.com` (Fabian creates it).
+  **First Play upload 2026-10-14/15:** 1.0.0 (207) on internal testing; 1.0.1 (209)
+  drops the Health Connect permissions capacitor-health declares but we never use
+  (`tools:node="remove"` in the app manifest: steps, heart rate, weight, nutrition…),
+  so Play only asks about exercise, routes and background read. Internal app sharing
+  refuses until the app is published (store listing + App content done).
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
