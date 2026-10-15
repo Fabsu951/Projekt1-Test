@@ -77,6 +77,14 @@
   --safe-bottom: var(--safe-area-inset-bottom, 0px);
   --safe-left: var(--safe-area-inset-left, 0px);
 }
+/* …and when the page measures that Android already left room for the bars
+   (services/native.ts insetsFromSystem), nothing more is added. */
+:root[data-native="android"][data-insets="system"] {
+  --safe-top: 0px;
+  --safe-right: 0px;
+  --safe-bottom: 0px;
+  --safe-left: 0px;
+}
 
 /* Day: Fjällkartan – white paper, black ink, lake-blue links, brown
    contour lines for structure. */

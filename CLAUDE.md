@@ -1214,6 +1214,13 @@ the start, exact map point.
   (`tools:node="remove"` in the app manifest: steps, heart rate, weight, nutrition…),
   so Play only asks about exercise, routes and background read. Internal app sharing
   refuses until the app is published (store listing + App content done).
+  **Compact phone chrome (2026-10-15, Fabian approved a before/after):** header
+  and tab bar about half as tall (`.app-shell--tabs` rules, tab bar after
+  `.tab-bar`). Android app: `data-native="android"` (inline script + `initNativeApp`)
+  makes `--safe-*` use only Capacitor's `--safe-area-inset-*`, and
+  `insetsFromSystem()` (screen.height − innerHeight > 20 px → `data-insets="system"`)
+  zeroes them when Android already laid the page out between the bars – the
+  S22 got the status/navigation bar height twice from env().
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)

@@ -72,11 +72,34 @@ export async function saveTextFile(fileName: string, text: string, mimeType: str
 }
 
 /**
+ * Whether Android laid the page out between the status bar and the navigation
+ * bar itself: then the page is clearly shorter than the screen. Edge-to-edge
+ * pages fill the screen and pad for the bars themselves (index.css --safe-*).
+ */
+export function insetsFromSystem(screenHeight: number, pageHeight: number): boolean {
+  return screenHeight - pageHeight > 20;
+}
+
+function markAndroidInsets() {
+  const root = document.documentElement;
+  root.dataset.native = "android";
+  // Measured with the keyboard closed (start, turning the phone), since an
+  // open keyboard also makes the page shorter.
+  const measure = () => {
+    if (insetsFromSystem(window.screen.height, window.innerHeight)) root.dataset.insets = "system";
+    else delete root.dataset.insets;
+  };
+  measure();
+  window.addEventListener("orientationchange", () => setTimeout(measure, 300));
+}
+
+/**
  * App start-up: Android's back button/gesture goes back a page inside the
  * app, and only closes it from the first page.
  */
 export async function initNativeApp(): Promise<void> {
   if (!isNativeApp()) return;
+  if (Capacitor.getPlatform() === "android") markAndroidInsets();
   // Shows in Xcode's console and in the iPhone check on GitHub (ios.yml):
   // "Karta offline" needs Cache Storage in the app's web view.
   console.info(`[Snöläge] start ${Capacitor.getPlatform()}, offline-kartor: ${"caches" in window ? "ja" : "nej"}`);

@@ -4992,7 +4992,7 @@ h1 .admin-badge {
   z-index: 30;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  padding: 4px calc(4px + var(--safe-right)) calc(6px + var(--safe-bottom)) calc(4px + var(--safe-left));
+  padding: 0 calc(4px + var(--safe-right)) calc(2px + var(--safe-bottom)) calc(4px + var(--safe-left));
   background: color-mix(in srgb, var(--header-bg) 94%, transparent);
   backdrop-filter: saturate(140%) blur(12px);
   border-top: 1px solid var(--divider);
@@ -5002,10 +5002,9 @@ h1 .admin-badge {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  min-height: var(--tap);
-  padding: 6px 0 2px;
-  font-size: 0.72rem;
+  gap: 1px;
+  padding: 5px 0 3px;
+  font-size: 0.68rem;
   font-weight: 500;
   color: var(--text-muted);
   -webkit-tap-highlight-color: transparent;
@@ -5017,7 +5016,7 @@ h1 .admin-badge {
 .tab-bar__tab--active::before {
   content: "";
   position: absolute;
-  top: -4px;
+  top: 0;
   width: 28px;
   height: 3px;
   border-radius: 0 0 3px 3px;
@@ -5026,19 +5025,26 @@ h1 .admin-badge {
 .tab-bar__icon {
   display: grid;
   place-items: center;
-  height: 26px;
+  height: 24px;
+}
+.tab-bar__icon svg {
+  width: 22px;
+  height: 22px;
+}
+:root[data-field="on"] .tab-bar__tab {
+  min-height: var(--tap);
 }
 .tab-bar__tab--primary .tab-bar__icon {
-  width: 48px;
-  height: 46px;
-  margin-top: -18px;
-  border-radius: 14px;
+  width: 44px;
+  height: 38px;
+  margin-top: -12px;
+  border-radius: 12px;
   background: var(--accent);
   color: var(--on-accent);
   box-shadow: var(--shadow);
 }
 .app-shell--tabs main {
-  padding-bottom: calc(68px + var(--safe-bottom));
+  padding-bottom: calc(56px + var(--safe-bottom));
 }
 .app-shell__quick {
   display: flex;
@@ -5054,7 +5060,29 @@ h1 .admin-badge {
   display: none;
 }
 .app-shell--tabs .app-shell__menu-button {
-  padding: 6px 10px;
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: 0.95rem;
+}
+/* Phone header: as low as it can be so the page gets the screen. */
+.app-shell--tabs .app-shell__header {
+  gap: 8px;
+  padding: calc(5px + var(--safe-top)) calc(12px + var(--safe-right)) 5px calc(12px + var(--safe-left));
+}
+.app-shell--tabs .app-shell__brand {
+  gap: 7px;
+  font-size: 1.2rem;
+}
+.app-shell--tabs .app-shell__mark {
+  width: 26px;
+  height: 26px;
+}
+.app-shell--tabs .app-shell__quick {
+  gap: 2px;
+}
+.app-shell--tabs .app-shell__quick .avatar {
+  width: 30px;
+  height: 30px;
 }
 
 /* Warning signs on a tour (new tour form and the owner's settings). */
