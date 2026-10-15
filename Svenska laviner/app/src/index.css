@@ -67,6 +67,17 @@
   text-rendering: optimizeLegibility;
 }
 
+/* Android app: Capacitor either lets the page draw under the system bars and
+   reports their size in --safe-area-inset-*, or lays the page out between the
+   bars and reports 0. Some Android web views still give env() the bar sizes in
+   the second case, which padded the header and tab bar twice. */
+:root[data-native="android"] {
+  --safe-top: var(--safe-area-inset-top, 0px);
+  --safe-right: var(--safe-area-inset-right, 0px);
+  --safe-bottom: var(--safe-area-inset-bottom, 0px);
+  --safe-left: var(--safe-area-inset-left, 0px);
+}
+
 /* Day: Fjällkartan – white paper, black ink, lake-blue links, brown
    contour lines for structure. */
 :root[data-theme="light"] {

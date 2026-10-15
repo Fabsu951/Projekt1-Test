@@ -6,10 +6,14 @@ import './index.css'
 import App from './App.tsx'
 import AuthProvider from './auth/AuthProvider'
 import FavoritesProvider from './favorites/FavoritesProvider'
+import { Capacitor } from '@capacitor/core'
 import { initNativeApp, isNativeApp } from './services/native'
 import { initAppearance } from './services/appearance'
 
 initAppearance()
+
+// Also set by the inline script in index.html; this covers a late Capacitor bridge.
+if (Capacitor.getPlatform() === 'android') document.documentElement.dataset.native = 'android'
 
 void initNativeApp()
 
