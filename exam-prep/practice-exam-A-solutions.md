@@ -17,7 +17,7 @@ Since a ≈ F/m, the heavy arm also accelerates poorly (it can't throw, as with 
 (a) $T = F\sin\alpha\,d = 500\sin70°\times0.04 = 469.8\times0.04 = \mathbf{18.8\ N\cdot m}$
 (b) $F_\parallel = 500\cos70° = \mathbf{171\ N}$. Its line of action passes through the joint centre (zero moment arm), so there is **no torque**. With the
 elbow flexed below 90°, it pulls the radius **away** from the joint: a **dislocating** component. (Above 90° it presses the bones together and stabilizes.)
-(c) $F_\max = 90\ \text{N/cm}^2\times6\ \text{cm}^2 = \mathbf{540\ N}$
+(c) $F_{\max} = 90\ \text{N/cm}^2\times6\ \text{cm}^2 = \mathbf{540\ N}$
 
 ### Q3 (10)
 (a) $A = V/L_f$: $A_P = V_0/12$, $A_Q = V_0/3$. Tendon force ∝ effective area $A\cos\alpha$:
@@ -54,7 +54,7 @@ $$F = -P\frac{dV/d\theta}{dL/d\theta} = \frac{Pb^2}{4\pi n^2}(2\cos^2\theta-\sin
 (b) $F = 0 \Rightarrow \cos^2\theta = 1/3 \Rightarrow \theta^* = \mathbf{54.7°}$. This is also where V is maximum.
 (c) $L = 0.3\cos30° = \mathbf{0.260\ m}$; $D = 0.3\sin30°/(2\pi) = \mathbf{23.9\ mm}$;
 $F = \frac{3\times10^5\times0.09}{4\pi\times4}(3\times0.75-1) = 537.1\times1.25 = \mathbf{671\ N}$ (tension).
-(d) The muscle shortens until θ = 54.7°: $L_\min = 0.3\cos54.7° = 0.173$ m. Contraction = (0.260 − 0.173)/0.260 = **33 %**.
+(d) The muscle shortens until θ = 54.7°: $L_{\min} = 0.3\cos54.7° = 0.173$ m. Contraction = (0.260 − 0.173)/0.260 = **33 %**.
 
 ### Q7 (10)
 (a) **Class 3** (the effort is between the fulcrum and the load). MA = 4/35 = **0.114**; DA = 35/4 = **8.75**.
@@ -64,7 +64,7 @@ MA × DA = 1. You gain speed at the cost of force.
 
 ### Q8 (12)
 (a) The hip (mass m) moves on an arc of radius L over the stance foot. Radial equation at the top: $mg - R = mv^2/L$. The foot stays on the ground only if
-$R \ge 0$, so $mv^2/L \le mg$ and $v_\max = \sqrt{gL}$.
+$R \ge 0$, so $mv^2/L \le mg$ and $v_{\max} = \sqrt{gL}$.
 (b) Earth: $\sqrt{9.81\times0.8} = \mathbf{2.80\ m/s}$. Mars: $\sqrt{3.71\times0.8} = \mathbf{1.72\ m/s}$. Moon: $\sqrt{1.62\times0.8} = \mathbf{1.14\ m/s}$.
 That is why astronauts hop.
 (c) They flatten the path of the centre of mass (hip drop, pelvic rotation, keeping the CG at nearly constant height), so the effective radius of curvature is

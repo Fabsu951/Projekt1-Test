@@ -123,7 +123,7 @@ contraction happens for braid angles **below** 54.7°. If the angle is measured 
 
 ### Q3. Maximum walking speed and power (m = 60 kg, L = 0.9 m)
 **Max speed** (the foot stays on the ground while gravity supplies the centripetal force):
-$$v_\max = \sqrt{gL} = \sqrt{9.81\times0.9} = \mathbf{2.97\ m/s}$$
+$$v_{\max} = \sqrt{gL} = \sqrt{9.81\times0.9} = \mathbf{2.97\ m/s}$$
 
 **Power.** The lecture gives versions of the walking-power formula that differ by constant factors. Use the one your lecturer boxed, and show the formula:
 

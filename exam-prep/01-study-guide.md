@@ -258,7 +258,7 @@ Mammalian compact bone: tensile strength 150–180 MPa, E 18–20 GPa, failure s
 
 ### Legged locomotion basics
 - Legs are oscillating levers, struts, springs and cushions (Hildebrand). There is no kinetic friction if the foot doesn't slip.
-- Average limb force at rest = W/n. In motion the ground reaction is **impulsive**: $I=\int F\,dt$ and $\bar F = I/\tau$, so $F_\max > W/n$.
+- Average limb force at rest = W/n. In motion the ground reaction is **impulsive**: $I=\int F\,dt$ and $\bar F = I/\tau$, so $F_{\max} > W/n$.
 - Stance sequence: **heel strike** (braking) → **mid-stance** (vertical, supports weight) → **toe-off** (propulsive).
 - **Effective mechanical advantage EMA = r/R**, where r is the muscle moment arm and R is the ground-reaction moment arm. A crouched (Z-shaped) limb has a low EMA, which gives a distance advantage.
   An upright (L-shaped, straight) limb has an EMA near 1, which is good for weight support.
@@ -276,7 +276,7 @@ Mammalian compact bone: tensile strength 150–180 MPa, E 18–20 GPa, failure s
 
 ### Inverted pendulum and maximum walking speed
 The hip moves on an arc of radius L over the stance foot. The foot stays on the ground only if gravity can supply the centripetal force:
-$$mg - R = \frac{mv^2}{L},\quad R\ge 0\;\Rightarrow\; v_\max = \sqrt{gL}$$
+$$mg - R = \frac{mv^2}{L},\quad R\ge 0\;\Rightarrow\; v_{\max} = \sqrt{gL}$$
 - Adult, L = 0.9 m: **2.97 m/s**. Child, L = 0.45 m: 2.1 m/s (the slides say 2.2), so the child must run.
   Moon (g = 1.6): 1.2 m/s, which is why Apollo astronauts hopped.
 - **Racewalkers** exceed 4 m/s by flattening the hip path, giving an effective radius greater than L.
@@ -293,7 +293,7 @@ $$mg - R = \frac{mv^2}{L},\quad R\ge 0\;\Rightarrow\; v_\max = \sqrt{gL}$$
   - **uniform leg (compound pendulum)**: $f=\frac1{2\pi}\sqrt{3g/2L}$, so $T = 2\pi\sqrt{2L/3g}$
 - Passive walking toys walk down ramps powered only by gravity.
 
-**Likely exam angles:** derive $v_\max=\sqrt{gL}$ and apply it (child, moon, Mars); gait definitions and duty factor;
+**Likely exam angles:** derive $v_{\max}=\sqrt{gL}$ and apply it (child, moon, Mars); gait definitions and duty factor;
 legs vs wheels; EMA; stance-phase sequence; synthetic wheel (τ, V, DF ≈ 2/3); pendulum frequency of a leg.
 
 ---
@@ -466,7 +466,7 @@ energy cost $W=\tfrac12MU^2(1+M/m_w)$; Froude efficiency for undulation and for 
 | 1 Q5 | Forearm with two elastic actuators: moment balance + Hooke + geometry | Weeks 2–3 |
 | 2 Q1 | Squid tentacle hydraulic leverage (constant volume) | Week 3 |
 | 2 Q2 | McKibben principle, 54.7° | Week 3 |
-| 2 Q3 | $v_\max=\sqrt{gL}$ and walking power | Weeks 4–5 |
+| 2 Q3 | $v_{\max}=\sqrt{gL}$ and walking power | Weeks 4–5 |
 | 2 Q4 | Usain Bolt: energy method for propulsive force | Week 5 |
 
 Full worked solutions are in [03-homework-solutions.md](03-homework-solutions.md).

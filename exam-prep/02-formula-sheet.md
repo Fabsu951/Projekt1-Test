@@ -29,7 +29,7 @@ so they are classic exam material.
 |---|---|
 | Joint torque | $T_m = F_m\sin\alpha\; d_\perp$ |
 | Rotary / parallel components | $F_m\sin\alpha$ (torque) / $F_m\cos\alpha$ (stabilizing or dislocating) |
-| Max force | $F_\max = 90\,\text{N/cm}^2\times \text{PCSA}$ |
+| Max force | $F_{\max} = 90\,\text{N/cm}^2\times \text{PCSA}$ |
 | Pennate tendon force | $F_t = F_f\cos\alpha$ |
 | Area for a given volume | $A_m = V/L_f$; effective $A^*_m = A_m\cos\alpha$ |
 | Muscle power | $P = F\,v$ |
@@ -53,7 +53,7 @@ so they are classic exam material.
 |---|---|
 | Average limb force | $\bar F = I/\tau = W/n$, where $I = \int F\,dt$ |
 | Rolling wheel | $x = r\theta$, $v = R\omega$ |
-| ★ Max walking speed | $mg - R = mv^2/L$, $R\ge0 \Rightarrow v_\max = \sqrt{gL}$ |
+| ★ Max walking speed | $mg - R = mv^2/L$, $R\ge0 \Rightarrow v_{\max} = \sqrt{gL}$ |
 | Pendulum energy | $\Delta PE = mgL(1-\cos\theta) = \Delta KE$ |
 | Duty factor | stance time / stride period (walk > 0.5, run < 0.5) |
 | ★ Synthetic wheel stance | $\theta_C = -\alpha+\Omega t$, $\tau = 2\alpha/\Omega$, $V = 2L\alpha/\tau = L\Omega$ |

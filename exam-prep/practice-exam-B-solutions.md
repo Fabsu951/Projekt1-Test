@@ -28,7 +28,7 @@ eccentric** (the muscle lengthens under tension, does negative work and brakes).
 (eccentric) the force rises *above* the isometric value and then plateaus (≈ 1.5–1.8× F₀).
 Explanation: force ∝ the number of attached cross-bridges. Attachment takes finite time, so at faster sliding fewer bridges are attached and the force drops.
 At slow speeds more bridges attach. During eccentric action, the stretched bridges and the elastic components resist and add force.
-(c) Maximum power at about ⅓ v_max and about ⅓ F_max: $P_\max \approx (1200/3)(0.6/3) = 400\times0.2 = \mathbf{80\ W}$. Train at about **0.2 m/s** (one-third
+(c) Maximum power at about ⅓ v_max and about ⅓ F_max: $P_{\max} \approx (1200/3)(0.6/3) = 400\times0.2 = \mathbf{80\ W}$. Train at about **0.2 m/s** (one-third
 of maximum velocity).
 
 ### Q4 (12)
