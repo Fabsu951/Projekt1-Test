@@ -18,8 +18,11 @@ export interface Limit {
 const KEEP_MS = 24 * 3600 * 1000;
 
 export const LOGIN_EMAIL_LIMIT = { max: 5, windowMs: 15 * 60 * 1000 };
-export const LOGIN_IP_LIMIT = { max: 20, windowMs: 15 * 60 * 1000 };
-export const REGISTER_IP_LIMIT = { max: 5, windowMs: 60 * 60 * 1000 };
+// Per IP address the limits are generous: a school wifi or a mobile operator
+// can put hundreds of people behind one address. Password guessing is held
+// back per account above, and bots at signup by Turnstile.
+export const LOGIN_IP_LIMIT = { max: 100, windowMs: 15 * 60 * 1000 };
+export const REGISTER_IP_LIMIT = { max: 100, windowMs: 60 * 60 * 1000 };
 
 async function hashKey(key: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`fjallkoll-rate:${key}`));

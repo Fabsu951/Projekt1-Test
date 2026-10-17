@@ -414,8 +414,11 @@ the start, exact map point.
 - **Rate limits (2026-09-26):** migration `0005` `rate_limit_events`
   (SHA-256 of keys like `login-email:<email>` / `login-ip:<ip>` /
   `register-ip:<ip>`, pruned after 24 h; see `worker/src/rateLimit.ts`).
-  Login: 5 failures per email + 20 per IP per 15 min (success clears the
-  email counter). Signup: 5 accounts per IP per hour. Mentioned in the
+  Login: 5 failures per email + 100 per IP per 15 min (success clears the
+  email counter). Signup: 100 accounts per IP per hour (raised from 20/5 on
+  2026-10-17 – shared wifi and mobile CGNAT; Turnstile stops bots). The
+  notification bell polls every 5 min (was 1 min + every navigation) to
+  save Workers free-plan requests (100k/day). Mentioned in the
   privacy policy.
 - **Turnstile (built, OFF until configured):** `worker/src/turnstile.ts`
   verifies `turnstileToken` on signup only when the worker secret
