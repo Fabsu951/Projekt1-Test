@@ -486,7 +486,9 @@ the start, exact map point.
   (plist, APNs key, Xcode capability) still to do — needs a Mac.
 - **Turdagbok (tour diary, 2026-09-27, idea from Fabian's parents):**
   users upload GPX/FIT files from their watch (`app/src/utils/trackImport.ts`,
-  FIT via `@garmin/fitsdk`, loaded lazily; simplified to ≥ 10 m spacing,
+  FIT via our own `utils/fitDecoder.ts` since 2026-10-17 – Garmin's FIT SDK licence
+  forbids distributing it and safety-critical use, so `@garmin/fitsdk` is only a
+  devDependency for `fitDecoder.test.ts`, which checks our reader against theirs; simplified to ≥ 10 m spacing,
   max 5000 points `[lat, lon, ele|null, timeMs|null]`). Worker:
   `track.ts` (clean, stats with 5 m ascent hysteresis, `trimEnds`),
   `tours.ts`, migration `0008` `tours`; full track in R2 at
@@ -1217,6 +1219,10 @@ the start, exact map point.
   (`tools:node="remove"` in the app manifest: steps, heart rate, weight, nutrition…),
   so Play only asks about exercise, routes and background read. Internal app sharing
   refuses until the app is published (store listing + App content done).
+  **Pre-launch review (2026-10-17):** offline downloads (`downloadTiles`) fetch with
+  `redirect: "manual"` and skip tiles the worker redirects to openstreetmap.org (OSM's
+  tile policy forbids offline prefetch); privacy policy now says Health Connect data
+  is only used for the tour diary, never sold/ads (Play's Limited Use), updated 17 Oct.
   **Compact phone chrome (2026-10-15, Fabian approved a before/after):** header
   and tab bar about half as tall (`.app-shell--tabs` rules, tab bar after
   `.tab-bar`). Android app: `data-native="android"` (inline script + `initNativeApp`)

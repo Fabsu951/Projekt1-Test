@@ -1,4 +1,5 @@
 import { t } from "../i18n";
+import { isFit, readFitRecords, type FitRecord } from "./fitDecoder";
 /**
  * Reads GPS tracks exported from watches and apps: GPX (Garmin, Suunto,
  * Coros, Strava, Apple via export apps …) and FIT (Garmin's own format).
@@ -46,20 +47,17 @@ export function parseGpx(xml: string): TrackPoint[] {
 const SEMICIRCLES_TO_DEGREES = 180 / 2 ** 31;
 
 export async function parseFit(data: ArrayBuffer): Promise<TrackPoint[]> {
-  const { Decoder, Stream } = await import("@garmin/fitsdk");
-  const decoder = new Decoder(Stream.fromArrayBuffer(data));
-  if (!decoder.isFIT()) throw new Error(t("Filen är ingen giltig FIT-fil."));
-  const { messages, errors } = decoder.read({ convertDateTimesToDates: true });
-  if (errors.length && !messages.recordMesgs?.length) throw new Error(t("FIT-filen kunde inte läsas."));
-
+  if (!isFit(new Uint8Array(data))) throw new Error(t("Filen är ingen giltig FIT-fil."));
+  let records: FitRecord[];
+  try {
+    records = readFitRecords(data);
+  } catch {
+    throw new Error(t("FIT-filen kunde inte läsas."));
+  }
   const points: TrackPoint[] = [];
-  for (const r of (messages.recordMesgs ?? []) as Array<Record<string, unknown>>) {
-    const lat = r.positionLat;
-    const lon = r.positionLong;
-    if (typeof lat !== "number" || typeof lon !== "number") continue;
-    const ele = typeof r.enhancedAltitude === "number" ? r.enhancedAltitude : typeof r.altitude === "number" ? r.altitude : null;
-    const time = r.timestamp instanceof Date ? r.timestamp.getTime() : null;
-    points.push([lat * SEMICIRCLES_TO_DEGREES, lon * SEMICIRCLES_TO_DEGREES, ele, time]);
+  for (const r of records) {
+    if (r.lat === null || r.lon === null) continue;
+    points.push([r.lat * SEMICIRCLES_TO_DEGREES, r.lon * SEMICIRCLES_TO_DEGREES, r.altitude, r.time]);
   }
   return points;
 }

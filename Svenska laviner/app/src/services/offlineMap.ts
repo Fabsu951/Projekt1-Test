@@ -174,6 +174,7 @@ export async function downloadTiles(
   const cache = await caches.open(cacheKey);
   let done = 0;
   let failed = 0;
+  let skipped = 0;
   let bytes = 0;
   let next = 0;
 
@@ -185,7 +186,14 @@ export async function downloadTiles(
       try {
         let response = await cache.match(url);
         if (!response) {
-          const fresh = await fetch(url, { signal });
+          // The worker redirects tiles it doesn't host to openstreetmap.org,
+          // whose rules forbid saving tiles for offline use: skip those.
+          const fresh = await fetch(url, { signal, redirect: "manual" });
+          if (fresh.type === "opaqueredirect" || (fresh.status >= 300 && fresh.status < 400)) {
+            skipped++;
+            onProgress({ done: ++done, total: tiles.length });
+            continue;
+          }
           if (!fresh.ok) throw new Error(String(fresh.status));
           await cache.put(url, fresh.clone());
           response = fresh;
@@ -206,7 +214,7 @@ export async function downloadTiles(
   if (failed > tiles.length * 0.03) {
     throw new Error(t("{failed} av {total} kartbitar kunde inte hämtas. Kontrollera anslutningen och försök igen.", { failed, total: tiles.length }));
   }
-  return { tiles: tiles.length - failed, bytes };
+  return { tiles: tiles.length - failed - skipped, bytes };
 }
 
 /** Downloads every tile for a region into its own cache. */
