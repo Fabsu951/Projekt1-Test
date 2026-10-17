@@ -862,6 +862,11 @@ the start, exact map point.
   Word copies of every text in `marknad/word/` (pandoc -f gfm with the
   styled `marknad/word/.mall-reference.docx`; regenerate after editing the .md)
   and all images flat in `marknad/bilder/`.
+  Clip A1 script `marknad/manus/A1.md`; its app screen recordings are in
+  `marknad/film/A1/` (start page, slope map zoom, route + profile, zoom out),
+  made by `marknad/film/a1-klipp.mjs` in workflow `a1-klipp.yml` (only on the
+  marketing branch; builds the app branch, sample data, real map; zooms are
+  rendered frame by frame via a recording-only `window.__map` patch).
 - **Reporting everything else (DSA, 2026-10-08):** migration `0017`
   `content_reports` (item_type tour|route|comment|profile, one row per
   reporter), `comments.hidden`, `notifications.note`. `worker/src/reports.ts`:
