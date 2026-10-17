@@ -79,7 +79,11 @@ Tortoise: 3 of 4 legs down, so **DF = 0.75**.
 It also raises muscle activation and recruitment before the concentric push, and starts the push already at high force. So more work is done over the same extension s.
 
 ### Q10 (6)
-(a) $\rho_t(1-\phi) = 1026 \Rightarrow \phi = 1 - 1026/1080 = \mathbf{5.0\ \%}$ of the body volume.
-(b) Tuna: $Re = 1026\times3\times1/10^{-3} ≈ \mathbf{3\times10^6}$, inertial, so **pressure (form) drag** dominates (it streamlines to delay separation).
-Bacterium: $Re = 1000\times10^{-5}\times2\times10^{-6}/10^{-3} = \mathbf{2\times10^{-5}}$, viscous, so **skin-friction drag** dominates (it stops instantly when it stops swimming).
-(c) $\eta = \frac{V+U}{2V} = \frac{1.25+1}{2\times1.25} = \mathbf{0.90}$
+(a) $T = 2\pi\sqrt{\frac{2L}{3g}} = 2\pi\sqrt{\frac{1.8}{29.43}} = \mathbf{1.55\ s}$
+(b) $\frac{mg}{4} = 171.7$ N and $\frac T4 = 0.388$ s.
+At 1.5 m/s: $P_W = 171.7\times\frac{2.25}{0.9}\times0.388 = \mathbf{167\ W}$. At 2.5 m/s: $P_W = 171.7\times6.94\times0.388 = \mathbf{463\ W}$
+(it grows with v², so ≈ 2.8× more for 1.67× the speed).
+(c) $P_R = \frac{686.7\times2.5}{4} = \mathbf{429\ W}$ < 463 W, so **running is cheaper** at 2.5 m/s.
+(d) Set $\frac{mg}{4}\frac{v^2}{L}\frac T4 = \frac{mg\,v}{4}$, which gives $v^* = \frac{4L}{T} = \frac{3.6}{1.554} = \mathbf{2.3\ m/s}$.
+This matches the measured energetic crossover (≈ 2.3 m/s, Margaria). Walking power ∝ v² and running power ∝ v, so above v* running wins.
+It is also below the mechanical limit $\sqrt{gL} = 2.97$ m/s, so people switch to running before they are forced to.

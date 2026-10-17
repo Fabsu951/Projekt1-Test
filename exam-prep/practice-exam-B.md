@@ -1,6 +1,6 @@
 # Practice Midterm B — Bioinspired Soft Robotics
 
-**Time:** 120 minutes · **Total:** 100 points · Calculator allowed · Use g = 9.81 m/s², ρ_water = 1000 kg/m³ unless stated.
+**Time:** 120 minutes · **Total:** 100 points · Calculator allowed · Use g = 9.81 m/s² unless stated.
 Show your formulas, assumptions and units.
 Solutions: [practice-exam-B-solutions.md](practice-exam-B-solutions.md).
 
@@ -56,18 +56,23 @@ F = 500 N. Use the lecture's stride-by-stride energy model: the stance leg is at
 (d) After how many strides does the sprinter reach 95 % of top speed? (3)
 (e) In one or two sentences: why is legged locomotion so much costlier than cycling at the same speed? (2)
 
-### Question 8 — Human swimming and rowing (12 pts)
-(a) A swimmer sweeps a straight arm (L = 0.70 m, effective width w = 0.10 m) through θ = 180° in T = 0.6 s. Using the paddle-wheel model, estimate the
-propulsive force. (4)
-(b) A single sculler (boat + rower 100 kg) accelerates from rest to 1 m/s in one stroke. Compare the total kinetic energy needed if the blade pushes
-(i) 10 kg of water or (ii) 25 kg of water. What design conclusion follows? (4)
-(c) An oar has inboard length 0.88 m (handle to pin) and outboard length 2.0 m (pin to blade). For a handle force of 400 N, what is the blade force? (2)
-(d) Distinguish drag-based and lift-based propulsion, with one example of each. (2)
+### Question 8 — Elastic actuator at the elbow (12 pts)
+A robotic forearm is horizontal and pinned at the elbow C. A single linear elastic actuator (spring constant k = 20 kN/m) is attached
+b = 4 cm from C and pulls **vertically upward** from a fixed point far above. A load mg = 20 N hangs at L = 30 cm from C, on the same side.
+Neglect the forearm's weight.
+(a) Calculate the actuator tension needed to hold the forearm horizontal. (3)
+(b) Calculate the force at the elbow pin, and give its direction. (2)
+(c) If the actuator's rest length is fixed, how much must it be stretched to carry that tension? (2)
+(d) The forearm is now lowered slowly by 30° while holding the same load. The actuator stays almost vertical. By how much does it lengthen,
+and what tension is needed at 30°? If the actuator were a passive spring, what tension would it have, and what would happen? What must the
+actuator do instead? (3)
+(e) What kind of muscle action does (d) correspond to? Why is the actuator force so much larger than the load? (2)
 
-### Question 9 — Fish and jets (12 pts)
-(a) A 2 kg fish accelerates from rest to 1 m/s by shedding backward momentum into the water. Find the water speed and the total work if it pushes
-(i) 0.5 kg of water, (ii) 2 kg of water. (4)
-(b) A squid swims at U₁ = 2 m/s by jetting water at U₂ = 8 m/s with a mass flow of 0.5 kg/s. Find the thrust, useful power, input power and Froude
-efficiency. (4)
-(c) A mackerel swims at 2.83 m/s while its body wave travels backward at 3.5 m/s. Find its Froude efficiency. (2)
-(d) Contrast anguilliform and thunniform swimming. (2)
+### Question 9 — Running mechanics and energetics (12 pts)
+A 70 kg runner runs at marathon pace (4.5 m/s) with a step frequency of 3 steps/s.
+(a) Estimate the peak vertical ground reaction force, using the lecture's rule of thumb. (2)
+(b) About 100 J of kinetic energy is lost per foot strike. How much is stored in the Achilles tendon, how much of that comes back, and what power
+does the tendon return? (3)
+(c) Using Sprott's model, compute the running power if the centre of mass leaves the ground with $v_y(0) = 1.2$ m/s. (2)
+(d) Give four differences between walking and running. (4)
+(e) In the spring-mass model of running, where does the spring-like behaviour come from at middle-distance speeds? (1)

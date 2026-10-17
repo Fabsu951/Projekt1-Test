@@ -1,4 +1,4 @@
-# Formula Sheet — weeks 1–7
+# Formula Sheet — weeks 1–5 (exam scope)
 
 Every equation from the slides, with the key numbers. Learn the **derivations** marked ★. The slides derive them step by step,
 so they are classic exam material.
@@ -12,8 +12,8 @@ so they are classic exam material.
 | Max muscle power | at ≈ ⅓ v_max (and ≈ ⅓ F_max) |
 | Sarcomere length / optimal range | 2–3 µm / 70–130 % of rest length |
 | McKibben "magic angle" | θ* = arccos(1/√3) = **54.7°** |
-| Fresh / sea water density | 1000 / 1026 kg/m³ |
-| Water viscosity | 1.0×10⁻³ Pa·s (air 1.8×10⁻⁵) |
+| Achilles tendon (marathon pace) | ≈ 100 J lost per foot strike, ≈ 35 J stored, ≈ 93 % recovered |
+| Running GRF peak | ≈ 2.7 mg (marathon) · 3.6 mg (sprint) |
 | Walk→run (energy crossover) | ≈ 2.3 m/s; mechanical limit √(gL) ≈ 3 m/s |
 | Synthetic wheel | ω_F τ = 4.058, duty factor ≈ 0.65 ≈ ⅔ |
 
@@ -80,34 +80,3 @@ so they are classic exam material.
 | Propulsive force | $F = GRF\cos\theta$ (horizontal component) |
 | ★ Jump height | $\int_0^s(N-mg)dz = \tfrac12mv_{TO}^2 = mgH \Rightarrow H = \dfrac{(N-mg)s}{mg}$ |
 | ★ Take-off time | $a = \dfrac{N-mg}{m}$, $v_{TO} = a\tau$, $s = \tfrac12a\tau^2$, so $\tau = \sqrt{2s/a}$ |
-
-## Week 6 — Water I
-| | |
-|---|---|
-| Buoyancy | $F_B = \rho_\text{fluid}V_\text{sub}g$; floats if $\bar\rho \le \rho_\text{fluid}$ |
-| Mixture density | $\bar\rho = \sum\rho_i V_i/V$ (submarine: $\rho_a V_a + \rho_w V_b + \rho_s V_s$ over V) |
-| Viscous drag (shallow) | $R = \mu A v/h = cv$ |
-| Skin friction | $D_f = \tfrac12\rho U^2 S C_f$, laminar $C_f = 0.664/\sqrt{Re_x}$ |
-| Drag (form) | $D = \tfrac12\rho U^2 A C_D$ |
-| Reynolds number | $Re = \dfrac{\rho U L}{\mu}$ (inertial / viscous) |
-| Swimmer dynamics | $m\,du/dt = F_\text{prop} - F_\text{drag}$ |
-| Propulsive drag | $F = \tfrac12\rho u^2AC_D$ or $F ≈ \rho V u/T$ |
-| ★ Paddle-wheel arm | $V = \tfrac12L^2\theta w$, $u_w = \dfrac{L\theta}{2T}$, $F ≈ \dfrac{\rho\theta^2L^3w}{4T^2}$ |
-| Rowing momentum | $m_bv_b = m_wv_w$; $KE = \tfrac12m_bv_b^2+\tfrac12m_wv_w^2$ |
-| Oar lever | $L = E\,b/a$; $W = La\psi = Eb\psi$ |
-| Control-volume thrust | $T = \dot m(v_\text{out}-v_\text{in})$, $\dot m = \rho A v$ |
-
-## Week 7 — Water II
-| | |
-|---|---|
-| Thrust from a pushed water mass | $T = mv/t$ |
-| ★ Fish momentum | $MU = -m_wu_w$ |
-| ★ Swimming energy | $W = \tfrac12MU^2\left(1+\dfrac{M}{m_w}\right)$ |
-| Body wave (Lighthill) | $y = (c_1x+c_2x^2)\sin(kx+\omega t)$, $k = 2\pi/\lambda$, $\omega = 2\pi/T$ |
-| Wave speed | $V = \lambda_b/T_b$ |
-| Trailing-edge water mass | $m = \rho\pi d_T^2/4$ per unit length |
-| ★ Water lateral speed | $w = W\dfrac{V-U}{V}$ (similar triangles) |
-| Thrust / power | $T = m(wW - \tfrac12w^2)$, $P = mUwW$, $P_K = \tfrac12mw^2U$ |
-| ★ Froude efficiency (fish) | $\eta = 1-\dfrac{w}{2W} = \dfrac{V+U}{2V}$ |
-| Jet thrust | $T = \dfrac mt(U_2-U_1)$, $P_\text{out} = TU_1$, $P_\text{in} = \tfrac12\dfrac mt(U_2^2-U_1^2)$ |
-| ★ Froude efficiency (jet) | $\eta = \dfrac{2U_1}{U_1+U_2}$ |

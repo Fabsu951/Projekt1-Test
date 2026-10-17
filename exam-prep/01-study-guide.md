@@ -1,12 +1,12 @@
-# Study Guide — Bioinspired Soft Robotics (仿生軟機器人學), weeks 1–7
+# Study Guide — Bioinspired Soft Robotics (仿生軟機器人學), weeks 1–5
 
 Course: 536116, Prof. LAU Gih-Keong, NYCU. This guide summarises the lecture slides week by week.
 Each week ends with **"Likely exam angles"**: the things the slides emphasise (worked exercises,
 derivations, comparison tables) and the material the homework already tested.
 
 > Exam weighting from the course intro: Homework 20 %, **Midterm 30 %**, Experiment report and attendance 20 %, Final 30 %.
-> The midterm most likely covers **Part 1: Animal locomotion** (weeks 1–9). Weeks 8–9 (gliding, soaring, hovering)
-> are not in this guide yet because those slides haven't been uploaded.
+> **Exam scope (confirmed by the course email):** Week 1 Introduction to bioinspired soft robotics · Week 2 Muscles ·
+> Week 3 Skeleton and springs · Week 4 Walking · Week 5 Running and jumping. Swimming, fish, flight and hovering are **not** on this exam.
 
 ---
 
@@ -345,118 +345,6 @@ the sprint stride model (v₁, v₂, v_final); Usain Bolt energy method (HW2 Q4)
 
 ---
 
-## Week 6 — Locomotion in water: buoyancy, drag, human swimming, rowing
-
-### Buoyancy
-- Archimedes: buoyancy = weight of the displaced fluid. Fresh water 1000 kg/m³, sea water 1026, bony fish 1060–2000, tuna 1090,
-  squid 1070, fat about 930 (squalene) or 800 (human fat), bone 1500–2000.
-- Aquatic animals can have lighter bones and grow larger, but move more slowly because of drag.
-- **Submarine**: overall density $\rho = \rho_a\frac{V_a}{V} + \rho_s\frac{V_s}{V}$. Flooding a ballast volume $V_b$ with sea water raises it:
-  $\rho' = \rho_a\frac{V_a-V_b}{V}+\rho_w\frac{V_b}{V}+\rho_s\frac{V_s}{V}$. Dive: fill the ballast with water. Surface: blow it out with air.
-- Human floating: a deep breath lowers body density. The **centre of buoyancy** (chest, lungs) is closer to the head than the centre of gravity, which gives a torque that tips the
-  legs down until the two forces line up.
-
-### Drag
-- **Friction (skin) drag**: viscous shear in the boundary layer. It dominates at **low Re**.
-  Newton's viscosity law: $R = \tau A = \mu A v/h = cv$ (a boat in shallow water). Skin friction: $D_f = \tfrac12\rho U^2 S C_f$,
-  laminar plate (Blasius): $C_f = 0.664/\sqrt{Re_x}$.
-- **Pressure (form) drag**: a pressure difference between front and back caused by flow separation. It dominates at **high Re**.
-  **Streamlining** (blunt head, gradually tapered tail) delays separation, as in the tuna, dolphin and squid.
-- **Reynolds number** (inertial / viscous forces): $Re = \rho U L/\mu$. Tuna ~10⁶–10⁷; fruit fly ~30; sperm ~0.03; bacterium ~10⁻⁵.
-  A tuna coasts several body lengths; a bacterium stops instantly. Laminar flow turns turbulent above a critical Re.
-
-### Human swimming
-- Newton's 2nd law: $m\,du/dt = F_\text{propulsion} - F_\text{drag}$.
-- Propulsion is mainly **propulsive drag** (the hand or arm pushes backward, like a paddle): $F = \tfrac12\rho u^2 A C_D$.
-  Lift-based sculling also contributes, e.g. the breaststroke in-sweep.
-- **Paddle-wheel estimate**: a straight arm of length L and width w sweeping angle θ in time T:
-  $$V_\text{water}=\tfrac12 L^2\theta w,\quad u_\text{water}=\frac{L\theta}{2T},\quad F \approx \frac{\rho V u_\text{water}}{T} = \frac{\rho\theta^2L^3w}{4T^2}$$
-- Strokes: front crawl, backstroke, **breaststroke** (glide → outsweep → catch → **in-sweep (propulsive)** → recovery; the kick has catch →
-  down-sweep → in-sweep → recovery), butterfly (dolphin kick, undulation, "kick, pull, kick, recover").
-- The **dolphin fluke and monofin** are **lift-based**: the fluke acts as a hydrofoil with L/D of about 10–20. Lift is perpendicular to the flow; drag is parallel to it.
-
-### Rowing
-- **Momentum conservation**: $m_b v_b = m_w v_w$. To reach a given boat speed it is **cheaper to push a lot of water slowly**:
-  100 kg boat at 1 m/s using 10 kg of water at 10 m/s → 550 J total; using 20 kg at 5 m/s → 300 J. That argues for bigger blades.
-- Drag on boats: skin drag, inertial drag (accelerating water ahead) and **wave drag**.
-- Power split: legs about 46 %, trunk 31 %, arms and shoulders 23 %. Drive phases: catch → drive → release (about 110°) → recovery.
-- **The oar is a lever** with the fulcrum at the pin: blade load $L = E\,b/a$ (b = inboard, a = outboard length).
-  Work is the same at both ends: $W = L a\psi = E b\psi$. Gearing is changed by moving the button.
-
-### Propeller thrust (control volume)
-$$T = \frac{dm}{dt}(v_\text{out}-v_\text{in}),\qquad \frac{dm}{dt} = \rho A v$$
-
-**Likely exam angles:** buoyancy and density calculations; friction vs form drag and Re; streamlining; propulsive drag vs lift;
-paddle thrust estimate; rowing momentum and energy (big blade argument); oar lever.
-
----
-
-## Week 7 — Fish swimming, jellyfish and squid jet propulsion
-
-### Buoyancy control in fish
-- Fish are slightly denser than water and need extra lift:
-  - **Hydrostatic lift**: low-density material such as gas (**swim bladder**), lipids or low-density fluids. Bladder regulation is slow and fails at depth;
-    **barotrauma** happens when a rockfish is pulled up quickly.
-  - **Hydrodynamic lift**: fast, dense swimmers (sharks, tunas, mackerel, squid; 1070–1090 kg/m³) use **pectoral fins** at a positive angle of attack.
-    The fins sit in front of the centre of mass, which gives a nose-up moment balanced by a posterior lift: the **heterocercal tail** in sharks and the caudal peduncle in tunas.
-
-### Fins and stability
-Dorsal fin: anti-roll. Pectoral and pelvic fins: turning, steering, up and down. Anal fin: stabilizer. **Caudal fin: propulsion.**
-Control axes: depth (buoyancy), **pitch**, **yaw**, **roll**.
-
-### Fish muscle
-**Myotomes or myomeres**: W-shaped, folded, cone-like muscle blocks separated by connective tissue (myosepta) and anchored to the skin and
-vertebrae. They are divided into **epaxial** (upper) and **hypaxial** (lower) muscle. Alternating left and right contraction bends the trunk.
-
-### Swimming modes (caudal or trunk swimmers)
-| Mode | Example | Part that undulates |
-|---|---|---|
-| **Anguilliform** | eel, sea snake | the whole body, ≥ 1 wavelength along the body |
-| **Subcarangiform** | trout, salmon | about the rear ½–⅔ |
-| **Carangiform** | mackerel, jack | about the rear ⅓ (peduncle and tail), body < 1 wavelength |
-| **Thunniform** | tuna | the tail only; the body stays rigid to cut drag |
-| **Ostraciiform** | boxfish | rigid body; the caudal fin oscillates like a fan |
-Tuna-like efficiency needs tail stiffness ∝ U². Swimming twice as fast needs 4× the tendon tension; 3× as fast needs 9×.
-
-### Forces on an undulating fish
-- A **backward-travelling body wave** whose amplitude grows toward the tail pushes water backward. The reaction force normal to the body splits into
-  **thrust** (forward) and **lateral force**. Over a full symmetric beat the lateral force cancels and the net thrust is positive.
-  Yaw is resisted by the dorsal fin and the body's depth.
-- Each segment adds momentum to the water: $T \propto m(U_n - U_0)/t$.
-- Lighthill body wave: $y = (c_1x + c_2x^2)\sin(kx+\omega t)$, $k = 2\pi/\lambda$, $\omega = 2\pi f$.
-- **Vortex shedding**: alternating flaps make counter-rotating vortices that form a jet (reverse Kármán street). A dead fish can "swim" upstream
-  between vortices; fish exploit vortex-induced vibrations when schooling.
-
-### Momentum and energy of swimming
-$$MU = -m_w u_w,\qquad W = \tfrac12MU^2 + \tfrac12 m_w u_w^2 = \tfrac12 MU^2\left(1+\frac{M}{m_w}\right)$$
-So it is cheaper to push a **large mass of water slowly**, which favours a large tail and a large stroke.
-
-### Lighthill's elongated-body (bulk momentum) model
-Water mass per unit length at the trailing edge: $m = \rho\pi d_T^2/4$ (d_T = trailing-edge depth).
-Lateral tail speed W, body-wave speed V, swimming speed U. The water is pushed sideways at $w = W(V-U)/V$.
-$$\text{Thrust } T = m\left(wW - \tfrac12w^2\right),\quad P_\text{total} = mUwW,\quad P_\text{wake} = \tfrac12 m w^2U$$
-$$\textbf{Froude efficiency}\;\;\eta = 1 - \frac{w}{2W} = \frac{V+U}{2V}$$
-η < 1 requires V > U (the wave travels backward faster than the fish moves forward). For high efficiency, V should be only a little larger than U.
-
-### Lift-based vs drag-based propulsion
-- **Lift-based**: dolphin or whale fluke (and lunate tuna tail). Up-and-down strokes; the hydrofoil lift has a forward component.
-- **Drag-based**: paddling, e.g. a fish's caudal fin pushing water or a human hand.
-
-### Jet propulsion (squid, jellyfish)
-- Squid: the mantle expands to draw water in (siphon closed), then contracts to jet it out through the siphon. Mantle overpressure reaches about 0.4 atm.
-  Small squid reach 5–8 mph, large ones up to 20 mph. Fins are used at low speed; at high speed the fins wrap against the mantle and the squid relies on the jet.
-- Thrust: $T = \frac{m}{t}(U_2-U_1)$; output power $P_\text{out}=TU_1$; input power $P_\text{in}=\frac12\frac mt(U_2^2-U_1^2)$.
-  $$\eta_\text{Froude} = \frac{2U_1}{U_1+U_2}$$
-  For high η the jet speed U₂ must be close to the swimming speed U₁, which is impractical for a small jet. So jetting is **costly**: about 3× the cost of
-  transport of a trout, and a squid needs twice the power to go half as fast as a fish.
-- **Jellyfish**: the ring muscle contracts the bell and jets water out; the elastic bell refills on recoil. **Two counter-rotating vortex rings**
-  create a "virtual wall", a ground effect away from any surface. It is silent and causes no cavitation.
-
-**Likely exam angles:** hydrostatic vs hydrodynamic lift; swimming-mode table; thrust and lateral force decomposition;
-energy cost $W=\tfrac12MU^2(1+M/m_w)$; Froude efficiency for undulation and for jets; why jet propulsion is expensive.
-
----
-
 ## Homework themes recap (very likely to reappear)
 | HW | Question | Topic |
 |---|---|---|
@@ -470,3 +358,41 @@ energy cost $W=\tfrac12MU^2(1+M/m_w)$; Froude efficiency for undulation and for 
 | 2 Q4 | Usain Bolt: energy method for propulsive force | Week 5 |
 
 Full worked solutions are in [03-homework-solutions.md](03-homework-solutions.md).
+
+---
+
+## Final checklist: can you do these without notes?
+Tick each one off the day before the exam. Everything here comes from weeks 1–5.
+
+**Week 1**
+- [ ] List 3 advantages and 3 disadvantages of rigid robots, and 3 advantages of soft robots plus the main challenge (control).
+- [ ] Compare hydraulic, electric and pneumatic drives, and explain why pneumatics drift under load.
+- [ ] Compute a harmonic-drive ratio from the tooth counts, including the direction.
+- [ ] Explain why motor-driven arms have a poor payload-to-weight ratio (motor density 7–9× muscle; biceps 2.7 vs UR10e 0.37).
+
+**Week 2**
+- [ ] Compute joint torque $F\sin\alpha\,d$ and say what the parallel component does.
+- [ ] Compute max force from PCSA × 90 N/cm², and tendon force $F\cos\alpha$ for a pennate muscle.
+- [ ] Show with $A = V/L_f$ why pennate muscles give more force than parallel ones of the same volume.
+- [ ] Classify isometric, concentric and eccentric actions in a push-up or chin-up.
+- [ ] Explain the sliding filament model (what shortens), the role of ATP, force-length, force-velocity, twitch → tetanus, and the SSC.
+- [ ] Compare type I, IIa and IIx fibres, with a muscle example for each.
+
+**Week 3**
+- [ ] Name the skeleton types with examples, and the springs in animals (clam, jellyfish, nuchal ligament, Achilles).
+- [ ] Derive the pressure-vessel stresses $pr/2t$ and $pr/t$.
+- [ ] Use constant volume for hydraulic leverage (exact and linearized), and explain HW2 Q1.
+- [ ] Derive the McKibben force and the 54.7° angle.
+- [ ] Classify the three lever classes and compute MA, DA and the muscle force for a held load.
+
+**Week 4**
+- [ ] Derive $v_{\max}=\sqrt{gL}$ and apply it on Earth, the Moon and Mars, and for a child.
+- [ ] Define stride, step, stance, swing and duty factor (walk > 0.5, run < 0.5, tortoise 0.75).
+- [ ] Use the synthetic-wheel relations ($\tau = 2\alpha/\Omega$, $V = L\Omega$, $\omega_F\tau = 4.058$) and the leg pendulum frequency.
+
+**Week 5**
+- [ ] List the differences between walking and running (duty factor, knee, GRF shape, flight phase).
+- [ ] Compute walking or running power with Sprott's model.
+- [ ] Use the stride-by-stride sprint model to get $v_1$, $v_2$, $v_\text{final}$ and the number of strides to a given speed, and redo HW2 Q4 (Bolt).
+- [ ] Compute jump height and push-off time from N, m and s.
+

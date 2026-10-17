@@ -1,6 +1,6 @@
 # Worked Solutions — Homework 1 and 2
 
-> These are my own worked solutions, built from the lecture slides. Where a question is ambiguous I say which
+> **All homework questions are inside the exam scope (weeks 1–5).** These are my own worked solutions, built from the lecture slides. Where a question is ambiguous I say which
 > assumption I made. If HW2 isn't handed in yet, solve it yourself first and use this to check.
 
 ---

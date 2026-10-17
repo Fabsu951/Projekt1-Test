@@ -66,9 +66,10 @@ N = 1600 N.
 (b) Assuming constant acceleration, how long does the push-off last? (2)
 (c) Why does a countermovement jump reach higher than a squat jump from rest? (2)
 
-### Question 10 — Swimming (6 pts)
-(a) A fish of tissue density 1080 kg/m³ lives in sea water (1026 kg/m³). What fraction of its body volume must its gas-filled swim bladder occupy for
-neutral buoyancy? Neglect the gas density. (2)
-(b) Compare the Reynolds number of a 1 m tuna swimming at 3 m/s (ρ = 1026 kg/m³, μ = 1.0×10⁻³ Pa·s) with that of a 2 µm bacterium at 10 µm/s.
-Which kind of drag dominates for each? (2)
-(c) An eel's body wave travels backward at 1.25 times its swimming speed. What is its Froude efficiency? (2)
+### Question 10 — Walking vs running energetics (6 pts)
+A 70 kg person with leg length L = 0.9 m walks with the legs swinging at their natural period. Treat the leg as a uniform rod
+(compound pendulum). Sprott's model gives $P_W = \frac{mg}{4}\frac{v^2}{L}\frac T4$ for walking and $P_R = \frac{mg\,v_y(0)}{4}$ for running.
+(a) Calculate the leg's swing period T. (1)
+(b) Calculate the walking power at 1.5 m/s and at 2.5 m/s. (2)
+(c) Calculate the running power at 2.5 m/s, taking $v_y(0) \approx v_x$. Which gait is cheaper at 2.5 m/s? (1)
+(d) Find the speed at which walking and running cost the same, and compare it with the measured walk-run transition. (2)

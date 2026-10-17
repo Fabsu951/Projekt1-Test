@@ -73,27 +73,24 @@ $m_\text{leg} = 0.161\times80 = 12.88$ kg; $m_b - m_\text{leg} = 67.12$ kg; $m_b
 centre-of-mass rise and fall. A wheel keeps the centre of mass level, needs no reciprocating mass, and loses only rolling and joint friction.
 
 ### Q8 (12)
-(a) $F \approx \frac{\rho\theta^2L^3w}{4T^2} = \frac{1000\times\pi^2\times0.343\times0.10}{4\times0.36} = \mathbf{235\ N}$
-(derivation: $V = \tfrac12L^2\theta w$, $u_w = L\theta/2T$, $F = \rho V u_w/T$).
-(b) Momentum: $m_wv_w = 100\times1 = 100$ kg·m/s.
-(i) $v_w = 10$ m/s, so $KE = \tfrac12(100)(1)^2 + \tfrac12(10)(10)^2 = 50 + 500 = \mathbf{550\ J}$.
-(ii) $v_w = 4$ m/s, so $KE = 50 + \tfrac12(25)(4)^2 = 50 + 200 = \mathbf{250\ J}$.
-Conclusion: push **more water, more slowly**. Larger blades ("bigger is better") and avoiding washing out (slipping) save energy. The same principle
-explains the large tail strokes of fish and the large swept area of propellers.
-(c) Lever about the pin: $L_\text{blade} = E\,b/a = 400\times0.88/2.0 = \mathbf{176\ N}$. The gearing gives a distance and speed advantage at the blade
-(work is the same at both ends).
-(d) **Drag-based**: the propulsive force is parallel to the appendage's motion relative to the water, by pushing water backward like a paddle (human hand, oar
-blade, duck foot). **Lift-based**: a hydrofoil moving across the flow makes lift perpendicular to its motion, with a forward component (dolphin
-or whale fluke, tuna tail, monofin dolphin kick). Lift-based propulsion is more efficient (L/D ≈ 10–20).
+(a) Moments about C: $F\,b = mg\,L$, so $F = \frac{20\times0.30}{0.04} = \mathbf{150\ N}$ (7.5× the load).
+(b) Vertical balance: $F - mg + R = 0$, so $R = 20 - 150 = -130$ N. The pin pushes **down** on the forearm with **130 N**.
+(c) $\delta = F/k = 150/20\,000 = \mathbf{7.5\ mm}$
+(d) The attachment point drops by $b\sin30° = \mathbf{2.0\ cm}$, so the actuator lengthens by 2 cm.
+Needed tension: $F\,b\cos30° = mg\,L\cos30°$, so the cos 30° cancels and it is still **150 N**.
+A passive spring would have $150 + k(0.02) = 150 + 400 = \mathbf{550\ N}$, which is far too much, so it would pull the arm back up toward horizontal.
+To lower the load in a controlled way, the actuator must **increase its rest length by about 2 cm** while keeping 150 N (variable tension), the same idea as HW1 Q5.
+(e) **Eccentric** action: the actuator lengthens while under tension, braking the load, like the biceps lowering a weight.
+It is a **class-3 lever**: MA = b/L = 4/30 = 0.13, so the actuator needs 7.5× the load, and in return the hand moves 7.5× faster and farther (distance advantage).
 
 ### Q9 (12)
-(a) $MU = m_wu_w$ and $W = \tfrac12MU^2(1+M/m_w)$.
-(i) $u_w = 2\times1/0.5 = \mathbf{4\ m/s}$, $W = \tfrac12(2)(1)(1+4) = \mathbf{5\ J}$.
-(ii) $u_w = \mathbf{1\ m/s}$, $W = \tfrac12(2)(1)(1+1) = \mathbf{2\ J}$. Pushing a larger mass of water costs less energy.
-(b) $T = \dot m(U_2-U_1) = 0.5\times6 = \mathbf{3\ N}$. $P_\text{out} = TU_1 = \mathbf{6\ W}$.
-$P_\text{in} = \tfrac12\dot m(U_2^2-U_1^2) = \tfrac12(0.5)(64-4) = \mathbf{15\ W}$. $\eta = 6/15 = \mathbf{0.40}$ $= 2U_1/(U_1+U_2) = 4/10$ ✓.
-That is why jetting is costly: about 3× the cost of transport of a similar fish.
-(c) $\eta = \frac{V+U}{2V} = \frac{3.5+2.83}{7.0} = \mathbf{0.90}$
-(d) **Anguilliform** (eel): the whole body undulates with ≥ 1 wavelength along it, the amplitude grows toward the tail; good manoeuvrability, slower.
-**Thunniform** (tuna): a rigid, streamlined body with only the narrow caudal peduncle and the stiff lunate tail oscillating (lift-based); it minimizes body drag and recoil,
-for fast and efficient cruising.
+(a) Peak ≈ 2.7 mg = 2.7 × 686.7 ≈ **1850 N** (≈ 1900 N on the slide for a 700 N runner; ≈ 3.6 mg when sprinting).
+(b) Stored ≈ **35 J**, of which ≈ 93 % comes back: 35 × 0.93 ≈ **32.6 J** per step. At 3 steps/s the tendon returns ≈ 32.6 × 3 ≈ **98 W**,
+power the muscles don't have to supply.
+(c) $P_R = \frac{mg\,v_y(0)}{4} = \frac{686.7\times1.2}{4} = \mathbf{206\ W}$
+(d) Any four: duty factor > 0.5 in walking vs < 0.5 in running; walking has double support, running has a **flight phase**; the stance knee is
+straight in walking (inverted pendulum) but **never straight** in running (spring); the GRF has **two humps** in walking vs **one tall hump** (≈ 2.7–3.6 mg)
+in running; kinetic and potential energy are **out of phase** in walking (pendulum exchange) but stored as **elastic energy** in running; above
+≈ 2.3 m/s running is cheaper; walking is limited by $v_{\max} = \sqrt{gL}$.
+(e) From elastic stretch and recoil of the **tendons and ligaments** (e.g. Achilles) and from non-elastic lengthening and shortening of the
+muscles: at middle-distance speeds roughly **half** the work comes from the passive springs and half from the muscles.
