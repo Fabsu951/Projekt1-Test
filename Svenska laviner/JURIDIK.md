@@ -88,3 +88,81 @@ Ungefär i prioritetsordning:
   `APPAR.md`.
 - Ändras policyn eller villkoren väsentligt: uppdatera datumet högst upp och
   berätta det i appen.
+
+## Patent, varumärke och licenser (19 oktober 2026)
+
+Ingen juridisk rådgivning, utan en karta över läget. Avgifter ändras: kolla
+aktuella belopp hos PRV och EUIPO innan du ansöker.
+
+**Patent: inte värt det för Snöläge i dag.**
+- Datorprogram "som sådana" går inte att patentera i Sverige eller hos det
+  europeiska patentverket (patentlagen 1 kap., EPC art. 52). Det krävs en ny
+  teknisk lösning med uppfinningshöjd.
+- Positionsdelning med tidsgräns finns redan i Google Maps, Apple Hitta,
+  Snapchat-kartan, Garmin LiveTrack, Strava Beacon och Life360, så den är
+  inte ny. Samma sak gäller prognos, karta och turdagbok.
+- Pappas sensoridé (känna av en begravning och larma) är det enda som skulle
+  kunna vara patenterbart, om det blir en ny teknisk lösning, troligen med
+  hårdvara. Två saker att veta:
+  1. **Berätta inte om den offentligt** (video, inlägg, presentation) innan
+     du har bestämt dig. I Europa förstör en offentlig beskrivning före
+     ansökan nyheten; det finns ingen respitperiod.
+  2. Telefoner sänder inte på lavinsändarnas 457 kHz och signaler från
+     telefon (mobilnät, wifi, Bluetooth, GPS) dämpas kraftigt i snö. Den
+     kanadensiska lavincentralen varnade 2013 för appar som påstod sig
+     ersätta sändare/mottagare. En sådan funktion får aldrig marknadsföras
+     som räddningsutrustning.
+- Kostnad om det ändå blir aktuellt: själva PRV-ansökan är några tusen
+  kronor, men ett patentombud kostar ofta 30 000–100 000 kr för en svensk
+  ansökan, och skydd i flera länder betydligt mer. Gratis rådgivning finns
+  hos PRV och Almi.
+
+**Varumärke: det här är värt pengarna, när appen har fått fäste.**
+- Namnet är det som går att skydda och det som konkurrenter kan härma.
+  Namnkollen 7 oktober hittade inga krockar för "Snöläge"/"Snolage" hos PRV
+  eller i TMview.
+- Klasser: **9** (nedladdningsbar programvara, appar), **42** (programvara
+  som tjänst, plattformar på nätet), möjligen **41** (utbildning, till
+  exempel säkerhetsguiden).
+- Sverige via PRV (e-tjänst, ett par tusen kronor för första klassen plus
+  avgift per extra klass), eller hela EU via EUIPO (850 euro för en klass, 50
+  euro för den andra, 150 euro per klass därefter). Skyddet gäller 10 år och
+  kan förnyas.
+- Ordmärke ("Snöläge") först; logotypen kan vänta.
+- Domänerna snolage.se, snöläge.se, snolage.online och snöläge.online är
+  redan köpta.
+
+**Upphovsrätt till koden och innehållet.**
+- Upphovsrätt uppstår automatiskt. Repot är privat och har ingen
+  licensfil, så ingen annan får använda koden. Behåll det så.
+- Koden är till stor del skriven med AI-hjälp. Hur långt upphovsrätten
+  sträcker sig för AI-genererad kod är juridiskt oklart (det krävs mänskligt
+  skapande). Det praktiska skyddet är därför att hålla koden hemlig (privat
+  repo) och att skydda namnet som varumärke.
+- Användarnas inlägg: villkoren ger Snöläge rätt att visa dem så länge de
+  ligger kvar. Ingen ändring behövs.
+
+**Licenser vi använder (inkommande).**
+- Öppen källkod: bygget skriver `licenser.txt` med alla npm-paket som ingår
+  i appen och deras licenstexter (MIT, Apache 2.0, BSD, ISC, OFL för
+  typsnittet, Hippocratic 2.1 för React Leaflet). Den länkas från
+  `/om-appen` under Källor. Kvar: de inbyggda Android- och iOS-biblioteken
+  (AndroidX, Firebase-SDK:n, Capacitor) har egna licenser. Google brukar visa
+  dem i en "Licenser för öppen källkod"-vy i appen; det kan läggas till.
+- Garmins FIT-SDK används inte längre i appen (egen läsare sedan 17 oktober).
+- Data: Lantmäteriet (CC BY 4.0, kreditering finns), SMHI (CC BY 4.0),
+  Naturvårdsverket (öppna API:er; skicka mejlet om bred användning och spara
+  svaret), OpenStreetMap (ODbL, kreditering finns), Mapterhorn (kreditering
+  finns).
+
+**Dela position, juridiskt.**
+- Positionen är en personuppgift. Rättslig grund är avtalet (användaren
+  slår på det själv). Bara senaste punkten sparas, högst 12 timmar, inte i
+  säkerhetskopior. Integritetspolicyn och villkoren är uppdaterade 19
+  oktober.
+- Villkoren säger nu tydligt att funktionen inte är någon larm- eller
+  räddningstjänst. Fråga juristen om det räcker som ansvarsbegränsning.
+- Google Play, Data safety: platsen är redan deklarerad som insamlad för
+  appens funktion. Delning som användaren själv startar med andra användare
+  räknas enligt Googles definition inte som "delning med tredje part".
+  Granska ändå svaret nästa gång du uppdaterar formuläret.
