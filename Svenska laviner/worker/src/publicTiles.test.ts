@@ -125,7 +125,7 @@ describe("moving tiles to the public bucket", () => {
     expect(publicKeyFor("maptiles/topowebb/7/70/32/../../x")).toBeNull();
   });
 
-  it("copies page by page, only map tiles, and never twice", async () => {
+  it("lists what is where, copies only map tiles, and never overwrites", async () => {
     const images = memoryBucket({
       "maptiles/topowebb/0/0/0": png(0),
       "maptiles/topowebb/7/70/32": png(1),
@@ -138,22 +138,21 @@ describe("moving tiles to the public bucket", () => {
     await tiles.put("topowebb/7/70/32.png", png(99), { httpMetadata: { contentType: "image/png" } }); // newer, keep it
     const env = { IMAGES: images, TILES: tiles, TILE_UPLOAD_TOKEN: "hemlig" } as unknown as TilesEnv;
 
-    expect((await migrate(env, {}, "fel")).status).toBe(401);
-    let cursor: string | null = null;
-    let copied = 0;
-    let skipped = 0;
-    let calls = 0;
-    do {
-      const res = await migrate(env, { cursor, limit: 2 });
-      expect(res.status).toBe(200);
-      const page = (await res.json()) as { copied: number; skipped: number; cursor: string | null };
-      copied += page.copied;
-      skipped += page.skipped;
-      cursor = page.cursor;
-      calls++;
-    } while (cursor);
-    expect(calls).toBe(2);
-    expect({ copied, skipped }).toEqual({ copied: 3, skipped: 1 });
+    expect((await migrate(env, { list: "old" }, "fel")).status).toBe(401);
+    const old = (await (await migrate(env, { list: "old" })).json()) as { keys: string[]; cursor: string | null };
+    expect(old.keys).toEqual([
+      "maptiles/slope/15/18076/7868",
+      "maptiles/topowebb/0/0/0",
+      "maptiles/topowebb/15/18076/7868",
+      "maptiles/topowebb/7/70/32",
+    ]);
+    expect(old.cursor).toBeNull();
+    const fresh = (await (await migrate(env, { list: "new" })).json()) as { keys: string[] };
+    expect(fresh.keys).toEqual(["topowebb/7/70/32.png"]);
+
+    // Keys outside maptiles/ are never copied, even if asked for.
+    const res = await migrate(env, { keys: [...old.keys, "tracks/hemlig.json", "backups/d1/2026-10-12.json.gz"] });
+    expect(await res.json()).toEqual({ copied: 3, skipped: 3 });
     expect([...tiles.store.keys()].sort()).toEqual([
       "slope/15/18076/7868.png",
       "topowebb/0/0/0.png",
@@ -162,9 +161,6 @@ describe("moving tiles to the public bucket", () => {
     ]);
     expect([...tiles.store.get("topowebb/7/70/32.png")!.data]).toEqual([...png(99)]);
     expect(tiles.store.get("topowebb/0/0/0.png")!.meta.cacheControl).toMatch(/^public, max-age=/);
-
-    // A second run copies nothing.
-    const again = (await (await migrate(env, { limit: 200 })).json()) as { copied: number };
-    expect(again.copied).toBe(0);
+    expect((await migrate(env, { keys: Array.from({ length: 51 }, () => "maptiles/topowebb/0/0/0") })).status).toBe(400);
   });
 });

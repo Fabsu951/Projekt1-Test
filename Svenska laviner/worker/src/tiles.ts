@@ -300,14 +300,17 @@ export function publicKeyFor(oldKey: string): string | null {
   return m ? publicTileKey(Number(m[2]), Number(m[3]), Number(m[4]), m[1] as TileLayer) : null;
 }
 
-const MIGRATE_MAX = 200;
+const MIGRATE_BATCH_MAX = 50;
+const LIST_PAGE = 1000;
 
 /**
- * POST /admin/tiles/migrate {cursor?, limit?} (upload token): copies one page
- * of tiles from their old place in IMAGES to the public bucket, skipping
- * those already there. Called in a loop by .github/workflows/kartor.yml until
- * `cursor` comes back null. Each tile costs three R2 calls, so a page stays
- * well under the free plan's 1000 per request.
+ * POST /admin/tiles/migrate (upload token), used by scripts/migrate-tiles.ts
+ * to move tiles from their old place in IMAGES to the public bucket:
+ * - {list: "old" | "new", cursor?}: one page of keys ("maptiles/…" in IMAGES,
+ *   or everything in TILES), so the script can work out what is missing;
+ * - {keys: [...]}: copies up to 50 old keys, skipping any already there.
+ * Each copied tile costs three R2 calls, well under the free plan's 1000 per
+ * request, and the script runs several batches side by side.
  */
 export async function migrateTiles(request: Request, env: TilesEnv, origin: string): Promise<Response> {
   const json = (data: unknown, status = 200) =>
@@ -316,20 +319,28 @@ export async function migrateTiles(request: Request, env: TilesEnv, origin: stri
   if (!env.TILE_UPLOAD_TOKEN || !token || !(await sameSecret(token, env.TILE_UPLOAD_TOKEN))) return json({ error: "Inte behörig." }, 401);
   const tiles = env.TILES;
   if (!tiles) return json({ error: "Kartlagringen (TILES) saknas." }, 500);
-  let body: { cursor?: unknown; limit?: unknown } = {};
+  let body: { list?: unknown; cursor?: unknown; keys?: unknown } = {};
   try {
     body = await request.json();
   } catch {
-    // An empty body starts from the beginning.
+    return json({ error: "Ogiltig JSON." }, 400);
   }
-  const cursor = typeof body.cursor === "string" && body.cursor ? body.cursor : undefined;
-  const limit = Math.min(MIGRATE_MAX, Math.max(1, Math.floor(Number(body.limit) || 100)));
 
-  const listed = await env.IMAGES.list({ prefix: "maptiles/", cursor, limit });
+  if (body.list === "old" || body.list === "new") {
+    const cursor = typeof body.cursor === "string" && body.cursor ? body.cursor : undefined;
+    const listed =
+      body.list === "old"
+        ? await env.IMAGES.list({ prefix: "maptiles/", cursor, limit: LIST_PAGE })
+        : await tiles.list({ cursor, limit: LIST_PAGE });
+    return json({ keys: listed.objects.map((o) => o.key), cursor: listed.truncated ? listed.cursor : null });
+  }
+
+  const keys = Array.isArray(body.keys) ? body.keys.filter((k): k is string => typeof k === "string") : [];
+  if (keys.length === 0 || keys.length > MIGRATE_BATCH_MAX) return json({ error: `Skicka 1–${MIGRATE_BATCH_MAX} nycklar.` }, 400);
   let copied = 0;
   let skipped = 0;
   await Promise.all(
-    listed.objects.map(async ({ key }) => {
+    keys.map(async (key) => {
       const target = publicKeyFor(key);
       if (!target || (await tiles.head(target))) {
         skipped++;
@@ -347,5 +358,5 @@ export async function migrateTiles(request: Request, env: TilesEnv, origin: stri
       copied++;
     })
   );
-  return json({ copied, skipped, cursor: listed.truncated ? listed.cursor : null });
+  return json({ copied, skipped });
 }

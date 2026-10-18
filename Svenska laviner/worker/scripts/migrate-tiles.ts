@@ -1,69 +1,88 @@
 // Moves the map tiles from their old place in IMAGES ("maptiles/…") to the
-// public map bucket TILES (kartor.snolage.se), one page per request to the
-// worker's POST /admin/tiles/migrate. Tiles already there are skipped, so it
-// is safe to run again. Run by .github/workflows/kartor.yml; by hand:
-//   npx tsx scripts/migrate-tiles.ts
+// public map bucket TILES (kartor.snolage.se) through the worker's
+// POST /admin/tiles/migrate: first lists both buckets, then copies only what
+// is missing, several small batches at a time. Safe to run again. Run by
+// .github/workflows/kartor.yml; by hand: npx tsx scripts/migrate-tiles.ts
+import { publicKeyFor } from "../src/tiles";
 import { createUploadToken, WORKER } from "./uploadClient";
 
-interface Page {
-  copied: number;
-  skipped: number;
-  cursor: string | null;
+/** Batches in flight at once; each is its own worker request with its own CPU budget. */
+const PARALLEL = 8;
+const BATCH = 25;
+const MAX_TRIES = 8;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function call<T>(token: string, body: unknown): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    let problem: string;
+    try {
+      const res = await fetch(`${WORKER}/admin/tiles/migrate`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(60_000),
+      });
+      if (res.ok) return (await res.json()) as T;
+      problem = `HTTP ${res.status}: ${(await res.text()).replace(/\s+/g, " ").slice(0, 120)}`;
+    } catch (err) {
+      problem = String(err);
+    }
+    // Out of CPU (Cloudflare 1102), a timeout or a hiccup: wait and try again.
+    if (attempt >= MAX_TRIES) throw new Error(problem);
+    await sleep(1500 * attempt);
+  }
 }
 
-const MAX_FAILURES = 30;
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+async function listAll(token: string, which: "old" | "new"): Promise<string[]> {
+  const keys: string[] = [];
+  let cursor: string | null = null;
+  do {
+    const page: { keys: string[]; cursor: string | null } = await call(token, { list: which, cursor });
+    keys.push(...page.keys);
+    cursor = page.cursor;
+  } while (cursor);
+  return keys;
+}
 
 async function main() {
   const token = createUploadToken();
   // A new secret takes a few seconds to reach every Cloudflare location.
   await sleep(10_000);
-
-  let cursor: string | null = null;
-  let limit = 100;
-  let copied = 0;
-  let skipped = 0;
-  let calls = 0;
-  let failures = 0;
   const started = Date.now();
-  for (;;) {
-    let page: Page | null = null;
-    let problem = "";
-    try {
-      const res = await fetch(`${WORKER}/admin/tiles/migrate`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ cursor, limit }),
-        signal: AbortSignal.timeout(60_000),
-      });
-      if (res.ok) page = (await res.json()) as Page;
-      else problem = `HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`;
-    } catch (err) {
-      problem = String(err);
-    }
-    if (!page) {
-      // Out of CPU (1102), a timeout or a hiccup: retry the same page smaller.
-      if (++failures > MAX_FAILURES) {
-        console.error(`Ger upp efter ${MAX_FAILURES} fel. Senaste: ${problem}`);
-        process.exit(1);
+  const minutes = () => ((Date.now() - started) / 60_000).toFixed(1);
+
+  const [old, done] = await Promise.all([listAll(token, "old"), listAll(token, "new")]);
+  const there = new Set(done);
+  const todo = old.filter((k) => {
+    const target = publicKeyFor(k);
+    return target !== null && !there.has(target);
+  });
+  console.log(`${old.length} i den gamla lagringen, ${done.length} redan flyttade, ${todo.length} kvar (${minutes()} min).`);
+
+  let next = 0;
+  let copied = 0;
+  let failed = 0;
+  let reported = 0;
+  async function worker() {
+    while (next < todo.length) {
+      const batch = todo.slice(next, next + BATCH);
+      next += BATCH;
+      try {
+        const r: { copied: number } = await call(token, { keys: batch });
+        copied += r.copied;
+      } catch (err) {
+        failed += batch.length;
+        console.log(`Gav upp ${batch.length} kartbitar (${String(err).slice(0, 160)}); en ny körning tar dem.`);
       }
-      limit = Math.max(10, Math.floor(limit / 2));
-      console.log(`Fel (${problem}); försöker igen med ${limit} per anrop.`);
-      await sleep(2000 * Math.min(failures, 10));
-      continue;
+      if (copied + failed - reported >= 5000) {
+        reported = copied + failed;
+        console.log(`${copied} kopierade, ${failed} misslyckade av ${todo.length}, ${minutes()} min`);
+      }
     }
-    copied += page.copied;
-    skipped += page.skipped;
-    calls++;
-    if (calls % 100 === 0) {
-      const min = ((Date.now() - started) / 60_000).toFixed(1);
-      console.log(`${copied + skipped} genomgångna (${copied} kopierade, ${skipped} fanns redan), ${calls} anrop, ${min} min`);
-    }
-    if (!page.cursor) break;
-    cursor = page.cursor;
   }
-  const min = ((Date.now() - started) / 60_000).toFixed(1);
-  console.log(`Klart: ${copied} kartbitar kopierade, ${skipped} fanns redan, ${calls} anrop, ${min} min.`);
+  await Promise.all(Array.from({ length: PARALLEL }, worker));
+  console.log(`Klart: ${copied} kopierade, ${failed} misslyckade, ${minutes()} min.`);
+  if (failed > 0) process.exit(1);
 }
 
 void main();
