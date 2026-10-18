@@ -15,9 +15,10 @@ on:
       - ".github/workflows/kartor.yml"
   workflow_dispatch:
 
-# Shares the deploy queue: this run sets a worker secret.
+# Its own queue: sharing the deploy queue made pushes wait hours behind it.
+# Push worker changes first and let them deploy; this run calls the worker.
 concurrency:
-  group: deploy-snolage
+  group: kartor-snolage
   cancel-in-progress: false
 
 env:
@@ -29,7 +30,7 @@ env:
 jobs:
   kartor:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 240
     defaults:
       run:
         working-directory: Svenska laviner/worker
