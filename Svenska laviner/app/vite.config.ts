@@ -1,10 +1,59 @@
 /// <reference types="vitest/config" />
 import { createHash } from 'node:crypto'
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import { pageHead, withPageHead } from './src/components/pageHead'
+
+/** The npm package a bundled file comes from, e.g. "leaflet" or "@capacitor/core". */
+export function packageOf(file: string): string | null {
+  const i = file.lastIndexOf('node_modules/')
+  if (i < 0) return null
+  const parts = file.slice(i + 'node_modules/'.length).split('/')
+  return parts[0].startsWith('@') ? `${parts[0]}/${parts[1]}` : parts[0]
+}
+
+/**
+ * Writes dist/licenser.txt: every open-source package that ends up in the
+ * built app (site and native apps alike), with its licence text. MIT, BSD,
+ * Apache, ISC and the OFL (fonts) all ask for their notice to travel with
+ * copies of the code; the About page links here.
+ */
+function thirdPartyLicenses(): Plugin {
+  const used = new Set<string>()
+  return {
+    name: 'third-party-licenses',
+    apply: 'build',
+    generateBundle(_options, bundle) {
+      for (const item of Object.values(bundle)) {
+        const files = item.type === 'chunk' ? Object.keys(item.modules) : (item.originalFileNames ?? [])
+        for (const f of files) {
+          const name = packageOf(f.replace(/\\/g, '/'))
+          if (name) used.add(name)
+        }
+      }
+      const sections = [...used].sort().map((name) => {
+        const dir = join('node_modules', name)
+        const pkg = existsSync(join(dir, 'package.json')) ? JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) : {}
+        const licenceFile = existsSync(dir) ? readdirSync(dir).find((f) => /^(licen[cs]e|copying)/i.test(f)) : undefined
+        const text = licenceFile ? readFileSync(join(dir, licenceFile), 'utf8').trim() : `Licens: ${pkg.license ?? 'se paketet'}`
+        return `${name} ${pkg.version ?? ''} (${pkg.license ?? '?'})\n${pkg.homepage ?? ''}\n\n${text}`
+      })
+      this.emitFile({
+        type: 'asset',
+        fileName: 'licenser.txt',
+        // The byte-order mark makes browsers read å, ä and ö right whatever the server says.
+        source:
+          '\ufeff' +
+          'Snöläge bygger på öppen källkod. Här är paketen som ingår i appen och deras licenser.\n' +
+          'Snöläge is built with open-source software. These are the packages included in the app and their licences.\n\n' +
+          sections.join('\n\n' + '='.repeat(72) + '\n\n') +
+          '\n',
+      })
+    },
+  }
+}
 
 /**
  * Tells the service worker (public/sw.js) which files make up this build, so
@@ -70,7 +119,7 @@ function pageHeads(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), offlineAppShell(), pageHeads()],
+  plugins: [react(), offlineAppShell(), pageHeads(), thirdPartyLicenses()],
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',

@@ -123,6 +123,12 @@ export default function AboutPage() {
               {t("Mapterhorn")}
             </a>
           </li>
+          <li>
+            {t("Appen bygger på öppen källkod, bland annat React, Leaflet, React Leaflet, Capacitor och Firebase.")}{" "}
+            <a href="/licenser.txt">
+              {t("Licenser för öppen källkod")}
+            </a>
+          </li>
         </ul>
       </section>
 
