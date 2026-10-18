@@ -8,8 +8,8 @@ import { createUploadToken, WORKER } from "./uploadClient";
 
 /** Batches in flight at once; each is its own worker request with its own CPU budget. */
 const PARALLEL = 8;
-const BATCH = 25;
-const MAX_TRIES = 8;
+const BATCH = 10;
+const MAX_TRIES = 10;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function call<T>(token: string, body: unknown): Promise<T> {
@@ -23,13 +23,16 @@ async function call<T>(token: string, body: unknown): Promise<T> {
         signal: AbortSignal.timeout(60_000),
       });
       if (res.ok) return (await res.json()) as T;
-      problem = `HTTP ${res.status}: ${(await res.text()).replace(/\s+/g, " ").slice(0, 120)}`;
+      const text = await res.text();
+      // Cloudflare's own error pages name the reason in the title.
+      const title = text.match(/<title>([^<]*)<\/title>/i)?.[1]?.replace(/\s+/g, " ").trim();
+      problem = `HTTP ${res.status}: ${title ?? text.replace(/\s+/g, " ").slice(0, 120)}`;
     } catch (err) {
       problem = String(err);
     }
     // Out of CPU (Cloudflare 1102), a timeout or a hiccup: wait and try again.
     if (attempt >= MAX_TRIES) throw new Error(problem);
-    await sleep(1500 * attempt);
+    await sleep(Math.min(20_000, 2000 * attempt));
   }
 }
 

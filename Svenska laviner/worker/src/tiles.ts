@@ -301,6 +301,20 @@ export function publicKeyFor(oldKey: string): string | null {
 }
 
 const MIGRATE_BATCH_MAX = 50;
+
+/**
+ * Streams an object into the bucket without reading it into memory, which
+ * keeps each request well within the free plan's CPU time. (Outside the
+ * Workers runtime, as in tests, it falls back to a plain copy.)
+ */
+async function copyBody(bucket: R2Bucket, key: string, from: R2ObjectBody, httpMetadata: R2HTTPMetadata) {
+  if (typeof FixedLengthStream === "undefined") {
+    await bucket.put(key, await from.arrayBuffer(), { httpMetadata });
+    return;
+  }
+  const { readable, writable } = new FixedLengthStream(from.size);
+  await Promise.all([bucket.put(key, readable, { httpMetadata }), from.body.pipeTo(writable)]);
+}
 const LIST_PAGE = 1000;
 
 /**
@@ -354,7 +368,7 @@ export async function migrateTiles(request: Request, env: TilesEnv, origin: stri
       const isMeta = target === PUBLIC_SLOPE_META_KEY;
       const type = old.httpMetadata?.contentType ?? (isMeta ? "application/json" : "image/png");
       const httpMetadata = isMeta ? { contentType: type, cacheControl: "public, max-age=3600" } : tileMetadata(type);
-      await tiles.put(target, await old.arrayBuffer(), { httpMetadata });
+      await copyBody(tiles, target, old, httpMetadata);
       copied++;
     })
   );
