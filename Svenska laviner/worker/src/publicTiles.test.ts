@@ -1,0 +1,170 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { encodeTiles } from "./tileBatch";
+import { migrateTiles, publicKeyFor, publicTileKey, saveSlopeMeta, serveSlopeTile, serveTile, slopeMeta, uploadTiles, type TilesEnv } from "./tiles";
+
+const png = (n: number) => new Uint8Array([0x89, 0x50, 0x4e, 0x47, n]);
+
+/** Enough of R2 for the tile code: get/head/put/list with metadata. */
+function memoryBucket(initial: Record<string, Uint8Array> = {}) {
+  const store = new Map<string, { data: Uint8Array; meta: R2HTTPMetadata }>();
+  for (const [k, v] of Object.entries(initial)) store.set(k, { data: v, meta: { contentType: "image/png" } });
+  const object = (key: string) => {
+    const v = store.get(key);
+    if (!v) return null;
+    return {
+      key,
+      body: v.data,
+      httpMetadata: v.meta,
+      arrayBuffer: async () => v.data.slice().buffer,
+    };
+  };
+  return {
+    store,
+    get: async (key: string) => object(key),
+    head: async (key: string) => object(key),
+    put: async (key: string, value: Uint8Array | ArrayBuffer | string, opts?: { httpMetadata?: R2HTTPMetadata }) => {
+      const data = typeof value === "string" ? new TextEncoder().encode(value) : new Uint8Array(value);
+      store.set(key, { data, meta: opts?.httpMetadata ?? {} });
+    },
+    list: async ({ prefix = "", cursor, limit = 1000 }: { prefix?: string; cursor?: string; limit?: number }) => {
+      const keys = [...store.keys()].filter((k) => k.startsWith(prefix)).sort();
+      const start = cursor ? Number(cursor) : 0;
+      const page = keys.slice(start, start + limit);
+      const truncated = start + limit < keys.length;
+      return { objects: page.map((key) => ({ key })), truncated, cursor: truncated ? String(start + limit) : undefined };
+    },
+  };
+}
+
+function context() {
+  const pending: Promise<unknown>[] = [];
+  return {
+    ctx: { waitUntil: (p: Promise<unknown>) => void pending.push(p), passThroughOnException() {} } as unknown as ExecutionContext,
+    settle: () => Promise.all(pending),
+  };
+}
+
+const bytes = async (res: Response) => [...new Uint8Array(await res.arrayBuffer())];
+const migrate = (env: TilesEnv, body: unknown, token = "hemlig") =>
+  migrateTiles(
+    new Request("https://w.test/admin/tiles/migrate", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(body) }),
+    env,
+    "*"
+  );
+
+beforeEach(() => {
+  vi.stubGlobal("caches", { default: { match: async () => undefined, put: async () => undefined } });
+});
+afterEach(() => vi.unstubAllGlobals());
+
+describe("public map bucket", () => {
+  it("serves tiles from the public bucket, with a cache lifetime", async () => {
+    const tiles = memoryBucket();
+    await tiles.put(publicTileKey(15, 18076, 7868), png(7), { httpMetadata: { contentType: "image/png" } });
+    const env = { IMAGES: memoryBucket(), TILES: tiles } as unknown as TilesEnv;
+    const { ctx } = context();
+    const res = await serveTile(new Request("https://w.test/tiles/topowebb/15/18076/7868.png"), env, ctx, "*", { z: 15, x: 18076, y: 7868 });
+    expect(res.status).toBe(200);
+    expect(await bytes(res)).toEqual([...png(7)]);
+    expect(res.headers.get("Cache-Control")).toMatch(/max-age=\d+/);
+  });
+
+  it("still finds tiles in their old place and copies them to the public bucket", async () => {
+    const images = memoryBucket({ "maptiles/topowebb/15/18076/7868": png(3) });
+    const tiles = memoryBucket();
+    const env = { IMAGES: images, TILES: tiles } as unknown as TilesEnv;
+    const { ctx, settle } = context();
+    const res = await serveTile(new Request("https://w.test/tiles/topowebb/15/18076/7868.png"), env, ctx, "*", { z: 15, x: 18076, y: 7868 });
+    expect(await bytes(res)).toEqual([...png(3)]);
+    await settle();
+    const copy = tiles.store.get("topowebb/15/18076/7868.png");
+    expect(copy && [...copy.data]).toEqual([...png(3)]);
+    expect(copy?.meta).toMatchObject({ contentType: "image/png", cacheControl: expect.stringMatching(/^public, max-age=\d+$/) });
+  });
+
+  it("falls back to OpenStreetMap for tiles it doesn't have", async () => {
+    const env = { IMAGES: memoryBucket(), TILES: memoryBucket() } as unknown as TilesEnv;
+    const res = await serveTile(new Request("https://w.test/tiles/topowebb/15/1/1.png"), env, context().ctx, "*", { z: 15, x: 1, y: 1 });
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toBe("https://tile.openstreetmap.org/15/1/1.png");
+  });
+
+  it("stores uploads in the public bucket only", async () => {
+    const images = memoryBucket();
+    const tiles = memoryBucket();
+    const env = { IMAGES: images, TILES: tiles, TILE_UPLOAD_TOKEN: "hemlig" } as unknown as TilesEnv;
+    const body = encodeTiles([{ z: 15, x: 18076, y: 7868, data: png(1) }]);
+    const post = (layer: "topowebb" | "slope") =>
+      uploadTiles(new Request(`https://w.test/admin/tiles/${layer}`, { method: "POST", headers: { Authorization: "Bearer hemlig" }, body }), env, "*", layer);
+    expect((await post("topowebb")).status).toBe(200);
+    expect((await post("slope")).status).toBe(200);
+    expect([...tiles.store.keys()].sort()).toEqual(["slope/15/18076/7868.png", "topowebb/15/18076/7868.png"]);
+    expect(images.store.size).toBe(0);
+  });
+
+  it("keeps the slope map and its meta in the public bucket, reading the old place too", async () => {
+    const images = memoryBucket({ "maptiles/slope/13/4520/1967": png(9) });
+    const tiles = memoryBucket();
+    const env = { IMAGES: images, TILES: tiles, TILE_UPLOAD_TOKEN: "hemlig" } as unknown as TilesEnv;
+    const tile = await serveSlopeTile(new Request("https://w.test/tiles/slope/13/4520/1967.png"), env, context().ctx, "*", { z: 13, x: 4520, y: 1967 });
+    expect(await bytes(tile)).toEqual([...png(9)]);
+    const meta = new Request("https://w.test/admin/tiles/slope/meta", { method: "POST", headers: { Authorization: "Bearer hemlig" }, body: '{"minZoom":12}' });
+    expect((await saveSlopeMeta(meta, env, "*")).status).toBe(200);
+    expect(tiles.store.has("slope/meta.json")).toBe(true);
+    expect(await (await slopeMeta(env, "*")).json()).toEqual({ minZoom: 12 });
+  });
+});
+
+describe("moving tiles to the public bucket", () => {
+  it("maps old keys to public paths and ignores anything else", () => {
+    expect(publicKeyFor("maptiles/topowebb/7/70/32")).toBe("topowebb/7/70/32.png");
+    expect(publicKeyFor("maptiles/slope/15/18076/7868")).toBe("slope/15/18076/7868.png");
+    expect(publicKeyFor("maptiles/slope/_meta.json")).toBe("slope/meta.json");
+    expect(publicKeyFor("backups/d1/2026-10-12.json.gz")).toBeNull();
+    expect(publicKeyFor("tracks/abc.json")).toBeNull();
+    expect(publicKeyFor("maptiles/topowebb/7/70/32/../../x")).toBeNull();
+  });
+
+  it("copies page by page, only map tiles, and never twice", async () => {
+    const images = memoryBucket({
+      "maptiles/topowebb/0/0/0": png(0),
+      "maptiles/topowebb/7/70/32": png(1),
+      "maptiles/topowebb/15/18076/7868": png(2),
+      "maptiles/slope/15/18076/7868": png(3),
+      "tracks/hemlig.json": png(4),
+      "backups/d1/2026-10-12.json.gz": png(5),
+    });
+    const tiles = memoryBucket();
+    await tiles.put("topowebb/7/70/32.png", png(99), { httpMetadata: { contentType: "image/png" } }); // newer, keep it
+    const env = { IMAGES: images, TILES: tiles, TILE_UPLOAD_TOKEN: "hemlig" } as unknown as TilesEnv;
+
+    expect((await migrate(env, {}, "fel")).status).toBe(401);
+    let cursor: string | null = null;
+    let copied = 0;
+    let skipped = 0;
+    let calls = 0;
+    do {
+      const res = await migrate(env, { cursor, limit: 2 });
+      expect(res.status).toBe(200);
+      const page = (await res.json()) as { copied: number; skipped: number; cursor: string | null };
+      copied += page.copied;
+      skipped += page.skipped;
+      cursor = page.cursor;
+      calls++;
+    } while (cursor);
+    expect(calls).toBe(2);
+    expect({ copied, skipped }).toEqual({ copied: 3, skipped: 1 });
+    expect([...tiles.store.keys()].sort()).toEqual([
+      "slope/15/18076/7868.png",
+      "topowebb/0/0/0.png",
+      "topowebb/15/18076/7868.png",
+      "topowebb/7/70/32.png",
+    ]);
+    expect([...tiles.store.get("topowebb/7/70/32.png")!.data]).toEqual([...png(99)]);
+    expect(tiles.store.get("topowebb/0/0/0.png")!.meta.cacheControl).toMatch(/^public, max-age=/);
+
+    // A second run copies nothing.
+    const again = (await (await migrate(env, { limit: 200 })).json()) as { copied: number };
+    expect(again.copied).toBe(0);
+  });
+});

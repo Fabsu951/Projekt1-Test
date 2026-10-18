@@ -1,0 +1,77 @@
+# Moves the map tiles to the public map bucket "snolage-kartor" and connects
+# it to https://kartor.snolage.se, so the app loads tiles straight from R2
+# instead of through the worker (worker requests are capped at 100 000 a day
+# on the free plan; R2 reads through a custom domain are not, and Cloudflare
+# caches them). Safe to run again: tiles already moved are skipped.
+# Started by hand (or via the API) – it is a one-off.
+
+name: Kartor direkt från lagringen
+
+on:
+  workflow_dispatch:
+
+# Shares the deploy queue: this run sets a worker secret.
+concurrency:
+  group: deploy-snolage
+  cancel-in-progress: false
+
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: dba2a7031f0d281c2f34301d23a315ca
+  BUCKET: snolage-kartor
+  DOMAIN: kartor.snolage.se
+
+jobs:
+  kartor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    defaults:
+      run:
+        working-directory: Svenska laviner/worker
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Svenska laviner/worker/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Bucket and CORS
+        run: |
+          if ! npx wrangler r2 bucket list --jurisdiction eu | grep -q "$BUCKET"; then
+            npx wrangler r2 bucket create "$BUCKET" --jurisdiction eu
+          fi
+          npx wrangler r2 bucket cors set "$BUCKET" --file kartor-cors.json --jurisdiction eu --force
+
+      - name: Custom domain
+        run: |
+          if npx wrangler r2 bucket domain list "$BUCKET" --jurisdiction eu 2>&1 | grep -q "$DOMAIN"; then
+            echo "$DOMAIN is already connected."
+            npx wrangler r2 bucket domain list "$BUCKET" --jurisdiction eu
+            exit 0
+          fi
+          zone=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/zones?name=snolage.se" | jq -r '.result[0].id // empty')
+          if [ -z "$zone" ]; then
+            echo "::warning::The Cloudflare token may not read the snolage.se zone. Connect $DOMAIN by hand: R2 → $BUCKET → Settings → Custom Domains → Add (Svenska laviner/KARTOR.md)."
+            exit 0
+          fi
+          npx wrangler r2 bucket domain add "$BUCKET" --domain "$DOMAIN" --zone-id "$zone" --min-tls 1.2 --jurisdiction eu --force \
+            || echo "::warning::Could not connect $DOMAIN automatically. Do it by hand: R2 → $BUCKET → Settings → Custom Domains → Add (Svenska laviner/KARTOR.md)."
+
+      - name: Move the tiles
+        run: npx tsx scripts/migrate-tiles.ts
+
+      - name: Check kartor.snolage.se
+        run: |
+          {
+            echo "### Kartor direkt från lagringen"
+            for path in topowebb/0/0/0.png topowebb/7/70/30.png; do
+              status=$(curl -s -o /dev/null -w '%{http_code}' -H "Origin: https://snolage.se" "https://$DOMAIN/$path" || true)
+              echo "- https://$DOMAIN/$path → $status"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+          curl -sI -H "Origin: https://snolage.se" "https://$DOMAIN/topowebb/0/0/0.png" || echo "$DOMAIN answers nothing yet (the domain can take a few minutes after it is connected)."

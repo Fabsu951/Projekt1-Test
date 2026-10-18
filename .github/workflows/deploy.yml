@@ -67,6 +67,15 @@ jobs:
         working-directory: Svenska laviner/worker
         run: npx wrangler d1 migrations apply fjallkoll --remote
 
+      - name: Map tile bucket (public at kartor.snolage.se)
+        working-directory: Svenska laviner/worker
+        run: |
+          if ! npx wrangler r2 bucket list --jurisdiction eu | grep -q "snolage-kartor"; then
+            npx wrangler r2 bucket create snolage-kartor --jurisdiction eu
+          fi
+          # Lets the site and the apps fetch tiles for offline maps.
+          npx wrangler r2 bucket cors set snolage-kartor --file kartor-cors.json --jurisdiction eu --force
+
       - name: Publish the worker
         working-directory: Svenska laviner/worker
         run: npx wrangler deploy

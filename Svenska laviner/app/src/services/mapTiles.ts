@@ -19,6 +19,80 @@ export function topoTileUrl(z: number, x: number, y: number): string {
   return TOPOWEBB_URL.replace("{z}", String(z)).replace("{x}", String(x)).replace("{y}", String(y));
 }
 
+// The same tiles are public in the map bucket at kartor.snolage.se (R2 custom
+// domain), which the app uses instead of the worker whenever it answers:
+// worker requests are capped per day on Cloudflare's free plan, R2 reads
+// through the domain are not. The worker URL stays the tile's identity (offline
+// copies are stored under it) and the fallback when the bucket lacks a tile.
+const DIRECT_BASE = ((import.meta.env.VITE_TILE_DIRECT_URL as string | undefined) ?? "").replace(/\/$/, "");
+
+/**
+ * The areas whose tiles are in the bucket at every zoom (worker/src/gpkgTiles.ts
+ * MOUNTAIN_BOXES, [west, south, east, north]); up to zoom 7 it has all of Sweden.
+ */
+const HOSTED_BOXES: Array<[number, number, number, number]> = [
+  [16.85, 67.43, 20.51, 68.72],
+  [13.77, 64.7, 16.43, 66.35],
+  [11.65, 62.11, 14.2, 63.94],
+];
+const HOSTED_OVERVIEW_MAX_ZOOM = 7;
+const HOSTED_MAX_ZOOM = 15;
+
+/** Whether the map bucket should have this tile (outside, the worker decides where it comes from). */
+export function hostedTile(z: number, x: number, y: number): boolean {
+  if (z > HOSTED_MAX_ZOOM) return false;
+  if (z <= HOSTED_OVERVIEW_MAX_ZOOM) return true;
+  const n = 2 ** z;
+  const tileX = (lon: number) => Math.floor(((lon + 180) / 360) * n);
+  const tileY = (lat: number) => {
+    const r = (lat * Math.PI) / 180;
+    return Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n);
+  };
+  return HOSTED_BOXES.some(([west, south, east, north]) => x >= tileX(west) && x <= tileX(east) && y >= tileY(north) && y <= tileY(south));
+}
+
+/** The map bucket's address for a worker tile URL, or null when it isn't one we host there. */
+export function directTileFor(url: string): string | null {
+  if (!DIRECT_BASE) return null;
+  const m = url.match(/\/tiles\/(topowebb|slope)\/(\d{1,2})\/(\d{1,6})\/(\d{1,6})\.png$/);
+  if (!m) return null;
+  const [layer, z, x, y] = [m[1], Number(m[2]), Number(m[3]), Number(m[4])];
+  if (layer === "topowebb" && !hostedTile(z, x, y)) return null;
+  return `${DIRECT_BASE}/${layer}/${z}/${x}/${y}.png`;
+}
+
+let directCheck: Promise<boolean> | null = null;
+
+/**
+ * Whether kartor.snolage.se answers with a tile, asked once per visit (and
+ * again after 5 minutes if it didn't, e.g. after being offline).
+ */
+export function directTilesReady(): Promise<boolean> {
+  if (!DIRECT_BASE || !PROXY_BASE) return Promise.resolve(false);
+  directCheck ??= (async () => {
+    const abort = new AbortController();
+    const timer = setTimeout(() => abort.abort(), 4000);
+    try {
+      const res = await fetch(`${DIRECT_BASE}/topowebb/0/0/0.png`, { signal: abort.signal });
+      return res.ok && (res.headers.get("Content-Type") ?? "").startsWith("image/");
+    } catch {
+      return false;
+    } finally {
+      clearTimeout(timer);
+    }
+  })().then((ok) => {
+    if (!ok) setTimeout(() => (directCheck = null), 5 * 60_000);
+    return ok;
+  });
+  return directCheck;
+}
+
+/** Where to load a tile from: the map bucket when it works and has the tile, else the worker URL itself. */
+export async function networkTileUrl(url: string): Promise<string> {
+  const direct = directTileFor(url);
+  return direct && (await directTilesReady()) ? direct : url;
+}
+
 /** Offline areas are only offered for our own tiles, never for openstreetmap.org. */
 export const offlineMapsAvailable = Boolean(PROXY_BASE);
 
@@ -45,6 +119,8 @@ export const OFFICIAL_TERRAIN_ATTRIBUTION =
  * the worker says it exists (GET /tiles/slope/meta).
  */
 export const DETAILED_SLOPE_URL = `${workerBase()}/tiles/slope/{z}/{x}/{y}.png`;
+/** The same slope tiles in the map bucket (a missing tile there is simply ground under 30°). */
+export const DIRECT_SLOPE_URL = DIRECT_BASE ? `${DIRECT_BASE}/slope/{z}/{x}/{y}.png` : DETAILED_SLOPE_URL;
 export const DETAILED_SLOPE_ATTRIBUTION =
   t('Lutning beräknad från &copy; Lantmäteriet Markhöjdmodell, <a href="https://creativecommons.org/licenses/by/4.0/deed.sv">CC BY 4.0</a>');
 

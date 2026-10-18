@@ -44,7 +44,7 @@ import {
 } from "./social";
 import { block, unblock } from "./blocks";
 import { parseTerrainPath, serveTerrain } from "./terrain";
-import { parseSlopePath, parseTilePath, saveSlopeMeta, serveSlopeTile, serveTile, slopeMeta, uploadTiles, type TilesEnv } from "./tiles";
+import { migrateTiles, parseSlopePath, parseTilePath, saveSlopeMeta, serveSlopeTile, serveTile, slopeMeta, uploadTiles, type TilesEnv } from "./tiles";
 import { notifyChanges, publicKey, setPushLanguage, subscribe, unsubscribe, type PushEnv } from "./push";
 import { notifyNativeChanges, registerDevice, setDeviceLanguage, unregisterDevice, type NativeEnv } from "./nativePush";
 import type { NotifyEnv } from "./notifications";
@@ -620,6 +620,7 @@ export default {
     }
     if (url.pathname === "/admin/tiles/slope" && request.method === "POST") return uploadTiles(request, env, origin, "slope");
     if (url.pathname === "/admin/tiles/slope/meta" && request.method === "POST") return saveSlopeMeta(request, env, origin);
+    if (url.pathname === "/admin/tiles/migrate" && request.method === "POST") return migrateTiles(request, env, origin);
     if (url.pathname === "/tiles/slope/meta" && request.method === "GET") return slopeMeta(env, origin);
     const slopeTile = request.method === "GET" ? parseSlopePath(url.pathname) : null;
     if (slopeTile) return serveSlopeTile(request, env, ctx, origin, slopeTile);

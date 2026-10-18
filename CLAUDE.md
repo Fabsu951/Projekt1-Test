@@ -275,6 +275,29 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   locally (`scripts/remoteSqlite.test.ts`: identical tiles and bytes, plus a GDAL-style file; also checked against a real GDAL 3.10 GPKG). First live `-DryRun` (2026-10-06) failed with "Filen innehåller inga tiles": tile tables are now found case-insensitively (GDAL may write `TOPOWEBB` in the schema), via gpkg_contents → gpkg_tile_matrix_set → tile columns, and the CREATE TABLE parser skips comments/quoted text; if none is found the schema is printed. **Import done by Fabian 2026-10-11** (`fetch-topowebb.ps1 -Import`; he confirmed on snolage.se/karta) — the map no longer depends on the WMTS that closes 2026-12-31; whether `-MarkImported` was run is unconfirmed (ATT-GORA.docx asks him to). The old `/topowebb` WMTS proxy route is kept for old app
   builds. Worker only fetches/stores on demand for z ≤ 15 inside a box
   around Sweden (`fetchable()`), so it can't be used to crawl.
+  **Map tiles straight from R2 (2026-10-18, `Svenska laviner/KARTOR.md`):**
+  tiles now live in their own public bucket **`snolage-kartor`** (eu, binding
+  `TILES`; keys `topowebb/z/x/y.png`, `slope/z/x/y.png`, `slope/meta.json`,
+  `cacheControl` 7 days) served at **`https://kartor.snolage.se`** (R2 custom
+  domain) — so tiles don't use the 100k/day worker requests. **Never store
+  anything private in it; `fjallkoll-images` (backups, full tracks) must never
+  be public.** Worker `tiles.ts`: reads TILES, else the old `maptiles/…` keys in
+  IMAGES (copied over on read), writes uploads/WMTS read-through to TILES;
+  `POST /admin/tiles/migrate {cursor, limit}` (upload token) copies a page.
+  `deploy.yml` creates the bucket + CORS (`worker/kartor-cors.json`, GET/HEAD
+  `*`) before `wrangler deploy`; `.github/workflows/kartor.yml` (dispatch) moves
+  the tiles (`scripts/migrate-tiles.ts`, fresh TILE_UPLOAD_TOKEN), tries
+  `wrangler r2 bucket domain add` (needs the zone id; the token may lack zone
+  access → Fabian adds the custom domain in the dashboard, KARTOR.md) and curls
+  the domain. App: `VITE_TILE_DIRECT_URL` (.env.production); `mapTiles.ts`
+  `directTilesReady()` probes `/topowebb/0/0/0.png` once per visit (retry after
+  5 min), `hostedTile()` = z ≤ 7 or inside `HOSTED_BOXES` (= MOUNTAIN_BOXES,
+  checked by a worker test), `networkTileUrl()`; `OfflineTileLayer` loads the
+  direct URL and falls back to the worker URL once on error; offline downloads
+  (`fetchTile` in `offlineMap.ts`) fetch direct but **cache under the worker
+  URL** (the tile's identity, so old saves still match); `DetailedSlopeLayer`
+  uses `DIRECT_SLOPE_URL` when the probe succeeds. Terrain (NV) tiles and
+  `/tiles/slope/meta` still go through the worker.
   **Offline maps (feature 5, 2026-09-27):** "Karta offline" section on
   region pages (`OfflineMapCard.tsx`, `services/offlineMap.ts`): saves a
   ~60×60 km square around the region at z8–13 ("Översikt", ~30–40 MB) or
@@ -1301,6 +1324,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (270 tests as of 2026-10-12, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 182 tests, including the
+  (284 tests as of 2026-10-18, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 191 tests, including the
   real-page fixtures).

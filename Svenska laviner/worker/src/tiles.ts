@@ -8,9 +8,19 @@ import { imageType, decodeTiles, validTile } from "./tileBatch";
 // R2 are fetched from the old service and kept, so everything users have
 // looked at survives the shutdown; after it, missing tiles fall back to
 // OpenStreetMap.
+//
+// The tiles live in their own bucket (TILES, "snolage-kartor"), which is
+// public at https://kartor.snolage.se so the app can load them without going
+// through the worker (worker requests are limited on the free plan; R2 reads
+// through a custom domain are not). Earlier tiles sat in IMAGES under
+// "maptiles/…"; they are read from there and copied over until
+// POST /admin/tiles/migrate has moved them all. IMAGES itself must never be
+// made public: it also holds backups and full GPS tracks.
 
 export interface TilesEnv {
   IMAGES: R2Bucket;
+  /** Map tiles only, public at kartor.snolage.se. Never put anything private here. */
+  TILES?: R2Bucket;
   LANTMATERIET_USER?: string;
   LANTMATERIET_PASSWORD?: string;
   /** Bearer token for scripts/import-tiles.ts; uploads are refused without it. */
@@ -57,7 +67,44 @@ const MAX_BATCH_TILES = 1000;
 
 export type TileLayer = "topowebb" | "slope";
 
+/** Where tiles used to be kept, in IMAGES. */
 export const tileKey = (z: number, x: number, y: number, layer: TileLayer = "topowebb") => `maptiles/${layer}/${z}/${x}/${y}`;
+
+/** The key in the public bucket, which is also the path at kartor.snolage.se. */
+export const publicTileKey = (z: number, x: number, y: number, layer: TileLayer = "topowebb") => `${layer}/${z}/${x}/${y}.png`;
+
+/** Stored with each public tile, so the browser and Cloudflare's cache keep it. */
+const tileMetadata = (contentType: string): R2HTTPMetadata => ({
+  contentType,
+  cacheControl: `public, max-age=${TILE_TTL_SECONDS}`,
+});
+
+/** A stored tile: the public bucket first, else the old place in IMAGES (copied over on the way). */
+async function readTile(
+  env: TilesEnv,
+  ctx: ExecutionContext,
+  layer: TileLayer,
+  z: number,
+  x: number,
+  y: number
+): Promise<{ data: BodyInit; type: string } | null> {
+  if (env.TILES) {
+    const hit = await env.TILES.get(publicTileKey(z, x, y, layer));
+    if (hit) return { data: hit.body, type: hit.httpMetadata?.contentType ?? "image/png" };
+  }
+  const old = await env.IMAGES.get(tileKey(z, x, y, layer));
+  if (!old) return null;
+  const type = old.httpMetadata?.contentType ?? "image/png";
+  if (!env.TILES) return { data: old.body, type };
+  const data = new Uint8Array(await old.arrayBuffer());
+  ctx.waitUntil(env.TILES.put(publicTileKey(z, x, y, layer), data, { httpMetadata: tileMetadata(type) }));
+  return { data, type };
+}
+
+async function storeTile(env: TilesEnv, layer: TileLayer, z: number, x: number, y: number, data: Uint8Array, type: string) {
+  if (env.TILES) await env.TILES.put(publicTileKey(z, x, y, layer), data, { httpMetadata: tileMetadata(type) });
+  else await env.IMAGES.put(tileKey(z, x, y, layer), data, { httpMetadata: { contentType: type } });
+}
 
 export function parseTilePath(pathname: string): { z: number; x: number; y: number } | null {
   const m = pathname.match(/^\/tiles\/topowebb\/(\d{1,2})\/(\d{1,6})\/(\d{1,6})\.png$/);
@@ -118,14 +165,14 @@ export async function serveTile(
   if (cached) return cached;
 
   let response: Response;
-  const stored = await env.IMAGES.get(tileKey(z, x, y));
+  const stored = await readTile(env, ctx, "topowebb", z, x, y);
   if (stored) {
-    response = tileResponse(stored.body, stored.httpMetadata?.contentType ?? "image/png", origin);
+    response = tileResponse(stored.data, stored.type, origin);
   } else {
     const data = fetchable(z, x, y) ? await fromLantmateriet(env, z, x, y) : null;
     if (data) {
       const type = imageType(data)!;
-      ctx.waitUntil(env.IMAGES.put(tileKey(z, x, y), data, { httpMetadata: { contentType: type } }));
+      ctx.waitUntil(storeTile(env, "topowebb", z, x, y, data, type));
       response = tileResponse(data, type, origin);
     } else {
       // Outside what we host, once Lantmäteriet's service is gone.
@@ -173,7 +220,7 @@ export async function uploadTiles(request: Request, env: TilesEnv, origin: strin
           skipped++;
           return;
         }
-        await env.IMAGES.put(tileKey(t.z, t.x, t.y, layer), t.data, { httpMetadata: { contentType: type } });
+        await storeTile(env, layer, t.z, t.x, t.y, t.data, type);
         stored++;
       })
     );
@@ -188,6 +235,7 @@ export async function uploadTiles(request: Request, env: TilesEnv, origin: strin
 const SLOPE_MIN_ZOOM = 12;
 const SLOPE_MAX_ZOOM = 15;
 const SLOPE_META_KEY = "maptiles/slope/_meta.json";
+const PUBLIC_SLOPE_META_KEY = "slope/meta.json";
 /** A 1×1 transparent PNG, scaled up by the map. */
 const EMPTY_PNG = Uint8Array.from(
   atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="),
@@ -213,15 +261,15 @@ export async function serveSlopeTile(
   const cacheKey = new Request(new URL(`/tiles/slope/${z}/${x}/${y}.png`, request.url).toString());
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
-  const stored = await env.IMAGES.get(tileKey(z, x, y, "slope"));
-  const response = stored ? tileResponse(stored.body, "image/png", origin) : tileResponse(EMPTY_PNG, "image/png", origin);
+  const stored = await readTile(env, ctx, "slope", z, x, y);
+  const response = tileResponse(stored ? stored.data : EMPTY_PNG, "image/png", origin);
   ctx.waitUntil(cache.put(cacheKey, response.clone()));
   return response;
 }
 
 /** GET /tiles/slope/meta: when the slope map was made, or 404 before it exists (the app then hides the layer). */
 export async function slopeMeta(env: TilesEnv, origin: string): Promise<Response> {
-  const stored = await env.IMAGES.get(SLOPE_META_KEY);
+  const stored = (await env.TILES?.get(PUBLIC_SLOPE_META_KEY)) ?? (await env.IMAGES.get(SLOPE_META_KEY));
   const headers = { ...corsHeaders(origin), "Content-Type": "application/json", "Cache-Control": "public, max-age=3600" };
   if (!stored) return new Response(JSON.stringify({ error: "Ingen detaljerad lutningskarta än." }), { status: 404, headers });
   return new Response(stored.body, { headers });
@@ -239,6 +287,65 @@ export async function saveSlopeMeta(request: Request, env: TilesEnv, origin: str
   } catch {
     return json({ error: "Ogiltig JSON." }, 400);
   }
-  await env.IMAGES.put(SLOPE_META_KEY, JSON.stringify(meta), { httpMetadata: { contentType: "application/json" } });
+  const httpMetadata = { contentType: "application/json", cacheControl: "public, max-age=3600" };
+  if (env.TILES) await env.TILES.put(PUBLIC_SLOPE_META_KEY, JSON.stringify(meta), { httpMetadata });
+  else await env.IMAGES.put(SLOPE_META_KEY, JSON.stringify(meta), { httpMetadata });
   return json({ ok: true });
+}
+
+/** The public key for something under the old "maptiles/" prefix in IMAGES. */
+export function publicKeyFor(oldKey: string): string | null {
+  if (oldKey === SLOPE_META_KEY) return PUBLIC_SLOPE_META_KEY;
+  const m = oldKey.match(/^maptiles\/(topowebb|slope)\/(\d{1,2})\/(\d{1,6})\/(\d{1,6})$/);
+  return m ? publicTileKey(Number(m[2]), Number(m[3]), Number(m[4]), m[1] as TileLayer) : null;
+}
+
+const MIGRATE_MAX = 200;
+
+/**
+ * POST /admin/tiles/migrate {cursor?, limit?} (upload token): copies one page
+ * of tiles from their old place in IMAGES to the public bucket, skipping
+ * those already there. Called in a loop by .github/workflows/kartor.yml until
+ * `cursor` comes back null. Each tile costs three R2 calls, so a page stays
+ * well under the free plan's 1000 per request.
+ */
+export async function migrateTiles(request: Request, env: TilesEnv, origin: string): Promise<Response> {
+  const json = (data: unknown, status = 200) =>
+    new Response(JSON.stringify(data), { status, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } });
+  const token = request.headers.get("Authorization")?.match(/^Bearer\s+(\S+)$/)?.[1] ?? "";
+  if (!env.TILE_UPLOAD_TOKEN || !token || !(await sameSecret(token, env.TILE_UPLOAD_TOKEN))) return json({ error: "Inte behörig." }, 401);
+  const tiles = env.TILES;
+  if (!tiles) return json({ error: "Kartlagringen (TILES) saknas." }, 500);
+  let body: { cursor?: unknown; limit?: unknown } = {};
+  try {
+    body = await request.json();
+  } catch {
+    // An empty body starts from the beginning.
+  }
+  const cursor = typeof body.cursor === "string" && body.cursor ? body.cursor : undefined;
+  const limit = Math.min(MIGRATE_MAX, Math.max(1, Math.floor(Number(body.limit) || 100)));
+
+  const listed = await env.IMAGES.list({ prefix: "maptiles/", cursor, limit });
+  let copied = 0;
+  let skipped = 0;
+  await Promise.all(
+    listed.objects.map(async ({ key }) => {
+      const target = publicKeyFor(key);
+      if (!target || (await tiles.head(target))) {
+        skipped++;
+        return;
+      }
+      const old = await env.IMAGES.get(key);
+      if (!old) {
+        skipped++;
+        return;
+      }
+      const isMeta = target === PUBLIC_SLOPE_META_KEY;
+      const type = old.httpMetadata?.contentType ?? (isMeta ? "application/json" : "image/png");
+      const httpMetadata = isMeta ? { contentType: type, cacheControl: "public, max-age=3600" } : tileMetadata(type);
+      await tiles.put(target, await old.arrayBuffer(), { httpMetadata });
+      copied++;
+    })
+  );
+  return json({ copied, skipped, cursor: listed.truncated ? listed.cursor : null });
 }

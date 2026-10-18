@@ -1,6 +1,7 @@
 import { Preferences } from "@capacitor/preferences";
 import type { AvalancheRegion } from "../types/avalanche";
 import { t } from "../i18n";
+import { networkTileUrl } from "./mapTiles";
 
 /**
  * Offline map areas. Tiles are stored with the Cache Storage API in one
@@ -160,6 +161,26 @@ export function corridorTiles(
 }
 
 /**
+ * One tile from the network: the map bucket (kartor.snolage.se) when it has
+ * it, else the worker. Null for tiles the worker redirects to
+ * openstreetmap.org, whose rules forbid saving tiles for offline use.
+ */
+async function fetchTile(url: string, signal?: AbortSignal): Promise<Response | null> {
+  const source = await networkTileUrl(url);
+  if (source !== url) {
+    const direct = await fetch(source, { signal }).catch((err) => {
+      if (signal?.aborted) throw err;
+      return null;
+    });
+    if (direct?.ok) return direct;
+  }
+  const fresh = await fetch(url, { signal, redirect: "manual" });
+  if (fresh.type === "opaqueredirect" || (fresh.status >= 300 && fresh.status < 400)) return null;
+  if (!fresh.ok) throw new Error(String(fresh.status));
+  return fresh;
+}
+
+/**
  * Downloads tiles into the named cache (tiles already cached are kept).
  * Throws if more than a few percent fail, e.g. without a connection.
  */
@@ -186,15 +207,14 @@ export async function downloadTiles(
       try {
         let response = await cache.match(url);
         if (!response) {
-          // The worker redirects tiles it doesn't host to openstreetmap.org,
-          // whose rules forbid saving tiles for offline use: skip those.
-          const fresh = await fetch(url, { signal, redirect: "manual" });
-          if (fresh.type === "opaqueredirect" || (fresh.status >= 300 && fresh.status < 400)) {
+          const fresh = await fetchTile(url, signal);
+          if (!fresh) {
             skipped++;
             onProgress({ done: ++done, total: tiles.length });
             continue;
           }
-          if (!fresh.ok) throw new Error(String(fresh.status));
+          // Saved under the worker URL whichever address it came from, so
+          // the map finds it (and older saves keep working).
           await cache.put(url, fresh.clone());
           response = fresh;
         }

@@ -59,4 +59,5 @@ När det står **"Klart"** syns lagret i appen inom en timme.
 - Lantmäteriet uppdaterar höjdmodellen sällan; ingen säsongsuppdatering behövs.
 - Tekniskt: `worker/scripts/fetch-hojd.ps1` → `import-slope.ts` (`dem.ts`
   läser GeoTIFF, `slopeRender.ts` räknar lutning och gör PNG) →
-  `POST /admin/tiles/slope` → R2 `maptiles/slope/z/x/y`, zoom 12–15.
+  `POST /admin/tiles/slope` → R2-hinken `snolage-kartor`, `slope/z/x/y.png`, zoom 12–15
+  (publik på `https://kartor.snolage.se/slope/…`, se KARTOR.md).

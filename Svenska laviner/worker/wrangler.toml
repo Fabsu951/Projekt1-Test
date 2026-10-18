@@ -36,3 +36,11 @@ migrations_dir = "migrations"
 binding = "IMAGES"
 bucket_name = "fjallkoll-images"
 jurisdiction = "eu"
+
+# Map tiles only. Public at https://kartor.snolage.se (R2 custom domain), so
+# the app loads tiles without using worker requests. Never store anything
+# private here: everything in this bucket can be downloaded by anyone.
+[[r2_buckets]]
+binding = "TILES"
+bucket_name = "snolage-kartor"
+jurisdiction = "eu"

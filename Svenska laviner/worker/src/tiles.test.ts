@@ -118,3 +118,14 @@ describe("mountain areas", () => {
     });
   });
 });
+
+describe("the app's list of hosted areas", () => {
+  it("matches MOUNTAIN_BOXES, so the app asks the map bucket only for tiles it has", async () => {
+    const { readFileSync } = await import("node:fs");
+    const source = readFileSync(new URL("../../app/src/services/mapTiles.ts", import.meta.url), "utf8");
+    const block = source.match(/HOSTED_BOXES[^=]*=\s*\[([\s\S]*?)\];/)?.[1] ?? "";
+    const boxes = [...block.matchAll(/\[([^\]]+)\]/g)].map((m) => m[1].split(",").map(Number));
+    expect(boxes).toEqual(Object.values(MOUNTAIN_BOXES));
+    expect(source).toMatch(/HOSTED_OVERVIEW_MAX_ZOOM = 7;/);
+  });
+});

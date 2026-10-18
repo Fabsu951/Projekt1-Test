@@ -1,6 +1,10 @@
 import L from "leaflet";
 import "./leafletFixes";
 import { cachedTile, knownNoSavedTiles } from "../services/offlineMap";
+import { directTilesReady, networkTileUrl } from "../services/mapTiles";
+
+// Ask early whether kartor.snolage.se answers, so the first tiles don't wait.
+void directTilesReady();
 
 type TileDone = (error: Error | undefined, tile: HTMLElement) => void;
 interface TileHandlers {
@@ -16,20 +20,36 @@ export class OfflineTileLayer extends L.TileLayer {
   createTile(coords: L.Coords, done: TileDone): HTMLElement {
     const tile = document.createElement("img");
     const handlers = this as unknown as TileHandlers;
+    // Set when the tile comes from the map bucket: if that fails, try once
+    // more through the worker before giving up.
+    let fallback: string | null = null;
     L.DomEvent.on(tile, "load", () => handlers._tileOnLoad(done, tile));
-    L.DomEvent.on(tile, "error", (e) => handlers._tileOnError(done, tile, e as unknown as Error));
+    L.DomEvent.on(tile, "error", (e) => {
+      if (fallback) {
+        tile.src = fallback;
+        fallback = null;
+        return;
+      }
+      handlers._tileOnError(done, tile, e as unknown as Error);
+    });
     tile.alt = "";
     tile.setAttribute("role", "presentation");
 
+    // The worker URL: the tile's identity, also for copies saved offline.
     const url = this.getTileUrl(coords);
+    const fromNetwork = () =>
+      void networkTileUrl(url).then((src) => {
+        if (src !== url) fallback = url;
+        tile.src = src;
+      });
     // Nothing saved on this device: load straight away, no lookup.
     if (knownNoSavedTiles()) {
-      tile.src = url;
+      fromNetwork();
       return tile;
     }
     void cachedTile(url).then(async (saved) => {
       if (!saved) {
-        tile.src = url;
+        fromNetwork();
         return;
       }
       const objectUrl = URL.createObjectURL(await saved.blob());
