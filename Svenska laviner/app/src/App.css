@@ -234,7 +234,7 @@ p.muted a:not(.button) {
 
 .steepness-table__row {
   display: grid;
-  grid-template-columns: 70px 90px 1fr;
+  grid-template-columns: 70px 90px minmax(0, 1fr);
   gap: 10px;
   align-items: baseline;
   padding: 8px 0;
@@ -252,6 +252,15 @@ p.muted a:not(.button) {
 
 .steepness-table__note {
   color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 360px) {
+  .steepness-table__row {
+    grid-template-columns: 62px minmax(0, 1fr);
+  }
+  .steepness-table__note {
+    grid-column: 2;
+  }
 }
 
 .nearest-region {
@@ -794,6 +803,7 @@ p.muted a:not(.button) {
 .form__field {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   gap: 6px;
   font-weight: 600;
   font-size: 0.92rem;
@@ -2455,12 +2465,14 @@ p.muted a:not(.button) {
 
 .comment-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: flex-end;
 }
 
 .comment-form textarea {
-  flex: 1;
+  flex: 1 1 180px;
+  min-width: 0;
   padding: 7px 10px;
   border-radius: 6px;
   border: 1px solid var(--border);
@@ -4421,6 +4433,7 @@ h1 .admin-badge {
 .trip-plan__route,
 .trip-plan__offline {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 4px;
   margin-top: 12px;
 }

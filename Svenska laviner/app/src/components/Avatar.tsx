@@ -52,7 +52,7 @@ export default function Avatar({
       {avatarPath ? (
         <image href={imageUrl(avatarPath)} x="17" y="21" width="66" height="66" clipPath={`url(#${clip})`} preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <text x="50" y="66" textAnchor="middle" className="avatar__initials">
+        <text x="50" y="66" textAnchor="middle" className="avatar__initials" aria-hidden="true">
           {initials(name)}
         </text>
       )}

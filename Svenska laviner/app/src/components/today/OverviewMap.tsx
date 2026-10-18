@@ -83,10 +83,10 @@ export default function OverviewMap({ forecasts, favorites }: Props) {
               className="overview-map__area"
             >
               <circle cx={x} cy={y} r={R} fill={info?.color ?? "var(--bg-raised)"} stroke="var(--snow)" strokeWidth={2} />
-              <text x={x} y={y + 5} textAnchor="middle" className="overview-map__level" fill={level === 5 ? "#fff" : info ? "#1a1a1a" : "var(--text-muted)"}>
+              <text aria-hidden="true" x={x} y={y + 5} textAnchor="middle" className="overview-map__level" fill={level === 5 ? "#fff" : info ? "#1a1a1a" : "var(--text-muted)"}>
                 {level ?? "–"}
               </text>
-              <text x={x + side.dx} y={y + side.dy} textAnchor={side.anchor} className="overview-map__name">
+              <text aria-hidden="true" x={x + side.dx} y={y + side.dy} textAnchor={side.anchor} className="overview-map__name">
                 {name}
                 {fav ? " ★" : ""}
               </text>

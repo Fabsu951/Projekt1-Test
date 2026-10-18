@@ -18,7 +18,7 @@ import {
 } from "./forecastApi";
 import { findChanges, historyRow, readHistory, recordHistory, type HistoryRow } from "./history";
 import { getFavorites, saveFavorites } from "./favorites";
-import { createTour, deleteTour, getTour, importedSources, listTours, tourLines, updateTour } from "./tours";
+import { createTour, deleteTour, getTour, importedSources, listTours, tourLinesBody, updateTour } from "./tours";
 import { createRoute, deleteRoute, getRoute, listMyRoutes, updateRoute } from "./routes";
 import { badgesOf, removeAvatar, uploadAvatar } from "./profile";
 import {
@@ -262,6 +262,29 @@ async function proxyTopowebb(request: Request, env: Env, origin: string): Promis
  * Auth is a bearer token (not a cookie), so it works cross-origin from
  * pages.dev and from the native Capacitor app alike.
  */
+/** New heatmap lines show up within this many seconds. */
+const LINES_CACHE_SECONDS = 300;
+
+/**
+ * The heatmap's 500 lines are the largest answer we send, and every map
+ * visit asks for them; keep them in Cloudflare's cache for a few minutes.
+ * Signed-in requests (which hide blocked people) are always built fresh.
+ */
+async function tourLinesResponse(request: Request, env: Env, ctx: ExecutionContext | undefined, origin: string): Promise<Response> {
+  const headers = { ...corsHeaders(origin), "Content-Type": "application/json" };
+  const cache = typeof caches === "undefined" || request.headers.has("Authorization") ? null : caches.default;
+  const key = new Request(new URL(request.url).toString());
+  const hit = cache ? await cache.match(key) : undefined;
+  if (hit) return new Response(hit.body, { headers });
+  const body = await tourLinesBody(request, env);
+  if (cache) {
+    const stored = cache.put(key, new Response(body, { headers: { "Content-Type": "application/json", "Cache-Control": `public, max-age=${LINES_CACHE_SECONDS}` } }));
+    if (ctx) ctx.waitUntil(stored);
+    else await stored;
+  }
+  return new Response(body, { headers });
+}
+
 async function handleCommunity(request: Request, env: Env, origin: string, ctx?: ExecutionContext): Promise<Response | null> {
   const defer = ctx ? (work: Promise<unknown>) => ctx.waitUntil(work) : undefined;
   const { pathname } = new URL(request.url);
@@ -361,7 +384,7 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
 
     if (pathname === "/tours" && method === "GET") return json(await listTours(request, env), origin);
     if (pathname === "/tours" && method === "POST") return json(await createTour(request, env), origin, 201);
-    if (pathname === "/tours/lines" && method === "GET") return json(await tourLines(request, env), origin);
+    if (pathname === "/tours/lines" && method === "GET") return tourLinesResponse(request, env, ctx, origin);
     if (pathname === "/tours/sources" && method === "GET") return json(await importedSources(request, env), origin);
     const tourMatch = pathname.match(/^\/tours\/(\d+)$/);
     if (tourMatch) {

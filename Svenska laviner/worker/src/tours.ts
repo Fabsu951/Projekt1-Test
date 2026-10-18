@@ -368,7 +368,7 @@ export async function listTours(request: Request, env: CommunityEnv) {
 const HEATMAP_LIMIT = 500;
 
 /** Public lines of shared tours for the heatmap, never the hidden ends. */
-export async function tourLines(request: Request, env: CommunityEnv) {
+async function lineRows(request: Request, env: CommunityEnv) {
   const url = new URL(request.url);
   // Followers-only tours stay out of the public heatmap.
   const where = ["t.shared = 1", "t.followers_only = 0", "t.preview IS NOT NULL"];
@@ -384,14 +384,25 @@ export async function tourLines(request: Request, env: CommunityEnv) {
   )
     .bind(...binds, HEATMAP_LIMIT)
     .all<{ id: number; title: string; started_at: string; preview: string }>();
-  return {
-    lines: rows.results.map((r) => ({
-      id: r.id,
-      title: r.title,
-      startedAt: r.started_at,
-      points: JSON.parse(r.preview) as Array<[number, number]>,
-    })),
+  return rows.results;
+}
+
+export async function tourLines(request: Request, env: CommunityEnv) {
+  return JSON.parse(await tourLinesBody(request, env)) as {
+    lines: Array<{ id: number; title: string; startedAt: string; points: Array<[number, number]> }>;
   };
+}
+
+/**
+ * The same as JSON text, built around the stored preview JSON instead of
+ * parsing and re-serialising 500 lines (the heaviest response we have).
+ */
+export async function tourLinesBody(request: Request, env: CommunityEnv): Promise<string> {
+  const rows = await lineRows(request, env);
+  const lines = rows.map(
+    (r) => `{"id":${r.id},"title":${JSON.stringify(r.title)},"startedAt":${JSON.stringify(r.started_at)},"points":${r.preview}}`
+  );
+  return `{"lines":[${lines.join(",")}]}`;
 }
 
 async function getRow(env: CommunityEnv, id: number): Promise<TourRow> {

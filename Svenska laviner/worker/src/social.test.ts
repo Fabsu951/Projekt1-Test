@@ -4,7 +4,7 @@ import type { CommunityEnv } from "./auth";
 import { deleteAccount, setLanguage } from "./auth";
 import { HttpError } from "./http";
 import { addComment, deleteComment, feed, follow, getPerson, listComments, searchPeople, setLike, unfollow } from "./social";
-import { createTour, importedSources, listTours, tourLines, updateTour } from "./tours";
+import { createTour, importedSources, listTours, tourLines, tourLinesBody, updateTour } from "./tours";
 import { migratedD1 } from "./testing/sqliteD1";
 import { experiencePoints, removeAvatar, uploadAvatar } from "./profile";
 import { serveImage } from "./observations";
@@ -116,6 +116,14 @@ describe("tour visibility", () => {
     expect(await titles("anna")).toEqual(["Alla ser", "Bara följare"]);
     expect(await titles("bertil")).toEqual(["Alla ser", "Bara följare"]); // own list views skip private ones
     expect((await tourLines(req("/tours/lines", "anna"), env)).lines.map((l) => l.title)).toEqual(["Alla ser"]);
+  });
+
+  it("builds valid heatmap JSON around the stored previews, whatever the title", async () => {
+    const id = await tour(ids.bertil, 'Tur "med" citat \\ och ✓ 🏔️', 1);
+    const body = await tourLinesBody(req("/tours/lines"), env);
+    expect(JSON.parse(body)).toEqual({
+      lines: [{ id, title: 'Tur "med" citat \\ och ✓ 🏔️', startedAt: expect.any(String), points: [[67.9, 18.5], [67.91, 18.5]] }],
+    });
   });
 });
 

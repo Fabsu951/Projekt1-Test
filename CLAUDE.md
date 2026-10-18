@@ -1223,6 +1223,23 @@ the start, exact map point.
   `redirect: "manual"` and skip tiles the worker redirects to openstreetmap.org (OSM's
   tile policy forbids offline prefetch); privacy policy now says Health Connect data
   is only used for the tour diary, never sold/ads (Play's Limited Use), updated 17 Oct.
+  **Stress test (2026-10-18):** monkey test (random taps/typing/back-forward on 23
+  pages, phone/desktop, sv/en), layout sweeps (320/390/768/1280 px, landscape,
+  light/dark, field mode), worst-case content (30-char names and 100-char titles
+  without spaces, 300 observations, 500 tours, 5000-point track), rapid taps
+  (double submits send once), axe (WCAG 2.1 AA) and a worker timing probe with
+  3000 users/6000 observations/4000 tours. Fixed: Leaflet's zoom-end timer on a
+  removed map (`components/leafletFixes.ts`, imported by `offlineTileLayer.ts`),
+  long words overflowing (`main { overflow-wrap: anywhere }`, `select { max-width:
+  100% }`, `.form__field { min-width: 0 }`), comment form/steepness table at
+  320 px, inline links underlined (`main p a`, `main li > a:not([class])`), avatar
+  initials and overview-map labels `aria-hidden`; `/tours/lines` now built as
+  text around the stored preview JSON (`tourLinesBody`) and edge-cached 5 min
+  for anonymous requests (the app never sends a token there) – 39 → 6 ms.
+  Known/accepted: PBKDF2 100k ≈ 18 ms CPU per login/signup (free plan nominally
+  10 ms; works in practice), axe "label in name" on the avatar link and overview
+  map. Scripts in the scratchpad (`monkey.mjs`, `sweepS.mjs`, `extreme.mjs`,
+  `rapid.mjs`, `axe.mjs`, shared `mock.mjs`).
   **Compact phone chrome (2026-10-15, Fabian approved a before/after):** header
   and tab bar about half as tall (`.app-shell--tabs` rules, tab bar after
   `.tab-bar`). Android app: `data-native="android"` (inline script + `initNativeApp`)

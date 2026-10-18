@@ -1,4 +1,5 @@
 import L from "leaflet";
+import "./leafletFixes";
 import { cachedTile, knownNoSavedTiles } from "../services/offlineMap";
 
 type TileDone = (error: Error | undefined, tile: HTMLElement) => void;
