@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import NativePushBridge from "./NativePushBridge";
 import ObservationQueueBanner from "./ObservationQueueBanner";
 import ObservationQueueBridge from "./ObservationQueueBridge";
+import LocationShareBanner from "./LocationShareBanner";
+import LocationShareBridge from "./LocationShareBridge";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { defaultTitle, fullTitle, PageTitleContext } from "./pageTitle";
 import { applyPageMeta } from "./pageMeta";
@@ -205,8 +207,10 @@ export default function Layout() {
       </header>
       <OfflineBanner />
       <ObservationQueueBanner />
+      <LocationShareBanner />
       <NativePushBridge />
       <ObservationQueueBridge />
+      <LocationShareBridge />
       <main>
         <ErrorBoundary key={location.pathname}>
           <PageTitleContext.Provider value={setPageTitle}>

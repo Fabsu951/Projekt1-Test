@@ -3,4 +3,4 @@
 "NSHealthUpdateUsageDescription" = "Snöläge sparar ingenting i Hälsa.";
 "NSCameraUsageDescription" = "Används när du tar en bild till en observation eller som profilbild.";
 "NSPhotoLibraryUsageDescription" = "Används när du väljer en bild till en observation eller som profilbild.";
-"NSLocationWhenInUseUsageDescription" = "Används för att visa var du är på kartan, vilket prognosområde som ligger närmast och var en observation gjordes.";
+"NSLocationWhenInUseUsageDescription" = "Används för att visa var du är på kartan, vilket prognosområde som ligger närmast, var en observation gjordes och, om du väljer att dela din position, för att skicka den till dem du valt.";

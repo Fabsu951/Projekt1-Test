@@ -50,6 +50,7 @@ import { notifyNativeChanges, registerDevice, setDeviceLanguage, unregisterDevic
 import type { NotifyEnv } from "./notifications";
 import { createTrip, deleteTrip, listTrips, notifyTrips, type PublishedDay } from "./trips";
 import { answerInvitation, inviteToTrip } from "./tripInvites";
+import { myShare, pruneShares, sharedWithMe, startShare, stopShare, updatePosition } from "./locationShare";
 import { adminStats } from "./adminStats";
 import { checkForecastHealth } from "./health";
 import { seasonStartReport } from "./seasonReport";
@@ -372,6 +373,12 @@ async function handleCommunity(request: Request, env: Env, origin: string, ctx?:
     const answerMatch = pathname.match(/^\/trips\/invitations\/(\d+)$/);
     if (answerMatch && method === "POST") return json(await answerInvitation(request, env, Number(answerMatch[1]), defer), origin);
 
+    if (pathname === "/location/share" && method === "GET") return json(await myShare(request, env), origin);
+    if (pathname === "/location/share" && method === "POST") return json(await startShare(request, env, defer), origin);
+    if (pathname === "/location/share" && method === "DELETE") return json(await stopShare(request, env), origin);
+    if (pathname === "/location/position" && method === "POST") return json(await updatePosition(request, env), origin);
+    if (pathname === "/location/shared-with-me" && method === "GET") return json(await sharedWithMe(request, env), origin);
+
     if (pathname === "/routes" && method === "GET") return json(await listMyRoutes(request, env), origin);
     if (pathname === "/routes" && method === "POST") return json(await createRoute(request, env), origin, 201);
     const routeMatch = pathname.match(/^\/routes\/(\d+)$/);
@@ -438,6 +445,13 @@ async function recordAll(env: Env, results: RegionResult[]): Promise<void> {
     await notifyNativeChanges(env as NativeEnv, changes, stockholmDate(now));
   } catch (err) {
     console.error("Could not record forecast history or send notifications", err);
+  }
+  try {
+    // Ended position shares are also deleted whenever someone looks; this
+    // catches the rest.
+    await pruneShares(env);
+  } catch (err) {
+    console.error("Could not prune position shares", err);
   }
   try {
     await checkForecastHealth(

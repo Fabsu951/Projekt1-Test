@@ -12,7 +12,11 @@ export default function QuickActions() {
       </Link>
       <Link to="/observationer/snabb" className="quick-actions__item">
         <Icon name="pin" size={22} />
-        {t("Ny observation")}
+        {t("Observera")}
+      </Link>
+      <Link to="/dela-position" className="quick-actions__item">
+        <Icon name="people" size={22} />
+        {t("Dela position")}
       </Link>
       <Link to="/offline" className="quick-actions__item">
         <Icon name="cloudOff" size={22} />

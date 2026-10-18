@@ -15,6 +15,7 @@ import OfficialTerrainLegend from "../components/OfficialTerrainLegend";
 import { detailedSlopeAvailable, officialTerrainAvailable, type OfficialTerrain } from "../services/mapTiles";
 import TopoLayer from "../components/TopoLayer";
 import MyPosition from "../components/MyPosition";
+import FriendPositions from "../components/FriendPositions";
 import { fetchObservations } from "../services/observationService";
 import type { Observation } from "../types/observation";
 import SeasonFilter from "../components/SeasonFilter";
@@ -158,6 +159,10 @@ export default function MapPage() {
   }, [showTours, token]);
   const [observations, setObservations] = useState<Observation[]>([]);
   const [showPosition, setShowPosition] = useState(false);
+  // People sharing their position with you ("Dela position"); a notification opens /karta?kompisar=1.
+  const friendsFromLink = searchParams.get("kompisar") === "1";
+  const [showFriends, setShowFriends] = useState(true);
+  const [friendCount, setFriendCount] = useState<number | null>(null);
   const [layersOpen, setLayersOpen] = useState(readLayersOpen);
   const toggleLayers = () =>
     setLayersOpen((open) => {
@@ -277,7 +282,16 @@ export default function MapPage() {
     ["plan", t("Planera tur"), t("Lutning och ruttplanering")],
     ["tours", t("Turer"), t("Var andra har åkt")],
   ];
-  const activeLayers = [showObservations, showTours, showHeatmap, showSlope, showDetailedSlope, officialTerrain !== null].filter(Boolean).length;
+  const friendsShown = Boolean(token) && showFriends;
+  const activeLayers = [
+    showObservations,
+    showTours,
+    showHeatmap,
+    showSlope,
+    showDetailedSlope,
+    officialTerrain !== null,
+    friendsShown && (friendCount ?? 0) > 0,
+  ].filter(Boolean).length;
   const [positionStatus, setPositionStatus] = useState<string | null>(null);
   const onPositionStatus = useCallback((message: string | null) => setPositionStatus(message), []);
 
@@ -381,6 +395,13 @@ export default function MapPage() {
               <span className="observation-pin observation-pin--legend"><span /></span>
               {t("Observationer")}
             </label>
+            {token && (
+              <label className="map-toolbar__toggle">
+                <input type="checkbox" checked={showFriends} onChange={(e) => setShowFriends(e.target.checked)} />
+                <span className="friend-pin friend-pin--legend" aria-hidden="true" />
+                {t("Kompisar som delar position")}
+              </label>
+            )}
             <label className="map-toolbar__toggle">
               <input type="checkbox" checked={showTours} onChange={(e) => setShowTours(e.target.checked)} />
               <span className="tour-pin tour-pin--legend">
@@ -486,6 +507,12 @@ export default function MapPage() {
           </p>
         )}
 
+        {friendsFromLink && friendsShown && friendCount === 0 && (
+          <p className="notice notice--stale" role="status">
+            {t("Ingen delar sin position med dig just nu.")}
+          </p>
+        )}
+
         {officialTerrain && (
           <p className="notice">
             {officialTerrain === "lutning" ? t("Lutningskartan") : t("Kartan över sluttningsriktning")}{" "}{t("kommer från Naturvårdsverkets lavinprognostjänst. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos. Zooma in om lagret inte syns.")}
@@ -525,6 +552,7 @@ export default function MapPage() {
           <OfficialTerrainLayer layer={officialTerrain} />
           <DetailedSlopeLayer enabled={showDetailedSlope} />
           <MyPosition enabled={showPosition} onStatus={onPositionStatus} />
+          {friendsShown && token && <FriendPositions token={token} fit={friendsFromLink} onCount={setFriendCount} />}
           {showHeatmap && <TourHeatmap lines={heatLines} />}
           {showObservations && <ObservationMarkers observations={observations} />}
           {showTours && <TourMarkers tours={tours} />}

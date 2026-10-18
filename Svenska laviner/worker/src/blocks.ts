@@ -38,6 +38,7 @@ export async function block(request: Request, env: CommunityEnv, id: number) {
   await env.DB.batch([
     env.DB.prepare("INSERT OR IGNORE INTO blocks (blocker_id, blocked_id, created_at) VALUES (?, ?, ?)").bind(me.id, id, nowIso()),
     env.DB.prepare("DELETE FROM follows WHERE (follower_id = ?1 AND followee_id = ?2) OR (follower_id = ?2 AND followee_id = ?1)").bind(me.id, id),
+    env.DB.prepare("DELETE FROM location_share_viewers WHERE (user_id = ?1 AND viewer_id = ?2) OR (user_id = ?2 AND viewer_id = ?1)").bind(me.id, id),
     env.DB.prepare("DELETE FROM notifications WHERE (user_id = ?1 AND actor_id = ?2) OR (user_id = ?2 AND actor_id = ?1)").bind(me.id, id),
     env.DB.prepare(
       "DELETE FROM trip_invites WHERE status = 'pending' AND ((from_user = ?1 AND to_user = ?2) OR (from_user = ?2 AND to_user = ?1))"

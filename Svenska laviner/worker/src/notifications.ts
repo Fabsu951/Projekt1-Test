@@ -17,8 +17,9 @@ import { blockedBetween } from "./blocks";
  * "moderation": an admin removed something of yours after a report; `note` says what and why.
  * "trip": the forecast for a tour you planned ("Prognos inför turen", trips.ts); `note` is the text.
  * "trip_invite" / "trip_join": an invitation to someone's tour day, or someone joining yours (tripInvites.ts); `note` is the text.
+ * "location_share": someone started sharing their position with you (locationShare.ts); `note` is the text.
  */
-export type NotificationKind = "follow" | "comment" | "reply" | "like" | "moderation" | "trip" | "trip_invite" | "trip_join";
+export type NotificationKind = "follow" | "comment" | "reply" | "like" | "moderation" | "trip" | "trip_invite" | "trip_join" | "location_share";
 export type NotifyEnv = CommunityEnv & VapidEnv & FcmEnv;
 /** Runs work after the response is sent (ctx.waitUntil in the worker). */
 export type Defer = (work: Promise<unknown>) => void;
@@ -179,6 +180,8 @@ async function describe(env: CommunityEnv, rows: Row[], lang: Lang = "sv"): Prom
           ? (r.note ?? (en ? `${who} invites you on a tour` : `${who} bjuder in dig till en tur`))
           : r.kind === "trip_join"
             ? (r.note ?? (en ? `${who} is joining your tour` : `${who} hänger med på din tur`))
+            : r.kind === "location_share"
+              ? (r.note ?? (en ? `${who} is sharing their location with you` : `${who} delar sin position med dig`))
         : r.kind === "moderation"
           ? (r.note ?? (en ? "Something you published was removed after a report." : "Något du publicerat har tagits bort efter en anmälan."))
           : r.kind === "follow"

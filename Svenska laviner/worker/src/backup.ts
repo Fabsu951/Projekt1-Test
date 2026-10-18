@@ -14,7 +14,8 @@ export interface BackupEnv extends AdminMailEnv {
 export const BACKUP_PREFIX = "backups/d1/";
 const KEEP_DAYS = 28;
 const PAGE = 500;
-const SKIP = new Set(["d1_migrations", "sessions", "email_tokens", "rate_limit_events", "service_alerts"]);
+// Position shares last hours at most and must not outlive them in backups.
+const SKIP = new Set(["d1_migrations", "sessions", "email_tokens", "rate_limit_events", "service_alerts", "location_shares", "location_share_viewers"]);
 
 export interface BackupFile {
   version: 1;

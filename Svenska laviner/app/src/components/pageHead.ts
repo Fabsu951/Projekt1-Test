@@ -22,6 +22,7 @@ const TITLES: Array<[RegExp, string]> = [
   [/^\/turer/, t("Turer")],
   [/^\/flode/, t("Flöde")],
   [/^\/notiser/, t("Notiser")],
+  [/^\/dela-position/, t("Dela position")],
   [/^\/person\//, t("Person")],
   [/^\/sakerhetsguide/, t("Säkerhetsguide")],
   [/^\/om-appen/, t("Om Snöläge")],

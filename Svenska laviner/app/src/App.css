@@ -3314,11 +3314,18 @@ h1 .admin-badge {
 /* Quick actions */
 .quick-actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
+@media (max-width: 360px) {
+  .quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .quick-actions__item {
+  overflow-wrap: normal;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -5218,3 +5225,201 @@ h1 .admin-badge {
   vertical-align: middle;
 }
 
+
+/* "Dela position": the strip under the header while you share */
+.share-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 8px max(16px, var(--safe-left, 0px));
+  background: var(--info-bg);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.88rem;
+}
+
+.share-banner__dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.share-banner__link {
+  color: var(--accent);
+  text-decoration: underline;
+  margin-left: auto;
+}
+
+.app-shell:has(.page--map-full) .share-banner {
+  display: none;
+}
+
+.share-page__warning {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.share-page__warning svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+.share-page__warning p {
+  margin: 0;
+}
+
+.share-page section + section,
+.share-page .share-form,
+.share-page .share-friends {
+  margin-top: 24px;
+}
+
+.share-status {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+}
+
+.share-status p {
+  margin: 6px 0 0;
+}
+
+.share-status__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.share-people,
+.share-hours {
+  margin: 0 0 14px;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.share-people legend,
+.share-hours legend {
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.share-people__list,
+.share-friends__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.share-people__list li,
+.share-friends__row {
+  border-bottom: 1px solid var(--divider);
+}
+
+.share-people__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap, 44px);
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.share-people__row input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.share-people__name {
+  min-width: 0;
+}
+
+.share-hours .chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.share-hours .chip {
+  color: var(--text);
+  font: inherit;
+  font-size: 0.88rem;
+}
+
+.share-friends__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.share-friends__row p {
+  margin: 2px 0 0;
+}
+
+.share-friends__name {
+  font-weight: 600;
+}
+
+.share-friends .button {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trip-plan__share {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.88rem;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Friends on the map: initials in an ink disc, apart from the blue "my position" dot */
+.friend-pin__wrap {
+  background: none;
+  border: none;
+}
+
+.friend-pin {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #17222b;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 0 2px #fff, 0 1px 4px rgb(0 0 0 / 35%);
+}
+
+.friend-pin--legend {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px #17222b;
+}
+
+.friend-pin__accuracy {
+  fill: #17222b;
+  fill-opacity: 0.08;
+  stroke: #17222b;
+  stroke-opacity: 0.5;
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}

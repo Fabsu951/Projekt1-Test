@@ -128,7 +128,7 @@ export default function AboutPage() {
 
       <section className="section terms" id="villkor">
         <h2>{t("Användarvillkor")}</h2>
-        <p className="muted">{t("Senast uppdaterade 12 oktober 2026.")}</p>
+        <p className="muted">{t("Senast uppdaterade 19 oktober 2026.")}</p>
         {isEnglish() && <p className="muted">This is a translation. The Swedish version of the terms is the one that applies.</p>}
         <p>
           {t("Snöläge drivs av Fabian Sund som privatperson")}
@@ -143,7 +143,7 @@ export default function AboutPage() {
 
         <h3>{t("Ditt ansvar i fjällen")}</h3>
         <p>
-          {t("Allt i Snöläge är information som stöd för dina egna beslut, ingen garanti. Farograder hämtas automatiskt och kan vara fördröjda eller fel. Lutningskartor och ruttanalys bygger på grov höjddata och missar korta branter. Observationer och turer kommer från andra användare och kan vara felaktiga eller inaktuella. Läs alltid den officiella prognosen på lavinprognoser.se och bedöm förhållandena på plats. Du ansvarar själv för din säkerhet och för de beslut du fattar i terrängen.")}
+          {t("Allt i Snöläge är information som stöd för dina egna beslut, ingen garanti. Farograder hämtas automatiskt och kan vara fördröjda eller fel. Lutningskartor och ruttanalys bygger på grov höjddata och missar korta branter. Observationer och turer kommer från andra användare och kan vara felaktiga eller inaktuella. \"Dela position\" är ingen larm- eller räddningstjänst: den kräver täckning och att appen är öppen, och ersätter inte sändare/mottagare, spade och sond. Vid en olycka, ring 112. Läs alltid den officiella prognosen på lavinprognoser.se och bedöm förhållandena på plats. Du ansvarar själv för din säkerhet och för de beslut du fattar i terrängen.")}
         </p>
 
         <h3>{t("Konto")}</h3>
@@ -179,7 +179,7 @@ export default function AboutPage() {
 
       <section className="section privacy" id="integritet">
         <h2>{t("Integritetspolicy")}</h2>
-        <p className="muted">{t("Senast uppdaterad 17 oktober 2026.")}</p>
+        <p className="muted">{t("Senast uppdaterad 19 oktober 2026.")}</p>
         {isEnglish() && <p className="muted">This is a translation. The Swedish version of the privacy policy is the one that applies.</p>}
         <p>
           <strong>{t("Personuppgiftsansvarig")}</strong>{" "}{t("är Fabian Sund, som driver Snöläge som privatperson")}
@@ -214,6 +214,9 @@ export default function AboutPage() {
           </li>
           <li>
             <strong>{t("Planerade turdagar:")}</strong>{" "}{t("om du väljer en dag under \"Prognos inför din tur\" sparar vi området och datumet i ditt konto, för att kunna skicka dig prognosen för den dagen. Väljer du också en av dina sparade rutter sparar vi vilken, och en sammanfattning av den branta marken under den (väderstreck, höjd och längd), så att notisen kan jämföra rutten med prognosen. Bjuder du in någon du följer sparar vi inbjudan och svaret; den som går med får samma jämförelse och ser vilka mer som är med, men inte rutten själv. De tas bort en vecka efter dagen, eller när du tar bort dem, rutten eller ditt konto.")}
+          </li>
+          <li>
+            <strong>{t("Dela position:")}</strong>{" "}{t("om du väljer \"Dela position\" skickar appen din position (koordinater, ungefärlig noggrannhet och tidpunkt) medan Snöläge är öppen, och bara de du väljer – personer du följer eller har en turdag med – ser den. Vi sparar bara den senaste positionen, aldrig någon spårlogg, och raderar den när delningen tar slut (högst 12 timmar), när du stoppar den, loggar ut eller raderar kontot. Den kommer aldrig med i säkerhetskopiorna. Vi använder den inte till något annat.")}
           </li>
           <li>
             <strong>{t("Följare, kommentarer och gilla:")}</strong>{" "}{t("vilka du följer, vilka som följer dig, och de kommentarer och gillamarkeringar du gör. Antalet följare syns för alla, men bara du ser vilka det är. Kommentarer syns för alla som kan se inlägget. Turer du delar med \"Bara de som följer mig\" syns bara för dina följare och finns inte med i värmekartan. Blockerar du någon sparar vi det tills du slutar blockera personen eller raderar kontot.")}

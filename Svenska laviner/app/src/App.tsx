@@ -32,6 +32,7 @@ const TourPage = lazy(() => import("./pages/TourPage"));
 const FeedPage = lazy(() => import("./pages/FeedPage"));
 const PersonPage = lazy(() => import("./pages/PersonPage"));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
+const SharePositionPage = lazy(() => import("./pages/SharePositionPage"));
 const HealthImportPage = lazy(() => import("./pages/HealthImportPage"));
 const SeasonPage = lazy(() => import("./pages/SeasonPage"));
 
@@ -123,6 +124,14 @@ function App() {
           element={
             <Suspense fallback={<PageLoading />}>
               <NotificationsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/dela-position"
+          element={
+            <Suspense fallback={<PageLoading />}>
+              <SharePositionPage />
             </Suspense>
           }
         />

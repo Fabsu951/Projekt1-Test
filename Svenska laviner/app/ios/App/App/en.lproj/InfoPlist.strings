@@ -3,4 +3,4 @@
 "NSHealthUpdateUsageDescription" = "Snöläge doesn't save anything in Health.";
 "NSCameraUsageDescription" = "Used when you take a photo for an observation or as your profile picture.";
 "NSPhotoLibraryUsageDescription" = "Used when you choose a photo for an observation or as your profile picture.";
-"NSLocationWhenInUseUsageDescription" = "Used to show where you are on the map, which forecast area is closest and where an observation was made.";
+"NSLocationWhenInUseUsageDescription" = "Used to show where you are on the map, which forecast area is closest, where an observation was made and, if you choose to share your location, to send it to the people you picked.";

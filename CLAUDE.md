@@ -1270,6 +1270,33 @@ the start, exact map point.
   `insetsFromSystem()` (screen.height − innerHeight > 20 px → `data-insets="system"`)
   zeroes them when Android already laid the page out between the bars – the
   S22 got the status/navigation bar height twice from env().
+- **Dela position (2026-10-19, idea from Fabian's dad):** time-limited sharing
+  of your latest position with people you pick: today's tour company
+  (accepted `trip_invites` for a trip dated today, either direction or fellow
+  invitees) or people you follow; blocked people never. Migration `0026`
+  `location_shares` (one row per user: started/ends_at, lat/lon/accuracy/
+  position_at – **only the latest point, no trail**) + `location_share_viewers`.
+  `worker/src/locationShare.ts`: `GET/POST/DELETE /location/share` ({viewerIds,
+  hours 1–12}; ≤ 20 viewers, 20 starts/h; restart replaces viewers and clears the
+  point; newly added viewers get notification kind `location_share` → url
+  `/karta?kompisar=1`), `POST /location/position` (404 when no running share),
+  `GET /location/shared-with-me`. Ended shares are deleted (`pruneShares` on
+  every shared-with-me call + in `recordAll`); excluded from backups; removed on
+  block and account deletion. App: `services/locationShare.ts` (API, device state
+  Preferences `fjallkoll:location-share` {userId, endsAt}, `shouldSend`: first
+  fix, then ≥ 50 m and ≥ 60 s, or every 5 min), `LocationShareBridge` (Layout;
+  `Geolocation.watchPosition` while the app is open – **no background
+  sending**, needs a native foreground service + Play declaration if ever
+  wanted), `LocationShareBanner` under the header while sharing,
+  `/dela-position` (`SharePositionPage`: warning "ersätter inte
+  sändare/mottagare … Vid en olycka: ring 112", people with today's company
+  pre-ticked, 2/4/8/12 h, status + stop, "Delar med dig"), map layer
+  `FriendPositions` (initials in ink discs, accuracy circle, polls every 60 s while
+  visible, `?kompisar=1` frames them), quick action "Dela position" on the start
+  page, link from today's tour day in `TripPlanCard`; logout/account deletion
+  stop sharing. Privacy policy + terms (not a rescue service) updated 19 Oct;
+  iOS location usage strings mention sharing. Deliberately **not** built:
+  showing your position to strangers nearby (stalking risk) and any SOS/alarm.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -1324,6 +1351,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (284 tests as of 2026-10-18, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 191 tests, including the
+  (293 tests as of 2026-10-19, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 201 tests, including the
   real-page fixtures).

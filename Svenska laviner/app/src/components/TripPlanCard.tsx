@@ -269,6 +269,11 @@ export default function TripPlanCard({ regionId, regionName, now = new Date() }:
                   trip={trip}
                   onChange={(next) => setTrips((list) => (list ?? []).map((x) => (x.id === next.id ? next : x)))}
                 />
+                {trip.date === today && ((trip.company?.length ?? 0) > 0 || (trip.invites ?? []).some((i) => i.status === "accepted")) && (
+                  <Link to="/dela-position" className="trip-plan__share">
+                    {t("Dela din position med sällskapet")}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>
