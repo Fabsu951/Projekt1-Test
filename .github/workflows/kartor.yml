@@ -3,11 +3,16 @@
 # instead of through the worker (worker requests are capped at 100 000 a day
 # on the free plan; R2 reads through a custom domain are not, and Cloudflare
 # caches them). Safe to run again: tiles already moved are skipped.
-# Started by hand (or via the API) – it is a one-off.
+# A one-off: runs when this file changes (GitHub only lets workflows that
+# exist on the default branch be started by hand), or via the API later.
 
 name: Kartor direkt från lagringen
 
 on:
+  push:
+    branches: [claude/bold-lamport-juktha, svenska-laviner]
+    paths:
+      - ".github/workflows/kartor.yml"
   workflow_dispatch:
 
 # Shares the deploy queue: this run sets a worker secret.
