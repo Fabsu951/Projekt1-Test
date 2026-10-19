@@ -1,0 +1,63 @@
+# Prints the worker's requests per hour and outcome (ok, CPU limit exceeded,
+# errors) for the last day from Cloudflare's analytics, with CPU time – for
+# when Cloudflare mails about the free plan's limits. Runs when this file
+# changes, or by hand via the API (workflows/worker-status.yml/dispatches).
+
+name: Worker-status
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha, svenska-laviner]
+    paths:
+      - ".github/workflows/worker-status.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: dba2a7031f0d281c2f34301d23a315ca
+    steps:
+      - name: Requests and CPU per hour
+        shell: python
+        run: |
+          import json, os, urllib.request, datetime as dt
+          now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
+          since = now - dt.timedelta(hours=26)
+          query = """
+          query($acc: string!, $since: Time!, $until: Time!) {
+            viewer { accounts(filter: {accountTag: $acc}) {
+              workersInvocationsAdaptive(limit: 2000, filter: {datetime_geq: $since, datetime_leq: $until}, orderBy: [datetimeHour_ASC]) {
+                dimensions { scriptName status datetimeHour }
+                sum { requests errors subrequests }
+                quantiles { cpuTimeP50 cpuTimeP99 }
+              }
+            } }
+          }"""
+          body = json.dumps({"query": query, "variables": {
+              "acc": os.environ["CLOUDFLARE_ACCOUNT_ID"],
+              "since": since.isoformat().replace("+00:00", "Z"),
+              "until": now.isoformat().replace("+00:00", "Z")}}).encode()
+          req = urllib.request.Request("https://api.cloudflare.com/client/v4/graphql", data=body, headers={
+              "Authorization": "Bearer " + os.environ["CLOUDFLARE_API_TOKEN"], "Content-Type": "application/json"})
+          data = json.load(urllib.request.urlopen(req))
+          if data.get("errors"):
+              print("Cloudflare answered with errors (the token may lack Account Analytics: Read):")
+              print(json.dumps(data["errors"], indent=2))
+              raise SystemExit(1)
+          rows = data["data"]["viewer"]["accounts"][0]["workersInvocationsAdaptive"]
+          totals = {}
+          print(f"{'hour (UTC)':<22}{'worker':<20}{'status':<22}{'requests':>10}{'cpu p50 ms':>12}{'cpu p99 ms':>12}")
+          for r in rows:
+              d, s, q = r["dimensions"], r["sum"], r["quantiles"]
+              key = (d["scriptName"], d["status"])
+              totals[key] = totals.get(key, 0) + s["requests"]
+              print(f"{d['datetimeHour']:<22}{d['scriptName']:<20}{d['status']:<22}{s['requests']:>10}{q['cpuTimeP50']/1000:>12.1f}{q['cpuTimeP99']/1000:>12.1f}")
+          print("\nTotals for the last 26 hours:")
+          for (script, status), n in sorted(totals.items(), key=lambda kv: -kv[1]):
+              print(f"  {script:<20}{status:<22}{n:>10}")
