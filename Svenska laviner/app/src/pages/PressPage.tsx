@@ -105,7 +105,7 @@ export default function PressPage() {
             <blockquote>
               <p>{t("”{quote}”", { quote })}</p>
             </blockquote>
-            <figcaption>{t("Fabian Sund, som har gjort Snöläge")}</figcaption>
+            <figcaption>{t("Fabian Sund, grundare och utvecklare av Snöläge")}</figcaption>
           </figure>
         ))}
       </section>

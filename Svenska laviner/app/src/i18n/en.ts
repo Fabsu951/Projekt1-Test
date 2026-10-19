@@ -1409,7 +1409,7 @@ export const EN: Record<string, string> = {
   "Appen kan aldrig ersätta sändare, spade, sond och utbildning. Den ska hjälpa dig att göra ett bättre beslut hemma, innan du åker.": "The app can never replace a transceiver, shovel, probe and training. It's there to help you make a better decision at home, before you go.",
   "Citat": "Quotes",
   "”{quote}”": "“{quote}”",
-  "Fabian Sund, som har gjort Snöläge": "Fabian Sund, who made Snöläge",
+  "Fabian Sund, grundare och utvecklare av Snöläge": "Fabian Sund, founder and developer of Snöläge",
   "Jag heter Fabian Sund och kommer från början från Sandviken. Jag har åkt skidor i hela mitt liv och fastnade tidigt för turåkning och offpist, och jakten på den där känslan av frihet. De senaste tio åren har jag mest åkt i Jämtlandsfjällen och Södra Lapplandsfjällen. Jag har gått Lavinkurs grund, SVELAV Friåkning 1 (två dagar). Länge har jag saknat något som hjälper mig att få ut det mesta av mina turer och samtidigt hålla mig så säker som möjligt på fjället. Så jag bestämde mig för att göra något åt saken.": "My name is Fabian Sund and I'm originally from Sandviken. I've skied my whole life and got hooked early on ski touring and off-piste, and on chasing that feeling of freedom. For the past ten years I've mostly skied in the Jämtland mountains and Södra Lapplandsfjällen. I've taken the basic avalanche course SVELAV Friåkning 1 (two days). For a long time I've missed something that helps me get the most out of my tours while keeping me as safe as possible in the mountains. So I decided to do something about it.",
   "Bakgrund": "Background",
   "Fabian Sund om varför Snöläge finns": "Fabian Sund on why Snöläge exists",
