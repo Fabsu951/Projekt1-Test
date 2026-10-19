@@ -1335,7 +1335,7 @@ the start, exact map point.
   restart it. `ShareLocationPlugin.kt` registered in MainActivity. iPhone:
   `ShareLocationPlugin.swift` (CLLocationManager, background updates +
   blue indicator, `UIBackgroundModes` `location` in Info.plist, added to the
-  pbxproj by hand with ids `A1…03`/`A1…13`, registered in MainViewController).
+  pbxproj by hand with ids `A1…09`/`A1…19` – check ids are unused before adding more, registered in MainViewController).
   **Play Console needs a "Foreground service permissions" declaration
   (location, with a short video) before a release with this goes out.**
   Not yet tried on a phone.
