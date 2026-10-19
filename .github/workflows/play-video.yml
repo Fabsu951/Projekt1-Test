@@ -110,7 +110,9 @@ jobs:
         if: always()
         with:
           name: dela-position-video
-          path: ${{ runner.temp }}/dela-position.mp4
+          path: |
+            ${{ runner.temp }}/dela-position.mp4
+            ${{ runner.temp }}/dela-position-fel.png
           if-no-files-found: warn
 
       - name: Commit the video
