@@ -19,6 +19,12 @@ const LONG_TEXT = t(
   "Snöläge samlar det du behöver inför en tur i de svenska fjällen på ett ställe. Appen visar Naturvårdsverkets officiella lavinprognoser för sex fjällområden, med lavinproblemen och vad farograden betyder i praktiken. Till det kommer väder och vädervarningar från SMHI, snödjup från mätstationer och Lantmäteriets topografiska karta med lager för brant terräng. Du kan planera en rutt och jämföra den med dagens prognos, spara kartor för områden utan täckning, rapportera observationer som laviner och skjutsprickor, föra turdagbok och dela din position med turkamrater. Snöläge är gratis, finns på svenska och engelska och drivs av Fabian Sund. Appen gör inga egna bedömningar av lavinfaran.",
 );
 
+// Approved by Fabian (2026-10-19); his words, so only change them with him.
+const QUOTES = [
+  t("Jag ville ha allt jag kollar inför och under en tur på ett ställe: prognosen, vädret och kartan. Snöläge ändrar ingenting i prognosen, det gör den bara lättare att läsa."),
+  t("Appen kan aldrig ersätta sändare, spade, sond och utbildning. Den ska hjälpa dig att göra ett bättre beslut hemma, innan du åker."),
+];
+
 const GOOD_TO_KNOW = [
   t("Farograden i Snöläge är alltid Naturvårdsverkets officiella lavinprognos. Snöläge gör inga egna bedömningar av lavinfaran och är inte knutet till Naturvårdsverket."),
   t("När ingen prognos är publicerad visar Snöläge ingen farograd, bara att det saknas en."),
@@ -80,6 +86,18 @@ export default function PressPage() {
         <h2>{t("Om Snöläge")}</h2>
         <CopyText id="press-short" label={t("En mening")} text={SHORT_TEXT} />
         <CopyText id="press-long" label={t("Ett stycke")} text={LONG_TEXT} />
+      </section>
+
+      <section className="section">
+        <h2>{t("Citat")}</h2>
+        {QUOTES.map((quote) => (
+          <figure key={quote} className="press-quote">
+            <blockquote>
+              <p>{t("”{quote}”", { quote })}</p>
+            </blockquote>
+            <figcaption>{t("Fabian Sund, som har gjort Snöläge")}</figcaption>
+          </figure>
+        ))}
       </section>
 
       <section className="section">

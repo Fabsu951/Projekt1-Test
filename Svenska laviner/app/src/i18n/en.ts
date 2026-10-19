@@ -1405,4 +1405,9 @@ export const EN: Record<string, string> = {
   "På svenska": "In Swedish",
   "Mer om appen": "More about the app",
   "Hur Snöläge hämtar och visar uppgifterna, användarvillkor och integritetspolicy finns på": "How Snöläge gets and shows its data, the terms of use and the privacy policy are on",
+  "Jag ville ha allt jag kollar inför och under en tur på ett ställe: prognosen, vädret och kartan. Snöläge ändrar ingenting i prognosen, det gör den bara lättare att läsa.": "I wanted everything I check before and during a tour in one place: the forecast, the weather and the map. Snöläge changes nothing in the forecast, it just makes it easier to read.",
+  "Appen kan aldrig ersätta sändare, spade, sond och utbildning. Den ska hjälpa dig att göra ett bättre beslut hemma, innan du åker.": "The app can never replace a transceiver, shovel, probe and training. It's there to help you make a better decision at home, before you go.",
+  "Citat": "Quotes",
+  "”{quote}”": "“{quote}”",
+  "Fabian Sund, som har gjort Snöläge": "Fabian Sund, who made Snöläge",
 };
