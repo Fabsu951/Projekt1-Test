@@ -867,6 +867,12 @@ the start, exact map point.
   made by `marknad/film/a1-klipp.mjs` in workflow `a1-klipp.yml` (only on the
   marketing branch; builds the app branch, sample data, real map; zooms are
   rendered frame by frame via a recording-only `window.__map` patch).
+  Lessons from One Bold Chemist (Swedish TikTok-grown perfume brand) are
+  section 6.10 of the plan: many clips, a recurring series, ambassadors'
+  content (ambassador kit), season premiere as a countdown "drop"; new
+  Format F (comparison/question) in the playbook. The schedule is made by a
+  scratchpad `schema.py` (not in git); `snolage-schema-tillagg.ics` holds only
+  the events added 2026-10-19, for importing on top of the first calendar.
 - **Reporting everything else (DSA, 2026-10-08):** migration `0017`
   `content_reports` (item_type tour|route|comment|profile, one row per
   reporter), `comments.hidden`, `notifications.note`. `worker/src/reports.ts`:

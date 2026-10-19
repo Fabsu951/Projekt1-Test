@@ -25,6 +25,12 @@ Planen har tre steg:
    veckovis innehåll, partners på plats och de inbyggda delningsfunktionerna
    (delade rutter, turdagar tillsammans, flödet).
 
+**Motorn i allt detta** (lärdomar från One Bold Chemist, avsnitt 6.10):
+många korta klipp i stället för få perfekta, en återkommande serie som
+alltid har nytt innehåll (Snöläget inför helgen), andra som gör en del av
+innehållet (ambassadörer, guider, användarnas observationer) och
+säsongspremiären som en händelse man väntar på.
+
 Budgeten kan vara noll kronor. Med 5 000–20 000 kr går det att lägga till
 klistermärken, affischer och lite riktad annonsering under sportlovet.
 
@@ -310,9 +316,11 @@ dem:
 
 Detaljerad spelbok med manus, inlägg och schema: `SOCIALA-MEDIER.md`.
 
-**Instagram är huvudkanalen** (det är där toppturåkare finns). Facebook för
-grupperna. TikTok och Reels är valfria, samma korta klipp kan läggas på
-båda.
+**Korta klipp är motorn.** Samma lodräta klipp läggs på TikTok, Instagram
+Reels, Facebook Reels och YouTube Shorts. TikTok hittar nya människor,
+Instagram håller kvar dem som redan åker, Facebookgrupperna är där
+toppturfolket pratar. Hellre många klipp som är bra nog än få perfekta
+(se 6.10).
 
 Skapa kontot `@snolage` (och `@snolage.se` om det första är taget) på
 Instagram, Facebook och TikTok nu, även om de inte används direkt.
@@ -434,6 +442,53 @@ Metas eller Googles spårningskod i appen eller på webben: det strider mot
 integritetspolicyn. Följ resultatet i annonsverktygets egna siffror och i
 Play Console.
 
+### 6.10 Lärdomar från One Bold Chemist
+
+One Bold Chemist är ett svenskt parfymmärke (billiga kopior av dyra
+dofter) som gick från 8,9 till 35,9 miljoner kr i omsättning på ett år,
+nästan bara med organiska TikTok-klipp: cirka 33 miljoner visningar på en
+månad och över 150 000 sålda flaskor (Breakit och Ehandel.se, 2026).
+Grundaren Leo Ageman var 21 år. Hemligheten är inget enskilt trick utan tre
+saker samtidigt: **en produkt som förklarar sig själv på tre sekunder,
+väldigt många klipp, och att andra gör en stor del av innehållet.**
+
+| Deras grepp | Så gör Snöläge |
+| --- | --- |
+| **Jämförelsen är kroken.** "Luktar som 3 000 kr, kostar 349 kr." | **"3 appar → 1"** är vår jämförelse. Fler klipp på samma tema: prognos + SMHI + kartapp = Snöläge, "före och efter" en turplanering. Format F i `SOCIALA-MEDIER.md`. |
+| **Mängd.** Många klipp hela tiden, några slår. | 2 klipp i veckan redan nu, 3–4 under säsongen. Filma i block (en filmdag i månaden) så att det går. Lägg inte en timme på att putsa ett klipp. |
+| **En återkommande serie.** | **Snöläget inför helgen** varje torsdag december–april. Samma format, nytt innehåll varje vecka, eftersom prognosen ändras. Folk vet när de ska titta. |
+| **Andra gör innehållet.** Recensenter, kunder, anställda kreatörer. | Ambassadörer och guider filmar från fältet. **Ambassadörskit** (se nedan). Användarnas observationer blir "Veckans observation" (med lov). Hashtaggen `#snöläge` samlar allt. |
+| **Lanseringar som händelser.** "Släpps 4 oktober kl 14." | **Säsongspremiären** är vårt släpp: nedräkning i storys de sista 10 dagarna, "slå på notiser så får du första prognosen direkt". Varje ny funktion blir ett eget litet släpp ("Nytt i Snöläge: …"). |
+| **Ta bort risken att prova.** Provflaskor och paket. | Snöläge är gratis och prognosen syns **utan konto**. Säg det i klippen: "Inget konto behövs". |
+| **Socialt bevis.** Siffror och omdömen överallt. | Be om betyg i Play Butik efter lanseringen och visa siffror när de finns ("500 åkare använder Snöläge"), bara riktiga siffror från `/admin/oversikt` och butikerna. |
+| **Ett konto per marknad.** | Inte nu. Kanske ett norskt konto en senare säsong. |
+
+**Ambassadörskit** (en delad mapp, klar i början av november):
+loggan, tre exempel på bra fältklipp (10–20 s: "det här såg vi i dag",
+"så kollar vi innan vi går", en snabbobservation), hashtaggen `#snöläge`,
+regeln att samarbete märks ("i samarbete med Snöläge" om de fått något),
+och reglerna i 4.3: aldrig "säker", aldrig filma nära lavinterräng för ett
+bättre klipp.
+
+**Det vi inte kopierar:**
+
+- **Konstgjord brådska** ("bara i dag", "begränsat antal"). Det säljer
+  parfym men skadar förtroendet för en säkerhetsprodukt.
+- **Överdrivna löften.** De lovar att det luktar som originalet. Vi lovar
+  aldrig att något är säkert.
+- **Deras siffror som mål.** Parfym är ett impulsköp för miljoner.
+  Toppturåkare i Sverige är några tiotusen. Målen i avsnitt 2 gäller.
+- **Svag kundservice.** Deras omdömen drar ner av förseningar och fel
+  varor. Svara på allt inom ett dygn (avsnitt 7).
+
+**Mät det:** andelen inlägg där någon annan än du står för innehållet
+(ambassadör, guide, användare). Mål: 1 av 4 i februari–mars.
+
+Källor: [Breakit](https://www.breakit.se/artikel/46733/one-bold-chemist-gar-som-taget-unnar-sig-utdelning-pa-6-miljoner),
+[Ehandel.se](https://www.ehandel.se/fran-0-till-36-miljoner-svenska-parfymraketen-tar-over-tiktok),
+[Ehandel.com](https://ehandel.com/one-bold-chemist-turns-over-36-million-sek-profits-soar-for-the-swedish-tiktok-phenomenon/),
+deras TikTok-konton `@oneboldchemist.se` och `@one.bold.chemist`.
+
 ---
 
 ## 7. Tidsplan
@@ -444,7 +499,7 @@ Play Console.
 | --- | --- |
 | v. 42 (12–18 okt) | Skicka inbjudan till minst 15 testare för Google Plays stängda test (familj, kompisar, skidkompisar). Skapa konton på Instagram, Facebook, TikTok. Välj slogan. |
 | v. 43 (19–25 okt) | **Senast 25 okt: 12 testare igång.** Ta skärmbilder och skriv butikstexterna (bilaga A). Sätt upp Google Search Console för `snolage.se`. |
-| v. 44 (26 okt–1 nov) | Skriv en lista över 20–30 tänkbara ambassadörer och 15–20 partners. Beställ klistermärken. Gör presssidan. |
+| v. 44 (26 okt–1 nov) | Skriv en lista över 20–30 tänkbara ambassadörer och 15–20 partners. Beställ klistermärken. Gör presssidan. Gör ambassadörskitet (6.10). Två klipp i veckan från och med nu. |
 
 ### November: förbered lanseringen
 
@@ -454,7 +509,7 @@ Play Console.
 | v. 46 (9–15 nov) | Mejla partners (lavinkurser först: de planerar vinterns kurser nu). Mejla Naturvårdsverket om lanseringen. |
 | v. 47 (16–22 nov) | Förbered 8–10 inlägg för lanseringen och de första veckorna (lavinproblemen, lavinskalan, "så planerar du en rutt"). Gör affischen. |
 | v. 48 (23–29 nov) | Börja posta på Instagram ("snart"). Ambassadörsgruppen igång. Skicka affischer och klistermärken till partners. |
-| v. 49–50 (30 nov–13 dec) | Kolla att allt fungerar inför säsongen: prognoser, notiser, offline. Skriv det slutliga pressmeddelandet. Kontakta lokalpress i förväg och säg att det kommer. |
+| v. 49–50 (30 nov–13 dec) | Kolla att allt fungerar inför säsongen: prognoser, notiser, offline. Skriv det slutliga pressmeddelandet. Kontakta lokalpress i förväg och säg att det kommer. **Nedräkning till säsongspremiären** i storys (10, 7, 3 dagar kvar, i morgon) med "slå på notiser så får du första prognosen direkt". |
 
 ### December–januari: lansering
 

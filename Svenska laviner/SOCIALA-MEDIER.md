@@ -17,6 +17,10 @@ och källa anges.
   eller visa läget. Högst 1 av 5 handlar om själva appen.
 - **Problemet är kroken.** "Tre appar före varje topptur? Inte längre."
   är en starkare krok än "Ladda ner Snöläge".
+- **Mängd slår perfektion.** Hellre två klipp i veckan som är bra nog än
+  ett perfekt i månaden. De flesta klipp går medelmåttigt, några slår.
+- **Andra gör en del av innehållet.** Ambassadörer, guider och användarnas
+  observationer. Lärdomar från One Bold Chemist: `MARKNADSFORING.md` 6.10.
 
 ---
 
@@ -123,6 +127,8 @@ Från dig eller ambassadörerna (med lov).
 - "Det här såg vi i dag": skjutsprickor, snödrev, färsk lavin på håll.
   **Filma aldrig nära lavinterräng för att få ett bättre klipp.**
 - Planering vid bilen eller i stugan: "Så här kollar vi innan vi går."
+- Ambassadörerna får ett **ambassadörskit** med exempel och regler
+  (`MARKNADSFORING.md` 6.10), så att deras klipp håller samma nivå.
 
 ### Format E: Myter
 
@@ -130,6 +136,19 @@ Från dig eller ambassadörerna (med lov).
 - "Myt: har någon åkt där är det lugnt." (bra för spår på värmekartan:
   spår betyder inte att det är säkert.)
 - "Myt: låg farograd = inget att tänka på."
+
+### Format F: Jämförelsen och frågan
+
+Vår version av One Bold Chemists "dupe"-krok: en jämförelse som förklarar
+sig själv på tre sekunder, eller en fråga som får folk att svara.
+
+- **F1 "3 appar → 1"**: skärmen delad i tre (prognos, SMHI, kartapp) som
+  glider ihop till Snöläge. 15 s, ingen röst behövs, bara text.
+- **F2 "Gissa lutningen"**: en bild på en fjällsida, "25, 30, 35 eller 40
+  grader? Svara i kommentarerna", svaret med lutningskartan dagen efter.
+  Kommentarer sprider klippet.
+- **F3 "Min koll före turen på 20 sekunder"**: prognos, väder, rutt,
+  klart. Visar att det går snabbt.
 
 ### Det här gör du inte
 
@@ -280,10 +299,10 @@ Datum för datum, med kalenderfil: `SCHEMA-SOCIALA-MEDIER.md` och `snolage-schem
 
 | Period | TikTok/Reels/Shorts | Instagram-karusell/bild | Grupper och forum |
 | --- | --- | --- | --- |
-| Nu–15 nov | 1 i veckan (berättelsen om dig) | – | Gå med, läs, svara |
-| 16 nov–lansering | 2–3 i veckan | 1 i veckan (lär dig) | Fråga administratörerna |
+| Nu–15 nov | 2 i veckan (berättelsen om dig + jämförelsen) | – | Gå med, läs, svara |
+| 16 nov–lansering | 2–3 i veckan + nedräkning i storys sista 10 dagarna | 1 i veckan (lär dig) | Fråga administratörerna |
 | Lansering (mitten av december) | 1 om dagen i en vecka | 3 den veckan | Presentationsinlägget |
-| Säsong (januari–april) | 3 i veckan | Snöläget inför helgen + 1 | Var med varje vecka |
+| Säsong (januari–april) | 3–4 i veckan, varav gärna 1 från en ambassadör | Snöläget inför helgen + 1 | Var med varje vecka |
 | Maj–oktober | 1 varannan vecka | 1 varannan vecka | Lugnt |
 
 **Filma i block.** En söndag i månaden: spela in 6–8 klipp, klipp dem och

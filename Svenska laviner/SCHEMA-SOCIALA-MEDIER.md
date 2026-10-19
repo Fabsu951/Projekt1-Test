@@ -13,7 +13,7 @@ kalendern om första prognosen kommer en annan dag än 15 december.
 
 - **Alla fyra** = samma klipp på TikTok, Instagram Reels, Facebook Reels
   och YouTube Shorts.
-- **A** = berättelsen om dig, **B** = lär dig på 30 sekunder, **E** = myter
+- **A** = berättelsen om dig, **B** = lär dig på 30 sekunder, **E** = myter, **F** = jämförelsen och frågan
   (format i `SOCIALA-MEDIER.md` avsnitt 2).
 - Tiderna är förslag. Det viktiga är dagen och ordningen.
 
@@ -24,7 +24,7 @@ säsongen, plus en filmdag (2 timmar) i månaden.
 
 ## Fas 1: kom igång (12 okt – 15 nov)
 
-Ett klipp i veckan om dig och appen, och du lär känna grupperna. Ca 1–2 timmar i veckan.
+Två klipp i veckan (berättelsen om dig och jämförelsen), och du lär känna grupperna. Ca 2 timmar i veckan.
 
 
 ### Vecka 42
@@ -46,24 +46,34 @@ Ett klipp i veckan om dig och appen, och du lär känna grupperna. Ca 1–2 timm
 
 - **tis 20 okt kl 19:00** (20 min): **Var med i grupperna**  
   Svara på 2–3 frågor om prognoser, väder eller terräng. Ingen reklam.
+- **ons 21 okt kl 19:00** (30 min): **Filma F1: "3 appar → 1"**  
+  Skärminspelningar av lavinprognosen, SMHI och en kartapp, sedan Snöläge. Klipp ihop i CapCut: tre rutor som glider ihop till en. 15 s, bara text i bild. Format F i SOCIALA-MEDIER.md.
 - **tor 22 okt kl 19:00** (30 min): **Filma A2: "Så funkar ruttkollen"**  
   Skärminspelning: rita en rutt, visa höjdprofilen och de markerade bitarna. Slå på stör ej först.
 - **lör 24 okt kl 10:00** (20 min): **Publicera A2**  
   Alla fyra.
 - **sön 25 okt kl 17:00** (120 min): **Filmdag 1**  
-  Spela in och klipp: B1 Lavinskalan, B2 Nysnöflak, B3 Drevsnöflak, B4 Bestående flak, A3 "Offline: kartan funkar utan täckning", A4 "Snabbobservation på tio sekunder". Spara allt i en mapp, publicera inget än.
+  Spela in och klipp: F2 Gissa lutningen, F3 Min koll före turen, B1 Lavinskalan, B2 Nysnöflak, B3 Drevsnöflak, B4 Bestående flak, A3 "Offline: kartan funkar utan täckning", A4 "Snabbobservation på tio sekunder". Spara allt i en mapp, publicera inget än.
 
 ### Vecka 44
 
+- **tis 27 okt kl 19:00** (15 min): **Publicera F1 (3 appar → 1)**  
+  Alla fyra.
 - **ons 28 okt kl 19:00** (45 min): **Lista folk att höra av dig till**  
   10–20 toppturkonton och guider med 2 000–30 000 följare. Gå igenom #topptur, #riksgränsen, #abisko, #hemavan, #åre. Välj de som pratar planering och säkerhet.
 - **lör 31 okt kl 10:00** (20 min): **Publicera A3 (offline)**  
   Alla fyra.
+- **sön 1 nov kl 18:00** (60 min): **Gör ambassadörskitet**  
+  En delad mapp: loggan, tre exempel på fältklipp (det här såg vi i dag, så kollar vi innan vi går, snabbobservation), hashtaggen #snöläge, regeln att samarbete märks, och reglerna: aldrig "säker", aldrig filma nära lavinterräng. MARKNADSFORING.md 6.10.
 
 ### Vecka 45
 
 - **tis 3 nov kl 19:00** (20 min): **Var med i grupperna**  
   Svara på 2–3 frågor. Ingen reklam.
+- **ons 4 nov kl 19:00** (15 min): **Publicera F2 (gissa lutningen)**  
+  Alla fyra. Fråga: 25, 30, 35 eller 40 grader? Svara på alla kommentarer.
+- **tor 5 nov kl 19:00** (10 min): **Svaret på F2**  
+  Story och fäst kommentar med lutningskartan som visar rätt svar.
 - **lör 7 nov kl 10:00** (20 min): **Publicera A4 (snabbobservation)**  
   Alla fyra.
 
@@ -71,6 +81,8 @@ Ett klipp i veckan om dig och appen, och du lär känna grupperna. Ca 1–2 timm
 
 - **mån 9 nov kl 19:00** (45 min): **Fråga gruppernas administratörer**  
   Skriv till administratören i varje grupp: du har byggt en gratis lavinapp och vill göra ett presentationsinlägg när säsongen börjar i december. Fråga om det är ok. Notera svaren.
+- **tis 10 nov kl 19:00** (15 min): **Publicera F3 (min koll före turen)**  
+  Alla fyra.
 - **lör 14 nov kl 10:00** (20 min): **Publicera A5: "Vad ska jag bygga härnäst?"**  
   Alla fyra. 20 s: du i bild, fråga tittarna vad de saknar i en lavinapp. Svaren blir nya klipp.
 - **sön 15 nov kl 18:00** (30 min): **Schemalägg nästa vecka**  
@@ -117,15 +129,21 @@ Två klipp och en karusell i veckan, kontakta konton att samarbeta med. Ca 2–3
   Lutningskartan med förklaring. Även på Facebook.
 - **lör 5 dec kl 10:00** (15 min): **Publicera E2 (myt: spår)**  
   Alla fyra.
+- **lör 5 dec kl 18:00** (10 min): **Nedräkning: 10 dagar kvar (story)**  
+  "10 dagar kvar till säsongens första lavinprognos." Skärmbild + "Stjärnmärk dina områden och slå på notiser, så får du första prognosen direkt." Flytta nedräkningen om premiären flyttas.
 
 ### Vecka 50
 
 - **tis 8 dec kl 19:00** (15 min): **Publicera B9 Lutning**  
   Alla fyra.
+- **tis 8 dec kl 20:00** (10 min): **Nedräkning: 7 dagar kvar (story)**  
+  Samma upplägg, ny skärmbild (kartan eller ruttkollen).
 - **tor 10 dec kl 19:00** (30 min): **Filma och publicera A6: nedräkning**  
   Alla fyra. "Om några dagar börjar lavinprognoserna, och då lanseras Snöläge."
 - **lör 12 dec kl 10:00** (15 min): **Publicera B8 Varningstecken**  
   Alla fyra.
+- **lör 12 dec kl 18:00** (10 min): **Nedräkning: 3 dagar kvar (story)**  
+  Påminn om notiserna.
 - **sön 13 dec kl 17:00** (120 min): **Filmdag 3: förbered lanseringen**  
   Spela in lanseringsklippet A7 ("Säsongen har börjat och i dag lanserar jag Snöläge"). Skriv färdigt presentationsinläggen till grupperna och Reddit (SOCIALA-MEDIER.md avsnitt 4). Gör en lista: vilka grupper som sagt ja, i vilken ordning.
 
@@ -133,6 +151,8 @@ Två klipp och en karusell i veckan, kontakta konton att samarbeta med. Ca 2–3
 
 - **mån 14 dec kl 19:00** (30 min): **Kolla startdatum och schemalägg**  
   Kolla när Naturvårdsverket publicerar första prognosen. Flytta lanseringsveckan i kalendern om datumet är ett annat än 15 dec. Schemalägg dag 1–3.
+- **mån 14 dec kl 20:00** (10 min): **Nedräkning: i morgon (story)**  
+  "I morgon kommer första prognosen. Då lanseras Snöläge."
 
 ---
 
@@ -221,6 +241,8 @@ Påskinläggen 23 och 25 mars ersätter tisdagens och torsdagens vanliga punkt. 
 
 - **sön 10 jan kl 17:00** (120 min): **Filmdag**  
   Januari: "Så planerar du en turdag med kompisar", repetition av nysnö och drevsnö, 2 fältklipp.
+- **tis 12 jan kl 20:00** (10 min): **Be om betyg i Play Butik (story)**  
+  "Gillar du Snöläge? Ett betyg i Play Butik hjälper fler att hitta appen." Inga motprestationer. Svara på alla recensioner.
 - **sön 7 feb kl 17:00** (120 min): **Filmdag**  
   Sportlovet: planera turen, karta offline, varningstecken, lavinskalan igen, 2 fältklipp.
 - **mån 8 feb kl 09:00** (30 min): **Valfritt: starta sportlovsannonser**  

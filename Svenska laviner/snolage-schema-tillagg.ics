@@ -1,0 +1,159 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Snolage//Schema sociala medier//SV
+CALSCALE:GREGORIAN
+X-WR-CALNAME:Snöläge sociala medier
+BEGIN:VEVENT
+UID:snolage-tillagg-1019-7@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261021T190000
+DTEND:20261021T193000
+SUMMARY:Snöläge: Filma F1: "3 appar → 1"
+DESCRIPTION:Skärminspelningar av lavinprognosen\, SMHI och en kartapp\, se
+ dan Snöläge. Klipp ihop i CapCut: tre rutor som glider ihop till en. 15 
+ s\, bara text i bild. Format F i SOCIALA-MEDIER.md.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Filma F1: "3 appar → 1"
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-tillagg-1019-11@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261027T190000
+DTEND:20261027T191500
+SUMMARY:Snöläge: Publicera F1 (3 appar → 1)
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera F1 (3 appar → 1)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-tillagg-1019-14@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261101T180000
+DTEND:20261101T190000
+SUMMARY:Snöläge: Gör ambassadörskitet
+DESCRIPTION:En delad mapp: loggan\, tre exempel på fältklipp (det här s
+ åg vi i dag\, så kollar vi innan vi går\, snabbobservation)\, hashtagge
+ n #snöläge\, regeln att samarbete märks\, och reglerna: aldrig "säker"
+ \, aldrig filma nära lavinterräng. MARKNADSFORING.md 6.10.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Gör ambassadörskitet
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-tillagg-1019-16@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261104T190000
+DTEND:20261104T191500
+SUMMARY:Snöläge: Publicera F2 (gissa lutningen)
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts. Fr
+ åga: 25\, 30\, 35 eller 40 grader? Svara på alla kommentarer.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera F2 (gissa lutningen)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-tillagg-1019-17@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261105T190000
+DTEND:20261105T191000
+SUMMARY:Snöläge: Svaret på F2
+DESCRIPTION:Story och fäst kommentar med lutningskartan som visar rätt sv
+ ar.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Svaret på F2
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-tillagg-1019-20@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261110T190000
+DTEND:20261110T191500
+SUMMARY:Snöläge: Publicera F3 (min koll före turen)
+DESCRIPTION:TikTok\, Instagram Reels\, Facebook Reels\, YouTube Shorts
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Publicera F3 (min koll före turen)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-tillagg-1019-36@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261205T180000
+DTEND:20261205T181000
+SUMMARY:Snöläge: Nedräkning: 10 dagar kvar (story)
+DESCRIPTION:"10 dagar kvar till säsongens första lavinprognos." Skärmbil
+ d + "Stjärnmärk dina områden och slå på notiser\, så får du första
+  prognosen direkt." Flytta nedräkningen om premiären flyttas.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Nedräkning: 10 dagar kvar (story)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-tillagg-1019-38@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261208T200000
+DTEND:20261208T201000
+SUMMARY:Snöläge: Nedräkning: 7 dagar kvar (story)
+DESCRIPTION:Samma upplägg\, ny skärmbild (kartan eller ruttkollen).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Nedräkning: 7 dagar kvar (story)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-tillagg-1019-41@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261212T180000
+DTEND:20261212T181000
+SUMMARY:Snöläge: Nedräkning: 3 dagar kvar (story)
+DESCRIPTION:Påminn om notiserna.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Nedräkning: 3 dagar kvar (story)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-tillagg-1019-44@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20261214T200000
+DTEND:20261214T201000
+SUMMARY:Snöläge: Nedräkning: i morgon (story)
+DESCRIPTION:"I morgon kommer första prognosen. Då lanseras Snöläge."
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Nedräkning: i morgon (story)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-tillagg-1019-59@snolage.se
+DTSTAMP:20261011T120000Z
+DTSTART:20270112T200000
+DTEND:20270112T201000
+SUMMARY:Snöläge: Be om betyg i Play Butik (story)
+DESCRIPTION:"Gillar du Snöläge? Ett betyg i Play Butik hjälper fler att 
+ hitta appen." Inga motprestationer. Svara på alla recensioner.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Be om betyg i Play Butik (story)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+END:VCALENDAR
