@@ -1338,7 +1338,24 @@ the start, exact map point.
   pbxproj by hand with ids `A1…09`/`A1…19` – check ids are unused before adding more, registered in MainViewController).
   **Play Console needs a "Foreground service permissions" declaration
   (location, with a short video) before a release with this goes out.**
-  Not yet tried on a phone.
+  **Bug found by the video (2026-10-19):** Capacitor's `PluginCall.getDouble`
+  returns null for a JS number that arrives as a Java Long (ms timestamps), so
+  `endsAt` was 0 and the service refused every start – 1.0.5 (228) has this bug,
+  fixed from 1.0.6. The plugin reads `(call.data.opt(key) as? Number)`; never use
+  getDouble/getInt for big numbers. `LocationShareBridge` now falls back to
+  page sending when the native start fails or returns `started: false`.
+  **Demo video:** `.github/workflows/play-video.yml` (runs when it or
+  `app/scripts/play-video/**` changes) builds a demo APK against
+  `scripts/play-video/server.mjs` (made-up people, no levels), records the real
+  app in an API 34 **default (no Google services – the google_apis image's GMS
+  crashed and killed the app)** emulator with Playwright `_android` + adb
+  screenrecord (`drive.mjs`; frees runner disk first; no map step – swiftshader
+  crashed the emulator; fails if the "Stoppa" notification is missing) and
+  commits `Svenska laviner/google-play/dela-position.mp4`; deploy.yml copies it
+  to `https://snolage.se/play/dela-position.mp4` (the bot's commit doesn't
+  trigger a deploy – dispatch deploy.yml). Verified 2026-10-19: notification
+  "Snöläge delar din position till kl. …" + STOPPA shows, tapping it ends the
+  share. Not yet tried on a real phone.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
