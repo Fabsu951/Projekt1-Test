@@ -298,6 +298,13 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   URL** (the tile's identity, so old saves still match); `DetailedSlopeLayer`
   uses `DIRECT_SLOPE_URL` when the probe succeeds. Terrain (NV) tiles and
   `/tiles/slope/meta` still go through the worker.
+  **Done 2026-10-19:** domain connected by the workflow itself, all ~286k tiles
+  moved (third run: worker lists both buckets, `scripts/migrate-tiles.ts`
+  copies the missing keys 10 per request, 8 in parallel, `copyBody` streams via
+  `FixedLengthStream` – buffering 25 tiles per request hit Cloudflare 503s).
+  The domain answered `cf-cache-status: DYNAMIC` (not edge-cached; optional
+  Cache Rule in KARTOR.md). `kartor.yml` has its own concurrency group and runs
+  when the file changes (dispatch 404s on non-default branches).
   **Offline maps (feature 5, 2026-09-27):** "Karta offline" section on
   region pages (`OfflineMapCard.tsx`, `services/offlineMap.ts`): saves a
   ~60×60 km square around the region at z8–13 ("Översikt", ~30–40 MB) or

@@ -24,6 +24,20 @@ läsningar besvaras ur cachen utan att räknas alls.
 - Workern lägger nya kartbitar (import, säsongsuppdatering, lutningskartan)
   direkt i den nya hinken. Du gör inget annorlunda i KARTBYTE.md eller LUTNING.md.
 
+## Läget (19 oktober 2026)
+
+Klart. Alla ~286 000 kartbitar finns i `snolage-kartor` (tre körningar; den
+sista strömmar kopiorna och tog 43 minuter). Adressen kopplades automatiskt,
+och `https://kartor.snolage.se/topowebb/0/0/0.png` svarar med bild, CORS och
+`cache-control: public, max-age=604800`.
+
+Cloudflare svarade `cf-cache-status: DYNAMIC`, alltså att svaren inte
+cachas i Cloudflares nät. Det gör inget för gränsen på 100 000 workeranrop,
+eftersom kartbitarna inte går via workern. Varje bit räknas då som en
+R2-läsning (gratis upp till 10 miljoner i månaden). Vill du att Cloudflare
+cachar dem också: Cloudflare → snolage.se → Caching → Cache Rules → Create
+rule, "Hostname equals kartor.snolage.se" → Eligible for cache → Deploy.
+
 ## Det som sköts automatiskt
 
 - **Deploy-jobbet** skapar hinken och sätter CORS (så att webbsidan och
