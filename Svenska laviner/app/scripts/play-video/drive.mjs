@@ -32,6 +32,8 @@ const tap = ({ x, y }) => shell(`input tap ${x} ${y}`);
 const pkg = "se.snolage.app";
 // Let the freshly booted system settle before the app starts.
 shell("settings put secure user_setup_complete 1");
+// The slow emulator's launcher sometimes "isn't responding"; keep that dialog out of the video.
+shell("settings put global hide_error_dialogs 1");
 await sleep(20_000);
 for (const p of ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "POST_NOTIFICATIONS"]) {
   try {
@@ -133,6 +135,11 @@ async function run() {
   await go("/");
   await sleep(4000);
 
+  const wait = find(/^Wait$/);
+  if (wait) {
+    tap(wait);
+    await sleep(1500);
+  }
   recorder = spawn("adb", ["shell", "screenrecord", "--bit-rate", "6000000", "--time-limit", "170", "/sdcard/demo.mp4"]);
   await sleep(1500);
 
@@ -175,8 +182,10 @@ async function run() {
   tap(stop);
   await sleep(3000);
   shell("cmd statusbar collapse");
+  await sleep(800);
+  shell("input keyevent KEYCODE_BACK");
   shell(`am start -n ${pkg}/.MainActivity`);
-  await sleep(2000);
+  await sleep(2500);
   await go("/dela-position");
-  await sleep(4000);
+  await sleep(6000);
 }
