@@ -1,6 +1,6 @@
 // Drives the real Android app in an emulator and records the screen, for
 // Google Play's "foreground service permissions" declaration: start sharing
-// your position, see it on a friend's map, put the app in the background,
+// your position, put the app in the background,
 // the ongoing notification with "Stoppa", stop it. Run by
 // .github/workflows/play-video.yml with server.mjs answering as the worker.
 import { spawn, execFileSync } from "node:child_process";
@@ -149,9 +149,10 @@ async function run() {
   adb("emu", "geo", "fix", "18.553", "67.9025");
   await sleep(3500);
 
-  // 3. A friend sharing with you, on the map.
-  await (await app()).getByRole("link", { name: "Visa på kartan" }).click();
-  await sleep(5000);
+  // 3. The page shows the running share and who shares with you. (No map: drawing
+  // it in the emulator's software graphics crashed the emulator now and then.)
+  await (await app()).mouse.wheel(0, 900);
+  await sleep(3000);
 
   // 4. Into the background: sharing goes on, with an ongoing notification.
   shell("input keyevent KEYCODE_HOME");
