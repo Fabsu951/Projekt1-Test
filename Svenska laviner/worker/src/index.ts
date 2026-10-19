@@ -50,7 +50,7 @@ import { notifyNativeChanges, registerDevice, setDeviceLanguage, unregisterDevic
 import type { NotifyEnv } from "./notifications";
 import { createTrip, deleteTrip, listTrips, notifyTrips, type PublishedDay } from "./trips";
 import { answerInvitation, inviteToTrip } from "./tripInvites";
-import { myShare, pruneShares, sharedWithMe, startShare, stopShare, updatePosition } from "./locationShare";
+import { myShare, notifyEndedShares, pruneShares, sharedWithMe, startShare, stopShare, updatePosition } from "./locationShare";
 import { adminStats } from "./adminStats";
 import { checkForecastHealth } from "./health";
 import { seasonStartReport } from "./seasonReport";
@@ -516,6 +516,8 @@ async function warningsResponse(request: Request, ctx: ExecutionContext, origin:
 
 /** The weekly backup's cron in wrangler.toml; the others fetch forecasts. */
 const BACKUP_CRON = "37 2 * * 1";
+/** Every quarter of an hour: position shares that ran out without being stopped. */
+const SHARES_CRON = "*/15 * * * *";
 
 const HISTORY_CACHE_TTL_SECONDS = 60 * 10;
 /** Finished seasons never change; the current one grows twice a day. */
@@ -584,6 +586,16 @@ export default {
    * opens the app.
    */
   async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    if (controller.cron === SHARES_CRON) {
+      if (env.DB) {
+        ctx.waitUntil(
+          notifyEndedShares(env, new Date(), (p) => ctx.waitUntil(p))
+            .then(() => pruneShares(env))
+            .catch((err) => console.error("Position share check failed", err))
+        );
+      }
+      return;
+    }
     if (controller.cron === BACKUP_CRON) {
       ctx.waitUntil(runBackup(env).catch((err) => console.error("Backup failed", err)));
       return;

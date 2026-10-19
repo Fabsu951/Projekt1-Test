@@ -1304,6 +1304,21 @@ the start, exact map point.
   stop sharing. Privacy policy + terms (not a rescue service) updated 19 Oct;
   iOS location usage strings mention sharing. Deliberately **not** built:
   showing your position to strangers nearby (stalking risk) and any SOS/alarm.
+  **Last known point (2026-10-19, Fabian: 24 h + a calm notice):** stopping
+  deletes at once; a share that **runs out without being stopped** keeps its
+  last point for `LINGER_HOURS` = 24 (migration `0027`
+  `expired_notified_at`; `pruneShares` deletes no-position shares at the end
+  and the rest after 24 h). Cron `*/15 * * * *` (`SHARES_CRON`) →
+  `notifyEndedShares`: once per share, kind `location_share_ended` to the
+  viewers ("Delningen från X tog slut kl. … utan att stoppas. Senast kända
+  position (kl. …) syns på kartan i 24 timmar.") and to the owner (self-notice
+  allowed for this kind, url `/dela-position`). `/location/shared-with-me`
+  rows carry `ended` + `keptUntil`; `/location/share` returns `lingering`.
+  App: hollow dashed `friend-pin--ended` pins + "Ingen kontakt? Ring 112.",
+  "Din senaste position syns fortfarande" + "Ta bort min position",
+  banner via Preferences `fjallkoll:location-share-left` (`shareRanOut`,
+  also derived from an expired `fjallkoll:location-share` when the app was
+  closed). Privacy policy says so.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)

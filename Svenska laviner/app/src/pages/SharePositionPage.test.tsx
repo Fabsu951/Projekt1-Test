@@ -11,6 +11,7 @@ const service = vi.hoisted(() => ({
   stopSharing: vi.fn(),
   sendPosition: vi.fn(),
   activeShare: vi.fn(async () => null),
+  lingeringShare: vi.fn(async () => null),
 }));
 vi.mock("../auth/useAuth", () => ({ useAuth: () => auth.value }));
 vi.mock("@capacitor/geolocation", () => ({ Geolocation: geo }));
@@ -93,5 +94,33 @@ describe("SharePositionPage", () => {
     expect(await screen.findByRole("link", { name: "David" })).toHaveAttribute("href", "/person/4");
     expect(screen.getByText(/Position för 4 min sedan, delar till kl\./)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Visa på kartan" })).toHaveAttribute("href", "/karta?kompisar=1");
+  });
+
+  it("shows your last point after a share ran out, and removes it", async () => {
+    const endsAt = new Date(Date.now() - 30 * 60_000).toISOString();
+    service.fetchMyShare
+      .mockResolvedValueOnce({
+        share: null,
+        lingering: { endsAt, keptUntil: new Date(Date.now() + 23 * 3600_000).toISOString(), position: { lat: 67.9, lon: 18.5, accuracy: 9, at: endsAt } },
+        candidates: [],
+      })
+      .mockResolvedValue({ share: null, lingering: null, candidates: [] });
+    service.stopSharing.mockResolvedValue(undefined);
+    show();
+    expect(await screen.findByRole("heading", { name: "Din senaste position syns fortfarande" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Ta bort min position" }));
+    await waitFor(() => expect(service.stopSharing).toHaveBeenCalledWith("tok"));
+    await waitFor(() => expect(screen.queryByRole("heading", { name: "Din senaste position syns fortfarande" })).not.toBeInTheDocument());
+  });
+
+  it("marks a friend's share that ran out without being stopped, and says to call 112", async () => {
+    service.fetchMyShare.mockResolvedValue({ share: null, lingering: null, candidates: [] });
+    const endsAt = new Date(Date.now() - 20 * 60_000).toISOString();
+    service.fetchSharedWithMe.mockResolvedValue([
+      { ...person(4, "David"), startedAt: "", endsAt, ended: true, keptUntil: new Date(Date.now() + 3600_000).toISOString(), position: { lat: 67.9, lon: 18.5, accuracy: 5, at: new Date(Date.now() - 50 * 60_000).toISOString() } },
+    ]);
+    show();
+    expect(await screen.findByText(/Delningen tog slut kl\. .* utan att stoppas\. Senast kända position för 50 min sedan/)).toBeInTheDocument();
+    expect(screen.getByText(/ring 112 och berätta var och när positionen skickades/)).toBeInTheDocument();
   });
 });

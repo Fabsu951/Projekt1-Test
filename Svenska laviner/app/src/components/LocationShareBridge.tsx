@@ -6,6 +6,7 @@ import {
   activeShare,
   forgetActiveShare,
   sendPosition,
+  shareRanOut,
   SEND_HEARTBEAT_MS,
   SHARE_CHANGED_EVENT,
   SHARE_SENT_EVENT,
@@ -43,10 +44,10 @@ export default function LocationShareBridge() {
     let latest: { lat: number; lon: number; accuracy: number } | null = null;
     let sending = false;
 
-    const finish = () => {
+    const finish = (ranOut = false) => {
       if (stopped) return;
       stopped = true;
-      void forgetActiveShare();
+      void (ranOut && userId ? shareRanOut({ userId, endsAt }) : forgetActiveShare());
     };
 
     const send = async (fix: { lat: number; lon: number; accuracy: number }) => {
@@ -82,7 +83,7 @@ export default function LocationShareBridge() {
     const heartbeat = window.setInterval(() => {
       if (latest && (!last || Date.now() - last.at >= SEND_HEARTBEAT_MS)) void send(latest);
     }, 60_000);
-    const end = window.setTimeout(finish, Math.max(0, Date.parse(endsAt) - Date.now()));
+    const end = window.setTimeout(() => finish(true), Math.max(0, Date.parse(endsAt) - Date.now()));
 
     return () => {
       stopped = true;
@@ -90,7 +91,7 @@ export default function LocationShareBridge() {
       window.clearTimeout(end);
       if (watchId) void Geolocation.clearWatch({ id: watchId });
     };
-  }, [endsAt, token]);
+  }, [endsAt, token, userId]);
 
   return null;
 }

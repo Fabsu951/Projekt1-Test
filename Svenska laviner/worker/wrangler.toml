@@ -6,7 +6,7 @@ compatibility_date = "2026-09-01"
 # (08:00 and 18:00 Swedish time; UTC hours cover both winter and summer time).
 # Mondays 02:37 UTC: the weekly database copy (src/backup.ts).
 [triggers]
-crons = ["20 6,7,16,17 * * *", "37 2 * * 1"]
+crons = ["20 6,7,16,17 * * *", "37 2 * * 1", "*/15 * * * *"]
 
 [vars]
 ALLOWED_ORIGIN = "*"

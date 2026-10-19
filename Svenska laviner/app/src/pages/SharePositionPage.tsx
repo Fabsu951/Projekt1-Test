@@ -7,15 +7,18 @@ import Icon from "../components/Icon";
 import {
   activeShare,
   DEFAULT_SHARE_HOURS,
+  lingeringShare,
   fetchMyShare,
   fetchSharedWithMe,
   sendPosition,
+  LINGER_HOURS,
   SHARE_CHANGED_EVENT,
   SHARE_HOURS,
   SHARE_SENT_EVENT,
   startSharing,
   stopSharing,
   type FriendShare,
+  type LingeringShare,
   type MyShare,
   type ShareCandidate,
   type SharedPosition,
@@ -39,6 +42,7 @@ function names(people: Array<{ displayName: string }>): string {
 export default function SharePositionPage() {
   const { user, token, loading: authLoading } = useAuth();
   const [share, setShare] = useState<MyShare | null>(null);
+  const [lingering, setLingering] = useState<LingeringShare | null>(null);
   const [candidates, setCandidates] = useState<ShareCandidate[] | null>(null);
   const [friends, setFriends] = useState<FriendShare[]>([]);
   const [picked, setPicked] = useState<Set<number>>(new Set());
@@ -55,8 +59,9 @@ export default function SharePositionPage() {
     try {
       const [mine, shared] = await Promise.all([fetchMyShare(token), fetchSharedWithMe(token).catch(() => [])]);
       // The server is the truth: forget a share here that ended elsewhere.
-      if (!mine.share && (await activeShare(userId))) await stopSharing(null);
+      if (!mine.share && !mine.lingering && ((await activeShare(userId)) || (await lingeringShare(userId)))) await stopSharing(null);
       setShare(mine.share);
+      setLingering(mine.lingering);
       setLastSent(mine.share?.position ?? null);
       setCandidates(mine.candidates);
       setFriends(shared);
@@ -121,6 +126,7 @@ export default function SharePositionPage() {
     try {
       await stopSharing(token);
       setShare(null);
+      setLingering(null);
       setLastSent(null);
       await load();
     } catch (err) {
@@ -146,7 +152,7 @@ export default function SharePositionPage() {
     <div className="page share-page">
       <header className="page__header">
         <h1>{t("Dela position")}</h1>
-        <p className="page__lead">{t("Låt turkompisarna se var du senast var, i några timmar. Bara de du väljer ser den, och den raderas när delningen tar slut.")}</p>
+        <p className="page__lead">{t("Låt turkompisarna se var du senast var, i några timmar. Bara de du väljer ser den, och den raderas när du stoppar delningen.")}</p>
       </header>
 
       <div className="notice share-page__warning">
@@ -181,6 +187,27 @@ export default function SharePositionPage() {
                 </button>
                 <button type="button" className="button" disabled={busy} onClick={() => setEditing(true)}>
                   {t("Ändra")}
+                </button>
+              </div>
+            </section>
+          )}
+
+          {!share && lingering && (
+            <section className="share-status" aria-labelledby="share-left-title">
+              <h2 id="share-left-title" className="share-status__title">
+                <span className="share-banner__dot share-banner__dot--left" aria-hidden="true" />
+                {t("Din senaste position syns fortfarande")}
+              </h2>
+              <p>
+                {t("Delningen tog slut kl. {end} utan att du stoppade den. De du delade med ser din senaste position (kl. {at}) till kl. {until}, ifall något har hänt.", {
+                  end: clockTime(lingering.endsAt),
+                  at: lingering.position ? clockTime(lingering.position.at) : "–",
+                  until: clockTime(lingering.keptUntil),
+                })}
+              </p>
+              <div className="button-row">
+                <button type="button" className="button button--danger" disabled={busy} onClick={() => void stop()}>
+                  {t("Ta bort min position")}
                 </button>
               </div>
             </section>
@@ -242,6 +269,9 @@ export default function SharePositionPage() {
                   <p className="muted">
                     {t("De du väljer får en notis och ser dig på kartan. Telefonen behöver ha Snöläge öppen för att skicka nya positioner.")}
                   </p>
+                  <p className="muted">
+                    {t("Stoppa delningen när du är tillbaka. Går tiden ut utan att du har stoppat den ser de du valt din senaste position i {n} timmar till och får en notis, ifall något har hänt.", { n: LINGER_HOURS })}
+                  </p>
                 </>
               )}
             </section>
@@ -269,11 +299,24 @@ export default function SharePositionPage() {
                         <Link to={`/person/${f.id}`} className="share-friends__name">
                           {f.displayName}
                         </Link>
-                        <p className="muted">
-                          {f.position
-                            ? t("Position {when}, delar till kl. {time}", { when: sinceText(f.position.at, now), time: clockTime(f.endsAt) })
-                            : t("Ingen position än, delar till kl. {time}", { time: clockTime(f.endsAt) })}
-                        </p>
+                        {f.ended && f.position ? (
+                          <>
+                            <p className="share-friends__ended">
+                              {t("Delningen tog slut kl. {end} utan att stoppas. Senast kända position {when} (kl. {at}).", {
+                                end: clockTime(f.endsAt),
+                                when: sinceText(f.position.at, now),
+                                at: clockTime(f.position.at),
+                              })}
+                            </p>
+                            <p className="muted">{t("Hör av dig till personen. Får du ingen kontakt och tror att något har hänt: ring 112 och berätta var och när positionen skickades.")}</p>
+                          </>
+                        ) : (
+                          <p className="muted">
+                            {f.position
+                              ? t("Position {when}, delar till kl. {time}", { when: sinceText(f.position.at, now), time: clockTime(f.endsAt) })
+                              : t("Ingen position än, delar till kl. {time}", { time: clockTime(f.endsAt) })}
+                          </p>
+                        )}
                       </div>
                     </li>
                   ))}

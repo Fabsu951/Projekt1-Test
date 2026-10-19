@@ -4,7 +4,7 @@ const api = vi.hoisted(() => vi.fn());
 vi.mock("./api", async (orig) => ({ ...(await orig<typeof import("./api")>()), api }));
 
 import { ApiError } from "./api";
-import { activeShare, distanceM, SHARE_CHANGED_EVENT, shouldSend, startSharing, stopSharing } from "./locationShare";
+import { activeShare, distanceM, lingeringShare, SHARE_CHANGED_EVENT, shareRanOut, shouldSend, startSharing, stopSharing } from "./locationShare";
 
 beforeEach(() => {
   localStorage.clear();
@@ -56,5 +56,19 @@ describe("the running share on this device", () => {
     await stopSharing("tok");
     expect(api).toHaveBeenLastCalledWith("/location/share", { method: "DELETE", token: "tok" });
     expect(await activeShare(7)).toBeNull();
+  });
+
+  it("remembers a share that ran out, also when the app was closed at the end time", async () => {
+    const endsAt = new Date(Date.now() - 60_000).toISOString();
+    localStorage.setItem("CapacitorStorage.fjallkoll:location-share", JSON.stringify({ userId: 7, endsAt }));
+    const left = await lingeringShare(7);
+    expect(left?.keptUntil).toBe(new Date(Date.parse(endsAt) + 24 * 3600_000).toISOString());
+    expect(await lingeringShare(8)).toBeNull();
+    await shareRanOut({ userId: 7, endsAt });
+    expect(await activeShare(7)).toBeNull();
+    expect(await lingeringShare(7)).not.toBeNull();
+    api.mockResolvedValueOnce({ ok: true });
+    await stopSharing("tok");
+    expect(await lingeringShare(7)).toBeNull();
   });
 });

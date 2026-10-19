@@ -5408,6 +5408,26 @@ h1 .admin-badge {
   box-shadow: 0 0 0 2px #fff, 0 1px 4px rgb(0 0 0 / 35%);
 }
 
+/* Ran out without being stopped: the last known point, hollow so it reads as "not live". */
+.friend-pin--ended {
+  background: #fff;
+  color: #17222b;
+  box-shadow: 0 0 0 2px #17222b, 0 0 0 4px #fff, 0 1px 4px rgb(0 0 0 / 35%);
+  outline: 2px dashed #17222b;
+  outline-offset: 3px;
+}
+
+.share-banner__dot--left {
+  background: transparent;
+  border: 2px solid var(--accent);
+  box-shadow: none;
+}
+
+.share-friends__ended {
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+
 .friend-pin--legend {
   display: inline-block;
   width: 14px;

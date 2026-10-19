@@ -15,9 +15,9 @@ function initials(name: string): string {
   return (parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : name.slice(0, 2)).toUpperCase();
 }
 
-function friendIcon(name: string): L.DivIcon {
+function friendIcon(name: string, ended: boolean): L.DivIcon {
   const span = document.createElement("span");
-  span.className = "friend-pin";
+  span.className = ended ? "friend-pin friend-pin--ended" : "friend-pin";
   span.textContent = initials(name);
   return L.divIcon({ html: span.outerHTML, className: "friend-pin__wrap", iconSize: [34, 34], iconAnchor: [17, 17], popupAnchor: [0, -18] });
 }
@@ -68,7 +68,7 @@ export default function FriendPositions({ token, fit, onCount }: Props) {
     map.fitBounds(bounds.pad(0.3), { maxZoom: 14 });
   }, [fit, placed, map]);
 
-  const icons = useMemo(() => new Map(placed.map((p) => [p.id, friendIcon(p.displayName)])), [placed]);
+  const icons = useMemo(() => new Map(placed.map((p) => [p.id, friendIcon(p.displayName, Boolean(p.ended))])), [placed]);
 
   return (
     <>
@@ -83,10 +83,20 @@ export default function FriendPositions({ token, fit, onCount }: Props) {
               <Popup>
                 <strong>{p.displayName}</strong>
                 <br />
-                {t("Position {when}", { when: sinceText(pos.at, now) })}
+                {p.ended
+                  ? t("Senast kända position {when} (kl. {at})", { when: sinceText(pos.at, now), at: clockTime(pos.at) })
+                  : t("Position {when}", { when: sinceText(pos.at, now) })}
                 {pos.accuracy !== null && <>, {t("ungefär ±{m} m", { m: Math.round(pos.accuracy) })}</>}
                 <br />
-                {t("Delar till kl. {time}", { time: clockTime(p.endsAt) })}
+                {p.ended ? (
+                  <>
+                    {t("Delningen tog slut kl. {end} utan att stoppas.", { end: clockTime(p.endsAt) })}
+                    <br />
+                    {t("Ingen kontakt? Ring 112.")}
+                  </>
+                ) : (
+                  t("Delar till kl. {time}", { time: clockTime(p.endsAt) })
+                )}
                 <br />
                 <Link to={`/person/${p.id}`}>{t("Profil")}</Link>
               </Popup>

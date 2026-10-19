@@ -9,11 +9,17 @@ import { d1Store, enforce, record } from "./rateLimit";
 
 // "Dela position": for a few hours, the people you pick (your company on
 // today's tour day, or people you follow) can see where you last were. Only
-// the latest point is stored – no trail – and everything is deleted when the
-// share ends or is stopped. It needs mobile coverage, so it is no substitute
-// for an avalanche transceiver; the app says so wherever it is offered.
+// the latest point is stored – no trail. Stopping the share deletes it at
+// once. A share that runs out without being stopped keeps its last point for
+// LINGER_HOURS more, and the people it was shared with are told, in case
+// something has happened (Fabian's choice, 2026-10-19). It needs mobile
+// coverage, so it is no substitute for an avalanche transceiver; the app
+// says so wherever it is offered.
 
 export const MAX_SHARE_HOURS = 12;
+/** How long the last point stays visible after a share ran out without being stopped. */
+export const LINGER_HOURS = 24;
+const LINGER_MS = LINGER_HOURS * 3600 * 1000;
 const MAX_VIEWERS = 20;
 const START_LIMIT = { max: 20, windowMs: 3600 * 1000 };
 
@@ -42,6 +48,7 @@ interface ShareRow {
   user_id: number;
   started_at: string;
   ends_at: string;
+  expired_notified_at?: string | null;
   lat: number | null;
   lon: number | null;
   accuracy: number | null;
@@ -51,12 +58,19 @@ interface ShareRow {
 const positionOf = (r: ShareRow): SharedPosition | null =>
   r.lat === null || r.lon === null || r.position_at === null ? null : { lat: r.lat, lon: r.lon, accuracy: r.accuracy, at: r.position_at };
 
-/** Shares that have ended are deleted, positions and all. */
+const keptUntil = (endsAt: string) => new Date(Date.parse(endsAt) + LINGER_MS).toISOString();
+
+/**
+ * Deletes what is no longer needed: shares that ran out without ever getting
+ * a position, and the last point of the others once LINGER_HOURS have passed.
+ */
 export async function pruneShares(env: CommunityEnv, now = new Date()): Promise<void> {
   const at = now.toISOString();
+  const lingerFrom = new Date(now.getTime() - LINGER_MS).toISOString();
+  const gone = "SELECT user_id FROM location_shares WHERE (ends_at <= ?1 AND position_at IS NULL) OR ends_at <= ?2";
   await env.DB.batch([
-    env.DB.prepare("DELETE FROM location_share_viewers WHERE user_id IN (SELECT user_id FROM location_shares WHERE ends_at <= ?)").bind(at),
-    env.DB.prepare("DELETE FROM location_shares WHERE ends_at <= ?").bind(at),
+    env.DB.prepare(`DELETE FROM location_share_viewers WHERE user_id IN (${gone})`).bind(at, lingerFrom),
+    env.DB.prepare(`DELETE FROM location_shares WHERE user_id IN (${gone})`).bind(at, lingerFrom),
   ]);
 }
 
@@ -114,10 +128,24 @@ async function activeShare(env: CommunityEnv, me: number, now: Date) {
   };
 }
 
-/** GET /location/share: your current share (or null) and who you can share with. */
+/** A share that ran out without being stopped, whose last point is still shown. */
+async function lingeringShare(env: CommunityEnv, me: number, now: Date) {
+  const row = await env.DB.prepare(
+    "SELECT * FROM location_shares WHERE user_id = ? AND ends_at <= ? AND ends_at > ? AND position_at IS NOT NULL"
+  )
+    .bind(me, now.toISOString(), new Date(now.getTime() - LINGER_MS).toISOString())
+    .first<ShareRow>();
+  return row ? { endsAt: row.ends_at, keptUntil: keptUntil(row.ends_at), position: positionOf(row) } : null;
+}
+
+/** GET /location/share: your current share (or null), a last point still shown, and who you can share with. */
 export async function myShare(request: Request, env: CommunityEnv, now = new Date()) {
   const me = await requireUser(request, env);
-  return { share: await activeShare(env, me.id, now), candidates: await candidatesOf(env, me.id, now) };
+  return {
+    share: await activeShare(env, me.id, now),
+    lingering: await lingeringShare(env, me.id, now),
+    candidates: await candidatesOf(env, me.id, now),
+  };
 }
 
 function shareText(lang: Lang, name: string, endsAt: Date): string {
@@ -199,7 +227,7 @@ export async function updatePosition(request: Request, env: CommunityEnv, now = 
   return { endsAt: row?.ends_at ?? null };
 }
 
-/** DELETE /location/share: stops sharing and deletes the position. */
+/** DELETE /location/share: stops sharing (or removes a last point still shown) and deletes the position. */
 export async function stopShare(request: Request, env: CommunityEnv) {
   const me = await requireUser(request, env);
   await env.DB.batch([
@@ -217,14 +245,88 @@ export async function sharedWithMe(request: Request, env: CommunityEnv, now = ne
     `SELECT s.*, u.display_name FROM location_share_viewers v
        JOIN location_shares s ON s.user_id = v.user_id
        JOIN users u ON u.id = s.user_id
-      WHERE v.viewer_id = ? AND s.ends_at > ? AND ${notBlockedSql("s.user_id")}
+      WHERE v.viewer_id = ? AND (s.ends_at > ? OR s.position_at IS NOT NULL) AND ${notBlockedSql("s.user_id")}
       ORDER BY u.display_name COLLATE NOCASE`
   )
     .bind(me.id, now.toISOString(), me.id, me.id)
     .all<ShareRow & { display_name: string }>();
+  const at = now.getTime();
   const people = await withBadges(
     env,
-    rows.results.map((r) => ({ id: r.user_id, displayName: r.display_name, startedAt: r.started_at, endsAt: r.ends_at, position: positionOf(r) }))
+    rows.results.map((r) => {
+      const ended = Date.parse(r.ends_at) <= at;
+      return {
+        id: r.user_id,
+        displayName: r.display_name,
+        startedAt: r.started_at,
+        endsAt: r.ends_at,
+        position: positionOf(r),
+        /** Ran out without being stopped; the last point stays until keptUntil. */
+        ended,
+        keptUntil: ended ? keptUntil(r.ends_at) : null,
+      };
+    })
   );
   return { people };
+}
+
+const clock = (iso: string) =>
+  new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
+
+function endedText(lang: Lang, name: string, endsAt: string, positionAt: string): string {
+  return lang === "en"
+    ? `${name}'s location sharing ended at ${clock(endsAt)} without being stopped. Their last known position (${clock(positionAt)}) is on the map for ${LINGER_HOURS} hours.`
+    : `Delningen från ${name} tog slut kl. ${clock(endsAt)} utan att stoppas. Senast kända position (kl. ${clock(positionAt)}) syns på kartan i ${LINGER_HOURS} timmar.`;
+}
+
+function endedTextForOwner(lang: Lang, endsAt: string): string {
+  return lang === "en"
+    ? `Your location sharing ended at ${clock(endsAt)} without being stopped, so the people you chose see your last position for ${LINGER_HOURS} hours. Remove it if you are back.`
+    : `Din delning tog slut kl. ${clock(endsAt)} utan att stoppas, så de du valde ser din senaste position i ${LINGER_HOURS} timmar. Ta bort den om du är tillbaka.`;
+}
+
+/**
+ * Tells the viewers (and the owner) once when a share ran out without being
+ * stopped. Run by the worker's quarter-hourly cron.
+ */
+export async function notifyEndedShares(env: NotifyEnv, now = new Date(), defer?: Defer): Promise<number> {
+  const rows = await env.DB.prepare(
+    `SELECT s.user_id, s.ends_at, s.position_at, u.display_name, u.lang FROM location_shares s JOIN users u ON u.id = s.user_id
+      WHERE s.ends_at <= ? AND s.position_at IS NOT NULL AND s.expired_notified_at IS NULL LIMIT 50`
+  )
+    .bind(now.toISOString())
+    .all<{ user_id: number; ends_at: string; position_at: string; display_name: string; lang: string }>();
+  for (const r of rows.results) {
+    // Claim it first, so two runs never send twice.
+    const claimed = await env.DB.prepare("UPDATE location_shares SET expired_notified_at = ? WHERE user_id = ? AND expired_notified_at IS NULL")
+      .bind(now.toISOString(), r.user_id)
+      .run();
+    if (!claimed.meta.changes) continue;
+    const viewers = await env.DB.prepare(
+      "SELECT u.id, u.lang FROM location_share_viewers v JOIN users u ON u.id = v.viewer_id WHERE v.user_id = ?"
+    )
+      .bind(r.user_id)
+      .all<{ id: number; lang: string }>();
+    await notify(
+      env,
+      [
+        ...viewers.results.map((v) => ({
+          userId: v.id,
+          kind: "location_share_ended" as const,
+          actorId: r.user_id,
+          note: endedText(toLang(v.lang), r.display_name, r.ends_at, r.position_at),
+          url: "/karta?kompisar=1",
+        })),
+        {
+          userId: r.user_id,
+          kind: "location_share_ended" as const,
+          actorId: r.user_id,
+          note: endedTextForOwner(toLang(r.lang), r.ends_at),
+          url: "/dela-position",
+        },
+      ],
+      defer
+    );
+  }
+  return rows.results.length;
 }

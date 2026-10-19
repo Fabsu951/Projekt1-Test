@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { deleteAccount, type CommunityEnv } from "./auth";
 import { block } from "./blocks";
 import { HttpError } from "./http";
-import { myShare, pruneShares, sharedWithMe, startShare, stopShare, updatePosition } from "./locationShare";
+import { myShare, notifyEndedShares, pruneShares, sharedWithMe, startShare, stopShare, updatePosition } from "./locationShare";
 import { listNotifications } from "./notifications";
 import { migratedD1 } from "./testing/sqliteD1";
 
@@ -111,14 +111,48 @@ describe("sharing your position", () => {
     expect(rows.results).toEqual([{ lat: 67.91, lon: 18.52 }]);
   });
 
-  it("ends by itself and deletes the position", async () => {
+  it("keeps the last point for 24 hours when it runs out without being stopped, and says so once", async () => {
     await share("anna", ["bertil"], 1);
-    await send("anna", 67.9, 18.5);
-    expect(await seenBy("bertil", later(59))).toHaveLength(1);
-    expect(await seenBy("bertil", later(61))).toEqual([]);
-    expect(await status(send("anna", 67.9, 18.5, later(62)))).toBe(404);
+    await send("anna", 67.9, 18.5, later(40));
+    expect(await seenBy("bertil", later(59))).toMatchObject([{ ended: false, keptUntil: null }]);
+
+    // Past the end: no more points accepted, but the last one is still shown.
+    expect(await status(send("anna", 67.91, 18.5, later(62)))).toBe(404);
+    const after = await seenBy("bertil", later(61));
+    expect(after).toMatchObject([{ displayName: "Anna", ended: true, keptUntil: later(60 + 24 * 60).toISOString() }]);
+    expect(after[0].position).toMatchObject({ lat: 67.9, at: later(40).toISOString() });
+    const mine = await myShare(req("/location/share", "anna"), env, later(61));
+    expect(mine.share).toBeNull();
+    expect(mine.lingering).toMatchObject({ endsAt: later(60).toISOString(), position: { lat: 67.9 } });
+
+    // The quarter-hourly check tells Bertil and Anna, once.
+    expect(await notifyEndedShares(env as never, later(70))).toBe(1);
+    expect(await notifyEndedShares(env as never, later(85))).toBe(0);
+    const bertil = (await listNotifications(req("/notifications", "bertil"), env)).notifications;
+    expect(bertil[0]).toMatchObject({ kind: "location_share_ended", url: "/karta?kompisar=1" });
+    expect(bertil[0].text).toBe("Delningen från Anna tog slut kl. 10:00 utan att stoppas. Senast kända position (kl. 09:40) syns på kartan i 24 timmar.");
+    const anna = (await listNotifications(req("/notifications", "anna"), env)).notifications;
+    expect(anna[0]).toMatchObject({ kind: "location_share_ended", url: "/dela-position" });
+    expect(anna[0].text).toMatch(/^Din delning tog slut kl\. 10:00 utan att stoppas/);
+
+    // After 24 hours it is gone for good.
+    expect(await seenBy("bertil", later(60 + 24 * 60 + 1))).toEqual([]);
     expect((await env.DB.prepare("SELECT COUNT(*) AS n FROM location_shares").first<{ n: number }>())?.n).toBe(0);
     expect((await env.DB.prepare("SELECT COUNT(*) AS n FROM location_share_viewers").first<{ n: number }>())?.n).toBe(0);
+  });
+
+  it("deletes a share that ran out without ever getting a position", async () => {
+    await share("anna", ["bertil"], 1);
+    expect(await seenBy("bertil", later(61))).toEqual([]);
+    expect(await notifyEndedShares(env as never, later(70))).toBe(0);
+    expect((await env.DB.prepare("SELECT COUNT(*) AS n FROM location_shares").first<{ n: number }>())?.n).toBe(0);
+  });
+
+  it("lets you remove the last point yourself", async () => {
+    await share("anna", ["bertil"], 1);
+    await send("anna", 67.9, 18.5, later(40));
+    await stopShare(req("/location/share", "anna", undefined, "DELETE"), env);
+    expect(await seenBy("bertil", later(61))).toEqual([]);
   });
 
   it("stops when you say so", async () => {
@@ -164,9 +198,11 @@ describe("sharing your position", () => {
 
   it("prunes ended shares", async () => {
     await share("anna", ["bertil"], 1);
+    await send("anna", 67.9, 18.5);
     await pruneShares(env, later(30));
+    await pruneShares(env, later(120));
     expect((await env.DB.prepare("SELECT COUNT(*) AS n FROM location_shares").first<{ n: number }>())?.n).toBe(1);
-    await pruneShares(env, later(60));
+    await pruneShares(env, later(60 + 24 * 60));
     expect((await env.DB.prepare("SELECT COUNT(*) AS n FROM location_shares").first<{ n: number }>())?.n).toBe(0);
   });
 });

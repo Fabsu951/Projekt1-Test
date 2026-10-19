@@ -40,7 +40,20 @@ export interface FriendShare extends SharePerson {
   startedAt: string;
   endsAt: string;
   position: SharedPosition | null;
+  /** Ran out without being stopped: the last point stays until keptUntil. */
+  ended?: boolean;
+  keptUntil?: string | null;
 }
+
+/** Your own share that ran out without being stopped, whose last point others still see. */
+export interface LingeringShare {
+  endsAt: string;
+  keptUntil: string;
+  position: SharedPosition | null;
+}
+
+/** How long the last point stays after a share runs out without being stopped (worker LINGER_HOURS). */
+export const LINGER_HOURS = 24;
 
 /** The choices offered for how long a share lasts. */
 export const SHARE_HOURS = [2, 4, 8, 12] as const;
@@ -52,6 +65,7 @@ export const SHARE_CHANGED_EVENT = "fjallkoll:location-share-changed";
 export const SHARE_SENT_EVENT = "fjallkoll:location-share-sent";
 
 const ACTIVE_KEY = "fjallkoll:location-share";
+const LINGER_KEY = "fjallkoll:location-share-left";
 
 /** What this device remembers about its running share, so it keeps sending across pages and restarts. */
 export interface ActiveShare {
@@ -85,9 +99,42 @@ export async function forgetActiveShare(): Promise<void> {
   await remember(null);
 }
 
-export async function fetchMyShare(token: string): Promise<{ share: MyShare | null; candidates: ShareCandidate[] }> {
-  const result = await api<{ share: MyShare | null; candidates: ShareCandidate[] }>("/location/share", { token });
-  return result;
+/** A share that ran out on this device without being stopped: others still see the last point until keptUntil. */
+export async function lingeringShare(userId: number | undefined, now = Date.now()): Promise<{ userId: number; keptUntil: string } | null> {
+  if (!userId) return null;
+  try {
+    const { value } = await Preferences.get({ key: LINGER_KEY });
+    let saved = value ? (JSON.parse(value) as { userId: number; keptUntil: string }) : null;
+    if (!saved) {
+      // The app was closed when the end time passed: the running share is still remembered.
+      const running = (await Preferences.get({ key: ACTIVE_KEY })).value;
+      const active = running ? (JSON.parse(running) as ActiveShare) : null;
+      if (active && Date.parse(active.endsAt) <= now) {
+        saved = { userId: active.userId, keptUntil: new Date(Date.parse(active.endsAt) + LINGER_HOURS * 3600_000).toISOString() };
+      }
+    }
+    return saved && saved.userId === userId && Date.parse(saved.keptUntil) > now ? saved : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Called when the end time passes without a stop: the banner then says the last point is still shown. */
+export async function shareRanOut(active: ActiveShare): Promise<void> {
+  try {
+    const keptUntil = new Date(Date.parse(active.endsAt) + LINGER_HOURS * 3600_000).toISOString();
+    await Preferences.set({ key: LINGER_KEY, value: JSON.stringify({ userId: active.userId, keptUntil }) });
+  } catch {
+    // Only the banner needs it.
+  }
+  await remember(null);
+}
+
+export async function fetchMyShare(
+  token: string
+): Promise<{ share: MyShare | null; lingering: LingeringShare | null; candidates: ShareCandidate[] }> {
+  const r = await api<{ share: MyShare | null; lingering?: LingeringShare | null; candidates: ShareCandidate[] }>("/location/share", { token });
+  return { ...r, lingering: r.lingering ?? null };
 }
 
 export async function startSharing(token: string, userId: number, viewerIds: number[], hours: number): Promise<MyShare> {
@@ -98,6 +145,11 @@ export async function startSharing(token: string, userId: number, viewerIds: num
 
 /** Stops sharing; the position is deleted on the server. Also used on logout. */
 export async function stopSharing(token: string | null): Promise<void> {
+  try {
+    await Preferences.remove({ key: LINGER_KEY });
+  } catch {
+    // Nothing saved.
+  }
   await remember(null);
   if (!token) return;
   try {
