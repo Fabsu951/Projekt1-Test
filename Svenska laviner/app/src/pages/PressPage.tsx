@@ -19,6 +19,11 @@ const LONG_TEXT = t(
   "Snöläge samlar det du behöver inför en tur i de svenska fjällen på ett ställe. Appen visar Naturvårdsverkets officiella lavinprognoser för sex fjällområden, med lavinproblemen och vad farograden betyder i praktiken. Till det kommer väder och vädervarningar från SMHI, snödjup från mätstationer och Lantmäteriets topografiska karta med lager för brant terräng. Du kan planera en rutt och jämföra den med dagens prognos, spara kartor för områden utan täckning, rapportera observationer som laviner och skjutsprickor, föra turdagbok och dela din position med turkamrater. Snöläge är gratis, finns på svenska och engelska och drivs av Fabian Sund. Appen gör inga egna bedömningar av lavinfaran.",
 );
 
+// Fabian's own words (2026-10-19), like the quotes below: only change them with him.
+const BACKGROUND = t(
+  "Jag heter Fabian Sund och kommer från början från Sandviken. Jag har åkt skidor i hela mitt liv och fastnade tidigt för turåkning och offpist, och jakten på den där känslan av frihet. De senaste tio åren har jag mest åkt i Jämtlandsfjällen och Södra Lapplandsfjällen. Jag har gått Lavinkurs grund, SVELAV Friåkning 1 (två dagar). Länge har jag saknat något som hjälper mig att få ut det mesta av mina turer och samtidigt hålla mig så säker som möjligt på fjället. Så jag bestämde mig för att göra något åt saken.",
+);
+
 // Approved by Fabian (2026-10-19); his words, so only change them with him.
 const QUOTES = [
   t("Jag ville ha allt jag kollar inför och under en tur på ett ställe: prognosen, vädret och kartan. Snöläge ändrar ingenting i prognosen, det gör den bara lättare att läsa."),
@@ -86,6 +91,11 @@ export default function PressPage() {
         <h2>{t("Om Snöläge")}</h2>
         <CopyText id="press-short" label={t("En mening")} text={SHORT_TEXT} />
         <CopyText id="press-long" label={t("Ett stycke")} text={LONG_TEXT} />
+      </section>
+
+      <section className="section">
+        <h2>{t("Bakgrund")}</h2>
+        <CopyText id="press-background" label={t("Fabian Sund om varför Snöläge finns")} text={BACKGROUND} />
       </section>
 
       <section className="section">
