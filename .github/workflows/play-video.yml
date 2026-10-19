@@ -27,7 +27,7 @@ permissions:
 jobs:
   video:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 40
     defaults:
       run:
         working-directory: Svenska laviner/app
@@ -89,6 +89,7 @@ jobs:
 
       - name: Record in the emulator
         uses: reactivecircus/android-emulator-runner@v2
+        timeout-minutes: 20
         with:
           api-level: 34
           target: google_apis
@@ -96,6 +97,8 @@ jobs:
           profile: pixel_6
           disable-animations: false
           disk-size: 4096M
+          ram-size: 4096M
+          cores: 4
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           working-directory: Svenska laviner/app
           script: |

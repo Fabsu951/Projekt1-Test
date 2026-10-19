@@ -9,7 +9,7 @@ import { _android as android } from "playwright";
 
 const OUT = process.argv[2] ?? "dela-position.mp4";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const adb = (...args) => execFileSync("adb", args, { encoding: "utf8" });
+const adb = (...args) => execFileSync("adb", args, { encoding: "utf8", timeout: 60_000 });
 const shell = (cmd) => adb("shell", cmd);
 
 /** The centre of the first on-screen element whose text matches, from uiautomator. */
@@ -77,7 +77,7 @@ function diagnose() {
     console.log("No logcat:", e.message);
   }
   try {
-    const png = execFileSync("adb", ["exec-out", "screencap", "-p"]);
+    const png = execFileSync("adb", ["exec-out", "screencap", "-p"], { timeout: 30_000 });
     writeFileSync(OUT.replace(/\.mp4$/, "-fel.png"), png);
   } catch {
     // Only a help.
@@ -93,13 +93,19 @@ try {
   process.exitCode = 1;
 } finally {
   if (recorder) {
-    shell("pkill -INT screenrecord");
-    await new Promise((r) => recorder.on("exit", r));
-    await sleep(1500);
-    adb("pull", "/sdcard/demo.mp4", OUT);
-    console.log(`Saved ${OUT}`);
+    try {
+      if (recorder.exitCode === null) shell("pkill -INT screenrecord");
+      await Promise.race([new Promise((r) => recorder.on("exit", r)), sleep(15_000)]);
+      await sleep(1500);
+      adb("pull", "/sdcard/demo.mp4", OUT);
+      console.log(`Saved ${OUT}`);
+    } catch (err) {
+      console.log("No video:", err.message);
+      process.exitCode = 1;
+    }
   }
-  await device.close();
+  await Promise.race([device.close(), sleep(10_000)]);
+  process.exit();
 }
 
 async function run() {
