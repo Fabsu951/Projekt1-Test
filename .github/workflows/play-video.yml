@@ -92,7 +92,8 @@ jobs:
         timeout-minutes: 20
         with:
           api-level: 34
-          target: google_apis
+          # Plain Android: the Google Play services image kept crashing on first boot and taking the app with it.
+          target: default
           arch: x86_64
           profile: pixel_6
           disable-animations: false

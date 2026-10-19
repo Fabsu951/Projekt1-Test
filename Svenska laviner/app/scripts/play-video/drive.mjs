@@ -30,6 +30,9 @@ function find(pattern) {
 const tap = ({ x, y }) => shell(`input tap ${x} ${y}`);
 
 const pkg = "se.snolage.app";
+// Let the freshly booted system settle before the app starts.
+shell("settings put secure user_setup_complete 1");
+await sleep(20_000);
 for (const p of ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "POST_NOTIFICATIONS"]) {
   try {
     shell(`pm grant ${pkg} android.permission.${p}`);
