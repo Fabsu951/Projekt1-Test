@@ -1388,6 +1388,13 @@ the start, exact map point.
   "Stoppa" must DELETE the share and remove the notification. **`android-release.yml`'s
   `aab` job `needs: e2e`** – no Play build without it passing. First run green
   2026-10-19 (background position 57 s after Home).
+- **Worker CPU check (2026-10-19):** Cloudflare mailed "free tier CPU time limit
+  10,000+ times in 24 h". `.github/workflows/worker-status.yml` (push on itself or
+  API dispatch) prints requests/outcome/CPU p50+p99 per hour from the GraphQL
+  analytics (the deploy token can read them). Result: all 19 074
+  `exceededResources` fell 18 Oct 14:00 – 19 Oct 01:00 UTC, i.e. the three
+  `kartor.yml` tile-migration runs; none since, normal traffic ≈ 5–300
+  requests/h. Nothing to change; rerun it if the mail comes again.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
