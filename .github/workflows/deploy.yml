@@ -82,7 +82,10 @@ jobs:
 
       - name: Publish the website
         working-directory: Svenska laviner/app
-        run: npx --yes wrangler@4 pages deploy dist --project-name=fjallkoll --branch=production --commit-hash="$GITHUB_SHA" --commit-message="$(git log -1 --format=%s)" --commit-dirty=true
+        run: |
+          # Play's demo video (play-video.yml) is only on the website, not in the apps.
+          if [ -f "../google-play/dela-position.mp4" ]; then mkdir -p dist/play && cp ../google-play/dela-position.mp4 dist/play/; fi
+          npx --yes wrangler@4 pages deploy dist --project-name=fjallkoll --branch=production --commit-hash="$GITHUB_SHA" --commit-message="$(git log -1 --format=%s)" --commit-dirty=true
 
       - name: Summary
         run: |

@@ -1,0 +1,116 @@
+# Records the demo video Google Play asks for in the "Foreground service
+# permissions" declaration (Dela position in the background): the real app
+# in an Android emulator, driven by app/scripts/play-video/drive.mjs, with
+# app/scripts/play-video/server.mjs standing in for the worker (made-up people,
+# no danger levels). The video is committed to
+# "Svenska laviner/google-play/dela-position.mp4" and published on the site at
+# https://snolage.se/play/dela-position.mp4 by the next deploy.
+# Runs when this file or the scripts change.
+
+name: Play-video
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha, svenska-laviner]
+    paths:
+      - ".github/workflows/play-video.yml"
+      - "Svenska laviner/app/scripts/play-video/**"
+  workflow_dispatch:
+
+concurrency:
+  group: play-video
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: Svenska laviner/app
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Svenska laviner/app/package-lock.json
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Demo build – talks to the demo server over plain http
+        env:
+          VITE_MAP_PROXY_URL: http://10.0.2.2:8787
+          VITE_TILE_DIRECT_URL: ""
+        run: |
+          npm ci
+          npm run build
+          sed -i "s|  backgroundColor: '#0b1722',|  backgroundColor: '#0b1722',\n  android: { allowMixedContent: true },|" capacitor.config.ts
+          sed -i 's|<application|<application android:usesCleartextTraffic="true"|' android/app/src/main/AndroidManifest.xml
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+
+      - name: Playwright (Android support only, no browsers)
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        run: npm install --no-save playwright@1.55.0
+
+      - name: Demo server
+        run: |
+          nohup node scripts/play-video/server.mjs > "$RUNNER_TEMP/server.log" 2>&1 &
+          sleep 2
+          curl -sf http://127.0.0.1:8787/auth/me
+
+      - name: Enable KVM
+        working-directory: .
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Record in the emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          working-directory: Svenska laviner/app
+          script: |
+            adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+            node scripts/play-video/drive.mjs "$RUNNER_TEMP/dela-position.mp4"
+
+      - name: Server log
+        if: always()
+        run: cat "$RUNNER_TEMP/server.log" || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dela-position-video
+          path: ${{ runner.temp }}/dela-position.mp4
+          if-no-files-found: warn
+
+      - name: Commit the video
+        working-directory: .
+        run: |
+          mkdir -p "Svenska laviner/google-play"
+          cp "$RUNNER_TEMP/dela-position.mp4" "Svenska laviner/google-play/dela-position.mp4"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "Svenska laviner/google-play/dela-position.mp4"
+          git commit -m "Demo video for Play's foreground service declaration" || exit 0
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
