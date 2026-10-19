@@ -27,6 +27,7 @@ const TITLES: Array<[RegExp, string]> = [
   [/^\/sakerhetsguide/, t("Säkerhetsguide")],
   [/^\/om-appen/, t("Om Snöläge")],
   [/^\/offline/, t("Utan täckning")],
+  [/^\/press/, t("Press")],
   [/^\/logga-in/, t("Logga in")],
   [/^\/registrera/, t("Skapa konto")],
   [/^\/profil/, t("Min profil")],
@@ -81,6 +82,7 @@ const DESCRIPTIONS: Array<[RegExp, string]> = [
     t("Grunderna i lavinsäkerhet: hur laviner bildas, väder som ökar risken, branthet, terrängfällor, lavinproblemen och hur du läser lavinprognosen."),
   ],
   [/^\/om-appen\/?$/, t("Om Snöläge: var uppgifterna kommer ifrån, användarvillkor och integritetspolicy.")],
+  [/^\/press\/?$/, t("Snöläge för press: texter att klistra in, fakta, logotyp, appikon och skärmbilder att ladda ner, och vem du kontaktar.")],
   [
     /^\/offline\/?$/,
     t("Vad som fungerar utan mobiltäckning i fjällen, och hur du sparar kartor och rutter i förväg."),

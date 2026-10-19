@@ -4,3 +4,6 @@
  * the public.
  */
 export const PRIVACY_CONTACT_EMAIL = "fabian.n.sund@gmail.com";
+
+/** For journalists, on the press page (/press). */
+export const PRESS_CONTACT_EMAIL = PRIVACY_CONTACT_EMAIL;

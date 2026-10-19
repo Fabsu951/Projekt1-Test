@@ -35,6 +35,7 @@ const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const SharePositionPage = lazy(() => import("./pages/SharePositionPage"));
 const HealthImportPage = lazy(() => import("./pages/HealthImportPage"));
 const SeasonPage = lazy(() => import("./pages/SeasonPage"));
+const PressPage = lazy(() => import("./pages/PressPage"));
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
         <Route path="/sakerhetsguide" element={<SafetyGuide />} />
         <Route path="/om-appen" element={<AboutPage />} />
         <Route path="/offline" element={<OfflinePage />} />
+        <Route path="/press" element={<PressPage />} />
         <Route path="/observationer" element={<ObservationsPage />} />
         <Route
           path="/observationer/ny"

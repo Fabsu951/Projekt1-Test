@@ -50,6 +50,7 @@ jobs:
         run: |
           npm ci
           npm run build
+          rm -rf dist/presskit  # press images are for the website only
           npx cap sync ios
 
       - name: Firebase settings (push notifications)

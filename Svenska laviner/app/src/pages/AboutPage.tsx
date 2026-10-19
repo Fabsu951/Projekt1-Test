@@ -74,6 +74,14 @@ export default function AboutPage() {
         </ul>
       </section>
 
+      <section className="section" id="press">
+        <h2>{t("För press")}</h2>
+        <p>
+          {t("Texter, fakta, logotyp och skärmbilder att ladda ner finns på")}{" "}
+          <Link to="/press">{t("Snöläge för press")}</Link>.
+        </p>
+      </section>
+
       <section className="section" id="sprak">
         <h2>{t("Språk")}</h2>
         <p>

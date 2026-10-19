@@ -64,6 +64,7 @@ jobs:
           npm run build
           sed -i "s|  backgroundColor: '#0b1722',|  backgroundColor: '#0b1722',\n  android: { allowMixedContent: true },|" capacitor.config.ts
           sed -i 's|<application|<application android:usesCleartextTraffic="true"|' android/app/src/main/AndroidManifest.xml
+          rm -rf dist/presskit  # press images are for the website only
           npx cap sync android
           cd android
           chmod +x gradlew

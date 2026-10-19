@@ -5561,3 +5561,121 @@ h1 .admin-badge {
 .share-image__status:empty {
   display: none;
 }
+
+/* Press page (/press): rows with contour dividers, like the rest of the app. */
+.press__contact {
+  margin: 10px 0 0;
+}
+.press__note {
+  color: var(--text-muted);
+}
+.press-copy {
+  padding: 14px 0;
+  border-top: 1px solid var(--divider);
+}
+.press-copy__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.press-copy__head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+.press-copy__button {
+  min-height: var(--tap);
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.press-copy__button:hover {
+  text-decoration: underline;
+}
+.press-copy__text {
+  margin: 4px 0 0;
+  max-width: 68ch;
+}
+.press-points {
+  margin: 0;
+  padding-left: 1.2em;
+  max-width: 68ch;
+}
+.press-points li + li {
+  margin-top: 8px;
+}
+.press-facts {
+  margin: 0;
+}
+.press-facts > div {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr;
+  gap: 4px 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--divider);
+}
+.press-facts dt {
+  font-weight: 600;
+}
+.press-facts dd {
+  margin: 0;
+}
+@media (max-width: 520px) {
+  .press-facts > div {
+    grid-template-columns: 1fr;
+  }
+}
+.press-logos,
+.press-shots {
+  display: grid;
+  gap: 18px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.press-logos {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.press-logos li,
+.press-shots li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+.press-logos__tile {
+  display: grid;
+  place-items: center;
+  height: 120px;
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.press-logos__tile img {
+  max-width: 80%;
+  height: auto;
+}
+.press-logos__tile--paper {
+  background: #f6f7f6;
+}
+.press-logos__tile--night {
+  background: #0b1722;
+}
+.press-shots {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+.press-shots img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 1px var(--border);
+}
+.press-shots__other {
+  font-size: 0.85rem;
+}
+.press-facts a {
+  text-decoration: underline;
+}

@@ -98,6 +98,7 @@ jobs:
           npm ci
           npm run test -- --run
           npm run build
+          rm -rf dist/presskit  # press images are for the website only
           npx cap sync android
 
       - name: Firebase settings (push notifications)
