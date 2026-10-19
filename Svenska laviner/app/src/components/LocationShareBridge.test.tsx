@@ -68,6 +68,13 @@ describe("LocationShareBridge in the apps", () => {
     expect(await lingeringShare(7)).not.toBeNull();
   });
 
+  it("follows the position itself when the native sender refuses to start", async () => {
+    native.plugin.start.mockRejectedValueOnce(new Error("Saknar uppgifter"));
+    localStorage.setItem("CapacitorStorage.fjallkoll:location-share", JSON.stringify({ userId: 7, endsAt: endsAt() }));
+    render(<LocationShareBridge />);
+    await waitFor(() => expect(geo.watchPosition).toHaveBeenCalled());
+  });
+
   it("follows the position itself in a browser", async () => {
     native.available = false;
     localStorage.setItem("CapacitorStorage.fjallkoll:location-share", JSON.stringify({ userId: 7, endsAt: endsAt() }));

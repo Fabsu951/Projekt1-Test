@@ -28,6 +28,8 @@ export default function LocationShareBridge() {
   const { user, token } = useAuth();
   const userId = user?.id;
   const [active, setActive] = useState<ActiveShare | null>(null);
+  // The native sender refused to start: the page sends itself while it is open.
+  const [nativeFailed, setNativeFailed] = useState(false);
 
   useEffect(() => {
     let live = true;
@@ -55,7 +57,7 @@ export default function LocationShareBridge() {
     void ShareLocation.status()
       .then(({ running }) =>
         running || !live
-          ? undefined
+          ? { started: true }
           : ShareLocation.start({
               token,
               url: WORKER_BASE,
@@ -64,8 +66,12 @@ export default function LocationShareBridge() {
               stopText: t("Stoppa"),
             })
       )
+      .then((r) => {
+        if (live && !r.started) setNativeFailed(true);
+      })
       .catch(() => {
-        // Without the native sender the page can still send while open (below).
+        // Without the native sender the page still sends while open (below).
+        if (live) setNativeFailed(true);
       });
     const end = window.setTimeout(() => void shareRanOut({ userId, endsAt }), Math.max(0, Date.parse(endsAt) - Date.now()));
     return () => {
@@ -75,9 +81,9 @@ export default function LocationShareBridge() {
     };
   }, [endsAt, token, userId]);
 
-  // Browsers: follow the position while the page is open.
+  // Browsers (or an app whose native sender didn't start): follow the position while the page is open.
   useEffect(() => {
-    if (!endsAt || !token || backgroundSharing()) return;
+    if (!endsAt || !token || (backgroundSharing() && !nativeFailed)) return;
     let stopped = false;
     let watchId: string | null = null;
     let last: { lat: number; lon: number; at: number } | null = null;
@@ -131,7 +137,7 @@ export default function LocationShareBridge() {
       window.clearTimeout(end);
       if (watchId) void Geolocation.clearWatch({ id: watchId });
     };
-  }, [endsAt, token, userId]);
+  }, [endsAt, token, userId, nativeFailed]);
 
   return null;
 }

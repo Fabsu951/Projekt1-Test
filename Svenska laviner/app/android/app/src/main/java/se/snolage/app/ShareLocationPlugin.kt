@@ -56,7 +56,8 @@ class ShareLocationPlugin : Plugin(), ShareLocationService.Listener {
     private fun begin(call: PluginCall) {
         val token = call.getString("token")
         val url = call.getString("url")
-        val endsAt = call.getDouble("endsAt")?.toLong() ?: 0L
+        // Milliseconds arrive as a Long, which PluginCall.getDouble doesn't read (it returned null).
+        val endsAt = (call.data.opt("endsAt") as? Number)?.toLong() ?: 0L
         if (token.isNullOrEmpty() || url.isNullOrEmpty() || endsAt <= System.currentTimeMillis()) {
             call.reject("Saknar uppgifter för att dela positionen.")
             return

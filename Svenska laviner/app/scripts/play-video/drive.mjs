@@ -170,8 +170,9 @@ async function run() {
   await sleep(3000);
 
   // 5. "Stoppa" in the notification ends it and deletes the position.
-  if (stop) tap(stop);
-  else console.log("Found no Stoppa button in the notification");
+  // Without Snöläge's own notification the video shows nothing Play asks for: fail instead.
+  if (!stop) throw new Error("Found no Stoppa button in the notification – is ShareLocationService running?");
+  tap(stop);
   await sleep(3000);
   shell("cmd statusbar collapse");
   shell(`am start -n ${pkg}/.MainActivity`);
