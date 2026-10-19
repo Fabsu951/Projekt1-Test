@@ -55,6 +55,11 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/notification_accent"
         />
+        <!-- "Dela position" while the app is in the background (ShareLocationService.kt). -->
+        <service
+            android:name=".ShareLocationService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
     </application>
 
     <!-- Permissions -->
@@ -65,6 +70,11 @@
     <!-- @capacitor/geolocation: nearest region, "min position" on the map, observation location. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- "Dela position" keeps sending while Snöläge is in the background, as a
+         foreground service with a visible notice. Started while the app is
+         open, so no background-location permission is needed. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
     <!-- Lets the photo field of an observation or profile picture offer "take a photo", not only the gallery. -->
     <uses-permission android:name="android.permission.CAMERA" />

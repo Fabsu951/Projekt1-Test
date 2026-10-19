@@ -10,6 +10,7 @@ public class MainActivity extends BridgeActivity {
         // Our own plugins must be registered before the bridge starts.
         registerPlugin(HealthRoutesPlugin.class);
         registerPlugin(BackgroundImportPlugin.class);
+        registerPlugin(ShareLocationPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

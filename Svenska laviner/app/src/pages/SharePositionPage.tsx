@@ -24,6 +24,7 @@ import {
   type SharedPosition,
 } from "../services/locationShare";
 import { clockTime, sinceText } from "../utils/shareTime";
+import { backgroundSharing } from "../services/nativeShare";
 import { t, plural } from "../i18n";
 
 /** Asks for the position once, which also brings up the permission question. */
@@ -53,6 +54,7 @@ export default function SharePositionPage() {
   const [lastSent, setLastSent] = useState<SharedPosition | null>(null);
   const [now, setNow] = useState(() => new Date());
   const userId = user?.id;
+  const background = backgroundSharing();
 
   const load = useCallback(async () => {
     if (!token) return;
@@ -158,7 +160,9 @@ export default function SharePositionPage() {
       <div className="notice share-page__warning">
         <Icon name="alert" size={20} />
         <p>
-          {t("Ersätter inte sändare/mottagare, spade och sond. Positionen skickas bara när Snöläge är öppen och telefonen har täckning – under snön har den det oftast inte.")}{" "}
+          {background
+            ? t("Ersätter inte sändare/mottagare, spade och sond. Positionen skickas bara när telefonen har täckning – under snön har den det oftast inte.")
+            : t("Ersätter inte sändare/mottagare, spade och sond. Positionen skickas bara när Snöläge är öppen och telefonen har täckning – under snön har den det oftast inte.")}{" "}
           <strong>{t("Vid en olycka: ring 112.")}</strong>
         </p>
       </div>
@@ -267,7 +271,9 @@ export default function SharePositionPage() {
                     )}
                   </div>
                   <p className="muted">
-                    {t("De du väljer får en notis och ser dig på kartan. Telefonen behöver ha Snöläge öppen för att skicka nya positioner.")}
+                    {background
+                      ? t("De du väljer får en notis och ser dig på kartan. Positionen skickas även när Snöläge ligger i bakgrunden eller skärmen är släckt, tills du stoppar eller tiden går ut. Det drar mer batteri än vanligt – ta gärna med en powerbank.")
+                      : t("De du väljer får en notis och ser dig på kartan. Telefonen behöver ha Snöläge öppen för att skicka nya positioner.")}
                   </p>
                   <p className="muted">
                     {t("Stoppa delningen när du är tillbaka. Går tiden ut utan att du har stoppat den ser de du valt din senaste position i {n} timmar till och får en notis, ifall något har hänt.", { n: LINGER_HOURS })}

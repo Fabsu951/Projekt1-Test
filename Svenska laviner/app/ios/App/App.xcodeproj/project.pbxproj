@@ -18,6 +18,7 @@
 		9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9582B6822FE993A50072D4E8 /* SceneDelegate.swift */; };
 		A10000000000000000000011 /* HealthReminder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* HealthReminder.swift */; };
 		A10000000000000000000012 /* BackgroundImportPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* BackgroundImportPlugin.swift */; };
+		A10000000000000000000013 /* ShareLocationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* ShareLocationPlugin.swift */; };
 		A10000000000000000000013 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* MainViewController.swift */; };
 		A10000000000000000000015 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000005 /* PrivacyInfo.xcprivacy */; };
 		A10000000000000000000016 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000008 /* InfoPlist.strings */; };
@@ -37,6 +38,7 @@
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		A10000000000000000000001 /* HealthReminder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthReminder.swift; sourceTree = "<group>"; };
 		A10000000000000000000002 /* BackgroundImportPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundImportPlugin.swift; sourceTree = "<group>"; };
+		A10000000000000000000003 /* ShareLocationPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareLocationPlugin.swift; sourceTree = "<group>"; };
 		A10000000000000000000003 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		A10000000000000000000004 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		A10000000000000000000005 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -81,6 +83,7 @@
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				A10000000000000000000001 /* HealthReminder.swift */,
 				A10000000000000000000002 /* BackgroundImportPlugin.swift */,
+				A10000000000000000000003 /* ShareLocationPlugin.swift */,
 				A10000000000000000000003 /* MainViewController.swift */,
 				A10000000000000000000004 /* App.entitlements */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
@@ -202,6 +205,7 @@
 				9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */,
 				A10000000000000000000011 /* HealthReminder.swift in Sources */,
 				A10000000000000000000012 /* BackgroundImportPlugin.swift in Sources */,
+				A10000000000000000000013 /* ShareLocationPlugin.swift in Sources */,
 				A10000000000000000000013 /* MainViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

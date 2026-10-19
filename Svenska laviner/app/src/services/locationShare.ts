@@ -1,5 +1,6 @@
 import { Preferences } from "@capacitor/preferences";
 import { api, ApiError } from "./api";
+import { stopBackgroundSharing } from "./nativeShare";
 import { cached, USER_SCOPE } from "./cache";
 
 // "Dela position" (worker/src/locationShare.ts): for a few hours, people you
@@ -145,6 +146,7 @@ export async function startSharing(token: string, userId: number, viewerIds: num
 
 /** Stops sharing; the position is deleted on the server. Also used on logout. */
 export async function stopSharing(token: string | null): Promise<void> {
+  await stopBackgroundSharing();
   try {
     await Preferences.remove({ key: LINGER_KEY });
   } catch {

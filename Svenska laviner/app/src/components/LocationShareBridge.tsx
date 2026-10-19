@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Geolocation } from "@capacitor/geolocation";
 import { useAuth } from "../auth/useAuth";
-import { ApiError } from "../services/api";
+import { ApiError, WORKER_BASE } from "../services/api";
+import { backgroundSharing, ShareLocation } from "../services/nativeShare";
+import { clockTime } from "../utils/shareTime";
+import { t } from "../i18n";
 import {
   activeShare,
   forgetActiveShare,
@@ -15,9 +18,11 @@ import {
 } from "../services/locationShare";
 
 /**
- * While you share your position, follows it and sends it to the worker –
- * on every page, as long as Snöläge is open. Renders nothing; the banner
- * under the header shows that sharing is on.
+ * While you share your position, follows it and sends it to the worker. In
+ * the apps the native background sender does it (also with the app in the
+ * background); in a browser this follows the position itself, on every page,
+ * as long as Snöläge is open. Renders nothing; the banner under the header
+ * shows that sharing is on.
  */
 export default function LocationShareBridge() {
   const { user, token } = useAuth();
@@ -36,8 +41,43 @@ export default function LocationShareBridge() {
   }, [userId]);
 
   const endsAt = active?.endsAt;
+
+  // Apps: hand over to the native sender, and pass on what it reports.
   useEffect(() => {
-    if (!endsAt || !token) return;
+    if (!endsAt || !token || !userId || !backgroundSharing()) return;
+    let live = true;
+    const handles: Array<Promise<{ remove: () => Promise<void> }>> = [
+      ShareLocation.addListener("sent", (e) => window.dispatchEvent(new CustomEvent(SHARE_SENT_EVENT, { detail: e }))),
+      ShareLocation.addListener("stopped", (e) => {
+        void (e.reason === "ended" ? shareRanOut({ userId, endsAt }) : forgetActiveShare());
+      }),
+    ];
+    void ShareLocation.status()
+      .then(({ running }) =>
+        running || !live
+          ? undefined
+          : ShareLocation.start({
+              token,
+              url: WORKER_BASE,
+              endsAt: Date.parse(endsAt),
+              text: t("Snöläge delar din position till kl. {time}.", { time: clockTime(endsAt) }),
+              stopText: t("Stoppa"),
+            })
+      )
+      .catch(() => {
+        // Without the native sender the page can still send while open (below).
+      });
+    const end = window.setTimeout(() => void shareRanOut({ userId, endsAt }), Math.max(0, Date.parse(endsAt) - Date.now()));
+    return () => {
+      live = false;
+      window.clearTimeout(end);
+      for (const h of handles) void h.then((x) => x.remove());
+    };
+  }, [endsAt, token, userId]);
+
+  // Browsers: follow the position while the page is open.
+  useEffect(() => {
+    if (!endsAt || !token || backgroundSharing()) return;
     let stopped = false;
     let watchId: string | null = null;
     let last: { lat: number; lon: number; at: number } | null = null;

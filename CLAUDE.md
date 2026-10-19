@@ -1319,6 +1319,26 @@ the start, exact map point.
   banner via Preferences `fjallkoll:location-share-left` (`shareRanOut`,
   also derived from an expired `fjallkoll:location-share` when the app was
   closed). Privacy policy says so.
+  **Background sending (2026-10-19, Fabian asked):** in the apps a native
+  sender takes over from `LocationShareBridge` (which now only watches the
+  position itself in browsers): `services/nativeShare.ts` (`registerPlugin
+  ("ShareLocation")`: `start({token, url, endsAt, text, stopText})`, `stop`,
+  `status`, events `sent` / `stopped` {reason ended|stopped|gone}).
+  Android: `ShareLocationService.kt` = foreground service
+  `foregroundServiceType="location"` (manifest `FOREGROUND_SERVICE` +
+  `FOREGROUND_SERVICE_LOCATION`, no ACCESS_BACKGROUND_LOCATION – it is started
+  while the app is open), `LocationManager` GPS + network every 60 s, same
+  throttle as `shouldSend`, POSTs with HttpURLConnection, ongoing notification
+  channel `share-position` with "Stoppa" (DELETEs the share) and tap →
+  `/dela-position`; stops at the end time or on 404/401; on stop/gone it
+  removes `fjallkoll:location-share` from `CapacitorStorage` so the app won't
+  restart it. `ShareLocationPlugin.kt` registered in MainActivity. iPhone:
+  `ShareLocationPlugin.swift` (CLLocationManager, background updates +
+  blue indicator, `UIBackgroundModes` `location` in Info.plist, added to the
+  pbxproj by hand with ids `A1…03`/`A1…13`, registered in MainViewController).
+  **Play Console needs a "Foreground service permissions" declaration
+  (location, with a short video) before a release with this goes out.**
+  Not yet tried on a phone.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
