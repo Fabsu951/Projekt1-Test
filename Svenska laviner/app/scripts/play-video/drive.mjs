@@ -1,100 +1,20 @@
 // Drives the real Android app in an emulator and records the screen, for
 // Google Play's "foreground service permissions" declaration: start sharing
-// your position, put the app in the background,
-// the ongoing notification with "Stoppa", stop it. Run by
-// .github/workflows/play-video.yml with server.mjs answering as the worker.
-import { spawn, execFileSync } from "node:child_process";
-import { writeFileSync } from "node:fs";
-import { _android as android } from "playwright";
+// your position, put the app in the background, the ongoing notification
+// with "Stoppa", stop it. Run by .github/workflows/play-video.yml with
+// server.mjs answering as the worker.
+import { spawn } from "node:child_process";
+import { adb, diagnose, find, findStopInNotification, moveTo, pkg, shell, signIn, sleep, startApp, tap } from "./emulator.mjs";
 
 const OUT = process.argv[2] ?? "dela-position.mp4";
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const adb = (...args) => execFileSync("adb", args, { encoding: "utf8", timeout: 60_000 });
-const shell = (cmd) => adb("shell", cmd);
-
-/** The centre of the first on-screen element whose text matches, from uiautomator. */
-function find(pattern) {
-  shell("uiautomator dump /sdcard/ui.xml");
-  const xml = shell("cat /sdcard/ui.xml");
-  for (const node of xml.split("<node ")) {
-    const text = node.match(/ text="([^"]*)"/)?.[1] ?? "";
-    const desc = node.match(/content-desc="([^"]*)"/)?.[1] ?? "";
-    const id = node.match(/resource-id="([^"]*)"/)?.[1] ?? "";
-    if (pattern.test(text) || pattern.test(desc) || pattern.test(id)) {
-      const b = node.match(/bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/);
-      if (b) return { x: (Number(b[1]) + Number(b[3])) >> 1, y: (Number(b[2]) + Number(b[4])) >> 1 };
-    }
-  }
-  return null;
-}
-const tap = ({ x, y }) => shell(`input tap ${x} ${y}`);
-
-const pkg = "se.snolage.app";
-// Let the freshly booted system settle before the app starts.
-shell("settings put secure user_setup_complete 1");
-// The slow emulator's launcher sometimes "isn't responding"; keep that dialog out of the video.
-shell("settings put global hide_error_dialogs 1");
-await sleep(20_000);
-for (const p of ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "POST_NOTIFICATIONS"]) {
-  try {
-    shell(`pm grant ${pkg} android.permission.${p}`);
-  } catch {
-    // Older Android: no runtime notification permission.
-  }
-}
-adb("emu", "geo", "fix", "18.552", "67.902");
-shell(`am start -n ${pkg}/.MainActivity`);
-
-const [device] = await android.devices();
-await device.webView({ pkg }, { timeout: 120_000 });
-
-/** The app's page; looked up again each time, since a reload or restart can replace the WebView target. */
-async function app() {
-  for (let i = 0; i < 30; i++) {
-    for (const w of device.webViews()) {
-      if (w.pkg() !== pkg) continue;
-      try {
-        const page = await w.page();
-        if (!page.isClosed()) return page;
-      } catch {
-        // Target went away; try the next one.
-      }
-    }
-    await sleep(1000);
-  }
-  throw new Error("The app's WebView is gone");
-}
-
-/** In-app navigation (React Router listens to popstate), so the WebView never reloads. */
-async function go(path) {
-  await (await app()).evaluate((p) => {
-    history.pushState({}, "", p);
-    dispatchEvent(new PopStateEvent("popstate"));
-  }, path);
-}
-
-/** On failure: what the app logged, and what the screen showed. */
-function diagnose() {
-  try {
-    const log = adb("logcat", "-d", "-t", "600");
-    console.log(log.split("\n").filter((l) => /AndroidRuntime|FATAL|chromium|Capacitor|Console|snolage/i.test(l)).slice(-150).join("\n"));
-  } catch (e) {
-    console.log("No logcat:", e.message);
-  }
-  try {
-    const png = execFileSync("adb", ["exec-out", "screencap", "-p"], { timeout: 30_000 });
-    writeFileSync(OUT.replace(/\.mp4$/, "-fel.png"), png);
-  } catch {
-    // Only a help.
-  }
-}
+const { device, app, go } = await startApp();
 
 let recorder = null;
 try {
   await run();
 } catch (err) {
   console.log("Failed:", err);
-  diagnose();
+  diagnose(OUT.replace(/\.mp4$/, "-fel.png"));
   process.exitCode = 1;
 } finally {
   if (recorder) {
@@ -114,24 +34,7 @@ try {
 }
 
 async function run() {
-  let page = await app();
-  await page.waitForLoadState();
-  await page.evaluate(() => {
-    localStorage.setItem("fjallkoll:language", "sv");
-    localStorage.setItem("fjallkoll:welcome-done", "1");
-    localStorage.setItem("fjallkoll:theme", "light");
-  });
-  // Language and theme are read at start-up (the emulator itself is in English).
-  await page.reload();
-  await sleep(4000);
-
-  // Log in (the demo server accepts anything) before the recording starts.
-  await go("/logga-in");
-  page = await app();
-  await page.locator('input[type="email"]').fill("demo@example.se");
-  await page.locator('input[type="password"]').fill("demo-demo-demo");
-  await page.locator('form button[type="submit"]').click();
-  await sleep(3000);
+  await signIn(app, go);
   await go("/");
   await sleep(4000);
 
@@ -153,7 +56,7 @@ async function run() {
   await sleep(1200);
   await (await app()).getByRole("button", { name: "Börja dela" }).click();
   await sleep(1500);
-  adb("emu", "geo", "fix", "18.553", "67.9025");
+  moveTo(67.9025, 18.553);
   await sleep(3500);
 
   // 3. The page shows the running share and who shares with you. (No map: drawing
@@ -164,16 +67,8 @@ async function run() {
   // 4. Into the background: sharing goes on, with an ongoing notification.
   shell("input keyevent KEYCODE_HOME");
   await sleep(2500);
-  adb("emu", "geo", "fix", "18.556", "67.9031");
-  shell("cmd statusbar expand-notifications");
-  await sleep(2500);
-  let stop = find(/^Stoppa$/i);
-  if (!stop) {
-    const expand = find(/expand_button/);
-    if (expand) tap(expand);
-    await sleep(1500);
-    stop = find(/^Stoppa$/i);
-  }
+  moveTo(67.9031, 18.556);
+  const stop = await findStopInNotification();
   await sleep(3000);
 
   // 5. "Stoppa" in the notification ends it and deletes the position.

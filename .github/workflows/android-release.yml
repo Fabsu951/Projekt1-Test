@@ -54,8 +54,14 @@ jobs:
             echo "::notice::Uppladdningsnyckeln saknas än."
           fi
 
+  # Background position sharing must work in the real app before a build goes to Play.
+  e2e:
+    if: github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/android-e2e.yml
+
   aab:
     if: github.event_name == 'workflow_dispatch'
+    needs: e2e
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:

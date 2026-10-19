@@ -2,6 +2,7 @@
 // emulator (.github/workflows/play-video.yml): sample answers from
 // mockApi.mjs, a working "Dela position", and real map tiles fetched from
 // kartor.snolage.se. Listens on 8787 (the emulator reaches it as 10.0.2.2).
+// GET /test/events lists what the app did with the share, for check-share.mjs.
 import http from "node:http";
 import { API, respond } from "./mockApi.mjs";
 
@@ -11,21 +12,26 @@ const person = (id, displayName, companion, xp) => ({ id, displayName, avatarPat
 
 let share = null;
 let lingering = null;
+/** Share starts, positions and stops, with who sent them: the native sender (Dalvik) or the page (Mozilla). */
+const events = [];
 
 const friends = () => [
   { ...person(3, "Anna", false, 900), startedAt: iso(-40), endsAt: iso(200), ended: false, keptUntil: null, position: { lat: 67.904, lon: 18.53, accuracy: 15, at: iso(-2) } },
 ];
 
-function location(path, method, body) {
+function location(path, method, body, agent) {
+  const from = /Dalvik|okhttp/i.test(agent ?? "") ? "native" : "page";
   if (path === "/location/share" && method === "GET") {
     return { share, lingering, candidates: [person(3, "Anna", true, 900), person(2, "Bertil", false, 420)] };
   }
   if (path === "/location/share" && method === "POST") {
     const hours = Number(body?.hours) || 2;
+    events.push({ type: "start", from, at: Date.now() });
     share = { startedAt: iso(0), endsAt: iso(hours * 60), position: null, viewers: [person(3, "Anna", true, 900), person(2, "Bertil", false, 420)].filter((p) => (body?.viewerIds ?? []).includes(p.id)) };
     return { share };
   }
   if (path === "/location/share" && method === "DELETE") {
+    events.push({ type: "stop", from, at: Date.now() });
     share = null;
     lingering = null;
     return { ok: true };
@@ -33,7 +39,8 @@ function location(path, method, body) {
   if (path === "/location/position") {
     if (!share) return { status: 404, error: "Du delar inte din position just nu." };
     share.position = { lat: body?.lat, lon: body?.lon, accuracy: body?.accuracy ?? null, at: iso(0) };
-    console.log("position", body?.lat, body?.lon);
+    events.push({ type: "position", from, at: Date.now(), lat: body?.lat, lon: body?.lon });
+    console.log("position", from, body?.lat, body?.lon);
     return { endsAt: share.endsAt };
   }
   if (path === "/location/shared-with-me") return { people: friends() };
@@ -83,7 +90,8 @@ const server = http.createServer(async (req, res) => {
     const me = respond(`${API}/auth/me`, "GET");
     return send(200, { token: "demo-token", user: me.json.user });
   }
-  const loc = location(path, req.method, body);
+  if (path === "/test/events") return send(200, { events });
+  const loc = location(path, req.method, body, req.headers["user-agent"]);
   if (loc) return loc.status ? send(loc.status, { error: loc.error }) : send(200, loc);
 
   const answer = respond(`${API}${path}${url.search}`, req.method);
