@@ -1356,6 +1356,38 @@ the start, exact map point.
   trigger a deploy – dispatch deploy.yml). Verified 2026-10-19: notification
   "Snöläge delar din position till kl. …" + STOPPA shows, tapping it ends the
   share. Not yet tried on a real phone.
+- **Share as an image (2026-10-19, marketing):** `services/shareImage.ts` draws
+  today's forecast on a canvas in the paper-map look (paper `#f6f7f6`, ink, lake
+  blue, contour rings, the danger band + `DangerStair`, problems with
+  `problemWhere`, footer: snolage.se, source, "Publicerad … Läs hela prognosen
+  innan du åker.") as a 1080×1350 post or 1080×1920 story. `areaImage` /
+  `overviewImage` return null unless the level is **published and the answer
+  fresh** (`stale` from `loadForecasts` → never an offline copy) – tested.
+  `ShareImageButton` ("Dela som bild" under `DangerHero`; "Dela läget som bild"
+  under the start page's overview map): dialog with format chips, preview,
+  "Dela bilden" (Capacitor Filesystem + Share in the apps, `navigator.share`
+  with files in browsers that can) and "Spara bilden" (web download). Canvas
+  narrow headings via `ctx.fontStretch` where supported (Safari draws normal width).
+- **Press page (2026-10-19):** `/press` (`PressPage.tsx`, lazy, indexed, in the
+  sitemap, linked from About "För press"): copy-ready texts (one sentence, one
+  paragraph), "Bra att veta" (official forecast only, not affiliated with NV, no
+  replacement for training/gear/transceiver, 112), facts, logo for light/dark,
+  mark SVG, app icon, store screenshots sv/en. Files in `public/presskit/` made by
+  `scripts/presskit.mjs` (Playwright + sharp, rerun after new store screenshots);
+  removed from `dist` before every `cap sync` (workflows + `npm run app:sync`) so
+  the apps stay small; not precached by sw.js. `PRESS_CONTACT_EMAIL` in
+  `data/contact.ts`. Quotes from Fabian / his own background story are **not** on
+  the page – proposed to him in chat first.
+- **Emulator test of background sharing (2026-10-19):** `.github/workflows/android-e2e.yml`
+  ("Android-test, dela position"; push on android/**, capacitor.config, the
+  share services/bridge/page, scripts/play-video/**; also `workflow_call`):
+  `scripts/play-video/check-share.mjs` (helpers in `emulator.mjs`, shared with
+  `drive.mjs`) starts a share, presses Home, walks the emulator and requires a
+  position from the **native** sender after the app left (server.mjs logs each
+  event with `from: native|page` by user agent at `GET /test/events`), then
+  "Stoppa" must DELETE the share and remove the notification. **`android-release.yml`'s
+  `aab` job `needs: e2e`** – no Play build without it passing. First run green
+  2026-10-19 (background position 57 s after Home).
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
