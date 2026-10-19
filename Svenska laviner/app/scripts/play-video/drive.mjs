@@ -151,7 +151,7 @@ async function run() {
 
   // 3. The page shows the running share and who shares with you. (No map: drawing
   // it in the emulator's software graphics crashed the emulator now and then.)
-  await (await app()).mouse.wheel(0, 900);
+  await (await app()).evaluate(() => window.scrollBy({ top: 900, behavior: "smooth" }));
   await sleep(3000);
 
   // 4. Into the background: sharing goes on, with an ongoing notification.
