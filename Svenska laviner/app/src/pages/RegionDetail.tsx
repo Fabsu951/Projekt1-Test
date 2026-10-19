@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getRegionById } from "../data/regions";
 import { fetchForecastHistory, loadForecasts, type HistoryDay } from "../services/avalancheService";
 import DangerHistory from "../components/DangerHistory";
 import FavoriteButton from "../components/FavoriteButton";
 import ShareButton from "../components/ShareButton";
+import ShareImageButton from "../components/ShareImageButton";
+import { areaImage } from "../services/shareImage";
 import OfflineMapCard from "../components/OfflineMapCard";
 import TripPlanCard from "../components/TripPlanCard";
 import SnowDepthCard from "../components/SnowDepthCard";
@@ -42,6 +44,7 @@ import {
   type WindSample,
 } from "../services/windStationService";
 import { t } from "../i18n";
+import { shareableUrl } from "../services/native";
 import Icon from "../components/Icon";
 
 export default function RegionDetail() {
@@ -102,6 +105,9 @@ export default function RegionDetail() {
       .catch((err) => setStationError(err.message));
   }, [region]);
 
+  // Only a fresh, published level becomes an image.
+  const imageModel = useMemo(() => (region ? areaImage(region, forecast, forecastStale, new Date()) : null), [region, forecast, forecastStale]);
+
   if (!region) {
     return (
       <div className="page">
@@ -130,7 +136,18 @@ export default function RegionDetail() {
         </div>
         <p className="page__lead">{region.subAreas.join(", ")}</p>
         {forecast ? (
-          <DangerHero forecast={forecast} />
+          <>
+            <DangerHero forecast={forecast} />
+            {imageModel && (
+              <ShareImageButton
+                model={imageModel}
+                fileName={`snolage-${region.id}`}
+                title={t("Lavinprognos {name}", { name: region.name })}
+                text={t("Hela prognosen för {name}: {url}", { name: region.name, url: shareableUrl(`/omrade/${region.id}`) })}
+                label={t("Dela som bild")}
+              />
+            )}
+          </>
         ) : (
           <span className="skeleton danger-hero danger-hero--loading" aria-label={t("Laddar farograd")} />
         )}

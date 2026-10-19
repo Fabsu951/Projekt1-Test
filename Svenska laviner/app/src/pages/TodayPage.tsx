@@ -23,6 +23,9 @@ import FavoriteButton from "../components/FavoriteButton";
 import HealthImportNotice from "../components/HealthImportNotice";
 import { t, locale } from "../i18n";
 import Icon from "../components/Icon";
+import ShareImageButton from "../components/ShareImageButton";
+import { overviewImage } from "../services/shareImage";
+import { shareableUrl } from "../services/native";
 
 // The start page, "Idag i fjällen": today's forecast for your starred areas
 // first, then quick actions, fresh observations, an overview map and the
@@ -96,6 +99,8 @@ export default function TodayPage() {
   }, [observations, favorites]);
 
   const others = REGIONS.filter((r) => !favorites.includes(r.id));
+  // Only fresh, published levels become an image.
+  const imageModel = useMemo(() => overviewImage(REGIONS, forecasts, stale, now), [forecasts, stale, now]);
 
   return (
     <div className="page page--wide today">
@@ -180,6 +185,15 @@ export default function TodayPage() {
               </Link>
             </h2>
             <OverviewMap forecasts={forecasts} favorites={favorites} />
+            {imageModel && (
+              <ShareImageButton
+                model={imageModel}
+                fileName="snolage-lavinlaget"
+                title={t("Lavinläget i fjällen")}
+                text={t("Dagens lavinprognoser för fjällen: {url}", { url: shareableUrl("/") })}
+                label={t("Dela läget som bild")}
+              />
+            )}
           </section>
 
           {others.length > 0 && (

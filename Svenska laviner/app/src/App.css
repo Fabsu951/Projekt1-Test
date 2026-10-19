@@ -5443,3 +5443,121 @@ h1 .admin-badge {
   stroke-width: 1;
   stroke-dasharray: 4 4;
 }
+
+/* "Dela som bild": a quiet text button under today's level, and a dialog
+   with the image as it will be shared. */
+.share-image-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  margin-top: 6px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.share-image-button svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linejoin: round;
+}
+.share-image-button:hover {
+  text-decoration: underline;
+}
+.share-image {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom)) calc(16px + var(--safe-left));
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(8px);
+  overflow-y: auto;
+}
+.share-image__panel {
+  width: min(460px, 100%);
+  padding: 18px 20px 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+.share-image__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.share-image__top h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  outline: none;
+}
+.share-image__close {
+  min-height: var(--tap);
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  cursor: pointer;
+}
+.share-image__close:hover {
+  color: var(--text);
+}
+.share-image__formats {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 14px;
+}
+.share-image__format {
+  min-height: 40px;
+  font-size: 0.92rem;
+}
+.share-image__format small {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+.share-image__preview {
+  display: grid;
+  place-items: center;
+  height: min(52vh, 460px);
+}
+.share-image__preview img,
+.share-image__preview .skeleton {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px var(--border);
+}
+.share-image__preview--post .skeleton {
+  height: 100%;
+  aspect-ratio: 4 / 5;
+}
+.share-image__preview--story .skeleton {
+  height: 100%;
+  aspect-ratio: 9 / 16;
+}
+.share-image__note {
+  margin: 12px 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+.share-image__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.share-image__status {
+  margin: 8px 0 0;
+  font-size: 0.88rem;
+}
+.share-image__status:empty {
+  display: none;
+}
