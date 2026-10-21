@@ -1,6 +1,8 @@
 # Prints the worker's requests per hour and outcome (ok, CPU limit exceeded,
-# errors) for the last day from Cloudflare's analytics, with CPU time – for
-# when Cloudflare mails about the free plan's limits. Runs when this file
+# errors) for the last day from Cloudflare's analytics, with CPU time, and
+# the database's rows read/written per day against the free plan's limits
+# (5 million read, 100 000 written; queries fail beyond them since
+# 2026-09-01) – for when Cloudflare mails about the free plan's limits. Runs when this file
 # changes, or by hand via the API (workflows/worker-status.yml/dispatches).
 
 name: Worker-status
@@ -61,3 +63,35 @@ jobs:
           print("\nTotals for the last 26 hours:")
           for (script, status), n in sorted(totals.items(), key=lambda kv: -kv[1]):
               print(f"  {script:<20}{status:<22}{n:>10}")
+
+      - name: Database rows per day
+        shell: python
+        run: |
+          import json, os, urllib.request, datetime as dt
+          today = dt.date.today()
+          query = """
+          query($acc: string!, $since: Date!, $until: Date!) {
+            viewer { accounts(filter: {accountTag: $acc}) {
+              d1AnalyticsAdaptiveGroups(limit: 100, filter: {date_geq: $since, date_leq: $until}, orderBy: [date_ASC]) {
+                dimensions { date databaseId }
+                sum { readQueries writeQueries rowsRead rowsWritten }
+              }
+            } }
+          }"""
+          body = json.dumps({"query": query, "variables": {
+              "acc": os.environ["CLOUDFLARE_ACCOUNT_ID"],
+              "since": (today - dt.timedelta(days=7)).isoformat(),
+              "until": today.isoformat()}}).encode()
+          req = urllib.request.Request("https://api.cloudflare.com/client/v4/graphql", data=body, headers={
+              "Authorization": "Bearer " + os.environ["CLOUDFLARE_API_TOKEN"], "Content-Type": "application/json"})
+          data = json.load(urllib.request.urlopen(req))
+          if data.get("errors"):
+              print("Cloudflare answered with errors:")
+              print(json.dumps(data["errors"], indent=2))
+              raise SystemExit(0)
+          rows = data["data"]["viewer"]["accounts"][0]["d1AnalyticsAdaptiveGroups"]
+          print(f"{'date':<12}{'reads':>10}{'writes':>10}{'rows read':>14}{'% of 5M':>9}{'rows written':>14}{'% of 100k':>11}")
+          for r in rows:
+              d, s = r["dimensions"], r["sum"]
+              print(f"{d['date']:<12}{s['readQueries']:>10}{s['writeQueries']:>10}{s['rowsRead']:>14}{s['rowsRead']/5e6*100:>8.1f}%{s['rowsWritten']:>14}{s['rowsWritten']/1e5*100:>10.1f}%")
+
