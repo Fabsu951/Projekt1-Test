@@ -36,6 +36,7 @@ export async function sendEmail(env: EmailEnv, email: Email): Promise<void> {
     return;
   }
   const res = await fetch("https://api.resend.com/emails", {
+    signal: AbortSignal.timeout(10_000),
     method: "POST",
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({ from: env.EMAIL_FROM, to: [email.to], subject: email.subject, text: email.text, html: email.html }),

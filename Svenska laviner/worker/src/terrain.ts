@@ -87,7 +87,7 @@ export async function serveTerrain(
   const source = tile ? terrainTileUrl(TERRAIN_LAYERS[layer], tile.z, tile.x, tile.y) : terrainLegendUrl(TERRAIN_LAYERS[layer]);
   let data: Uint8Array | null = null;
   try {
-    const res = await fetch(source, { headers: HEADERS });
+    const res = await fetch(source, { headers: HEADERS, signal: AbortSignal.timeout(15_000) });
     // GeoServer reports errors as XML with status 200, so check that it's really an image.
     if (res.ok) {
       const bytes = new Uint8Array(await res.arrayBuffer());

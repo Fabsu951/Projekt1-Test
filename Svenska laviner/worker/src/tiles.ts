@@ -141,6 +141,7 @@ async function fromLantmateriet(env: TilesEnv, z: number, x: number, y: number):
   try {
     const res = await fetch(url.toString(), {
       headers: { Authorization: `Basic ${btoa(`${env.LANTMATERIET_USER}:${env.LANTMATERIET_PASSWORD}`)}` },
+      signal: AbortSignal.timeout(15_000),
     });
     if (!res.ok) return null;
     const data = new Uint8Array(await res.arrayBuffer());

@@ -152,6 +152,7 @@ async function fetchRegion(regionId: string, slugs: string[]): Promise<RegionFor
           "Accept-Language": "sv-SE,sv;q=0.9,en;q=0.8",
         },
         cf: { cacheTtl: CACHE_TTL_SECONDS, cacheEverything: true },
+        signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
       });
 
       if (res.status === 404) continue;
@@ -172,13 +173,21 @@ async function fetchRegion(regionId: string, slugs: string[]): Promise<RegionFor
   return emptyForecast(regionId, lastUrl, fetchedAt, `HTTP 404 (tried: ${slugs.join(", ")})`);
 }
 
+/** Naturvårdsverket's API and pages: an answer within this, or the next fallback. */
+const UPSTREAM_TIMEOUT_MS = 10_000;
+
 const API_HEADERS = { "User-Agent": "Snolage/1.0 (https://snolage.se; fabian.n.sund@gmail.com)" };
 
 /** One API answer; if the server dislikes our property list, asks again for everything. */
 async function apiForecasts(urlWith: string, urlWithout: string): Promise<ApiForecast[]> {
   for (const url of [urlWith, urlWithout]) {
-    const res = await fetch(url, { headers: API_HEADERS, cf: { cacheTtl: CACHE_TTL_SECONDS, cacheEverything: true } });
-    if (!res.ok) continue;
+    // A hung API must not hold the forecasts up: the page scraper takes over.
+    const res = await fetch(url, {
+      headers: API_HEADERS,
+      cf: { cacheTtl: CACHE_TTL_SECONDS, cacheEverything: true },
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+    }).catch(() => null);
+    if (!res?.ok) continue;
     try {
       return readForecasts(await res.json());
     } catch {

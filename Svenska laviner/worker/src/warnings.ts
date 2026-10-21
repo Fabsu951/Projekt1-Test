@@ -155,7 +155,7 @@ export function warningsByRegion(warnings: ParsedWarning[]): Record<string, Warn
 }
 
 export async function fetchWarnings(fetcher: typeof fetch = fetch, now = new Date()): Promise<Record<string, Warning[]>> {
-  const res = await fetcher(WARNINGS_URL, { headers: { "User-Agent": "Snolage/1.0 (https://snolage.se)" } });
+  const res = await fetcher(WARNINGS_URL, { headers: { "User-Agent": "Snolage/1.0 (https://snolage.se)" }, signal: AbortSignal.timeout(10_000) });
   if (!res.ok) throw new Error(`SMHI:s varningar svarade ${res.status}.`);
   return warningsByRegion(parseWarnings(await res.json(), now));
 }
