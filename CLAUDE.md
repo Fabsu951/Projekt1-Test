@@ -1439,7 +1439,10 @@ the start, exact map point.
   time out (10–15 s); offline downloads: 30 s per tile, "ingen plats" message,
   half-saved new caches deleted; background notices follow the phone's
   language; `npm audit fix` (worker 0 left; app's remaining ones are build
-  tools and Firebase's unused Firestore).
+  tools and Firebase's unused Firestore). A page whose code is gone after a
+  deploy reloads once (`vite:preloadError` in `start.tsx`); dialogs trap focus
+  (`hooks/useFocusTrap.ts`); worker-status.yml also prints D1 rows read/written
+  per day (21 Oct: ~0.1 % of the free plan's 5 M / 100 k).
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
@@ -1494,6 +1497,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (293 tests as of 2026-10-19, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 201 tests, including the
+  (315 tests as of 2026-10-21, all passing). Worker has its own Vitest
+  suite in `Svenska laviner/worker` (`npm test`, 211 tests, including the
   real-page fixtures).
