@@ -1,5 +1,5 @@
 import { currentUser, type CommunityEnv } from "./auth";
-import { sendFcm, fcmConfigured, type FcmEnv, type NativeMessage } from "./fcm";
+import { fcmConfigured, type FcmEnv } from "./fcm";
 import { HttpError, nowIso, readJson } from "./http";
 import { clientIp, d1Store, enforce, record } from "./rateLimit";
 import { REGION_SOURCES } from "./regions";
@@ -69,17 +69,4 @@ export async function setDeviceLanguage(request: Request, env: NativeEnv) {
     await env.DB.prepare("UPDATE native_devices SET lang = ? WHERE token = ?").bind(toLang(body.lang), body.token).run();
   }
   return { ok: true };
-}
-
-async function forget(env: NativeEnv, tokens: string[]) {
-  if (tokens.length) await env.DB.batch(tokens.map((t) => env.DB.prepare("DELETE FROM native_devices WHERE token = ?").bind(t)));
-}
-
-/** An account notice to every device where the user turned them on. */
-export async function sendNativeToUser(env: NativeEnv, userId: number, msg: NativeMessage, fetcher: typeof fetch = fetch) {
-  if (!fcmConfigured(env)) return;
-  const { results } = await env.DB.prepare("SELECT token FROM native_devices WHERE user_id = ?").bind(userId).all<{ token: string }>();
-  const gone: string[] = [];
-  for (const d of results) if ((await sendFcm(env, d.token, msg, fetcher)) === "gone") gone.push(d.token);
-  await forget(env, gone);
 }

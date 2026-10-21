@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { deleteAccount } from "./auth";
 import { fcmBody, resetFcmToken, serviceAccountJwt } from "./fcm";
 import { HttpError } from "./http";
-import { registerDevice, sendNativeToUser, unregisterDevice, type NativeEnv } from "./nativePush";
+import { registerDevice, unregisterDevice, type NativeEnv } from "./nativePush";
 import { follow } from "./social";
 import { drainOutbox, queueChanges } from "./outbox";
 import { migratedD1 } from "./testing/sqliteD1";
@@ -117,8 +117,6 @@ describe("native push", () => {
     expect(sent.map((s) => s.token)).toEqual([device("bertil")]);
     expect(sent[0].url).toBe("/person/1");
 
-    await sendNativeToUser(env, 1, { title: "Snöläge", body: "x", url: "/" }, fakeGoogle);
-    expect(sent.at(-1)!.token).toBe(device("anna"));
   });
 
   it("stops account notices when the account is deleted, and forgets a device on request", async () => {

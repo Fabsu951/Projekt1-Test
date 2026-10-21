@@ -3,7 +3,8 @@ import { changeMessage, type DangerChange, type PushEnv } from "./push";
 import { toLang } from "./lang";
 import { sendPush, vapidConfigured } from "./webpush";
 
-// Danger-level notices to every browser and phone following an area. A
+// Push to browsers and phones: danger-level notices to everyone following
+// an area, and account notices (notifications.ts). A
 // worker run may make only 50 outgoing requests on Cloudflare's free plan
 // (and has little CPU time), so sending them all from the forecast run
 // would silently stop after a few dozen. Instead they are queued in
@@ -23,7 +24,8 @@ const MAX_TRIES = 3;
 const MAX_AGE_MS = 6 * 3600 * 1000;
 export const DRAIN_PATH = "/internal/push-drain";
 
-type Channel = "web" | "native";
+/** "web": danger notices to a browser (push_subscriptions); "account-web": account notices (user_push_subscriptions). */
+export type Channel = "web" | "account-web" | "native";
 
 interface OutboxRow {
   id: number;
@@ -43,13 +45,39 @@ function follows(regionsJson: string, regionId: string): boolean {
   }
 }
 
+export interface QueuedMessage {
+  channel: Channel;
+  /** Push endpoint or FCM token. */
+  target: string;
+  message: NativeMessage;
+}
+
+/** Puts notices in the queue (sendQueued sends them). */
+export async function queueMessages(env: OutboxEnv, messages: QueuedMessage[], now = new Date()): Promise<void> {
+  const at = now.toISOString();
+  for (let i = 0; i < messages.length; i += 50) {
+    await env.DB.batch(
+      messages
+        .slice(i, i + 50)
+        .map((m) =>
+          env.DB.prepare("INSERT INTO push_outbox (channel, target, message, created_at) VALUES (?, ?, ?, ?)").bind(
+            m.channel,
+            m.target,
+            JSON.stringify(m.message),
+            at
+          )
+        )
+    );
+  }
+}
+
 /** Queues one notice per follower and change. Returns how many. */
 export async function queueChanges(env: OutboxEnv, changes: DangerChange[], today: string, now = new Date()): Promise<number> {
   if (changes.length === 0) return 0;
-  const rows: Array<[Channel, string, string]> = [];
+  const rows: QueuedMessage[] = [];
   const add = (channel: Channel, target: string, regions: string, lang: string) => {
     for (const change of changes) {
-      if (follows(regions, change.regionId)) rows.push([channel, target, JSON.stringify(changeMessage(change, today, toLang(lang)))]);
+      if (follows(regions, change.regionId)) rows.push({ channel, target, message: changeMessage(change, today, toLang(lang)) });
     }
   };
   if (vapidConfigured(env)) {
@@ -64,16 +92,7 @@ export async function queueChanges(env: OutboxEnv, changes: DangerChange[], toda
     }>();
     for (const d of devices.results) add("native", d.token, d.regions, d.lang);
   }
-  const at = now.toISOString();
-  for (let i = 0; i < rows.length; i += 50) {
-    await env.DB.batch(
-      rows
-        .slice(i, i + 50)
-        .map(([channel, target, message]) =>
-          env.DB.prepare("INSERT INTO push_outbox (channel, target, message, created_at) VALUES (?, ?, ?, ?)").bind(channel, target, message, at)
-        )
-    );
-  }
+  await queueMessages(env, rows, now);
   return rows.length;
 }
 
@@ -93,14 +112,15 @@ export async function drainOutbox(env: OutboxEnv, max = DRAIN_BATCH, fetcher: ty
   const rows = claimed.results.filter((r) => now.getTime() - Date.parse(r.created_at) <= MAX_AGE_MS);
   if (rows.length === 0) return 0;
 
-  // Only browsers and phones that still follow anything (one may have been dropped as gone meanwhile).
-  const endpoints = [...new Set(rows.filter((r) => r.channel === "web").map((r) => r.target))];
-  const keys = new Map<string, { p256dh: string; auth: string }>();
-  if (endpoints.length) {
-    const res = await env.DB.prepare(`SELECT endpoint, p256dh, auth FROM push_subscriptions WHERE endpoint IN (${placeholders(endpoints.length)})`)
+  // Only browsers and phones still subscribed (one may have been dropped as gone meanwhile).
+  const keys = { web: new Map<string, { p256dh: string; auth: string }>(), "account-web": new Map<string, { p256dh: string; auth: string }>() };
+  for (const [channel, table] of [["web", "push_subscriptions"], ["account-web", "user_push_subscriptions"]] as const) {
+    const endpoints = [...new Set(rows.filter((r) => r.channel === channel).map((r) => r.target))];
+    if (!endpoints.length) continue;
+    const res = await env.DB.prepare(`SELECT endpoint, p256dh, auth FROM ${table} WHERE endpoint IN (${placeholders(endpoints.length)})`)
       .bind(...endpoints)
       .all<{ endpoint: string; p256dh: string; auth: string }>();
-    for (const r of res.results) keys.set(r.endpoint, r);
+    for (const r of res.results) keys[channel].set(r.endpoint, r);
   }
   const tokens = [...new Set(rows.filter((r) => r.channel === "native").map((r) => r.target))];
   const devices = new Set<string>();
@@ -112,13 +132,13 @@ export async function drainOutbox(env: OutboxEnv, max = DRAIN_BATCH, fetcher: ty
   }
 
   let sent = 0;
-  const gone = { web: new Set<string>(), native: new Set<string>() };
+  const gone: Record<Channel, Set<string>> = { web: new Set(), "account-web": new Set(), native: new Set() };
   const retry: OutboxRow[] = [];
   for (const row of rows) {
     if (gone[row.channel].has(row.target)) continue;
     let result: "sent" | "gone" | "failed";
-    if (row.channel === "web") {
-      const k = keys.get(row.target);
+    if (row.channel !== "native") {
+      const k = keys[row.channel].get(row.target);
       if (!k) continue;
       result = await sendPush(env, { endpoint: row.target, ...k }, JSON.parse(row.message), fetcher);
     } else {
@@ -132,6 +152,7 @@ export async function drainOutbox(env: OutboxEnv, max = DRAIN_BATCH, fetcher: ty
 
   const statements = [
     ...[...gone.web].map((e) => env.DB.prepare("DELETE FROM push_subscriptions WHERE endpoint = ?").bind(e)),
+    ...[...gone["account-web"]].map((e) => env.DB.prepare("DELETE FROM user_push_subscriptions WHERE endpoint = ?").bind(e)),
     ...[...gone.native].map((t) => env.DB.prepare("DELETE FROM native_devices WHERE token = ?").bind(t)),
     ...retry.map((r) =>
       env.DB.prepare("INSERT INTO push_outbox (channel, target, message, tries, created_at) VALUES (?, ?, ?, ?, ?)").bind(

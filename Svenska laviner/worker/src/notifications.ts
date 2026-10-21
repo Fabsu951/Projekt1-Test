@@ -3,8 +3,8 @@ import { HttpError, nowIso, readJson } from "./http";
 import { badgesOf } from "./profile";
 import type { ItemType } from "./socialCleanup";
 import { fcmConfigured, type FcmEnv } from "./fcm";
-import { sendNativeToUser } from "./nativePush";
-import { isPushEndpoint, sendPush, vapidConfigured, type VapidEnv } from "./webpush";
+import { isPushEndpoint, vapidConfigured, type VapidEnv } from "./webpush";
+import { queueMessages, sendQueued, type QueuedMessage } from "./outbox";
 import { userLang, type Lang } from "./lang";
 import { blockedBetween } from "./blocks";
 
@@ -31,7 +31,7 @@ export type NotificationKind =
   | "trip_join"
   | "location_share"
   | "location_share_ended";
-export type NotifyEnv = CommunityEnv & VapidEnv & FcmEnv;
+export type NotifyEnv = CommunityEnv & VapidEnv & FcmEnv & { SELF?: Fetcher };
 /** Runs work after the response is sent (ctx.waitUntil in the worker). */
 export type Defer = (work: Promise<unknown>) => void;
 
@@ -89,28 +89,29 @@ export async function notify(env: NotifyEnv, list: NewNotification[], defer?: De
   }
 }
 
+/**
+ * Queues the push for stored notifications (outbox.ts sends them in runs of
+ * their own, so a morning with many tour-day notices stays within each
+ * run's request limit).
+ */
 async function sendPushes(env: NotifyEnv, list: Array<NewNotification & { id: number }>) {
-  const gone: string[] = [];
+  const queued: QueuedMessage[] = [];
   for (const n of list) {
     const subs = vapidConfigured(env)
-      ? await env.DB.prepare("SELECT endpoint, p256dh, auth FROM user_push_subscriptions WHERE user_id = ?")
-          .bind(n.userId)
-          .all<{ endpoint: string; p256dh: string; auth: string }>()
+      ? await env.DB.prepare("SELECT endpoint FROM user_push_subscriptions WHERE user_id = ?").bind(n.userId).all<{ endpoint: string }>()
       : { results: [] };
     const devices = fcmConfigured(env)
-      ? await env.DB.prepare("SELECT 1 AS x FROM native_devices WHERE user_id = ? LIMIT 1").bind(n.userId).first()
-      : null;
-    if (subs.results.length === 0 && !devices) continue;
+      ? await env.DB.prepare("SELECT token FROM native_devices WHERE user_id = ?").bind(n.userId).all<{ token: string }>()
+      : { results: [] };
+    if (subs.results.length === 0 && devices.results.length === 0) continue;
     const [view] = await describe(env, [{ ...n, created_at: "", read_at: null }], await userLang(env.DB, n.userId));
-    if (devices) await sendNativeToUser(env, n.userId, { title: "Snöläge", body: view.text, url: view.url, tag: `social-${n.id}` });
-    for (const sub of subs.results) {
-      const result = await sendPush(env, sub, { title: "Snöläge", body: view.text, url: view.url, tag: `social-${n.id}` });
-      if (result === "gone") gone.push(sub.endpoint);
-    }
+    const message = { title: "Snöläge", body: view.text, url: view.url, tag: `social-${n.id}` };
+    for (const d of devices.results) queued.push({ channel: "native", target: d.token, message });
+    for (const sub of subs.results) queued.push({ channel: "account-web", target: sub.endpoint, message });
   }
-  if (gone.length) {
-    await env.DB.batch(gone.map((e) => env.DB.prepare("DELETE FROM user_push_subscriptions WHERE endpoint = ?").bind(e)));
-  }
+  if (queued.length === 0) return;
+  await queueMessages(env, queued);
+  await sendQueued(env);
 }
 
 interface Row {

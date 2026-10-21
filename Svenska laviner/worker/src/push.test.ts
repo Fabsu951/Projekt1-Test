@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { changeFrom, type HistoryRow } from "./history";
 import { changeMessage, type PushEnv } from "./push";
 import { drainOutbox, queueChanges } from "./outbox";
+import { notify } from "./notifications";
 import { migratedD1 } from "./testing/sqliteD1";
 import { toBase64Url } from "./webpush";
 
@@ -116,4 +117,24 @@ describe("danger-level push", () => {
     expect(await drainOutbox(env, 100, fetcher, new Date(now.getTime() + 7 * 3600 * 1000))).toBe(0);
     expect((await env.DB.prepare("SELECT COUNT(*) AS n FROM push_outbox").first<{ n: number }>())!.n).toBe(0);
   });
+
+  it("sends account notices through the queue too, and drops a browser that is gone", async () => {
+    const env = await setup(0);
+    await env.DB.prepare("INSERT INTO users (id, email, display_name, password_hash, email_verified, created_at) VALUES (1, 'a@t', 'Anna', 'x', 1, ''), (2, 'b@t', 'Bertil', 'x', 1, '')").run();
+    for (const name of ["phone", "gone"]) {
+      const k = await subscriptionKeys();
+      await env.DB.prepare("INSERT INTO user_push_subscriptions (endpoint, user_id, p256dh, auth, created_at) VALUES (?, 2, ?, ?, '')")
+        .bind(`https://fcm.googleapis.com/account-${name}`, k.p256dh, k.auth)
+        .run();
+    }
+    const fetcher = vi.fn(async (url: string | URL | Request) => new Response(null, { status: String(url).endsWith("-gone") ? 410 : 201 }));
+    vi.stubGlobal("fetch", fetcher);
+    await notify(env as never, [{ userId: 2, kind: "follow", actorId: 1 }]);
+    vi.unstubAllGlobals();
+    expect(fetcher.mock.calls.map((c) => String(c[0])).sort()).toEqual(["https://fcm.googleapis.com/account-gone", "https://fcm.googleapis.com/account-phone"]);
+    const left = await env.DB.prepare("SELECT endpoint FROM user_push_subscriptions").all<{ endpoint: string }>();
+    expect(left.results.map((r) => r.endpoint)).toEqual(["https://fcm.googleapis.com/account-phone"]);
+    expect((await env.DB.prepare("SELECT COUNT(*) AS n FROM push_outbox").first<{ n: number }>())!.n).toBe(0);
+  });
 });
+
