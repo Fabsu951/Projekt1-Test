@@ -144,8 +144,9 @@ class ShareLocationService : Service(), LocationListener {
         val manager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         try {
             manager.removeUpdates(this)
+            // Also a provider that is off right now: updates start when the user turns it on.
             for (provider in listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)) {
-                if (manager.isProviderEnabled(provider)) {
+                if (provider in manager.allProviders) {
                     manager.requestLocationUpdates(provider, MIN_INTERVAL_MS, 0f, this, Looper.getMainLooper())
                 }
             }
@@ -187,6 +188,8 @@ class ShareLocationService : Service(), LocationListener {
                     .put("lat", location.latitude)
                     .put("lon", location.longitude)
                     .put("accuracy", Math.round(location.accuracy))
+                    // When the fix was taken: the heartbeat resends the last one when GPS is lost.
+                    .put("at", fixTime(location))
                 status = request("$url/location/position", "POST", token, body.toString())
             } catch (e: Exception) {
                 // No coverage: the next fix or the heartbeat tries again.
@@ -197,7 +200,7 @@ class ShareLocationService : Service(), LocationListener {
                     status in 200..299 -> {
                         lastSent = location
                         lastSentAt = System.currentTimeMillis()
-                        listener?.sent(location.latitude, location.longitude, location.accuracy, lastSentAt)
+                        listener?.sent(location.latitude, location.longitude, location.accuracy, fixTime(location))
                     }
                     // Stopped or ended elsewhere, or logged out.
                     status == 404 || status == 401 -> finish("gone")
@@ -205,6 +208,10 @@ class ShareLocationService : Service(), LocationListener {
             }
         }
     }
+
+    /** The fix's own time, never later than now (a device clock can run ahead). */
+    private fun fixTime(location: Location): Long =
+        if (location.time > 0) minOf(location.time, System.currentTimeMillis()) else System.currentTimeMillis()
 
     private fun request(address: String, method: String, token: String, body: String?): Int {
         val connection = URL(address).openConnection() as HttpURLConnection

@@ -190,6 +190,23 @@ describe("sharing your position", () => {
     expect((await env.DB.prepare("SELECT COUNT(*) AS n FROM location_shares").first<{ n: number }>())?.n).toBe(0);
   });
 
+  it("keeps the time the fix was taken, and never lets an older fix replace a newer one", async () => {
+    await share("anna", ["bertil"]);
+    const fix = (lat: number, at: unknown, now: Date) => updatePosition(req("/location/position", "anna", { lat, lon: 18.5, accuracy: 10, at }), env, now);
+    // Lost GPS: the 09:01 fix is sent again at 09:20, and still says 09:01.
+    await fix(67.9, later(1).getTime(), later(1));
+    await fix(67.9, later(1).getTime(), later(20));
+    expect((await seenBy("bertil", later(21)))[0].position).toMatchObject({ at: later(1).toISOString() });
+    await fix(67.91, later(22).toISOString(), later(23));
+    await fix(67.8, later(10).getTime(), later(24));
+    expect((await seenBy("bertil", later(25)))[0].position).toMatchObject({ lat: 67.91, at: later(22).toISOString() });
+    // A clock ahead of ours, or no time at all (older apps): stamped on arrival.
+    await fix(67.92, later(90).getTime(), later(30));
+    expect((await seenBy("bertil", later(31)))[0].position).toMatchObject({ lat: 67.92, at: later(30).toISOString() });
+    await send("anna", 67.93, 18.5, later(40));
+    expect((await seenBy("bertil", later(41)))[0].position).toMatchObject({ lat: 67.93, at: later(40).toISOString() });
+  });
+
   it("rejects nonsense positions", async () => {
     await share("anna", ["bertil"]);
     expect(await status(updatePosition(req("/location/position", "anna", { lat: 91, lon: 18 }), env, later(1)))).toBe(400);

@@ -206,10 +206,25 @@ export async function startShare(request: Request, env: NotifyEnv, defer?: Defer
   return { share: await activeShare(env, me.id, now) };
 }
 
-/** POST /location/position {lat, lon, accuracy}: the latest point of your running share. */
+/** How old a fix the phone may report; older ones are stamped with the time they arrive. */
+const MAX_FIX_AGE_MS = 24 * 3600 * 1000;
+
+/** When the phone took the fix (`at`, ms or ISO), never later than now; the arrival time for old apps. */
+function fixTime(value: unknown, now: Date): string {
+  const at = typeof value === "number" ? value : typeof value === "string" ? Date.parse(value) : NaN;
+  if (!Number.isFinite(at) || at < now.getTime() - MAX_FIX_AGE_MS) return now.toISOString();
+  return new Date(Math.min(at, now.getTime())).toISOString();
+}
+
+/**
+ * POST /location/position {lat, lon, accuracy, at}: the latest point of your
+ * running share. `at` is when the phone took the fix, so a phone that has
+ * lost GPS (in a snow hole, under trees) and sends its last fix again shows
+ * how old it really is; an older fix never replaces a newer one.
+ */
 export async function updatePosition(request: Request, env: CommunityEnv, now = new Date()) {
   const me = await requireUser(request, env);
-  const body = await readJson<{ lat?: unknown; lon?: unknown; accuracy?: unknown }>(request);
+  const body = await readJson<{ lat?: unknown; lon?: unknown; accuracy?: unknown; at?: unknown }>(request);
   const lat = Number(body.lat);
   const lon = Number(body.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) {
@@ -217,14 +232,18 @@ export async function updatePosition(request: Request, env: CommunityEnv, now = 
   }
   const acc = body.accuracy === undefined || body.accuracy === null ? null : Number(body.accuracy);
   const accuracy = acc !== null && Number.isFinite(acc) && acc >= 0 ? Math.min(Math.round(acc), 100_000) : null;
-  const result = await env.DB.prepare(
-    "UPDATE location_shares SET lat = ?, lon = ?, accuracy = ?, position_at = ? WHERE user_id = ? AND ends_at > ?"
+  const at = fixTime(body.at, now);
+  await env.DB.prepare(
+    `UPDATE location_shares SET lat = ?, lon = ?, accuracy = ?, position_at = ?
+      WHERE user_id = ? AND ends_at > ? AND (position_at IS NULL OR position_at <= ?)`
   )
-    .bind(Math.round(lat * 1e6) / 1e6, Math.round(lon * 1e6) / 1e6, accuracy, now.toISOString(), me.id, now.toISOString())
+    .bind(Math.round(lat * 1e6) / 1e6, Math.round(lon * 1e6) / 1e6, accuracy, at, me.id, now.toISOString(), at)
     .run();
-  if (!result.meta.changes) throw new HttpError(404, "Du delar inte din position just nu.");
-  const row = await env.DB.prepare("SELECT ends_at FROM location_shares WHERE user_id = ?").bind(me.id).first<{ ends_at: string }>();
-  return { endsAt: row?.ends_at ?? null };
+  const row = await env.DB.prepare("SELECT ends_at FROM location_shares WHERE user_id = ? AND ends_at > ?")
+    .bind(me.id, now.toISOString())
+    .first<{ ends_at: string }>();
+  if (!row) throw new HttpError(404, "Du delar inte din position just nu.");
+  return { endsAt: row.ends_at };
 }
 
 /** DELETE /location/share: stops sharing (or removes a last point still shown) and deletes the position. */

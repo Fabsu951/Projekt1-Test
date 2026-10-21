@@ -129,6 +129,8 @@ public class ShareLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocationManager
             "lat": location.coordinate.latitude,
             "lon": location.coordinate.longitude,
             "accuracy": Int(location.horizontalAccuracy.rounded()),
+            // When the fix was taken (iOS can hand over a cached one), never later than now.
+            "at": Int(min(location.timestamp, Date()).timeIntervalSince1970 * 1000),
         ]
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         URLSession.shared.dataTask(with: request) { _, response, _ in
@@ -142,7 +144,7 @@ public class ShareLocationPlugin: CAPPlugin, CAPBridgedPlugin, CLLocationManager
                         "lat": location.coordinate.latitude,
                         "lon": location.coordinate.longitude,
                         "accuracy": Int(location.horizontalAccuracy.rounded()),
-                        "at": ISO8601DateFormatter().string(from: Date()),
+                        "at": ISO8601DateFormatter().string(from: min(location.timestamp, Date())),
                     ])
                 } else if status == 404 || status == 401 {
                     // Stopped or ended elsewhere, or logged out.

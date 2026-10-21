@@ -87,7 +87,8 @@ export default function LocationShareBridge() {
     let stopped = false;
     let watchId: string | null = null;
     let last: { lat: number; lon: number; at: number } | null = null;
-    let latest: { lat: number; lon: number; accuracy: number } | null = null;
+    // `at`: when the phone took the fix (sent along, so a resent old fix shows its real age).
+    let latest: { lat: number; lon: number; accuracy: number; at: number } | null = null;
     let sending = false;
 
     const finish = (ranOut = false) => {
@@ -96,13 +97,13 @@ export default function LocationShareBridge() {
       void (ranOut && userId ? shareRanOut({ userId, endsAt }) : forgetActiveShare());
     };
 
-    const send = async (fix: { lat: number; lon: number; accuracy: number }) => {
+    const send = async (fix: { lat: number; lon: number; accuracy: number; at: number }) => {
       if (sending || stopped) return;
       sending = true;
       try {
-        await sendPosition(token, { lat: fix.lat, lon: fix.lon, accuracy: Math.round(fix.accuracy) });
+        await sendPosition(token, { lat: fix.lat, lon: fix.lon, accuracy: Math.round(fix.accuracy), at: fix.at });
         last = { lat: fix.lat, lon: fix.lon, at: Date.now() };
-        window.dispatchEvent(new CustomEvent(SHARE_SENT_EVENT, { detail: { ...fix, at: new Date().toISOString() } }));
+        window.dispatchEvent(new CustomEvent(SHARE_SENT_EVENT, { detail: { ...fix, at: new Date(fix.at).toISOString() } }));
       } catch (err) {
         // Stopped or ended elsewhere (another device, the end time).
         if (err instanceof ApiError && (err.status === 404 || err.status === 401)) finish();
@@ -114,7 +115,7 @@ export default function LocationShareBridge() {
 
     Geolocation.watchPosition({ enableHighAccuracy: true, timeout: 30_000, maximumAge: 15_000 }, (pos) => {
       if (stopped || !pos) return;
-      latest = { lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy };
+      latest = { lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy, at: pos.timestamp || Date.now() };
       if (shouldSend(last, latest, Date.now())) void send(latest);
     })
       .then((id) => {

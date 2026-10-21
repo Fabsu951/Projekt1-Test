@@ -162,7 +162,8 @@ export async function stopSharing(token: string | null): Promise<void> {
   }
 }
 
-export async function sendPosition(token: string, position: Omit<SharedPosition, "at">): Promise<{ endsAt: string | null }> {
+/** `at`: when the phone took the fix (ms); the worker never shows it as newer than that. */
+export async function sendPosition(token: string, position: Omit<SharedPosition, "at"> & { at?: number }): Promise<{ endsAt: string | null }> {
   return api("/location/position", { method: "POST", token, json: position });
 }
 
