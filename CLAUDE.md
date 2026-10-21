@@ -1404,6 +1404,22 @@ the start, exact map point.
   `exceededResources` fell 18 Oct 14:00 – 19 Oct 01:00 UTC, i.e. the three
   `kartor.yml` tile-migration runs; none since, normal traffic ≈ 5–300
   requests/h. Nothing to change; rerun it if the mail comes again.
+- **Code review 2026-10-21 (Fabian: "kolla igenom all kod och förbättra den"):**
+  worker: `/forecasts` cached under one key (query strings can't skip it);
+  expired sessions/email links pruned by the forecast cron (`pruneAuth`);
+  sessions in use renewed to 90 days when < 60 left (privacy policy says
+  "90 dagar efter att de senast användes", updated 21 Oct); trip notices
+  claimed with a conditional update (cron + cache miss sent twice); danger
+  push via the outbox (above); R2 deletes in chunks of 1000; a failed insert
+  deletes its observation photo / tour track; position shares store the fix's
+  own time (`at`; an older fix never replaces a newer one) so a lost-GPS
+  resend doesn't look fresh; emails in the paper-map look. App: `timedFetch`
+  (20 s GET, 30 s writes, 90 s uploads) so weak signal falls back to saved
+  data; sw.js opens the saved app if a page load takes > 6 s; English table
+  loaded only in English; one Suspense around the Layout outlet (lazy /press
+  had none) and more pages lazy; observation filters ignore stale answers.
+  Deploy now lints the app and checks the live site/worker afterwards.
+  Test helper `sqliteD1` batch returns per-statement results like D1.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
