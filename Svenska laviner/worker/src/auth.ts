@@ -30,6 +30,9 @@ export interface User {
 // Cloudflare Workers cap PBKDF2 at 100k iterations.
 const PBKDF2_ITERATIONS = 100_000;
 const SESSION_DAYS = 90;
+/** A session in use is renewed (to SESSION_DAYS again) once it has fewer days than this left. */
+const RENEW_BELOW_DAYS = 60;
+const DAY_MS = 24 * 3600 * 1000;
 const MIN_PASSWORD_LENGTH = 10;
 const DISPLAY_NAME = /^[\p{L}\p{N}_ .-]{3,30}$/u;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -132,14 +135,25 @@ function bearerToken(request: Request): string | null {
 export async function currentUser(request: Request, env: CommunityEnv): Promise<User | null> {
   const token = bearerToken(request);
   if (!token) return null;
+  const hash = await sha256(token);
+  const now = new Date();
   const row = await env.DB.prepare(
-    `SELECT ${USER_COLUMNS}
+    `SELECT ${USER_COLUMNS}, s.expires_at AS session_expires_at
        FROM sessions s JOIN users u ON u.id = s.user_id
       WHERE s.token_hash = ? AND s.expires_at > ?`
   )
-    .bind(await sha256(token), nowIso())
-    .first<UserRow>();
-  return row ? toUser(row, env) : null;
+    .bind(hash, now.toISOString())
+    .first<UserRow & { session_expires_at: string }>();
+  if (!row) return null;
+  // Sessions in use don't run out: someone active all season isn't logged
+  // out mid-tour (which would also stop a running position share). At most
+  // one write a month per session.
+  if (Date.parse(row.session_expires_at) - now.getTime() < RENEW_BELOW_DAYS * DAY_MS) {
+    await env.DB.prepare("UPDATE sessions SET expires_at = ? WHERE token_hash = ?")
+      .bind(new Date(now.getTime() + SESSION_DAYS * DAY_MS).toISOString(), hash)
+      .run();
+  }
+  return toUser(row, env);
 }
 
 export async function requireUser(request: Request, env: CommunityEnv): Promise<User> {

@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { describe, expect, it } from "vitest";
-import { pruneAuth, register, type CommunityEnv } from "./auth";
+import { currentUser, pruneAuth, register, type CommunityEnv } from "./auth";
 import { migratedD1 } from "./testing/sqliteD1";
 
 const signup = (json: Record<string, unknown>) =>
@@ -43,5 +43,27 @@ describe("pruneAuth", () => {
     expect(sessions.results.map((r) => r.token_hash)).toEqual(["live"]);
     const tokens = await env.DB.prepare("SELECT token_hash FROM email_tokens ORDER BY token_hash").all<{ token_hash: string }>();
     expect(tokens.results.map((r) => r.token_hash)).toEqual(["just-used", "open"]);
+  });
+});
+
+describe("sessions in use", () => {
+  it("are renewed when fewer than 60 days are left, at most once a month", async () => {
+    const env = { DB: migratedD1() } as unknown as CommunityEnv;
+    await register(signup({ acceptTerms: true }), env);
+    const hash = async (t: string) => Buffer.from(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t))).toString("base64");
+    const inDays = (d: number) => new Date(Date.now() + d * 864e5).toISOString();
+    await env.DB.batch([
+      env.DB.prepare("INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?, 1, '', ?)").bind(await hash("soon"), inDays(10)),
+      env.DB.prepare("INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?, 1, '', ?)").bind(await hash("fresh"), inDays(80)),
+    ]);
+    const asking = (t: string) => new Request("https://worker.test/auth/me", { headers: { Authorization: `Bearer ${t}` } });
+    expect((await currentUser(asking("soon"), env))?.id).toBe(1);
+    expect((await currentUser(asking("fresh"), env))?.id).toBe(1);
+    const left = async (t: string) => {
+      const row = await env.DB.prepare("SELECT expires_at FROM sessions WHERE token_hash = ?").bind(await hash(t)).first<{ expires_at: string }>();
+      return Math.round((Date.parse(row!.expires_at) - Date.now()) / 864e5);
+    };
+    expect(await left("soon")).toBe(90);
+    expect(await left("fresh")).toBe(80);
   });
 });

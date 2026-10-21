@@ -193,7 +193,7 @@ export default function AboutPage() {
 
       <section className="section privacy" id="integritet">
         <h2>{t("Integritetspolicy")}</h2>
-        <p className="muted">{t("Senast uppdaterad 19 oktober 2026.")}</p>
+        <p className="muted">{t("Senast uppdaterad 21 oktober 2026.")}</p>
         {isEnglish() && <p className="muted">This is a translation. The Swedish version of the privacy policy is the one that applies.</p>}
         <p>
           <strong>{t("Personuppgiftsansvarig")}</strong>{" "}{t("är Fabian Sund, som driver Snöläge som privatperson")}
@@ -290,7 +290,7 @@ export default function AboutPage() {
 
         <h3>{t("Hur länge")}</h3>
         <p>
-          {t("Kontot, dina observationer, turer, rutter och kommentarer sparas tills du raderar dem. Inloggningar går ut efter 90 dagar, länkar för att bekräfta e-post efter 24 timmar och länkar för lösenordsåterställning efter en timme. Notiser raderas efter 90 dagar och räkningen av inloggningsförsök efter ett dygn. Uppgifter för push-notiser sparas tills du stänger av notiserna, eller tills telefonen eller webbläsaren slutar ta emot dem. Anmälningar sparas tills de har hanterats, eller så länge det anmälda innehållet finns. Raderade uppgifter kan finnas kvar i databasens automatiska säkerhetskopior i upp till 30 dagar, och används inte under den tiden.")}
+          {t("Kontot, dina observationer, turer, rutter och kommentarer sparas tills du raderar dem. Inloggningar går ut 90 dagar efter att de senast användes, länkar för att bekräfta e-post efter 24 timmar och länkar för lösenordsåterställning efter en timme. Notiser raderas efter 90 dagar och räkningen av inloggningsförsök efter ett dygn. Uppgifter för push-notiser sparas tills du stänger av notiserna, eller tills telefonen eller webbläsaren slutar ta emot dem. Anmälningar sparas tills de har hanterats, eller så länge det anmälda innehållet finns. Raderade uppgifter kan finnas kvar i databasens automatiska säkerhetskopior i upp till 30 dagar, och används inte under den tiden.")}
         </p>
 
         <h3 id="radera-konto">{t("Radera ditt konto")}</h3>
