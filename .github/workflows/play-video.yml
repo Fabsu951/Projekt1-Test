@@ -14,7 +14,8 @@ on:
     branches: [claude/bold-lamport-juktha, svenska-laviner]
     paths:
       - ".github/workflows/play-video.yml"
-      - "Svenska laviner/app/scripts/play-video/**"
+      # The video's own script; helper changes (emulator.mjs) are tested by android-e2e.yml.
+      - "Svenska laviner/app/scripts/play-video/drive.mjs"
   workflow_dispatch:
 
 concurrency:

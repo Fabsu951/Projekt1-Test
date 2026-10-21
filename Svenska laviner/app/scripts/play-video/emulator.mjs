@@ -10,10 +10,23 @@ export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export const adb = (...args) => execFileSync("adb", args, { encoding: "utf8", timeout: 60_000 });
 export const shell = (cmd) => adb("shell", cmd);
 
+/** The screen's element tree from uiautomator, or "" if it can't be read right now. */
+function screenXml() {
+  // A dump now and then fails while the screen changes (no ui.xml then): try again once.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      shell("uiautomator dump /sdcard/ui.xml");
+      return shell("cat /sdcard/ui.xml");
+    } catch {
+      execFileSync("sleep", ["1"]);
+    }
+  }
+  return "";
+}
+
 /** The centre of the first on-screen element whose text matches, from uiautomator. */
 export function find(pattern) {
-  shell("uiautomator dump /sdcard/ui.xml");
-  const xml = shell("cat /sdcard/ui.xml");
+  const xml = screenXml();
   for (const node of xml.split("<node ")) {
     const text = node.match(/ text="([^"]*)"/)?.[1] ?? "";
     const desc = node.match(/content-desc="([^"]*)"/)?.[1] ?? "";
