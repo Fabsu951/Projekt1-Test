@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import ObservationCard from "../components/ObservationCard";
@@ -19,13 +19,20 @@ export default function ObservationsPage() {
   const [observations, setObservations] = useState<Observation[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Only the latest request may fill the list: switching filters quickly
+  // must not let a slower earlier answer show under the new filter.
+  const latest = useRef(0);
   const load = useCallback(() => {
+    const request = ++latest.current;
     fetchObservations({ region: region || undefined, type: type || undefined, days: days || undefined, limit: 100 })
       .then((list) => {
+        if (request !== latest.current) return;
         setError(null);
         setObservations(list);
       })
-      .catch((err: Error) => setError(err.message));
+      .catch((err: Error) => {
+        if (request === latest.current) setError(err.message);
+      });
   }, [region, type, days]);
 
   useEffect(load, [load]);
