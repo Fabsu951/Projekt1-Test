@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import {
   canShareImage,
   downloadImage,
@@ -39,6 +40,8 @@ export default function ShareImageButton({ model, fileName, title, text, label }
   const [error, setError] = useState<string | null>(null);
   const opener = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const dialog = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialog, open);
 
   useEffect(() => {
     if (!open) return;
@@ -105,7 +108,7 @@ export default function ShareImageButton({ model, fileName, title, text, label }
         {label}
       </button>
       {open && (
-        <div className="share-image" role="dialog" aria-modal="true" aria-labelledby="share-image-title">
+        <div className="share-image" role="dialog" aria-modal="true" aria-labelledby="share-image-title" ref={dialog}>
           <div className="share-image__panel">
             <div className="share-image__top">
               <h2 id="share-image-title" ref={heading} tabIndex={-1}>

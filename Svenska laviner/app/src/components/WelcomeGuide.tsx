@@ -4,6 +4,7 @@ import { useFavorites } from "../favorites/useFavorites";
 import { lang, setLang, t } from "../i18n";
 import Icon, { type IconName } from "./Icon";
 import { useRegionPush } from "../hooks/useRegionPush";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import { markWelcomeDone as markDone } from "../services/welcome";
 
 const POINTS: Array<[IconName, string, string]> = [
@@ -25,6 +26,8 @@ export default function WelcomeGuide({ onClose }: { onClose: () => void }) {
   const [wantPush, setWantPush] = useState(true);
   const canPush = push.available && favorites.length > 0;
   const heading = useRef<HTMLHeadingElement>(null);
+  const dialog = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialog);
 
   const close = () => {
     markDone();
@@ -60,7 +63,7 @@ export default function WelcomeGuide({ onClose }: { onClose: () => void }) {
   const english = lang() === "en";
 
   return (
-    <div className="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <div className="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-title" ref={dialog}>
       <div className="welcome__panel">
         <div className="welcome__top">
           <ol className="welcome__steps" aria-label={t("Steg {n} av 3", { n: step + 1 })}>
