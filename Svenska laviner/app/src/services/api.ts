@@ -6,6 +6,9 @@ import { timedFetch } from "../utils/timedFetch";
  */
 export const WORKER_BASE = ((import.meta.env.VITE_MAP_PROXY_URL as string | undefined) ?? "").replace(/\/$/, "");
 
+/** Fired when the server no longer accepts the signed-in token (AuthProvider then signs out on this device). */
+export const UNAUTHORIZED_EVENT = "fjallkoll:unauthorized";
+
 export class ApiError extends Error {
   status: number;
   /** The rest of the server's answer, for errors the app can act on. */
@@ -43,6 +46,7 @@ export async function api<T>(path: string, { method = "GET", token, json, form }
     throw new ApiError(0, t("Ingen kontakt med servern. Kontrollera din uppkoppling."));
   }
   const data = (await res.json().catch(() => ({}))) as { error?: string };
+  if (res.status === 401 && token && typeof window !== "undefined") window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT, { detail: { token } }));
   if (!res.ok) throw new ApiError(res.status, data.error ?? t("Något gick fel ({status}).", { status: res.status }), data);
   return data as T;
 }

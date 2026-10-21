@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Preferences } from "@capacitor/preferences";
-import { api, ApiError } from "../services/api";
+import { api, ApiError, UNAUTHORIZED_EVENT } from "../services/api";
 import { cached, clearUserCache, USER_SCOPE } from "../services/cache";
 import { stopNativeAccountPush } from "../services/nativePush";
 import { stopSharing } from "../services/locationShare";
@@ -59,6 +59,23 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, []);
+
+  // The session was ended elsewhere (password reset, logged out on all devices, deleted
+  // by an admin): sign out here too instead of failing on every page.
+  useEffect(() => {
+    if (!token) return;
+    const ended = (e: Event) => {
+      if ((e as CustomEvent<{ token?: string }>).detail?.token !== token) return;
+      void (async () => {
+        await saveToken(null);
+        await clearUserCache();
+        setToken(null);
+        setUser(null);
+      })();
+    };
+    window.addEventListener(UNAUTHORIZED_EVENT, ended);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, ended);
+  }, [token]);
 
   const start = useCallback(async (result: { token: string; user: User }) => {
     // Nothing saved for a previous account may show up for this one.
