@@ -53,6 +53,8 @@ export interface WorkerRegionForecast {
   snow?: unknown;
   weather?: unknown;
   problems?: WorkerProblem[];
+  /** When the forecast stops being in force; older workers leave it out. */
+  validUntil?: string | null;
 }
 
 const ELEVATIONS: Elevation[] = ["kalfjall", "tradgrans", "under_tradgrans"];
@@ -131,6 +133,17 @@ function extras(item: WorkerRegionForecast) {
   return { trend: toTrend(item.trend), snow: toNote(item.snow), weather: toNote(item.weather) };
 }
 
+const validUntil = (v: unknown): string | null => (typeof v === "string" && Number.isFinite(Date.parse(v)) ? v : null);
+
+/**
+ * A forecast past its end (a saved copy shown offline, or a cached answer)
+ * shows no level any more – yesterday's level is not today's.
+ */
+export function withoutExpired(forecast: AvalancheForecast, now = Date.now()): AvalancheForecast {
+  if (!forecast.validUntil || Date.parse(forecast.validUntil) > now) return forecast;
+  return unavailable(forecast.regionId, forecast.sourceUrl);
+}
+
 export function toForecast(item: WorkerRegionForecast): AvalancheForecast {
   const base = unavailable(item.regionId, item.sourceUrl || OFFICIAL_FORECAST_URL);
   if (item.fetchError) return base;
@@ -144,6 +157,7 @@ export function toForecast(item: WorkerRegionForecast): AvalancheForecast {
       mainMessage: text(item.mainMessage),
       publishedText: item.publishedText,
       problems: toProblems(item.problems),
+      validUntil: validUntil(item.validUntil),
       ...extras(item),
     };
   }
@@ -156,6 +170,7 @@ export function toForecast(item: WorkerRegionForecast): AvalancheForecast {
       mainMessage: text(item.mainMessage),
       publishedText: item.publishedText,
       problems: toProblems(item.problems),
+      validUntil: validUntil(item.validUntil),
       ...extras(item),
     };
   }
@@ -226,7 +241,7 @@ export async function loadForecasts(): Promise<LoadedForecasts> {
     list = REGIONS.map((r) => unavailable(r.id));
   }
   const byId: Record<string, AvalancheForecast> = {};
-  for (const f of list) byId[f.regionId] = f;
+  for (const f of list) byId[f.regionId] = withoutExpired(f);
   return { byId, stale, cachedAt };
 }
 

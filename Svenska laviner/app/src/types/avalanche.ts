@@ -72,6 +72,8 @@ export interface AvalancheForecast {
   publishedText: string | null;
   /** The official forecast page for this region. */
   sourceUrl: string;
+  /** When the forecast stops being in force (ISO); after that it shows no level, also offline. */
+  validUntil?: string | null;
   /** "Förväntad utveckling": the expected level for the next day (from Naturvårdsverket's API). */
   trend?: ForecastTrend | null;
   /** "Rapport från området": what the forecasters saw in the field. */

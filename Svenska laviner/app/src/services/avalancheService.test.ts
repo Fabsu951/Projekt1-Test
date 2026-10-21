@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchAllForecasts, toForecast, toHistory, type WorkerProblem, type WorkerRegionForecast } from "./avalancheService";
+import { fetchAllForecasts, toForecast, toHistory, withoutExpired, type WorkerProblem, type WorkerRegionForecast } from "./avalancheService";
 import { REGIONS } from "../data/regions";
 
 function item(overrides: Partial<WorkerRegionForecast> = {}): WorkerRegionForecast {
@@ -93,6 +93,28 @@ describe("toForecast", () => {
     expect(toForecast(item()).status).toBe("unavailable");
     expect(toForecast(item({ danger: 0 })).status).toBe("unavailable");
     expect(toForecast(item({ danger: 7 })).status).toBe("unavailable");
+  });
+});
+
+describe("a forecast past its end", () => {
+  it("shows no level any more, whether saved or cached", () => {
+    const f = toForecast(item({ danger: 3, validUntil: "2027-01-22T17:00:00.000Z" }));
+    expect(f.validUntil).toBe("2027-01-22T17:00:00.000Z");
+    expect(withoutExpired(f, Date.parse("2027-01-22T16:59:00Z"))).toMatchObject({ status: "published", dangerLevel: 3 });
+    expect(withoutExpired(f, Date.parse("2027-01-22T17:00:00Z"))).toMatchObject({ status: "unavailable", dangerLevel: null });
+    // Older workers sent no end: kept as it was.
+    expect(withoutExpired(toForecast(item({ danger: 2 })), Date.parse("2030-01-01T00:00:00Z")).dangerLevel).toBe(2);
+  });
+
+  it("is dropped from the copy saved for offline use", async () => {
+    localStorage.clear();
+    const regions = REGIONS.map((r) => item({ regionId: r.id, danger: 3, validUntil: new Date(Date.now() - 3600e3).toISOString() }));
+    vi.stubEnv("VITE_MAP_PROXY_URL", "https://worker.example");
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({ regions })));
+    vi.resetModules();
+    const fresh = await (await import("./avalancheService")).loadForecasts();
+    expect(Object.values(fresh.byId).every((f) => f.dangerLevel === null)).toBe(true);
+    vi.unstubAllEnvs();
   });
 });
 
