@@ -45,6 +45,33 @@ describe("tilesFor", () => {
   });
 });
 
+describe("downloadArea when it goes wrong", () => {
+  it("says the device is full at once, and leaves no half map behind", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(new Uint8Array(100))));
+    let puts = 0;
+    const open = caches.api.open;
+    vi.stubGlobal("caches", {
+      ...caches.api,
+      open: async (name: string) => {
+        const cache = await open(name);
+        return { ...cache, put: async (u: string, r: Response) => (++puts > 5 ? Promise.reject(new DOMException("full", "QuotaExceededError")) : cache.put(u, r)) };
+      },
+    });
+    await expect(downloadArea(KEBNEKAISE, "oversikt", url, () => {})).rejects.toThrow(/inte plats för mer karta/);
+    expect(caches.store.has("fjallkoll-tiles-kebnekaisefjallen")).toBe(false);
+    expect(await savedArea(KEBNEKAISE.id)).toBeNull();
+  });
+
+  it("keeps an area saved earlier when a bigger download of it fails", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(new Uint8Array(100))));
+    await downloadArea(KEBNEKAISE, "oversikt", url, () => {});
+    vi.stubGlobal("fetch", vi.fn(async () => Promise.reject(new TypeError("offline"))));
+    await expect(downloadArea(KEBNEKAISE, "detaljerad", url, () => {})).rejects.toThrow();
+    expect(caches.store.get("fjallkoll-tiles-kebnekaisefjallen")!.size).toBe(tilesFor(offlineBounds(KEBNEKAISE), 13).length);
+    expect(await savedArea(KEBNEKAISE.id)).toMatchObject({ level: "oversikt" });
+  });
+});
+
 describe("downloadArea", () => {
   it("stores every tile, reports progress, and remembers the saved area", async () => {
     const fetchMock = vi.fn(async () => new Response(new Uint8Array(100)));

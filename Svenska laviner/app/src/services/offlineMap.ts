@@ -2,6 +2,7 @@ import { Preferences } from "@capacitor/preferences";
 import type { AvalancheRegion } from "../types/avalanche";
 import { t } from "../i18n";
 import { networkTileUrl } from "./mapTiles";
+import { timedFetch } from "../utils/timedFetch";
 
 /**
  * Offline map areas. Tiles are stored with the Cache Storage API in one
@@ -160,6 +161,14 @@ export function corridorTiles(
   return tiles;
 }
 
+/** One tile that hangs on a weak signal counts as failed instead of stalling the download. */
+const TILE_TIMEOUT_MS = 30_000;
+
+/** The browser or phone has no room left for more saved map. */
+function outOfSpace(err: unknown): boolean {
+  return err instanceof DOMException && (err.name === "QuotaExceededError" || err.code === 22);
+}
+
 /**
  * One tile from the network: the map bucket (kartor.snolage.se) when it has
  * it, else the worker. Null for tiles the worker redirects to
@@ -168,13 +177,13 @@ export function corridorTiles(
 async function fetchTile(url: string, signal?: AbortSignal): Promise<Response | null> {
   const source = await networkTileUrl(url);
   if (source !== url) {
-    const direct = await fetch(source, { signal }).catch((err) => {
+    const direct = await timedFetch(source, { signal }, TILE_TIMEOUT_MS).catch((err) => {
       if (signal?.aborted) throw err;
       return null;
     });
     if (direct?.ok) return direct;
   }
-  const fresh = await fetch(url, { signal, redirect: "manual" });
+  const fresh = await timedFetch(url, { signal, redirect: "manual" }, TILE_TIMEOUT_MS);
   if (fresh.type === "opaqueredirect" || (fresh.status >= 300 && fresh.status < 400)) return null;
   if (!fresh.ok) throw new Error(String(fresh.status));
   return fresh;
@@ -185,6 +194,26 @@ async function fetchTile(url: string, signal?: AbortSignal): Promise<Response | 
  * Throws if more than a few percent fail, e.g. without a connection.
  */
 export async function downloadTiles(
+  cacheKey: string,
+  tiles: Array<[number, number, number]>,
+  tileUrl: (z: number, x: number, y: number) => string,
+  onProgress: (p: DownloadProgress) => void,
+  signal?: AbortSignal,
+  /** A new save (nothing saved under this key yet): a failed or cancelled one leaves no half map taking up space. */
+  discardOnError = false
+): Promise<{ tiles: number; bytes: number }> {
+  try {
+    return await fillCache(cacheKey, tiles, tileUrl, onProgress, signal);
+  } catch (err) {
+    if (discardOnError) {
+      await caches.delete(cacheKey).catch(() => {});
+      forgetTileCaches();
+    }
+    throw err;
+  }
+}
+
+async function fillCache(
   cacheKey: string,
   tiles: Array<[number, number, number]>,
   tileUrl: (z: number, x: number, y: number) => string,
@@ -224,6 +253,10 @@ export async function downloadTiles(
         bytes += size;
       } catch (err) {
         if (signal?.aborted) throw err;
+        // Out of space: say so at once instead of blaming the connection after every tile.
+        if (outOfSpace(err)) {
+          throw new Error(t("Det finns inte plats för mer karta på enheten. Ta bort en sparad karta eller välj en mindre nivå."));
+        }
         failed++;
       }
       onProgress({ done: ++done, total: tiles.length });
@@ -246,7 +279,8 @@ export async function downloadArea(
   signal?: AbortSignal
 ): Promise<SavedArea> {
   const tiles = tilesFor(offlineBounds(region), OFFLINE_LEVELS[level].maxZoom);
-  const result = await downloadTiles(cacheName(region.id), tiles, tileUrl, onProgress, signal);
+  const before = await readMeta();
+  const result = await downloadTiles(cacheName(region.id), tiles, tileUrl, onProgress, signal, !before[region.id]);
   const area: SavedArea = { level, tiles: result.tiles, bytes: result.bytes, savedAt: new Date().toISOString() };
   const meta = await readMeta();
   meta[region.id] = area;
@@ -354,7 +388,7 @@ export async function saveView(
   const plan = viewPlan(bounds);
   if (!plan) throw new Error(t("Området är för stort. Zooma in lite och försök igen."));
   const key = `view-${Date.now()}`;
-  const result = await downloadTiles(cacheName(key), tilesFor(bounds, plan.maxZoom), tileUrl, onProgress, signal);
+  const result = await downloadTiles(cacheName(key), tilesFor(bounds, plan.maxZoom), tileUrl, onProgress, signal, true);
   const view: SavedView = { key, name, bounds, maxZoom: plan.maxZoom, tiles: result.tiles, bytes: result.bytes, savedAt: new Date().toISOString() };
   await Preferences.set({ key: VIEWS_KEY, value: JSON.stringify([view, ...(await readViews())]) });
   return view;

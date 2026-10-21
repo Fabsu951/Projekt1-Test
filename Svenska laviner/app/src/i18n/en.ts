@@ -392,6 +392,7 @@ export const EN: Record<string, string> = {
   "Detaljerad": "Detailed",
   "Avbruten": "Cancelled",
   "{failed} av {total} kartbitar kunde inte hämtas. Kontrollera anslutningen och försök igen.": "{failed} of {total} map tiles couldn't be downloaded. Check the connection and try again.",
+  "Det finns inte plats för mer karta på enheten. Ta bort en sparad karta eller välj en mindre nivå.": "There is no room for more map on this device. Remove a saved map or choose a smaller level.",
   "Området är för stort. Zooma in lite och försök igen.": "The area is too large. Zoom in a little and try again.",
   "Den här webbläsaren kan inte spara kartor offline.": "This browser can't save maps for offline use.",
   "Notiser är blockerade för den här sidan. Tillåt dem i webbläsarens inställningar.": "Notifications are blocked for this site. Allow them in the browser settings.",

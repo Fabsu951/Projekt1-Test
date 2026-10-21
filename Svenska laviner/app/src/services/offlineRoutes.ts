@@ -98,7 +98,8 @@ export async function saveRouteOffline(
   // A changed route may cover other tiles: start its cache afresh.
   await caches.delete(cacheName(key));
   forgetTileCaches();
-  const result = await downloadTiles(cacheName(key), routeTiles(route.waypoints), tileUrl, onProgress, signal);
+  const wasSaved = key in (await readAll());
+  const result = await downloadTiles(cacheName(key), routeTiles(route.waypoints), tileUrl, onProgress, signal, !wasSaved);
   const saved: OfflineRoute = {
     key,
     routeId: route.routeId,
