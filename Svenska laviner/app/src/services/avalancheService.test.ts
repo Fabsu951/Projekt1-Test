@@ -112,7 +112,7 @@ describe("fetchAllForecasts", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const list = await fetchAllForecasts("https://worker.example/");
-    expect(fetchMock).toHaveBeenCalledWith("https://worker.example/forecasts");
+    expect(fetchMock).toHaveBeenCalledWith("https://worker.example/forecasts", expect.anything());
     expect(list.find((f) => f.regionId === "kebnekaisefjallen")?.dangerLevel).toBe(2);
     expect(list.filter((f) => f.status === "unavailable")).toHaveLength(REGIONS.length - 1);
   });

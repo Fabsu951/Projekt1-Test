@@ -1,4 +1,5 @@
 import { t } from "../i18n";
+import { timedFetch } from "../utils/timedFetch";
 /**
  * The Cloudflare Worker hosts the map proxy, forecast scraper, and the
  * accounts/observations API, all under one base URL.
@@ -36,7 +37,8 @@ export async function api<T>(path: string, { method = "GET", token, json, form }
 
   let res: Response;
   try {
-    res = await fetch(`${WORKER_BASE}${path}`, { method, headers, body });
+    // Uploads (photos) get longer than ordinary requests.
+    res = await timedFetch(`${WORKER_BASE}${path}`, { method, headers, body }, form ? 90_000 : method === "GET" ? 20_000 : 30_000);
   } catch {
     throw new ApiError(0, t("Ingen kontakt med servern. Kontrollera din uppkoppling."));
   }

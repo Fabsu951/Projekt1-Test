@@ -1,5 +1,6 @@
 import { haversineDistanceKm } from "../utils/geo";
 import { t } from "../i18n";
+import { timedFetch } from "../utils/timedFetch";
 
 /**
  * SMHI's separate observation network (metobs), distinct from the forecast
@@ -56,7 +57,7 @@ export interface WindSample {
 }
 
 export async function findNearestWindStation(lat: number, lon: number): Promise<WindStation> {
-  const res = await fetch(`${METOBS_BASE}/parameter/${WIND_SPEED_PARAMETER}.json`);
+  const res = await timedFetch(`${METOBS_BASE}/parameter/${WIND_SPEED_PARAMETER}.json`);
   if (!res.ok) {
     throw new Error(t("Kunde inte hämta stationslistan: HTTP {status}", { status: res.status }));
   }
@@ -93,7 +94,7 @@ async function fetchParameterSeries(
   stationId: number
 ): Promise<Map<number, number>> {
   const url = `${METOBS_BASE}/parameter/${parameter}/station/${stationId}/period/latest-day/data.json`;
-  const res = await fetch(url);
+  const res = await timedFetch(url);
   if (!res.ok) {
     throw new Error(`HTTP ${res.status}`);
   }

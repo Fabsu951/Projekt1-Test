@@ -1,5 +1,6 @@
 import type { WeatherPoint } from "../types/weather";
 import { t } from "../i18n";
+import { timedFetch } from "../utils/timedFetch";
 
 // SMHI retired the old pmp3g point-forecast API on 2026-03-31 in favor of
 // snow1g (same lon/lat URL shape, but "validTime" became "time" and the
@@ -30,7 +31,7 @@ function paramValue(entry: SmhiTimeSeriesEntry, ...names: string[]): number {
 
 export async function fetchWeather(lat: number, lon: number): Promise<WeatherPoint[]> {
   const url = `${SMHI_BASE}/geotype/point/lon/${lon}/lat/${lat}/data.json`;
-  const res = await fetch(url);
+  const res = await timedFetch(url);
   if (!res.ok) {
     throw new Error(t("SMHI-anrop misslyckades: {status}", { status: res.status }));
   }

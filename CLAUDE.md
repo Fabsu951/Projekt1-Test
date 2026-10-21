@@ -475,7 +475,14 @@ the start, exact map point.
   only to Google/Mozilla/Apple/Microsoft push hosts), migration `0006`
   `push_subscriptions`. `recordAll` in `index.ts` runs `findChanges`
   (level differs from the latest stored forecast within 3 days; the very
-  first record never notifies) → `recordHistory` → `notifyChanges`.
+  first record never notifies) → `recordHistory` → `queueChanges`.
+  **Outbox (2026-10-21):** a free-plan worker run may make only 50 outgoing
+  requests, so danger notices (web + app) are queued in `push_outbox`
+  (migration `0028`, `src/outbox.ts`) and sent 20 per run: `sendQueued` calls
+  the worker itself through the `SELF` service binding (`POST
+  /internal/push-drain`, header `X-Drain-Key` = hash of the push secrets), up
+  to 20 runs at once; the */15 cron sends leftovers. Claimed with `DELETE …
+  RETURNING`, failed sends retried ≤ 3 times, notices older than 6 h dropped.
   Deployed 2026-09-26 (`d6e510f`); `deploy.ps1` runs the key setup step,
   confirm with `GET /push/key`. Turn on manually: from `worker/`, `node scripts/setup-push.mjs` (creates and
   stores `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` as secrets, refuses to
@@ -488,7 +495,7 @@ the start, exact map point.
   via WebCrypto → OAuth token cached ~1 h; `UNREGISTERED`/404 → "gone"),
   `nativePush.ts` (`GET /native/status`, `POST /native/register` {token,
   platform, regions, account — account only with a valid bearer},
-  `/native/unregister`; `notifyNativeChanges` next to web `notifyChanges`;
+  `/native/unregister`; danger changes via the outbox (above);
   `sendNativeToUser` from `notifications.ts`), migration `0015`
   `native_devices` (token PK, platform, regions JSON, user_id SET NULL;
   account deletion unlinks). Secret `FCM_SERVICE_ACCOUNT` (whole JSON,

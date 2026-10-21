@@ -5,6 +5,7 @@ import { COMPASS_SECTORS, type CompassSector } from "../utils/windAnalysis";
 import { cached, withCache } from "./cache";
 import { ApiError } from "./api";
 import { isEnglish, t } from "../i18n";
+import { timedFetch } from "../utils/timedFetch";
 
 /**
  * Official forecasts come from Naturvårdsverket's lavinprognoser.se
@@ -164,7 +165,7 @@ export function toForecast(item: WorkerRegionForecast): AvalancheForecast {
 export async function fetchAllForecasts(workerBase = WORKER_BASE): Promise<AvalancheForecast[]> {
   if (!workerBase) return REGIONS.map((r) => unavailable(r.id));
 
-  const res = await fetch(`${workerBase.replace(/\/$/, "")}/forecasts`);
+  const res = await timedFetch(`${workerBase.replace(/\/$/, "")}/forecasts`);
   if (!res.ok) throw new Error(t("Prognoshämtning misslyckades: {status}", { status: res.status }));
   const data: { regions: WorkerRegionForecast[] } = await res.json();
 
@@ -195,7 +196,7 @@ export function toHistory(raw: unknown): HistoryDay[] {
 /** The last week's recorded danger levels for a region, oldest first. */
 export async function fetchForecastHistory(regionId: string, workerBase = WORKER_BASE): Promise<HistoryDay[]> {
   if (!workerBase) return [];
-  const res = await fetch(`${workerBase.replace(/\/$/, "")}/forecasts/history?region=${encodeURIComponent(regionId)}&days=7`);
+  const res = await timedFetch(`${workerBase.replace(/\/$/, "")}/forecasts/history?region=${encodeURIComponent(regionId)}&days=7`);
   if (!res.ok) throw new Error(t("Historikhämtning misslyckades: {status}", { status: res.status }));
   return toHistory(await res.json());
 }
@@ -275,7 +276,7 @@ export function toSeason(raw: unknown): Season | null {
 export async function fetchSeason(regionId: string, season: number, workerBase = WORKER_BASE): Promise<Season> {
   if (!workerBase) throw new Error(t("Säsongsdata saknas i den här versionen."));
   return cached(`season:${regionId}:${season}`, async () => {
-    const res = await fetch(
+    const res = await timedFetch(
       `${workerBase.replace(/\/$/, "")}/forecasts/season?region=${encodeURIComponent(regionId)}&season=${season}&v=2`
     );
     if (!res.ok) throw new ApiError(res.status, t("Kunde inte hämta säsongen just nu."));

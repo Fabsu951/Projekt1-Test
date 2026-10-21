@@ -1,5 +1,6 @@
 import { haversineDistanceKm } from "../utils/geo";
 import { cached } from "./cache";
+import { timedFetch } from "../utils/timedFetch";
 
 /**
  * Measured snow depth from SMHI's observation network (metobs parameter 8,
@@ -64,7 +65,7 @@ export function summarizeDepth(values: RawValue[], now: Date): Pick<SnowStation,
 }
 
 async function getJson<T>(url: string): Promise<T> {
-  const res = await fetch(url);
+  const res = await timedFetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<T>;
 }
