@@ -35,8 +35,9 @@ Cloudflare svarade `cf-cache-status: DYNAMIC`, alltså att svaren inte
 cachas i Cloudflares nät. Det gör inget för gränsen på 100 000 workeranrop,
 eftersom kartbitarna inte går via workern. Varje bit räknas då som en
 R2-läsning (gratis upp till 10 miljoner i månaden). Vill du att Cloudflare
-cachar dem också: Cloudflare → snolage.se → Caching → Cache Rules → Create
-rule, "Hostname equals kartor.snolage.se" → Eligible for cache → Deploy.
+cachar dem också (snabbare karta): steg för steg i `KARTCACHE.docx`
+(Cloudflare → snolage.se → Caching → Cache Rules → Create rule, "Hostname
+equals kartor.snolage.se" → Eligible for cache → Deploy).
 
 ## Det som sköts automatiskt
 
