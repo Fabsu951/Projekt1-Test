@@ -63,6 +63,8 @@ export function directTileFor(url: string): string | null {
 }
 
 let directCheck: Promise<boolean> | null = null;
+/** Set once the probe has found the bucket unreachable (until it is asked again). */
+let directDown = false;
 
 /**
  * Whether kartor.snolage.se answers with a tile, asked once per visit (and
@@ -82,10 +84,22 @@ export function directTilesReady(): Promise<boolean> {
       clearTimeout(timer);
     }
   })().then((ok) => {
+    directDown = !ok;
     if (!ok) setTimeout(() => (directCheck = null), 5 * 60_000);
     return ok;
   });
   return directCheck;
+}
+
+/**
+ * Where to show a map tile from without waiting: the bucket unless it is
+ * known to be down (the caller falls back to the worker URL if it fails).
+ */
+export function quickTileUrl(url: string): string {
+  const direct = directTileFor(url);
+  if (!direct) return url;
+  void directTilesReady();
+  return directDown ? url : direct;
 }
 
 /** Where to load a tile from: the map bucket when it works and has the tile, else the worker URL itself. */

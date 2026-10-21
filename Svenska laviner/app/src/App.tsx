@@ -37,6 +37,13 @@ const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const VerifyEmailPage = lazy(() => import("./pages/VerifyEmailPage"));
 
+// The map is the page most often opened next: fetch its code (with Leaflet)
+// once the browser is idle, so opening it doesn't wait for the download.
+if (typeof window !== "undefined") {
+  const later = window.requestIdleCallback ?? ((fn: () => void) => window.setTimeout(fn, 2000));
+  later(() => void import("./pages/MapPage").catch(() => {}));
+}
+
 function App() {
   return (
     <Routes>

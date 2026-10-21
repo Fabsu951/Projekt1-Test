@@ -1,7 +1,7 @@
 import L from "leaflet";
 import "./leafletFixes";
 import { cachedTile, knownNoSavedTiles } from "../services/offlineMap";
-import { directTilesReady, networkTileUrl } from "../services/mapTiles";
+import { directTilesReady, quickTileUrl } from "../services/mapTiles";
 
 // Ask early whether kartor.snolage.se answers, so the first tiles don't wait.
 void directTilesReady();
@@ -37,11 +37,13 @@ export class OfflineTileLayer extends L.TileLayer {
 
     // The worker URL: the tile's identity, also for copies saved offline.
     const url = this.getTileUrl(coords);
-    const fromNetwork = () =>
-      void networkTileUrl(url).then((src) => {
-        if (src !== url) fallback = url;
-        tile.src = src;
-      });
+    // Straight from the map bucket, without waiting for the check above; a
+    // tile that fails there is fetched through the worker instead.
+    const fromNetwork = () => {
+      const src = quickTileUrl(url);
+      if (src !== url) fallback = url;
+      tile.src = src;
+    };
     // Nothing saved on this device: load straight away, no lookup.
     if (knownNoSavedTiles()) {
       fromNetwork();

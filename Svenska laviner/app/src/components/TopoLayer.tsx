@@ -27,9 +27,12 @@ export default function TopoLayer() {
       maxZoom={19}
       maxNativeZoom={TOPOWEBB_MAX_NATIVE_ZOOM}
       // Keep more tiles around the view so panning back doesn't flash empty,
-      // and don't fetch new tiles mid-zoom (they're thrown away at the end).
+      // and load new ones while the finger still pans or pinches (tiles come
+      // straight from kartor.snolage.se, so this costs no worker requests).
       keepBuffer={4}
-      updateWhenZooming={false}
+      updateWhenIdle={false}
+      updateWhenZooming
+      updateInterval={150}
     />
   );
 }

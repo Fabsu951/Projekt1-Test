@@ -68,6 +68,16 @@ describe("tiles from the map bucket", () => {
     const again = await load();
     expect(await again.networkTileUrl(workerTile(...KEBNE))).toBe(workerTile(...KEBNE));
   });
+
+  it("shows tiles from the bucket at once, and from the worker once the bucket is known to be down", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("no such host"); }));
+    const { quickTileUrl, directTilesReady } = await load();
+    // Before the check has answered: the bucket (the map layer falls back per tile).
+    expect(quickTileUrl(workerTile(...KEBNE))).toBe(`${DIRECT}/topowebb/15/18073/7863.png`);
+    expect(quickTileUrl(workerTile(...STHLM))).toBe(workerTile(...STHLM));
+    await directTilesReady();
+    expect(quickTileUrl(workerTile(...KEBNE))).toBe(workerTile(...KEBNE));
+  });
 });
 
 describe("offline download with the map bucket", () => {
