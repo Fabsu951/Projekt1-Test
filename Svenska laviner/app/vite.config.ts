@@ -117,9 +117,74 @@ function pageHeads(): Plugin {
   }
 }
 
+/**
+ * Writes dist/_headers for Cloudflare Pages: a content security policy that
+ * only lets the site load code from itself (plus Turnstile) and talk to the
+ * hosts it really uses, and no framing by other sites. The worker and map
+ * addresses come from the build's env; the inline theme script in
+ * index.html is allowed by its hash, so editing it updates the policy.
+ * (The apps bundle the site and don't get these headers.)
+ */
+function securityHeaders(): Plugin {
+  let outDir = 'dist'
+  let env: Record<string, string> = {}
+  return {
+    name: 'security-headers',
+    apply: 'build',
+    configResolved(config) {
+      outDir = config.build.outDir
+      env = loadEnv(config.mode, config.envDir || process.cwd(), 'VITE_')
+    },
+    writeBundle() {
+      const html = readFileSync(join(outDir, 'index.html'), 'utf8')
+      const hashes = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(
+        (m) => `'sha256-${createHash('sha256').update(m[1]).digest('base64')}'`,
+      )
+      const origin = (url: string | undefined) => {
+        try {
+          return url ? new URL(url).origin : ''
+        } catch {
+          return ''
+        }
+      }
+      const ours = [origin(env.VITE_MAP_PROXY_URL), origin(env.VITE_TILE_DIRECT_URL)].filter(Boolean).join(' ')
+      const turnstile = 'https://challenges.cloudflare.com'
+      const elevation = 'https://tiles.mapterhorn.com'
+      const csp = [
+        "default-src 'self'",
+        `script-src 'self' ${hashes.join(' ')} ${turnstile}`,
+        // Leaflet and React set inline styles.
+        "style-src 'self' 'unsafe-inline'",
+        // OpenStreetMap: the fallback map, and where the worker sends tiles it doesn't have.
+        `img-src 'self' data: blob: ${ours} https://tile.openstreetmap.org ${elevation}`,
+        `connect-src 'self' ${ours} ${elevation} https://opendata-download-metfcst.smhi.se https://opendata-download-metobs.smhi.se ${turnstile}`,
+        `frame-src ${turnstile}`,
+        "worker-src 'self'",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "frame-ancestors 'none'",
+      ].join('; ')
+      const headers = [
+        '/*',
+        `  Content-Security-Policy: ${csp.replace(/ +/g, ' ')}`,
+        '  X-Content-Type-Options: nosniff',
+        '  Referrer-Policy: strict-origin-when-cross-origin',
+        '  Permissions-Policy: geolocation=(self), camera=(self), microphone=(), payment=(), usb=()',
+        '/sw.js',
+        '  Cache-Control: no-cache',
+        '/assets/*',
+        '  Cache-Control: public, max-age=31536000, immutable',
+        '',
+      ].join('\n')
+      writeFileSync(join(outDir, '_headers'), headers)
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), offlineAppShell(), pageHeads(), thirdPartyLicenses()],
+  plugins: [react(), offlineAppShell(), pageHeads(), securityHeaders(), thirdPartyLicenses()],
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',

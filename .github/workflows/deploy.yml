@@ -100,6 +100,8 @@ jobs:
           [ "$code" = "404" ] || { echo "::error::/internal/push-drain answered $code without the key"; exit 1; }
           # The site itself.
           curl -fsS --retry 3 --retry-all-errors https://snolage.se/ | grep -q 'id="root"'
+          # Its security headers (dist/_headers, written by vite.config.ts).
+          curl -fsSI https://snolage.se/ | grep -qi '^content-security-policy:' || { echo "::error::snolage.se answers without its Content-Security-Policy"; exit 1; }
           echo "Live checks OK"
 
       - name: Summary

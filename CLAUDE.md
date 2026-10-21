@@ -1421,6 +1421,14 @@ the start, exact map point.
   loaded only in English; one Suspense around the Layout outlet (lazy /press
   had none) and more pages lazy; observation filters ignore stale answers.
   Deploy now lints the app and checks the live site/worker afterwards.
+  **Security headers:** `securityHeaders()` in `vite.config.ts` writes
+  `dist/_headers` (Pages): CSP with only the hosts the app uses (worker and
+  kartor origins from the build env, OSM tiles, Mapterhorn, SMHI metfcst/metobs,
+  Turnstile) and the inline theme script's sha256, `frame-ancestors 'none'`,
+  nosniff, Referrer-Policy, Permissions-Policy; `/assets/*` immutable, `sw.js`
+  no-cache. **A new external host (API, tiles, script) must be added there**,
+  or the browser blocks it on snolage.se (the apps don't get the headers).
+  Checked with a header-aware static server + securitypolicyviolation listener.
   Test helper `sqliteD1` batch returns per-statement results like D1.
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
