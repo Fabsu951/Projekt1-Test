@@ -1,4 +1,5 @@
 import { t } from "../i18n";
+import { timedFetch } from "../utils/timedFetch";
 // Lantmäteriet's topographic map, served by our Cloudflare Worker at
 // /tiles/topowebb/{z}/{x}/{y}.png. The worker hosts the tiles in R2 (from
 // the CC BY 4.0 "Topografisk webbkarta Nedladdning, raster"), fills gaps from the
@@ -128,7 +129,7 @@ let slopeMetaCheck: Promise<boolean> | null = null;
 
 export function detailedSlopeAvailable(): Promise<boolean> {
   if (!PROXY_BASE) return Promise.resolve(false);
-  slopeMetaCheck ??= fetch(`${workerBase()}/tiles/slope/meta`)
+  slopeMetaCheck ??= timedFetch(`${workerBase()}/tiles/slope/meta`, {}, 10_000)
     .then((res) => res.ok)
     .catch(() => {
       slopeMetaCheck = null; // try again next time, e.g. when back online

@@ -16,6 +16,8 @@ export interface ElevationTile {
   heights: Float32Array;
 }
 
+const TILE_TIMEOUT_MS = 20_000;
+
 /** Loads one tile's heights; replaced in tests. */
 export type TileLoader = (z: number, x: number, y: number) => Promise<ElevationTile | null>;
 
@@ -24,10 +26,20 @@ export const loadTerrariumTile: TileLoader = async (z, x, y) => {
   const img = new Image();
   img.crossOrigin = "anonymous";
   img.src = url;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    await img.decode();
+    // On a weak signal a tile can hang; without a limit the route analysis would wait for ever.
+    await Promise.race([
+      img.decode(),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error("timeout")), TILE_TIMEOUT_MS);
+      }),
+    ]);
   } catch {
+    img.src = "";
     return null;
+  } finally {
+    clearTimeout(timer);
   }
   const size = img.naturalWidth;
   const canvas = document.createElement("canvas");
