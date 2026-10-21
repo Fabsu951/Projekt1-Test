@@ -56,10 +56,11 @@ jobs:
           npm run typecheck
           npm test
 
-      - name: App – install, test, build
+      - name: App – install, lint, test, build
         working-directory: Svenska laviner/app
         run: |
           npm ci
+          npm run lint
           npm test
           npm run build
 
@@ -86,6 +87,20 @@ jobs:
           # Play's demo video (play-video.yml) is only on the website, not in the apps.
           if [ -f "../google-play/dela-position.mp4" ]; then mkdir -p dist/play && cp ../google-play/dela-position.mp4 dist/play/; fi
           npx --yes wrangler@4 pages deploy dist --project-name=fjallkoll --branch=production --commit-hash="$GITHUB_SHA" --commit-message="$(git log -1 --format=%s)" --commit-dirty=true
+
+      - name: Check the live site and worker
+        run: |
+          set -e
+          worker=https://fjallkoll-worker.fabian-n-sund.workers.dev
+          # Forecasts answer with all six areas (a level or not; never an error page).
+          n=$(curl -fsS --retry 3 --retry-all-errors "$worker/forecasts" | jq '.regions | length')
+          [ "$n" = "6" ] || { echo "::error::/forecasts answered with $n areas"; exit 1; }
+          # The push queue's internal path is closed to everyone else.
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$worker/internal/push-drain")
+          [ "$code" = "404" ] || { echo "::error::/internal/push-drain answered $code without the key"; exit 1; }
+          # The site itself.
+          curl -fsS --retry 3 --retry-all-errors https://snolage.se/ | grep -q 'id="root"'
+          echo "Live checks OK"
 
       - name: Summary
         run: |
