@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { changeFrom, type HistoryRow } from "./history";
 import { changeMessage, type PushEnv } from "./push";
-import { drainOutbox, queueChanges } from "./outbox";
+import { drainKey, drainOutbox, DRAIN_PATH, queueChanges, sendQueued } from "./outbox";
 import { notify } from "./notifications";
 import { migratedD1 } from "./testing/sqliteD1";
 import { toBase64Url } from "./webpush";
@@ -135,6 +135,20 @@ describe("danger-level push", () => {
     const left = await env.DB.prepare("SELECT endpoint FROM user_push_subscriptions").all<{ endpoint: string }>();
     expect(left.results.map((r) => r.endpoint)).toEqual(["https://fcm.googleapis.com/account-phone"]);
     expect((await env.DB.prepare("SELECT COUNT(*) AS n FROM push_outbox").first<{ n: number }>())!.n).toBe(0);
+  });
+
+  it("spreads a big queue over runs of their own through the SELF binding, with the drain key", async () => {
+    const env = await setup(45);
+    await queueChanges(env, change, "2027-01-20", now);
+    const calls: Request[] = [];
+    const SELF = { fetch: vi.fn(async (input: RequestInfo, init?: RequestInit) => (calls.push(new Request(input, init)), new Response("{}"))) };
+    await sendQueued({ ...env, SELF } as never);
+    // 47 notices, 20 per run.
+    expect(calls).toHaveLength(3);
+    const key = await drainKey(env);
+    expect(calls.every((r) => new URL(r.url).pathname === DRAIN_PATH && r.method === "POST" && r.headers.get("X-Drain-Key") === key)).toBe(true);
+    // The key depends on the push secrets, so nobody can guess it.
+    expect(await drainKey({ ...env, VAPID_PRIVATE_KEY: "other" })).not.toBe(key);
   });
 });
 
