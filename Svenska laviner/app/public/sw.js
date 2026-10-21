@@ -2,8 +2,9 @@
 // and shows push notifications.
 //
 // Offline without stale versions: page loads always try the network first
-// and only fall back to the saved copy when offline, so a new deploy shows
-// up straight away whenever there is a connection. Built files have
+// and only fall back to the saved copy when offline (or the network takes
+// over six seconds), so a new deploy shows up straight away whenever there
+// is a working connection. Built files have
 // content hashes in their names, so they can be served from the saved copy.
 // The build writes the version and file list below (see vite.config.ts);
 // each new build gets a new cache and the old one is deleted. Map tiles
@@ -13,6 +14,8 @@ const VERSION = "__APP_VERSION__";
 const FILES = ["__APP_FILES__"];
 const APP_CACHE = `snolage-app-${VERSION}`;
 const APP_PREFIXES = ["snolage-app-", "turkoll-app-", "toppkoll-app-", "fjallkoll-app-"];
+/** A page load slower than this opens the saved app instead. */
+const NAVIGATION_TIMEOUT_MS = 6000;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -45,9 +48,16 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === "navigate") {
-    // Any page: fresh from the network, the saved app when offline.
+    // Any page: fresh from the network, the saved app when offline – or when
+    // a weak signal leaves the request hanging (it can for minutes).
     event.respondWith(
-      fetch(request).catch(async () => (await caches.match("/", { cacheName: APP_CACHE })) ?? Response.error())
+      (async () => {
+        const network = fetch(request);
+        const saved = await caches.match("/", { cacheName: APP_CACHE });
+        if (!saved) return network.catch(() => Response.error());
+        const slow = new Promise((resolve) => setTimeout(() => resolve(saved), NAVIGATION_TIMEOUT_MS));
+        return Promise.race([network.catch(() => saved), slow]);
+      })()
     );
     return;
   }
