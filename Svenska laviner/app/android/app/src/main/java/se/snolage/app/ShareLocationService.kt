@@ -273,8 +273,11 @@ class ShareLocationService : Service(), LocationListener {
 
     private fun buildNotification(text: String, stopText: String): Notification {
         if (Build.VERSION.SDK_INT >= 26) {
-            val channel = NotificationChannel(CHANNEL_ID, "Dela position", NotificationManager.IMPORTANCE_LOW)
-            channel.description = "Visas medan Snöläge delar din position med dem du valt."
+            val sv = BackgroundImport.swedish()
+            val channel = NotificationChannel(CHANNEL_ID, if (sv) "Dela position" else "Share location", NotificationManager.IMPORTANCE_LOW)
+            channel.description =
+                if (sv) "Visas medan Snöläge delar din position med dem du valt."
+                else "Shown while Snöläge shares your location with the people you chose."
             getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
         val open = Intent(this, MainActivity::class.java)

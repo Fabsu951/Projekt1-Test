@@ -17,6 +17,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import org.json.JSONArray
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 /**
@@ -57,6 +58,13 @@ object BackgroundImport {
         ExerciseSessionRecord.EXERCISE_TYPE_HIKING,
         ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT,
     )
+
+    /**
+     * The phone's language for texts shown from the background: Swedish for
+     * Swedish and the neighbours who read it, English otherwise – as the
+     * app picks its own language (detectLang in src/i18n).
+     */
+    fun swedish(): Boolean = Locale.getDefault().language in setOf("sv", "nb", "nn", "no", "da")
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
@@ -110,8 +118,11 @@ object BackgroundImport {
     fun notifyNewSessions(context: Context, count: Int) {
         if (!canNotify(context)) return
         if (Build.VERSION.SDK_INT >= 26) {
-            val channel = NotificationChannel(CHANNEL_ID, "Turer från klockan", NotificationManager.IMPORTANCE_DEFAULT)
-            channel.description = "När klockan har sparat ett nytt skidpass som kan bli en tur i Snöläge."
+            val sv = swedish()
+            val channel = NotificationChannel(CHANNEL_ID, if (sv) "Turer från klockan" else "Tours from your watch", NotificationManager.IMPORTANCE_DEFAULT)
+            channel.description =
+                if (sv) "När klockan har sparat ett nytt skidpass som kan bli en tur i Snöläge."
+                else "When your watch has saved a new ski session that can become a tour in Snöläge."
             context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
         val open = Intent(context, MainActivity::class.java)
@@ -123,12 +134,18 @@ object BackgroundImport {
             open,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-        val title = if (count == 1) "Nytt skidpass från klockan" else "$count nya skidpass från klockan"
+        val sv = swedish()
+        val title = when {
+            sv && count == 1 -> "Nytt skidpass från klockan"
+            sv -> "$count nya skidpass från klockan"
+            count == 1 -> "New ski session from your watch"
+            else -> "$count new ski sessions from your watch"
+        }
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_snolage)
             .setColor(ContextCompat.getColor(context, R.color.notification_accent))
             .setContentTitle(title)
-            .setContentText("Tryck för att lägga till det som en privat tur i Snöläge.")
+            .setContentText(if (sv) "Tryck för att lägga till det som en privat tur i Snöläge." else "Tap to add it as a private tour in Snöläge.")
             .setContentIntent(tap)
             .setAutoCancel(true)
             .build()

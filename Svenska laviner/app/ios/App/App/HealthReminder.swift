@@ -126,8 +126,15 @@ final class HealthReminder {
 
     private func notify(count: Int, done: @escaping () -> Void) {
         let content = UNMutableNotificationContent()
-        content.title = count == 1 ? "Nytt skidpass från klockan" : "\(count) nya skidpass från klockan"
-        content.body = "Tryck för att lägga till det som en privat tur i Snöläge."
+        // The phone's language: Swedish for Swedish and the neighbours who read it (as the app's detectLang).
+        let code = Locale.preferredLanguages.first?.prefix(2).lowercased() ?? "sv"
+        if ["sv", "nb", "nn", "no", "da"].contains(code) {
+            content.title = count == 1 ? "Nytt skidpass från klockan" : "\(count) nya skidpass från klockan"
+            content.body = "Tryck för att lägga till det som en privat tur i Snöläge."
+        } else {
+            content.title = count == 1 ? "New ski session from your watch" : "\(count) new ski sessions from your watch"
+            content.body = "Tap to add it as a private tour in Snöläge."
+        }
         content.sound = .default
         content.userInfo = ["path": Self.importPath]
         let request = UNNotificationRequest(identifier: "snolage-watch-tours", content: content, trigger: nil)
