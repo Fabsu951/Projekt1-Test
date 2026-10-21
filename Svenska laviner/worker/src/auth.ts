@@ -382,6 +382,20 @@ export async function logout(request: Request, env: CommunityEnv) {
   return { ok: true };
 }
 
+/**
+ * Removes expired sessions and email links nobody can use any more (run by
+ * the forecast cron). Links stay an hour past creation at least, since the
+ * per-hour email limit counts them.
+ */
+export async function pruneAuth(env: CommunityEnv, now = new Date()): Promise<void> {
+  const at = now.toISOString();
+  const hourAgo = new Date(now.getTime() - 3600 * 1000).toISOString();
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM sessions WHERE expires_at <= ?").bind(at),
+    env.DB.prepare("DELETE FROM email_tokens WHERE (expires_at <= ?1 OR used_at IS NOT NULL) AND created_at <= ?2").bind(at, hourAgo),
+  ]);
+}
+
 /** Deletes the account and everything it posted, including images (GDPR). */
 export async function deleteAccount(request: Request, env: CommunityEnv) {
   const user = await requireUser(request, env);
@@ -393,7 +407,8 @@ export async function deleteAccount(request: Request, env: CommunityEnv) {
     ...(await trackKeysOf(env, user.id)),
     ...(await avatarKeyOf(env, user.id)),
   ];
-  if (keys.length > 0) await env.IMAGES.delete(keys);
+  // R2 deletes at most 1000 keys per call.
+  for (let i = 0; i < keys.length; i += 1000) await env.IMAGES.delete(keys.slice(i, i + 1000));
   await env.DB.batch([
     // Reports made by the user, and reports about the user or their things.
     env.DB.prepare(

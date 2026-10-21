@@ -64,6 +64,7 @@ import {
   type CommunityEnv,
   currentUser,
   deleteAccount,
+  pruneAuth,
   forgotPassword,
   login,
   logout,
@@ -601,6 +602,7 @@ export default {
       return;
     }
     ctx.waitUntil(fetchAllRegions().then((results) => recordAll(env, results)));
+    if (env.DB) ctx.waitUntil(pruneAuth(env).catch((err) => console.error("Session pruning failed", err)));
   },
 
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -613,7 +615,8 @@ export default {
 
     if (url.pathname === "/forecasts") {
       const cache = caches.default;
-      const cacheKey = new Request(url.toString(), request);
+      // One key whatever the query string, so ?x=1 can't skip the cache (and a fetch of every area).
+      const cacheKey = new Request(`${url.origin}/forecasts`);
       const cached = await cache.match(cacheKey);
       if (cached) {
         return new Response(cached.body, {
@@ -631,7 +634,7 @@ export default {
           "Cache-Control": `public, max-age=${CACHE_TTL_SECONDS}`,
         },
       });
-      await cache.put(cacheKey, response.clone());
+      ctx.waitUntil(cache.put(cacheKey, response.clone()));
       return response;
     }
 

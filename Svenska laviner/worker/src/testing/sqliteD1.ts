@@ -26,7 +26,8 @@ export function migratedD1(): D1Database {
       return { success: true, meta: { last_row_id: Number(r.lastInsertRowid), changes: Number(r.changes) } };
     },
     _exec() {
-      return db.prepare(sql).run(...params);
+      const r = db.prepare(sql).run(...params);
+      return { success: true, meta: { last_row_id: Number(r.lastInsertRowid), changes: Number(r.changes) } };
     },
   });
 
@@ -35,13 +36,13 @@ export function migratedD1(): D1Database {
     async batch(statements: Array<{ _exec: () => unknown }>) {
       db.exec("BEGIN");
       try {
-        for (const s of statements) s._exec();
+        const results = statements.map((s) => s._exec());
         db.exec("COMMIT");
+        return results;
       } catch (err) {
         db.exec("ROLLBACK");
         throw err;
       }
-      return [];
     },
     exec: async (sql: string) => db.exec(sql),
   } as unknown as D1Database;

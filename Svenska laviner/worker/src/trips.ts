@@ -362,10 +362,15 @@ export async function notifyTrips(
     return text + warningSentence(list, toLang(trip.lang));
   };
 
-  await env.DB.batch(due.map(({ trip }) => env.DB.prepare("UPDATE trip_plans SET notified_at = ? WHERE id = ?").bind(sent, trip.id)));
+  // Claim each plan first: the cron and a cache miss can run this at the same time, and only one may send.
+  const claims = await env.DB.batch(
+    due.map(({ trip }) => env.DB.prepare("UPDATE trip_plans SET notified_at = ? WHERE id = ? AND notified_at IS NULL").bind(sent, trip.id))
+  );
+  const claimed = due.filter((_, i) => (claims[i]?.meta.changes ?? 0) > 0);
+  if (claimed.length === 0) return;
   await notify(
     env,
-    due.map(({ trip, text }) => ({
+    claimed.map(({ trip, text }) => ({
       userId: trip.user_id,
       kind: "trip" as const,
       actorId: trip.user_id,

@@ -92,7 +92,8 @@ describe("planned tours", () => {
     await plan("anna", "kebnekaisefjallen", "2026-02-14");
     await plan("bertil", "riksgransfjallen", "2026-02-14");
     const published = [{ regionId: "kebnekaisefjallen", date: "2026-02-14", danger: 3, problems: [problem("drevsnoflak", "Drevsnöflak"), problem("nysnoflak", "Nysnöflak")] }];
-    await notifyTrips(env as never, published, fridayEvening);
+    // The cron and a cache miss can run at the same time; only one sends.
+    await Promise.all([notifyTrips(env as never, published, fridayEvening), notifyTrips(env as never, published, fridayEvening)]);
     await notifyTrips(env as never, published, fridayEvening);
     const anna = await texts("anna");
     expect(anna).toHaveLength(1);
