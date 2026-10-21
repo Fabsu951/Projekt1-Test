@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import NativePushBridge from "./NativePushBridge";
+import PageLoading from "./PageLoading";
 import ObservationQueueBanner from "./ObservationQueueBanner";
 import ObservationQueueBridge from "./ObservationQueueBridge";
 import LocationShareBanner from "./LocationShareBanner";
@@ -214,7 +215,10 @@ export default function Layout() {
       <main>
         <ErrorBoundary key={location.pathname}>
           <PageTitleContext.Provider value={setPageTitle}>
-            <Outlet />
+            {/* Pages loaded on demand (App.tsx) show this while they load; the header stays. */}
+            <Suspense fallback={<PageLoading />}>
+              <Outlet />
+            </Suspense>
           </PageTitleContext.Provider>
         </ErrorBoundary>
       </main>
