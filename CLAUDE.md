@@ -1430,6 +1430,16 @@ the start, exact map point.
   or the browser blocks it on snolage.se (the apps don't get the headers).
   Checked with a header-aware static server + securitypolicyviolation listener.
   Test helper `sqliteD1` batch returns per-statement results like D1.
+  Later the same day: forecasts carry `validUntil` into the app and
+  `withoutExpired()` (in `loadForecasts`) turns one past its end into
+  "Ingen prognos" – offline copies never show yesterday's level; a 401 to a
+  request with the current token signs out locally (`UNAUTHORIZED_EVENT` in
+  `api.ts`, AuthProvider); account notices also go through the outbox;
+  "glömt lösenord" 30/h per IP; worker calls to NV/SMHI/Resend/Lantmäteriet
+  time out (10–15 s); offline downloads: 30 s per tile, "ingen plats" message,
+  half-saved new caches deleted; background notices follow the phone's
+  language; `npm audit fix` (worker 0 left; app's remaining ones are build
+  tools and Firebase's unused Firestore).
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
