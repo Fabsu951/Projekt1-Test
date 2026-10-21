@@ -15,7 +15,7 @@ export const BACKUP_PREFIX = "backups/d1/";
 const KEEP_DAYS = 28;
 const PAGE = 500;
 // Position shares last hours at most and must not outlive them in backups.
-const SKIP = new Set(["d1_migrations", "sessions", "email_tokens", "rate_limit_events", "service_alerts", "location_shares", "location_share_viewers"]);
+const SKIP = new Set(["d1_migrations", "sessions", "email_tokens", "rate_limit_events", "service_alerts", "location_shares", "location_share_viewers", "push_outbox"]);
 
 export interface BackupFile {
   version: 1;

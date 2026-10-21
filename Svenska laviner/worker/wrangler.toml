@@ -44,3 +44,9 @@ jurisdiction = "eu"
 binding = "TILES"
 bucket_name = "snolage-kartor"
 jurisdiction = "eu"
+
+# The worker itself, so queued danger-level notices are sent in runs of their
+# own (each run may make only 50 outgoing requests; src/outbox.ts).
+[[services]]
+binding = "SELF"
+service = "fjallkoll-worker"

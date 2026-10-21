@@ -3,8 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { deleteAccount } from "./auth";
 import { fcmBody, resetFcmToken, serviceAccountJwt } from "./fcm";
 import { HttpError } from "./http";
-import { notifyNativeChanges, registerDevice, sendNativeToUser, unregisterDevice, type NativeEnv } from "./nativePush";
+import { registerDevice, sendNativeToUser, unregisterDevice, type NativeEnv } from "./nativePush";
 import { follow } from "./social";
+import { drainOutbox, queueChanges } from "./outbox";
 import { migratedD1 } from "./testing/sqliteD1";
 
 let env: NativeEnv;
@@ -99,7 +100,9 @@ describe("native push", () => {
     ] as const) {
       await registerDevice(req("/native/register", { token, platform: "ios", regions }), env);
     }
-    await notifyNativeChanges(env, [{ regionId: "riksgransfjallen", date: "2026-02-18", from: 2, to: 3 }], "2026-02-18", fakeGoogle);
+    const now = new Date("2026-02-18T07:30:00Z");
+    expect(await queueChanges(env, [{ regionId: "riksgransfjallen", date: "2026-02-18", from: 2, to: 3 }], "2026-02-18", now)).toBe(2);
+    expect(await drainOutbox(env, 20, fakeGoogle, now)).toBe(1);
     expect(sent.map((s) => s.token)).toEqual([device("riks")]);
     expect(sent[0]).toMatchObject({ title: "Riksgränsfjällen: 3 Betydande fara", url: "/omrade/riksgransfjallen" });
     expect(tokenRequests).toBe(1);
@@ -132,7 +135,7 @@ describe("native push", () => {
   it("does nothing without the Firebase secret", async () => {
     const off = { ...env, FCM_SERVICE_ACCOUNT: undefined } as NativeEnv;
     await expect(registerDevice(req("/native/register", { token: device("a"), platform: "android", regions: ["riksgransfjallen"] }), off)).rejects.toMatchObject({ status: 503 });
-    await notifyNativeChanges(off, [{ regionId: "riksgransfjallen", date: "2026-02-18", from: 2, to: 3 }], "2026-02-18", fakeGoogle);
+    expect(await queueChanges(off, [{ regionId: "riksgransfjallen", date: "2026-02-18", from: 2, to: 3 }], "2026-02-18")).toBe(0);
     expect(sent).toHaveLength(0);
   });
 });

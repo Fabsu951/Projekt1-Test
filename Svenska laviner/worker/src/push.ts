@@ -2,7 +2,7 @@ import { HttpError, nowIso, readJson } from "./http";
 import { clientIp, d1Store, enforce, record } from "./rateLimit";
 import { REGION_SOURCES } from "./regions";
 import { DANGER_NAMES, toLang, type Lang } from "./lang";
-import { isPushEndpoint, sendPush, vapidConfigured, type PushSubscriptionKeys, type VapidEnv } from "./webpush";
+import { isPushEndpoint, vapidConfigured, type VapidEnv } from "./webpush";
 
 export interface PushEnv extends VapidEnv {
   DB: D1Database;
@@ -15,7 +15,6 @@ export interface DangerChange {
   from: number;
   to: number;
 }
-
 
 const SUBSCRIBE_LIMIT = { max: 30, windowMs: 60 * 60 * 1000 };
 
@@ -94,45 +93,4 @@ export function changeMessage(change: DangerChange, today: string, lang: Lang = 
     url: `/omrade/${change.regionId}`,
     tag: `danger-${change.regionId}`,
   };
-}
-
-interface SubscriptionRow {
-  endpoint: string;
-  p256dh: string;
-  auth: string;
-  regions: string;
-  lang: string;
-}
-
-/** Notifies every subscriber of each changed region, and drops dead subscriptions. */
-export async function notifyChanges(
-  env: PushEnv,
-  changes: DangerChange[],
-  today: string,
-  fetcher: typeof fetch = fetch
-): Promise<void> {
-  if (changes.length === 0 || !vapidConfigured(env)) return;
-  const { results } = await env.DB.prepare("SELECT endpoint, p256dh, auth, regions, lang FROM push_subscriptions").all<SubscriptionRow>();
-
-  const gone: string[] = [];
-  for (const sub of results) {
-    let regions: unknown = [];
-    try {
-      regions = JSON.parse(sub.regions);
-    } catch {
-      continue;
-    }
-    for (const change of changes) {
-      if (!Array.isArray(regions) || !regions.includes(change.regionId)) continue;
-      const keys: PushSubscriptionKeys = { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth };
-      const result = await sendPush(env, keys, changeMessage(change, today, toLang(sub.lang)), fetcher);
-      if (result === "gone") {
-        gone.push(sub.endpoint);
-        break;
-      }
-    }
-  }
-  if (gone.length > 0) {
-    await env.DB.batch(gone.map((e) => env.DB.prepare("DELETE FROM push_subscriptions WHERE endpoint = ?").bind(e)));
-  }
 }

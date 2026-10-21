@@ -1,12 +1,12 @@
 import { currentUser, type CommunityEnv } from "./auth";
 import { sendFcm, fcmConfigured, type FcmEnv, type NativeMessage } from "./fcm";
 import { HttpError, nowIso, readJson } from "./http";
-import { changeMessage, type DangerChange } from "./push";
 import { clientIp, d1Store, enforce, record } from "./rateLimit";
 import { REGION_SOURCES } from "./regions";
 import { toLang } from "./lang";
 
-// Push to the Android/iOS apps (the browser version uses web push, push.ts).
+// Push to the Android/iOS apps (the browser version uses web push, push.ts;
+// danger-level notices to both go through outbox.ts).
 // A device registers its FCM token with the areas it wants danger-level
 // notices for, and — only if the user turns it on while signed in — that
 // it also wants the account's notices (follows, comments, likes).
@@ -73,34 +73,6 @@ export async function setDeviceLanguage(request: Request, env: NativeEnv) {
 
 async function forget(env: NativeEnv, tokens: string[]) {
   if (tokens.length) await env.DB.batch(tokens.map((t) => env.DB.prepare("DELETE FROM native_devices WHERE token = ?").bind(t)));
-}
-
-/** Danger-level changes to every device following the area. */
-export async function notifyNativeChanges(env: NativeEnv, changes: DangerChange[], today: string, fetcher: typeof fetch = fetch) {
-  if (changes.length === 0 || !fcmConfigured(env)) return;
-  const { results } = await env.DB.prepare("SELECT token, regions, lang FROM native_devices WHERE regions != '[]'").all<{
-    token: string;
-    regions: string;
-    lang: string;
-  }>();
-  const gone: string[] = [];
-  for (const device of results) {
-    let regions: unknown = [];
-    try {
-      regions = JSON.parse(device.regions);
-    } catch {
-      continue;
-    }
-    for (const change of changes) {
-      if (!Array.isArray(regions) || !regions.includes(change.regionId)) continue;
-      const msg = changeMessage(change, today, toLang(device.lang));
-      if ((await sendFcm(env, device.token, msg, fetcher)) === "gone") {
-        gone.push(device.token);
-        break;
-      }
-    }
-  }
-  await forget(env, gone);
 }
 
 /** An account notice to every device where the user turned them on. */

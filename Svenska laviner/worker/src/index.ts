@@ -45,8 +45,9 @@ import {
 import { block, unblock } from "./blocks";
 import { parseTerrainPath, serveTerrain } from "./terrain";
 import { migrateTiles, parseSlopePath, parseTilePath, saveSlopeMeta, serveSlopeTile, serveTile, slopeMeta, uploadTiles, type TilesEnv } from "./tiles";
-import { notifyChanges, publicKey, setPushLanguage, subscribe, unsubscribe, type PushEnv } from "./push";
-import { notifyNativeChanges, registerDevice, setDeviceLanguage, unregisterDevice, type NativeEnv } from "./nativePush";
+import { publicKey, setPushLanguage, subscribe, unsubscribe, type PushEnv } from "./push";
+import { DRAIN_PATH, drainKey, drainOutbox, queueChanges, sendQueued } from "./outbox";
+import { registerDevice, setDeviceLanguage, unregisterDevice } from "./nativePush";
 import type { NotifyEnv } from "./notifications";
 import { createTrip, deleteTrip, listTrips, notifyTrips, type PublishedDay } from "./trips";
 import { answerInvitation, inviteToTrip } from "./tripInvites";
@@ -85,6 +86,8 @@ import {
 } from "./observations";
 
 export interface Env extends CommunityEnv, VapidEnv, TilesEnv, FcmEnv {
+  /** This worker itself (service binding), for sending queued push in runs of their own. */
+  SELF?: Fetcher;
   ALLOWED_ORIGIN?: string;
   LANTMATERIET_USER?: string;
   LANTMATERIET_PASSWORD?: string;
@@ -442,8 +445,7 @@ async function recordAll(env: Env, results: RegionResult[]): Promise<void> {
     const now = new Date();
     const changes = await findChanges(env.DB, rows);
     await recordHistory(env.DB, [...past, ...rows], now);
-    await notifyChanges(env as PushEnv, changes, stockholmDate(now));
-    await notifyNativeChanges(env as NativeEnv, changes, stockholmDate(now));
+    if (await queueChanges(env, changes, stockholmDate(now))) await sendQueued(env);
   } catch (err) {
     console.error("Could not record forecast history or send notifications", err);
   }
@@ -517,7 +519,7 @@ async function warningsResponse(request: Request, ctx: ExecutionContext, origin:
 
 /** The weekly backup's cron in wrangler.toml; the others fetch forecasts. */
 const BACKUP_CRON = "37 2 * * 1";
-/** Every quarter of an hour: position shares that ran out without being stopped. */
+/** Every quarter of an hour: position shares that ran out without being stopped, and queued push. */
 const SHARES_CRON = "*/15 * * * *";
 
 const HISTORY_CACHE_TTL_SECONDS = 60 * 10;
@@ -592,6 +594,8 @@ export default {
         ctx.waitUntil(
           notifyEndedShares(env, new Date(), (p) => ctx.waitUntil(p))
             .then(() => pruneShares(env))
+            // Danger-level notices left over from a big round.
+            .then(() => sendQueued(env))
             .catch((err) => console.error("Position share check failed", err))
         );
       }
@@ -636,6 +640,11 @@ export default {
       });
       ctx.waitUntil(cache.put(cacheKey, response.clone()));
       return response;
+    }
+
+    if (url.pathname === DRAIN_PATH && request.method === "POST") {
+      if (!env.DB || request.headers.get("X-Drain-Key") !== (await drainKey(env))) return new Response("Not found", { status: 404 });
+      return Response.json({ sent: await drainOutbox(env) });
     }
 
     if (url.pathname === "/warnings" && request.method === "GET") return warningsResponse(request, ctx, origin);
