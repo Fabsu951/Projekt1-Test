@@ -5,13 +5,15 @@ import { createObservation } from "./observations";
 import { migratedD1 } from "./testing/sqliteD1";
 
 let env: CommunityEnv;
+const stored = new Set<string>();
 
 async function sha256(value: string) {
   return Buffer.from(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value))).toString("base64");
 }
 
-function send(clientId?: string) {
+function send(clientId?: string, photo = false) {
   const form = new FormData();
+  if (photo) form.set("image", new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 16, 74, 70, 73, 70])], { type: "image/jpeg" }), "a.jpg");
   form.set("type", "sprickor");
   form.set("lat", "67.9");
   form.set("lon", "18.5");
@@ -25,7 +27,11 @@ function send(clientId?: string) {
 }
 
 beforeEach(async () => {
-  env = { DB: migratedD1(), IMAGES: { put: async () => {} } } as unknown as CommunityEnv;
+  stored.clear();
+  env = {
+    DB: migratedD1(),
+    IMAGES: { put: async (key: string) => void stored.add(key), delete: async (key: string) => void stored.delete(key) },
+  } as unknown as CommunityEnv;
   await env.DB.prepare(
     "INSERT INTO users (id, email, display_name, password_hash, email_verified, created_at) VALUES (1, 'a@test', 'Anna', 'x', 1, '2026-01-01')"
   ).run();
@@ -44,5 +50,15 @@ describe("observations sent again after lost coverage", () => {
     await send();
     const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM observations").first<{ n: number }>();
     expect(n?.n).toBe(3);
+  });
+
+  it("never keeps a photo whose observation could not be stored", async () => {
+    const db = env.DB;
+    env = {
+      ...env,
+      DB: { ...db, prepare: (sql: string) => (sql.includes("INSERT INTO observations") ? { bind: () => ({ run: async () => Promise.reject(new Error("D1 is down")) }) } : db.prepare(sql)) },
+    } as unknown as CommunityEnv;
+    await expect(send(undefined, true)).rejects.toThrow("D1 is down");
+    expect(stored.size).toBe(0);
   });
 });

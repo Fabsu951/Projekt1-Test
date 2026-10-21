@@ -295,10 +295,11 @@ export async function createTour(request: Request, env: CommunityEnv) {
     )
     .run()
     .catch(async (err) => {
+      // Never leave a track behind without its tour.
+      await env.IMAGES.delete(trackKey);
       // Two uploads of the same session at once: keep the first.
       const existing = sourceRef ? await tourFromSource(env, user.id, sourceRef) : null;
       if (!existing) throw err;
-      await env.IMAGES.delete(trackKey);
       return null;
     });
   if (!result) return { tour: (await tourFromSource(env, user.id, sourceRef!))!, duplicate: true };

@@ -284,7 +284,18 @@ export async function createObservation(request: Request, env: CommunityEnv) {
       snowDepthCm,
       clientId
     )
-    .run();
+    .run()
+    .catch(async (err) => {
+      // Never leave a photo behind without its observation.
+      if (imageKey) await env.IMAGES.delete(imageKey);
+      // The same observation sent twice at once (a resend after a lost answer): keep the first.
+      const first = clientId
+        ? await env.DB.prepare(`${SELECT} WHERE o.user_id = ? AND o.client_id = ?`).bind(user.id, clientId).first<ObservationRow>()
+        : null;
+      if (!first) throw err;
+      return first;
+    });
+  if (!("meta" in result)) return { observation: toObservation(result), duplicate: true };
 
   const row = await env.DB.prepare(`${SELECT} WHERE o.id = ?`)
     .bind(Number(result.meta.last_row_id))
