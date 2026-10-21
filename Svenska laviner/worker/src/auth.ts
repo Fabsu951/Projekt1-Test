@@ -1,5 +1,5 @@
 import { HttpError, readJson, nowIso } from "./http";
-import { clear, clientIp, d1Store, enforce, LOGIN_EMAIL_LIMIT, LOGIN_IP_LIMIT, record, REGISTER_IP_LIMIT } from "./rateLimit";
+import { clear, clientIp, d1Store, enforce, FORGOT_IP_LIMIT, LOGIN_EMAIL_LIMIT, LOGIN_IP_LIMIT, record, REGISTER_IP_LIMIT } from "./rateLimit";
 import { verifyTurnstile, type TurnstileEnv } from "./turnstile";
 import { trackKeysOf } from "./tours";
 import { avatarKeyOf } from "./profile";
@@ -244,6 +244,10 @@ export async function verifyEmail(request: Request, env: CommunityEnv) {
 /** Always answers the same way, so it can't be used to find out who has an account. */
 export async function forgotPassword(request: Request, env: CommunityEnv) {
   const { email } = await readJson<{ email?: string }>(request);
+  const store = d1Store(env.DB);
+  const ipKey = `forgot-ip:${clientIp(request)}`;
+  await enforce(store, [{ key: ipKey, ...FORGOT_IP_LIMIT }], "Många återställningar har begärts härifrån. Försök igen om en stund.");
+  await record(store, [ipKey]);
   const row = await env.DB.prepare("SELECT id, email, display_name, lang FROM users WHERE email = ?")
     .bind((email ?? "").trim().toLowerCase())
     .first<{ id: number; email: string; display_name: string; lang: string }>();

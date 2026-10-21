@@ -23,6 +23,8 @@ export const LOGIN_EMAIL_LIMIT = { max: 5, windowMs: 15 * 60 * 1000 };
 // back per account above, and bots at signup by Turnstile.
 export const LOGIN_IP_LIMIT = { max: 100, windowMs: 15 * 60 * 1000 };
 export const REGISTER_IP_LIMIT = { max: 100, windowMs: 60 * 60 * 1000 };
+/** "Glömt lösenord" requests per IP: stops the form being used to mail many inboxes. */
+export const FORGOT_IP_LIMIT = { max: 30, windowMs: 60 * 60 * 1000 };
 
 async function hashKey(key: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`fjallkoll-rate:${key}`));

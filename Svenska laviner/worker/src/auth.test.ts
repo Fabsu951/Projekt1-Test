@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { describe, expect, it } from "vitest";
-import { currentUser, pruneAuth, register, type CommunityEnv } from "./auth";
+import { currentUser, forgotPassword, pruneAuth, register, type CommunityEnv } from "./auth";
 import { migratedD1 } from "./testing/sqliteD1";
 
 const signup = (json: Record<string, unknown>) =>
@@ -65,5 +65,22 @@ describe("sessions in use", () => {
     };
     expect(await left("soon")).toBe(90);
     expect(await left("fresh")).toBe(80);
+  });
+});
+
+describe("forgot password", () => {
+  it("answers the same for any address, and limits requests per IP", async () => {
+    const env = { DB: migratedD1() } as unknown as CommunityEnv;
+    const ask = (email: string) =>
+      forgotPassword(
+        new Request("https://worker.test/auth/forgot", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "CF-Connecting-IP": "198.51.100.4" },
+          body: JSON.stringify({ email }),
+        }),
+        env
+      );
+    for (let i = 0; i < 30; i++) expect(await ask(`nobody${i}@test.se`)).toEqual({ ok: true });
+    await expect(ask("one-more@test.se")).rejects.toMatchObject({ status: 429 });
   });
 });
