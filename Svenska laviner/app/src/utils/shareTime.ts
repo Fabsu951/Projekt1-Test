@@ -5,7 +5,7 @@ export function clockTime(iso: string): string {
   return new Date(iso).toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" });
 }
 
-/** How long ago a shared position was sent: "nyss", "för 4 min sedan", "för 2 timmar sedan". */
+/** How long ago a shared position was taken: "nyss", "för 4 min sedan", "för 2 timmar sedan". */
 export function sinceText(iso: string, now: Date): string {
   const minutes = Math.floor((now.getTime() - Date.parse(iso)) / 60_000);
   if (minutes < 1) return t("nyss");

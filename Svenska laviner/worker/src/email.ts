@@ -52,13 +52,14 @@ function escapeHtml(s: string): string {
 
 function layout(heading: string, intro: string, buttonText: string, link: string, footer: string, lang: Lang): Email["html"] {
   const copy = lang === "en" ? "Button not working? Copy the link:" : "Fungerar inte knappen? Kopiera länken:";
-  return `<!doctype html><html lang="${lang}"><body style="margin:0;background:#10161d;font-family:system-ui,sans-serif;color:#eef3f7">
+  // The app's paper-map look (light, ink text, lake-blue button); no all-caps, no orange.
+  return `<!doctype html><html lang="${lang}"><body style="margin:0;background:#f6f7f6;font-family:system-ui,sans-serif;color:#17222b">
 <div style="max-width:480px;margin:0 auto;padding:32px 20px">
-<p style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7cc7ec">Snöläge</p>
+<p style="font-weight:700;font-size:17px;color:#1c5d99;margin:0 0 20px">Snöläge</p>
 <h1 style="font-size:22px;margin:0 0 12px">${escapeHtml(heading)}</h1>
 <p style="line-height:1.5">${escapeHtml(intro)}</p>
-<p style="margin:24px 0"><a href="${escapeHtml(link)}" style="background:#ff9f43;color:#1a1a1a;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:700">${escapeHtml(buttonText)}</a></p>
-<p style="font-size:13px;color:#a2b0be;line-height:1.5">${escapeHtml(footer)}<br>${copy}<br>${escapeHtml(link)}</p>
+<p style="margin:24px 0"><a href="${escapeHtml(link)}" style="background:#1c5d99;color:#ffffff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:700">${escapeHtml(buttonText)}</a></p>
+<p style="font-size:13px;color:#4f5d68;line-height:1.5;border-top:1px solid #cdbba3;padding-top:16px">${escapeHtml(footer)}<br>${copy}<br>${escapeHtml(link)}</p>
 </div></body></html>`;
 }
 
