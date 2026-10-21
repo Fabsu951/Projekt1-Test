@@ -72,17 +72,30 @@ jobs:
           ./gradlew --no-daemon assembleDebug
           cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/snolage.apk"
 
+      # Also as a workflow artifact, so a build is never lost if publishing fails.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snolage-apk
+          path: ${{ runner.temp }}/snolage.apk
+          retention-days: 14
+
       - name: Publish as "android-senaste"
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           version=$(git rev-list --count HEAD)
-          gh release delete android-senaste --yes --cleanup-tag || true
-          gh release create android-senaste "$RUNNER_TEMP/snolage.apk" \
-            --prerelease \
-            --target "$GITHUB_SHA" \
-            --title "Snöläge för Android (testversion $version)" \
-            --notes "Byggd från $(git log -1 --format='%h %s'). Öppna den här sidan i telefonens webbläsare och tryck på snolage.apk för att installera."
+          title="Snöläge för Android (testversion $version)"
+          notes="Byggd från $(git log -1 --format='%h %s'). Öppna den här sidan i telefonens webbläsare och tryck på snolage.apk för att installera."
+          # Updated in place: deleting and recreating it left no release at all
+          # when a newer push cancelled this job in between (2026-10-21).
+          if gh release view android-senaste >/dev/null 2>&1; then
+            gh release upload android-senaste "$RUNNER_TEMP/snolage.apk" --clobber
+            gh release edit android-senaste --prerelease --title "$title" --notes "$notes"
+          elif ! gh release create android-senaste "$RUNNER_TEMP/snolage.apk" --prerelease --target "$GITHUB_SHA" --title "$title" --notes "$notes"; then
+            # Show which permission GitHub wanted, for the log.
+            gh api -i -X POST "repos/$GITHUB_REPOSITORY/releases" -f tag_name=android-senaste -f target_commitish="$GITHUB_SHA" -f name="$title" -F prerelease=true 2>&1 | head -30 || true
+            exit 1
+          fi
           {
             echo "### Android-app"
             echo "- Version $version: https://github.com/${GITHUB_REPOSITORY}/releases/tag/android-senaste"
