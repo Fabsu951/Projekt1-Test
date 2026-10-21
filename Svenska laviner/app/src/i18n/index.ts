@@ -1,9 +1,9 @@
-import { EN } from "./en";
-
 // Swedish is the app's own language; English is a translation table keyed by
 // the Swedish text (gettext style), so a missing translation shows Swedish
 // rather than nothing. i18n.test.ts checks that every t("…") has an entry.
 // Changing language reloads the app, so nothing needs to re-render live.
+// The English table (i18n/en.ts, a third of the app's code) is fetched only
+// in English: main.tsx awaits loadTranslations() before loading the app.
 // Forecast texts from Naturvårdsverket, posts by users and the legal texts
 // stay Swedish.
 
@@ -44,9 +44,16 @@ export const isEnglish = () => current === "en";
 /** For toLocaleDateString and friends. Use "sv-SE" directly only for machine dates (YYYY-MM-DD). */
 export const locale = () => (current === "en" ? "en-GB" : "sv-SE");
 
+let table: Record<string, string> | null = null;
+
+/** Fetches the English texts when the app runs in English. Call before anything uses t(). */
+export async function loadTranslations(): Promise<void> {
+  if (current === "en" && !table) table = (await import("./en")).EN;
+}
+
 /** The text in the current language, with {name} placeholders filled in. */
 export function t(sv: string, vars?: Record<string, string | number>): string {
-  const text = current === "en" ? (EN[sv] ?? sv) : sv;
+  const text = current === "en" ? (table?.[sv] ?? sv) : sv;
   return vars ? text.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m)) : text;
 }
 
@@ -66,9 +73,10 @@ export function setLang(next: Lang, reload = true): void {
   if (reload) g.window?.location.reload();
 }
 
-/** For tests. */
-export function useLangForTest(next: Lang): void {
+/** For tests: switches language; English needs the table passed once (or loadTranslations()). */
+export function useLangForTest(next: Lang, translations?: Record<string, string>): void {
   current = next;
+  if (translations) table = translations;
 }
 
 if (g.document) g.document.documentElement.lang = current;

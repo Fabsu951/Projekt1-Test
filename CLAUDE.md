@@ -1002,7 +1002,9 @@ the start, exact map point.
   `t("<Swedish text>", {vars})` with `{name}` placeholders, `plural(n, one,
   many)`, `locale()` for display dates/numbers (keep `"sv-SE"` only for
   machine YYYY-MM-DD dates), `compass()` (O/V → E/W), `isEnglish()`.
-  English lives in `i18n/en.ts` keyed by the Swedish text (~1 150 entries);
+  English lives in `i18n/en.ts` keyed by the Swedish text (~1 150 entries),
+  fetched only in English: `main.tsx` awaits `loadTranslations()` and then
+  imports `start.tsx` (the old main), since data files call `t()` on load;
   a missing entry shows Swedish. `i18n.test.ts` fails if any literal
   `t(`/`plural(` argument lacks English or placeholders differ — so every new
   UI text must go through `t()` and get an `en.ts` entry. Language =

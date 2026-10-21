@@ -44,7 +44,7 @@ describe("translations", () => {
   });
 
   it("fills placeholders and falls back to Swedish", () => {
-    useLangForTest("en");
+    useLangForTest("en", EN);
     expect(t("Okänd text som saknas")).toBe("Okänd text som saknas");
     expect(t("{n} x", { n: 3 })).toBe("3 x");
     useLangForTest("sv");
