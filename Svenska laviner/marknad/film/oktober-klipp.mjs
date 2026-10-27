@@ -171,7 +171,9 @@ const CLIPS = {
     await page.evaluate(() => window.scrollTo(0, 0));
     await wait(page, 800);
     await rec.record(page, "B2-B4-lavinproblemen", async () => {
-      await scrollTo(page, ".avalanche-problems", 2500, 90);
+      // The weather factors above use the same cards, so aim at the heading.
+      const dy = await page.locator("h2", { hasText: /^Lavinproblemen$/ }).evaluate((el) => el.getBoundingClientRect().top - 90);
+      await scroll(page, dy, 2500);
       await wait(page, 1500);
       await scroll(page, 1400, 14000);
       await wait(page, 1000);
