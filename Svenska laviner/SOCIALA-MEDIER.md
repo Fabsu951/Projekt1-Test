@@ -144,9 +144,11 @@ sig själv på tre sekunder, eller en fråga som får folk att svara.
 
 - **F1 "3 appar → 1"**: skärmen delad i tre (prognos, SMHI, kartapp) som
   glider ihop till Snöläge. 15 s, ingen röst behövs, bara text.
-- **F2 "Gissa lutningen"**: en bild på en fjällsida, "25, 30, 35 eller 40
-  grader? Svara i kommentarerna", svaret med lutningskartan dagen efter.
-  Kommentarer sprider klippet.
+- **F2 "Gissa lutningen"**: kartan med en ring på en fjällsida, "Under
+  30°, 30–35°, 35–40° eller över 40°? Svara i kommentarerna", svaret med
+  lutningskartan dagen efter (samma band som Naturvårdsverkets
+  teckenförklaring, så att svaret blir entydigt). Kommentarer sprider
+  klippet.
 - **F3 "Min koll före turen på 20 sekunder"**: prognos, väder, rutt,
   klart. Visar att det går snabbt.
 

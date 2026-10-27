@@ -867,6 +867,11 @@ the start, exact map point.
   made by `marknad/film/a1-klipp.mjs` in workflow `a1-klipp.yml` (only on the
   marketing branch; builds the app branch, sample data, real map; zooms are
   rendered frame by frame via a recording-only `window.__map` patch).
+  October clips (A2–A4, B1–B4, F1–F3): `marknad/film/oktober-klipp.mjs` +
+  shared `klipp-lib.mjs` (same technique, mock answers by method), workflow
+  `oktober-klipp.yml` → `marknad/film/oktober/`. Every clip showing sample
+  levels or posts carries an "Exempelprognos"/"Exempeldata" label; F2 picks
+  a ~37° slope from Mapterhorn heights and writes the answer to `F2-svar.txt`.
   Lessons from One Bold Chemist (Swedish TikTok-grown perfume brand) are
   section 6.10 of the plan: many clips, a recurring series, ambassadors'
   content (ambassador kit), season premiere as a countdown "drop"; new
