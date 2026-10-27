@@ -1,0 +1,10 @@
+# Runtime for Data_Audit_Sandbox_EN_v2.ipynb
+numpy
+pandas
+scikit-learn
+matplotlib
+ipython
+# Run the notebook headless (smoke test) and lint
+nbconvert
+ipykernel
+ruff
