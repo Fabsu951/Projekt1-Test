@@ -2,7 +2,8 @@
 # E1–E3, A6, offline map, tour day with friends): builds the app from the app
 # branch, records it with sample people/forecasts and the real map (cloud
 # sessions can't reach the map servers) and commits the files to
-# "Svenska laviner/marknad/film/vinter/" on this branch.
+# "Svenska laviner/marknad/film/vinter/" on this branch. Carousels and stories
+# are rendered with the app's own stylesheet and fonts.
 
 name: Vinter-klipp
 
