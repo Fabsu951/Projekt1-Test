@@ -872,6 +872,11 @@ the start, exact map point.
   `oktober-klipp.yml` → `marknad/film/oktober/`. Every clip showing sample
   levels or posts carries an "Exempelprognos"/"Exempeldata" label; F2 picks
   a ~37° slope from Mapterhorn heights and writes the answer to `F2-svar.txt`.
+  November–January material (carousels K1–K3 rendered as HTML in the app's
+  own CSS/fonts, stories S1–S5, B5–B8, E1–E3, A6 welcome guide, D4 offline
+  map, J1 tour day with friends): `marknad/film/vinter-klipp.mjs`, workflow
+  `vinter-klipp.yml` → `marknad/film/vinter/`. Posts that need the day's real
+  forecast (launch, Snöläget inför helgen) are not pre-made.
   Lessons from One Bold Chemist (Swedish TikTok-grown perfume brand) are
   section 6.10 of the plan: many clips, a recurring series, ambassadors'
   content (ambassador kit), season premiere as a countdown "drop"; new

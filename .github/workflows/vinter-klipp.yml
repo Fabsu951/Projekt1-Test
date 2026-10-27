@@ -1,0 +1,68 @@
+# Screen material for the November–January posts (carousels, stories, B5–B8,
+# E1–E3, A6, offline map, tour day with friends): builds the app from the app
+# branch, records it with sample people/forecasts and the real map (cloud
+# sessions can't reach the map servers) and commits the files to
+# "Svenska laviner/marknad/film/vinter/" on this branch.
+
+name: Vinter-klipp
+
+on:
+  push:
+    branches: [ccr-a4c9657a-dnz9f4]
+    paths:
+      - "Svenska laviner/marknad/film/klipp-lib.mjs"
+      - "Svenska laviner/marknad/film/vinter-klipp.mjs"
+      - ".github/workflows/vinter-klipp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          ref: claude/bold-lamport-juktha
+          path: appsrc
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: appsrc/Svenska laviner/app/package-lock.json
+      - name: Build the app
+        working-directory: appsrc/Svenska laviner/app
+        run: |
+          npm ci
+          npm run build
+      - name: Playwright and ffmpeg
+        working-directory: appsrc/Svenska laviner/app
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Record
+        working-directory: appsrc/Svenska laviner/app
+        run: |
+          npx vite preview --port 4173 --strictPort &
+          for i in $(seq 1 30); do curl -sf http://localhost:4173 >/dev/null && break; sleep 1; done
+          cp "$GITHUB_WORKSPACE/Svenska laviner/marknad/film/klipp-lib.mjs" "$GITHUB_WORKSPACE/Svenska laviner/marknad/film/vinter-klipp.mjs" scripts/
+          node scripts/vinter-klipp.mjs "$GITHUB_WORKSPACE/Svenska laviner/marknad/film/vinter"
+          ls -la "$GITHUB_WORKSPACE/Svenska laviner/marknad/film/vinter"
+      - name: Commit the clips
+        if: ${{ !cancelled() }}
+        working-directory: Svenska laviner/marknad/film
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -rf vinter/.[!.]*
+          git add -A vinter
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "November–January screen material (automatic)"
+          for i in 1 2 3; do git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH" && exit 0; sleep 5; done
+          exit 1

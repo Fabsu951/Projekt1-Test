@@ -112,21 +112,25 @@ export function recorder(outDir) {
   fs.mkdirSync(OUT, { recursive: true });
   let browser;
 
-  async function open(pathname, { theme = "light", forecasts = exampleForecasts(), label = null } = {}) {
+  // `fresh` opens the site like a first visit (signed out, nothing starred, welcome guide);
+  // `extra(request)` may answer worker requests before the shared sample answers.
+  async function open(pathname, { theme = "light", forecasts = exampleForecasts(), label = null, fresh = false, extra = null, height = H } = {}) {
     browser ??= await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {});
     const ctx = await browser.newContext({
-      viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: true, hasTouch: true,
+      viewport: { width: W, height }, deviceScaleFactor: DPR, isMobile: true, hasTouch: true,
       colorScheme: theme, locale: "sv-SE", timezoneId: "Europe/Stockholm", serviceWorkers: "block",
       permissions: ["geolocation"], geolocation: { latitude: 67.91, longitude: 18.6, accuracy: 8 },
     });
-    await ctx.addInitScript(([theme, label]) => {
-      localStorage.setItem("CapacitorStorage.fjallkoll:auth-token", "demo");
+    await ctx.addInitScript(([theme, label, fresh]) => {
       localStorage.setItem("fjallkoll:language", "sv");
       localStorage.setItem("fjallkoll:theme", theme);
-      localStorage.setItem("fjallkoll:welcome-done", "1");
       localStorage.setItem("fjallkoll:map-layers-open", "0");
       localStorage.removeItem("fjallkoll:route-draft");
-      localStorage.setItem("CapacitorStorage.fjallkoll:favorites", JSON.stringify(["kebnekaisefjallen", "riksgransfjallen"]));
+      if (!fresh) {
+        localStorage.setItem("CapacitorStorage.fjallkoll:auth-token", "demo");
+        localStorage.setItem("fjallkoll:welcome-done", "1");
+        localStorage.setItem("CapacitorStorage.fjallkoll:favorites", JSON.stringify(["kebnekaisefjallen", "riksgransfjallen"]));
+      }
       // A soft circle where the "finger" taps, like a screen recording with touches shown.
       addEventListener("pointerdown", (e) => {
         const dot = document.createElement("div");
@@ -147,7 +151,7 @@ export function recorder(outDir) {
           "html:has(.fullscreen-icon--exit) .clip-label{left:auto;right:10px;top:58px;transform:none}";
         document.documentElement.append(style, tag);
       });
-    }, [theme, label]);
+    }, [theme, label, fresh]);
     const posted = [];
     await ctx.route("**/*", async (r) => {
       const url = r.request().url();
@@ -156,7 +160,7 @@ export function recorder(outDir) {
         const body = (await res.text()).replace(/_initContainer:function\((\w)\)\{var (\w)=this\._container=/, "_initContainer:function($1){window.__map=this;var $2=this._container=");
         return r.fulfill({ response: res, body });
       }
-      const res = mock(r.request(), forecasts, posted);
+      const res = (r.request().url().startsWith(API) && extra?.(r.request())) || mock(r.request(), forecasts, posted);
       if (!res) return r.continue().catch(() => {});
       if (res.png) return r.fulfill({ status: 200, contentType: "image/png", body: GREY_PNG });
       return r.fulfill({ status: res.status ?? 200, contentType: "application/json", body: JSON.stringify(res.json ?? {}) });
@@ -302,6 +306,17 @@ export async function scrollTo(page, selector, ms, offset = 70) {
 }
 // Slow pointer move so the tap circle and hover effects look like a hand.
 export async function tap(page, locator) {
+  // Keep clear of the sticky header and the tab bar at the bottom.
+  const moved = await locator.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.top >= 90 && r.bottom <= innerHeight - 90) return false;
+    for (let n = el; n; n = n.parentElement) {
+      if (/fixed|sticky/.test(getComputedStyle(n).position)) return false; // header, tab bar, map buttons
+    }
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    return true;
+  });
+  if (moved) await wait(page, 700);
   const box = await locator.boundingBox();
   if (!box) throw new Error("not visible");
   const x = box.x + box.width / 2, y = box.y + box.height / 2;
@@ -320,6 +335,53 @@ export async function cleanMap(page) {
   const style = await page.addStyleTag({ content: "body *{visibility:hidden!important} .leaflet-tile-pane,.leaflet-tile-pane *,.leaflet-overlay-pane,.leaflet-overlay-pane *,.leaflet-control-attribution,.leaflet-control-attribution *,.clip-ring{visibility:visible!important}" });
   return () => style.evaluate((s) => s.remove());
 }
+// Searches `box` [south, west, north, east] for ground about `target`° steep between
+// minH and maxH metres, where the ground around is about as steep, from the same
+// ~30 m height data the app uses (Mapterhorn). Returns {lat, lon, slope, height} or null.
+export const findSteepSpot = (page, { box, target, tol = 1.5, minH = 0, maxH = 9000 }) => page.evaluate(async ([box, target, tol, minH, maxH]) => {
+  const Z = 13, tiles = new Map();
+  async function tile(x, y) {
+    const key = `${x}/${y}`;
+    if (!tiles.has(key)) tiles.set(key, (async () => {
+      const blob = await (await fetch(`https://tiles.mapterhorn.com/${Z}/${x}/${y}.webp`)).blob();
+      const bmp = await createImageBitmap(blob);
+      const c = new OffscreenCanvas(bmp.width, bmp.height);
+      const g = c.getContext("2d");
+      g.drawImage(bmp, 0, 0);
+      return { size: bmp.width, data: g.getImageData(0, 0, bmp.width, bmp.height).data };
+    })());
+    return tiles.get(key);
+  }
+  async function height(lat, lon) {
+    const n = 2 ** Z, r = (lat * Math.PI) / 180;
+    const fx = ((lon + 180) / 360) * n, fy = ((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n;
+    const t = await tile(Math.floor(fx), Math.floor(fy));
+    const px = Math.min(t.size - 1, Math.floor((fx % 1) * t.size)), py = Math.min(t.size - 1, Math.floor((fy % 1) * t.size));
+    const i = (py * t.size + px) * 4;
+    return t.data[i] * 256 + t.data[i + 1] + t.data[i + 2] / 256 - 32768;
+  }
+  async function slope(lat, lon) {
+    const dLat = 30 / 111320, dLon = 30 / (111320 * Math.cos((lat * Math.PI) / 180));
+    const [n, s, e, w] = await Promise.all([height(lat + dLat, lon), height(lat - dLat, lon), height(lat, lon + dLon), height(lat, lon - dLon)]);
+    return (Math.atan(Math.hypot((n - s) / 60, (e - w) / 60)) * 180) / Math.PI;
+  }
+  const [south, west, north, east] = box;
+  let best = null;
+  for (let lat = south; lat <= north; lat += 0.0015) {
+    for (let lon = west; lon <= east; lon += 0.003) {
+      const s = await slope(lat, lon);
+      if (Math.abs(s - target) > tol) continue;
+      const h = await height(lat, lon);
+      if (h < minH || h > maxH) continue;
+      const d = 120 / 111320, dl = 120 / (111320 * Math.cos((lat * Math.PI) / 180));
+      const around = await Promise.all([slope(lat + d, lon), slope(lat - d, lon), slope(lat, lon + dl), slope(lat, lon - dl)]);
+      const spread = Math.max(...around.map((a) => Math.abs(a - s)));
+      if (!best || spread < best.spread) best = { lat, lon, slope: s, height: h, spread };
+    }
+  }
+  return best;
+}, [box, target, tol, minH, maxH]).catch((e) => (console.log("slope search failed", e.message), null));
+
 // Click the route points one by one, like a finger drawing the route.
 export async function drawRoute(page, points, gapMs = 650) {
   for (const ll of points) {

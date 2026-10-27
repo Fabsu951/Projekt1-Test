@@ -10,7 +10,6 @@ on:
   push:
     branches: [ccr-a4c9657a-dnz9f4]
     paths:
-      - "Svenska laviner/marknad/film/klipp-lib.mjs"
       - "Svenska laviner/marknad/film/oktober-klipp.mjs"
       - ".github/workflows/oktober-klipp.yml"
   workflow_dispatch:
