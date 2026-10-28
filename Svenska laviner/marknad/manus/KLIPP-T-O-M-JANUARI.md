@@ -18,7 +18,7 @@ annat står. **Sista raden i varje inläggstext:** `Länk i bion.`
 
 | Datum | Klipp | Typ | Material | Du i bild? |
 | --- | --- | --- | --- | --- |
-| så snart som möjligt | A2 Så funkar ruttkollen | Klipp | `oktober/A2-ruttkollen.mp4` | Krok + slut |
+| så snart som möjligt | A2 Så funkar ruttkollen | Klipp | `oktober/A2-oppning-brant-terrang.mp4` + `oktober/A2-ruttkollen.mp4` | Slut |
 | så snart som möjligt | F1 3 appar → 1 | Klipp | dina egna inspelningar + `oktober/F1-snolage.mp4` | Nej |
 | lör 31 okt | A3 Kartan utan täckning | Klipp | din egen inspelning i flygplansläge | Krok |
 | ons 4 nov | F2 Gissa lutningen | Klipp | `oktober/F2-fraga.png` | Nej |
@@ -67,11 +67,18 @@ annat står. **Sista raden i varje inläggstext:** `Länk i bion.`
 
 | Tid | Bild | Du säger | Text i bild |
 | --- | --- | --- | --- |
-| 0–2 s | Du | "Går din rutt över brant mark där lavinfaran finns?" | **Går din rutt i lavinterräng?** |
-| 2–8 s | A2, början | "I Snöläge ritar du rutten direkt på kartan." | Rita rutten |
+| 0–3 s | `oktober/A2-oppning-brant-terrang.mp4` (brant terräng vid Kebnekaise, zoomar in), din röst över | "Går din rutt över brant mark där lavinfaran finns?" | **Går din rutt i lavinterräng?** |
+| 3–8 s | A2, början | "I Snöläge ritar du rutten direkt på kartan." | Rita rutten |
 | 8–16 s | A2, höjdprofilen | "Du ser längd, höjdmeter, tid och hur brant det är hela vägen." | Längd · höjd · tid · lutning |
 | 16–26 s | A2, jämförelsen | "Och när prognosen gäller markeras de branta bitarna där dagens lavinproblem finns." | Brant + lavinproblem = markerat |
 | 26–30 s | Du | "Det ersätter inte din bedömning – men du ser var du ska vara vaksam." | **Kolla läget. Snöläge.** |
+
+Första scenen är en bild på brant terräng i stället för dig: Naturvårdsverkets
+lutningskarta över Kebnekaise (färgerna går från 25° i grönt till över
+50° i mörkbrunt). Lägg
+rösten över bilden och kroken som stor text i mitten. Har du ett eget foto
+eller en egen filmsnutt av en brant fjällsida går den också bra (ännu
+bättre), men utan åkare i lavinbanor.
 
 ```
 Går din rutt över brant mark där dagens lavinproblem finns? 🗺️
@@ -79,6 +86,8 @@ Går din rutt över brant mark där dagens lavinproblem finns? 🗺️
 Rita rutten i Snöläge och se längd, höjdmeter, tid och lutning – och var den går i brant terräng i de väderstreck och höjder som prognosen pekar ut. Prognosen i klippet är ett exempel.
 
 Ersätter inte lavinkurs eller egen bedömning.
+
+Karta: ©Lantmäteriet (CC BY 4.0), lutning: Naturvårdsverket.
 
 Länk i bion.
 
