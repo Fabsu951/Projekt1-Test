@@ -19,7 +19,7 @@ annat står. **Sista raden i varje inläggstext:** `Länk i bion.`
 | Datum | Klipp | Typ | Material | Du i bild? |
 | --- | --- | --- | --- | --- |
 | så snart som möjligt | A2 Så funkar ruttkollen | Klipp | `oktober/A2-oppning-brant-terrang.mp4` + `oktober/A2-ruttkollen.mp4` | Slut |
-| så snart som möjligt | F1 3 appar → 1 | Klipp | dina egna inspelningar + `oktober/F1-snolage.mp4` | Nej |
+| så snart som möjligt | F1 3 appar → 1 | Klipp | `oktober/F1-klart.mp4` (färdig) | Nej |
 | lör 31 okt | A3 Kartan utan täckning | Klipp | din egen inspelning i flygplansläge | Krok |
 | ons 4 nov | F2 Gissa lutningen | Klipp | `oktober/F2-fraga.png` | Nej |
 | tor 5 nov | F2 svaret | Story + fäst kommentar | `oktober/F2-svar.mp4`, `F2-teckenforklaring.png` | Nej |
@@ -94,21 +94,30 @@ Länk i bion.
 #topptur #offpist #lavin #snöläge #fjällen
 ```
 
-### F1 – 3 appar → 1 (15 s, bara text)
+### F1 – 3 appar → 1 (19 s, bara text)
+
+Färdig film: `oktober/F1-klart.mp4` – all text är redan inbränd, du lägger
+bara på musik. (`F1-snolage.mp4` är samma app-inspelning utan intro och
+text, om du vill klippa själv.)
 
 | Tid | Bild | Text i bild |
 | --- | --- | --- |
-| 0–3 s | Dina tre inspelningar (lavinprognoser.se, SMHI, kartappen) i tre rutor | **Före turen: 3 appar** |
-| 3–5 s | Rutorna glider ihop | **Nu: 1** |
-| 5–13 s | `F1-snolage.mp4` | Prognos · väder · karta med lutning |
-| 13–15 s | Sista bilden fryst | **Snöläge – gratis på snolage.se** |
+| 0–3 s | Tre kort: Lavinprognos, Väder, Karta | **Före turen: 3 appar** |
+| 3–5 s | Korten glider ihop till ett Snöläge-kort | **Nu: 1** |
+| 5–9 s | Startsidan och Kebnekaisefjällens prognos | Prognos |
+| 9–11 s | Vädret för området | Prognos · väder |
+| 11–16 s | Kartan, "Planera tur" slår på lutningen | Prognos · väder · karta med lutning |
+| 16–19 s | Slutbild | **Snöläge – gratis på snolage.se**, "Ersätter inte lavinkurs eller egen bedömning." |
 
-Visa de andra tjänsterna neutralt, utan att göra narr av dem.
+Korten är neutrala (inga andra tjänsters namn eller logotyper), så ingen
+annan tjänst görs till åtlöje.
 
 ```
 Tre appar före varje tur → en. 🏔️
 
 Lavinprognos, väder och karta med lutning för svenska fjällen – på ett ställe. Gratis och utan reklam. Prognosen i klippet är ett exempel.
+
+Karta: ©Lantmäteriet (CC BY 4.0), lutning: Naturvårdsverket, väder: SMHI.
 
 Länk i bion.
 
