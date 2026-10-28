@@ -877,6 +877,9 @@ the start, exact map point.
   map, J1 tour day with friends): `marknad/film/vinter-klipp.mjs`, workflow
   `vinter-klipp.yml` → `marknad/film/vinter/`. Posts that need the day's real
   forecast (launch, Snöläget inför helgen) are not pre-made.
+  Scripts and answer key for every clip up to the end of January (dates,
+  files, lines, on-screen text, post text): `marknad/manus/KLIPP-T-O-M-JANUARI.md`
+  (Word: `marknad/word/13-Manus-till-och-med-januari.docx`).
   Lessons from One Bold Chemist (Swedish TikTok-grown perfume brand) are
   section 6.10 of the plan: many clips, a recurring series, ambassadors'
   content (ambassador kit), season premiere as a countdown "drop"; new
