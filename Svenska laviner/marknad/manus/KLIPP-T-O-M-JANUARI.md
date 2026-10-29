@@ -67,11 +67,11 @@ annat står. **Sista raden i varje inläggstext:** `Länk i bion.`
 
 | Tid | Bild | Du säger | Text i bild |
 | --- | --- | --- | --- |
-| 0–3 s | `oktober/A2-oppning-brant-terrang.mp4` (brant terräng vid Kebnekaise, zoomar in), din röst över | "Går din rutt över brant mark där lavinfaran finns?" | **Går din rutt i lavinterräng?** |
-| 3–8 s | A2, början | "I Snöläge ritar du rutten direkt på kartan." | Rita rutten |
-| 8–16 s | A2, höjdprofilen | "Du ser längd, höjdmeter, tid och hur brant det är hela vägen." | Längd – höjd – tid – lutning |
-| 16–26 s | A2, jämförelsen | "Och när prognosen gäller markeras de branta bitarna där dagens lavinproblem finns." | Brant + lavinproblem = markerat |
-| 26–30 s | Du | "Det ersätter inte din bedömning – men du ser var du ska vara vaksam." | **Kolla läget. Snöläge.** |
+| 0–3 s | `oktober/A2-oppning-brant-terrang.mp4` (brant terräng vid Kebnekaise, zoomar in), din röst över | "Brunt på kartan? Det är inte choklad. Det är över femtio grader." | **Brunt = över 50°** |
+| 3–8 s | A2, början | "Så – går din rutt där? Rita den i Snöläge. Klick, klick, klart." | Rita rutten |
+| 8–16 s | A2, höjdprofilen | "Du får längd, höjdmeter, tid – och hur brant det blir. Ja, även den där biten du hoppades slippa." | Längd – höjd – tid – lutning |
+| 16–26 s | A2, jämförelsen | "Och när prognosen är ute ser du var rutten går över brant mark där dagens lavinproblem finns. Där blir det vita streck. Vita streck betyder: tänk till." | Vita streck = tänk till |
+| 26–30 s | Du | "Hjärnan tar du med själv. Snöläge – kolla läget!" | **Kolla läget. Snöläge.** |
 
 Första scenen är en bild på brant terräng i stället för dig: Naturvårdsverkets
 lutningskarta över Kebnekaise (färgerna går från 25° i grönt till över
