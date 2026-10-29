@@ -69,7 +69,7 @@ annat står. **Sista raden i varje inläggstext:** `Länk i bion.`
 | --- | --- | --- | --- |
 | 0–3 s | `oktober/A2-oppning-brant-terrang.mp4` (brant terräng vid Kebnekaise, zoomar in), din röst över | "Går din rutt över brant mark där lavinfaran finns?" | **Går din rutt i lavinterräng?** |
 | 3–8 s | A2, början | "I Snöläge ritar du rutten direkt på kartan." | Rita rutten |
-| 8–16 s | A2, höjdprofilen | "Du ser längd, höjdmeter, tid och hur brant det är hela vägen." | Längd · höjd · tid · lutning |
+| 8–16 s | A2, höjdprofilen | "Du ser längd, höjdmeter, tid och hur brant det är hela vägen." | Längd – höjd – tid – lutning |
 | 16–26 s | A2, jämförelsen | "Och när prognosen gäller markeras de branta bitarna där dagens lavinproblem finns." | Brant + lavinproblem = markerat |
 | 26–30 s | Du | "Det ersätter inte din bedömning – men du ser var du ska vara vaksam." | **Kolla läget. Snöläge.** |
 
