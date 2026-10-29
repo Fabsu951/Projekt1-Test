@@ -63,15 +63,15 @@ annat står. **Sista raden i varje inläggstext:** `Länk i bion.`
 
 ## Klipp för klipp
 
-### A2 – Så funkar ruttkollen (ca 30 s)
+### A2 – Så funkar ruttkollen (ca 32 s)
 
 | Tid | Bild | Du säger | Text i bild |
 | --- | --- | --- | --- |
-| 0–3 s | `oktober/A2-oppning-brant-terrang.mp4` (brant terräng vid Kebnekaise, zoomar in), din röst över | "Brunt på kartan? Det är inte choklad. Det är över femtio grader." | **Brunt = över 50°** |
-| 3–8 s | A2, början | "Så – går din rutt där? Rita den i Snöläge. Klick, klick, klart." | Rita rutten |
-| 8–16 s | A2, höjdprofilen | "Du får längd, höjdmeter, tid – och hur brant det blir. Ja, även den där biten du hoppades slippa." | Längd – höjd – tid – lutning |
-| 16–26 s | A2, jämförelsen | "Och när prognosen är ute ser du var rutten går över brant mark där dagens lavinproblem finns. Där blir det vita streck. Vita streck betyder: tänk till." | Vita streck = tänk till |
-| 26–30 s | Du | "Hjärnan tar du med själv. Snöläge – kolla läget!" | **Kolla läget. Snöläge.** |
+| 0–5 s | `oktober/A2-oppning-brant-terrang.mp4` (brant terräng vid Kebnekaise, zoomar in), din röst över | "Brunt på kartan? Det är inte choklad. Det är över femtio grader." | **Brunt = över 50°** |
+| 5–10 s | A2, början | "Så – går din rutt där? Rita den i Snöläge. Klick, klick, klart." | Rita rutten |
+| 10–18 s | A2, höjdprofilen | "Du får längd, höjdmeter, tid – och hur brant det blir. Ja, även den där biten du hoppades slippa." | Längd – höjd – tid – lutning |
+| 18–28 s | A2, jämförelsen | "Och när prognosen är ute ser du var rutten går över brant mark där dagens lavinproblem finns. Där blir det vita streck. Vita streck betyder: tänk till." | Vita streck = tänk till |
+| 28–32 s | Du | "Hjärnan tar du med själv. Snöläge – kolla läget!" | **Kolla läget. Snöläge.** |
 
 Första scenen är en bild på brant terräng i stället för dig: Naturvårdsverkets
 lutningskarta över Kebnekaise (färgerna går från 25° i grönt till över
