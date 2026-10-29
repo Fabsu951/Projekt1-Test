@@ -105,8 +105,8 @@ text, om du vill klippa själv.)
 | 0–3 s | Tre kort: Lavinprognos, Väder, Karta | **Före turen: 3 appar** |
 | 3–5 s | Korten glider ihop till ett Snöläge-kort | **Nu: 1** |
 | 5–9 s | Startsidan och Kebnekaisefjällens prognos | Prognos |
-| 9–11 s | Vädret för området | Prognos · väder |
-| 11–16 s | Kartan, "Planera tur" slår på lutningen | Prognos · väder · karta med lutning |
+| 9–11 s | Vädret för området | Prognos – väder |
+| 11–16 s | Kartan, "Planera tur" slår på lutningen | Prognos – väder – karta med lutning |
 | 16–19 s | Slutbild | **Snöläge – gratis på snolage.se**, "Ersätter inte lavinkurs eller egen bedömning." |
 
 Korten är neutrala (inga andra tjänsters namn eller logotyper), så ingen
