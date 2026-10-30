@@ -64,3 +64,12 @@ jobs:
           print("layers:", sorted(set(re.findall(r"<ows:Identifier>([^<]+)</ows:Identifier>", text)))[:60])
           print("resource urls:", sorted(set(re.findall(r'template="([^"]+)"', text)))[:10])
           print("access constraints:", re.findall(r"<ows:AccessConstraints>([^<]+)<", text)[:3])
+
+      - name: Kartverket headers (CORS for offline saving, caching)
+        run: |
+          curl -sS -D - -o /dev/null -H "Origin: https://snolage.se" "https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/12/967/2248.png" | grep -iE "^(HTTP|access-control|cache-control|content-type|cf-cache|age|expires)"
+          echo "--- tile over Sweden (transparent):"
+          curl -sS -D - -o /dev/null -H "Origin: https://snolage.se" "https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/12/969/2261.png" | grep -iE "^(HTTP|access-control|cache-control)"
+          echo "--- max zoom:"
+          for z in 15 16 17 18; do curl -s -o /dev/null -w "z$z %{http_code} %{size_download}\n" "https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/$z/$((967*2**(z-12)))/$((2248*2**(z-12))).png"; done
+
