@@ -1,0 +1,70 @@
+# Adds Lantmäteriet's zoom-16 map tiles for the mountain boxes to the map
+# bucket (kartor.snolage.se), so the map stays sharp when zoomed in past 15.
+# Reads the all-Sweden GeoPackage through the worker's range proxy
+# (/admin/lantmateriet/topowebb-3857.gpkg, the worker's own Lantmäteriet
+# login) and uploads with a fresh TILE_UPLOAD_TOKEN. MODE: dry-run counts
+# tiles and estimates the size; import uploads (SKIP resumes an
+# interrupted run). Runs when this file changes (dispatch only works on the
+# default branch).
+
+name: Kartbitar zoom 16
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha, svenska-laviner]
+    paths:
+      - ".github/workflows/kartor-z16.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kartor-z16
+  cancel-in-progress: false
+
+env:
+  MODE: dry-run
+  SKIP: "0"
+  WORKER: https://fjallkoll-worker.fabian-n-sund.workers.dev
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: dba2a7031f0d281c2f34301d23a315ca
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    defaults:
+      run:
+        working-directory: Svenska laviner/worker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Wait for the worker with the range proxy
+        run: |
+          for i in $(seq 1 120); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$WORKER/admin/lantmateriet/topowebb-3857.gpkg")
+            if [ "$code" = "401" ]; then echo "proxy is live"; exit 0; fi
+            echo "proxy answers $code, waiting…"; sleep 20
+          done
+          exit 1
+
+      - name: Fresh upload token
+        run: |
+          token=$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=')
+          echo "::add-mask::$token"
+          printf '%s' "$token" | npx wrangler secret put TILE_UPLOAD_TOKEN
+          echo "TILE_UPLOAD_TOKEN=$token" >> "$GITHUB_ENV"
+          sleep 15
+
+      - name: Import zoom 16
+        run: |
+          args="--min-zoom 16 --max-zoom 16 --skip $SKIP"
+          if [ "$MODE" != "import" ]; then args="$args --dry-run"; fi
+          LM_AUTH="Bearer $TILE_UPLOAD_TOKEN" npx tsx scripts/import-tiles.ts "$WORKER/admin/lantmateriet/topowebb-3857.gpkg" $args

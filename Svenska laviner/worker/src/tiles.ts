@@ -193,6 +193,42 @@ async function sameSecret(a: string, b: string): Promise<boolean> {
   return diff === 0;
 }
 
+/** Lantmäteriet's all-Sweden topo GeoPackage, readable with the worker's own Geotorget login. */
+export const TOPOWEBB_GPKG = "https://dl1.lantmateriet.se/karta/topowebb/data/topowebb-3857.gpkg";
+const MAX_PROXY_RANGE = 16 * 1024 * 1024;
+
+/**
+ * GET /admin/lantmateriet/topowebb-3857.gpkg: one HTTP Range of the
+ * GeoPackage, fetched with the worker's Lantmäteriet login, for
+ * scripts/import-tiles.ts run from GitHub Actions (upload token required,
+ * so nobody else can use the login; ranges only, ≤ 16 MB each).
+ */
+export async function proxyTopowebbFile(request: Request, env: TilesEnv): Promise<Response> {
+  const token = request.headers.get("Authorization")?.match(/^Bearer\s+(\S+)$/)?.[1] ?? "";
+  if (!env.TILE_UPLOAD_TOKEN || !token || !(await sameSecret(token, env.TILE_UPLOAD_TOKEN))) {
+    return new Response("Inte behörig.", { status: 401 });
+  }
+  if (!env.LANTMATERIET_USER || !env.LANTMATERIET_PASSWORD) return new Response("Ingen Lantmäteriet-inloggning.", { status: 503 });
+  const range = request.headers.get("Range")?.match(/^bytes=(\d+)-(\d+)$/);
+  if (!range || Number(range[2]) < Number(range[1]) || Number(range[2]) - Number(range[1]) + 1 > MAX_PROXY_RANGE) {
+    return new Response("Ange ett Range-intervall på högst 16 MB.", { status: 400 });
+  }
+  const res = await fetch(TOPOWEBB_GPKG, {
+    headers: {
+      Range: `bytes=${range[1]}-${range[2]}`,
+      Authorization: `Basic ${btoa(`${env.LANTMATERIET_USER}:${env.LANTMATERIET_PASSWORD}`)}`,
+      "User-Agent": "Snolage/1.0 (https://snolage.se)",
+    },
+    signal: AbortSignal.timeout(55_000),
+  });
+  const headers: Record<string, string> = { "Content-Type": "application/octet-stream" };
+  for (const name of ["Content-Range", "Content-Length"]) {
+    const value = res.headers.get(name);
+    if (value) headers[name] = value;
+  }
+  return new Response(res.body, { status: res.status, headers });
+}
+
 /** POST /admin/tiles/<layer>: stores a batch of tiles (see tileBatch.ts). */
 export async function uploadTiles(request: Request, env: TilesEnv, origin: string, layer: TileLayer = "topowebb"): Promise<Response> {
   const json = (data: unknown, status = 200) =>

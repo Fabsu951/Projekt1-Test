@@ -11,6 +11,7 @@
 // does this with the login): npx tsx scripts/import-tiles.ts https://…/topowebb-3857.gpkg
 //
 // Options: --max-zoom 15 (default; the app zooms in further from there),
+//          --min-zoom <n> (skip the levels below, e.g. to add zoom 16 only),
 //          --table <name> (which tile table, if the file has several),
 //          --all (all of the file, not just the mountain areas),
 //          --skip <n> (remote only: continue after the first n tiles of an interrupted run),
@@ -44,6 +45,7 @@ const PARALLEL = 10;
 interface Options {
   files: string[];
   maxZoom: number;
+  minZoom: number;
   table: string | null;
   dryRun: boolean;
   all: boolean;
@@ -51,10 +53,11 @@ interface Options {
 }
 
 function parseArgs(argv: string[]): Options {
-  const opts: Options = { files: [], maxZoom: 15, table: null, dryRun: false, all: false, skip: 0 };
+  const opts: Options = { files: [], maxZoom: 15, minZoom: 0, table: null, dryRun: false, all: false, skip: 0 };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--max-zoom") opts.maxZoom = Number(argv[++i]);
+    else if (arg === "--min-zoom") opts.minZoom = Number(argv[++i]);
     else if (arg === "--table") opts.table = argv[++i];
     else if (arg === "--dry-run") opts.dryRun = true;
     else if (arg === "--all") opts.all = true;
@@ -273,9 +276,9 @@ async function main() {
   for (const file of opts.files) {
     const source = /^https?:\/\//i.test(file) ? await openRemote(file, opts) : await openLocal(file, opts);
     const { tables, table, levels } = source;
-    const wanted = levels.filter((l) => l.z <= opts.maxZoom);
+    const wanted = levels.filter((l) => l.z <= opts.maxZoom && l.z >= opts.minZoom);
     console.log(`\n${source.label}\n  tabell: ${table}${tables.length > 1 ? ` (finns även: ${tables.filter((t) => t !== table).join(", ")})` : ""}`);
-    console.log(`  zoomnivåer: ${wanted.map((l) => l.z).join(", ")}${wanted.length < levels.length ? ` (hoppar över nivåer över ${opts.maxZoom})` : ""}`);
+    console.log(`  zoomnivåer: ${wanted.map((l) => l.z).join(", ")}${wanted.length < levels.length ? ` (hoppar över nivåer utanför ${opts.minZoom}–${opts.maxZoom})` : ""}`);
     console.log(`  område: ${opts.all ? "hela filen" : `fjällrutorna (${Object.keys(MOUNTAIN_BOXES).join(", ")}), hela filen upp till zoom ${OVERVIEW_MAX_ZOOM}`}`);
 
     if (opts.dryRun && source.dryRun) {
