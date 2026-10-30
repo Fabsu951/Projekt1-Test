@@ -133,7 +133,7 @@ export default function RoutePanel({
 
       {!folded && (
         <p className="route-panel__note">
-          {t("Tiden är beräknad med Munter-metoden utan pauser. Lutningen kommer från höjddata med ungefär 30 m upplösning och visar bara marken precis under linjen – korta branta partier, hängdrivor och sluttningar ovanför rutten syns inte. Använd den för planering, inte som besked om att en sluttning är säker.")}
+          {t("Tiden är beräknad med Munter-metoden utan pauser. Lutningen mäts över ungefär 60 m i höjdmodeller med 1 m upplösning och visar bara marken precis under linjen – korta branta partier, hängdrivor och sluttningar ovanför rutten syns inte. Använd den för planering, inte som besked om att en sluttning är säker.")}
         </p>
       )}
     </section>

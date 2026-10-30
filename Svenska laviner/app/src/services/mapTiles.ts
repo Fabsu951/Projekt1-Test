@@ -152,6 +152,24 @@ export const OFFICIAL_TERRAIN_ATTRIBUTION =
   t('Terrängkarta: <a href="https://www.lavinprognoser.se/">Naturvårdsverket</a>');
 
 /**
+ * NVE's slope map for Norway ("Bratthet", the one Varsom shows): a public
+ * Web Mercator tile cache, transparent outside Norway, tiles up to zoom 16.
+ * Shown with Naturvårdsverket's slope map, which stops at the border.
+ */
+export const NORWAY_SLOPE_URL = "https://gis3.nve.no/arcgis/rest/services/wmts/Bratthet_2024/MapServer/tile/{z}/{y}/{x}";
+export const NORWAY_SLOPE_MAX_NATIVE_ZOOM = 16;
+export const NORWAY_SLOPE_ATTRIBUTION = t('Bratthet i Norge: &copy; <a href="https://www.nve.no/">NVE</a>');
+/** NVE's classes and colours, from their legend. */
+export const NORWAY_SLOPE_LEGEND: Array<[string, string]> = [
+  ["27–30°", "#38a800"],
+  ["30–35°", "#ffff00"],
+  ["35–40°", "#ffaa00"],
+  ["40–45°", "#ff5500"],
+  ["45–50°", "#ff0000"],
+  ["> 50°", "#730000"],
+];
+
+/**
  * The detailed slope map, made from Lantmäteriet's 1 m height model by
  * worker/scripts/import-slope.ts and hosted by the worker. Only offered once
  * the worker says it exists (GET /tiles/slope/meta).

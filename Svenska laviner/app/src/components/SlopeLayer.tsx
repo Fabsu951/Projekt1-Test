@@ -2,49 +2,30 @@ import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet-relief";
+import { FLAT, slopeColor } from "../utils/slopeColors";
+import { t } from "../i18n";
 
 // Elevation data comes from leaflet-relief's default source, Mapterhorn
-// (tiles.mapterhorn.com) — open, no API key. Despite the library's own
-// README describing AWS's older Terrarium bucket as the default, the
-// published package (checked in dist/leaflet-relief.esm.js) actually
-// defaults to Mapterhorn; same Terrarium pixel encoding either way, just a
-// different, more actively maintained host.
-//
-// Slope-angle color stops follow the convention used by CalTopo/Gaia
-// GPS-style avalanche terrain maps: calm blue below ~28° (not
-// avalanche-relevant), ramping through yellow/orange/red into the 30-45°
-// band where most skier-triggered slab avalanches start, capping at a dark
-// magenta beyond 45° (steep enough that snow tends to slide before it can
-// build up).
-const SLOPE_STOPS: Array<[number, [number, number, number]]> = [
-  [0, [50, 90, 130]],
-  [28, [50, 90, 130]],
-  [30, [255, 235, 59]],
-  [35, [255, 152, 0]],
-  [40, [244, 67, 54]],
-  [45, [140, 20, 90]],
-  [55, [140, 20, 90]],
-];
+// (tiles.mapterhorn.com) — open, no API key, Terrarium encoding. In Sweden
+// and Norway Mapterhorn is built from the national 1 m height models
+// (Lantmäteriet's Markhöjdmodell Nedladdning, CC0; Kartverket's DTM, CC BY 4.0),
+// checked against its attribution list and real tiles on 2026-10-30.
+// Colours: utils/slopeColors.ts (the route planner's steps, flat ground clear).
 
-function lerp(a: number, b: number, frac: number): number {
-  return a + (b - a) * frac;
-}
+/**
+ * Computed at most at this zoom and enlarged beyond: at ~2 m per pixel the
+ * 1 m data still shows real slopes, while finer pixels mostly add single
+ * boulders and snow-free crevasse edges as noise.
+ */
+const MAX_NATIVE_ZOOM = 14;
 
-function slopeColor(slopeDegrees: number): [number, number, number] {
-  for (let i = 0; i < SLOPE_STOPS.length - 1; i++) {
-    const [angleA, colorA] = SLOPE_STOPS[i];
-    const [angleB, colorB] = SLOPE_STOPS[i + 1];
-    if (slopeDegrees >= angleA && slopeDegrees <= angleB) {
-      const frac = angleB === angleA ? 0 : (slopeDegrees - angleA) / (angleB - angleA);
-      return [
-        lerp(colorA[0], colorB[0], frac),
-        lerp(colorA[1], colorB[1], frac),
-        lerp(colorA[2], colorB[2], frac),
-      ];
-    }
-  }
-  return SLOPE_STOPS[SLOPE_STOPS.length - 1][1];
-}
+const SLOPE_ATTRIBUTION = t(
+  'Lutning: höjdmodeller &copy; Lantmäteriet och &copy; Kartverket (<a href="https://creativecommons.org/licenses/by/4.0/deed.sv">CC BY 4.0</a>) via <a href="https://mapterhorn.com/attribution/">Mapterhorn</a>'
+);
+
+const TRANSPARENT = [0, 0, 0, 0];
+
+type ReliefPixels = { _createSlopeColor(e: unknown, t: unknown): number[] };
 
 interface Props {
   enabled: boolean;
@@ -58,11 +39,20 @@ export default function SlopeLayer({ enabled }: Props) {
 
     const layer = L.gridLayer.relief({
       mode: "slope",
-      opacity: 0.55,
+      opacity: 0.7,
       slopeColorFunction: slopeColor,
       minZoom: 11,
+      maxNativeZoom: MAX_NATIVE_ZOOM,
       zIndex: 4, // above the Norwegian map layer (TopoLayer)
+      attribution: SLOPE_ATTRIBUTION,
     });
+    // leaflet-relief always draws an opaque pixel; make flat ground transparent.
+    const pixels = layer as unknown as ReliefPixels;
+    const draw = pixels._createSlopeColor;
+    pixels._createSlopeColor = function (e, t) {
+      const c = draw.call(this, e, t);
+      return c[0] === FLAT[0] && c[1] === FLAT[1] && c[2] === FLAT[2] ? TRANSPARENT : c;
+    };
     layer.addTo(map);
 
     return () => {

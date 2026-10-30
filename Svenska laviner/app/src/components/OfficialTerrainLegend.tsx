@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { officialTerrainLegendUrl, type OfficialTerrain } from "../services/mapTiles";
+import { NORWAY_SLOPE_LEGEND, officialTerrainLegendUrl, type OfficialTerrain } from "../services/mapTiles";
 import { t } from "../i18n";
 
 const NAMES: Record<OfficialTerrain, string> = { lutning: "lutning", riktning: "sluttningsriktning" };
@@ -7,16 +7,32 @@ const NAMES: Record<OfficialTerrain, string> = { lutning: "lutning", riktning: "
 /** The legend exactly as Naturvårdsverket draws it (their GetLegendGraphic), via the worker. */
 export default function OfficialTerrainLegend({ layer }: { layer: OfficialTerrain }) {
   const [failed, setFailed] = useState<string | null>(null);
-  if (failed === layer) {
-    return <p className="muted official-terrain__legend-missing">{t("Teckenförklaringen kunde inte hämtas just nu.")}</p>;
-  }
   return (
-    <img
-      key={layer}
-      className="official-terrain__legend"
-      src={officialTerrainLegendUrl(layer)}
-      alt={t("Teckenförklaring för {layer} (Naturvårdsverket)", { layer: NAMES[layer] })}
-      onError={() => setFailed(layer)}
-    />
+    <>
+      {failed === layer ? (
+        <p className="muted official-terrain__legend-missing">{t("Teckenförklaringen kunde inte hämtas just nu.")}</p>
+      ) : (
+        <img
+          key={layer}
+          className="official-terrain__legend"
+          src={officialTerrainLegendUrl(layer)}
+          alt={t("Teckenförklaring för {layer} (Naturvårdsverket)", { layer: NAMES[layer] })}
+          onError={() => setFailed(layer)}
+        />
+      )}
+      {layer === "lutning" && (
+        <>
+          <p className="official-terrain__title">{t("I Norge (NVE)")}</p>
+          <div className="slope-legend">
+            {NORWAY_SLOPE_LEGEND.map(([label, color]) => (
+              <span key={label} className="slope-legend__item">
+                <span className="slope-legend__swatch" style={{ backgroundColor: color }} />
+                {label}
+              </span>
+            ))}
+          </div>
+        </>
+      )}
+    </>
   );
 }

@@ -148,7 +148,7 @@ export default function PressPage() {
           <div>
             <dt>{t("Uppgifter från")}</dt>
             <dd>
-              {t("Naturvårdsverket (lavinprognoser), SMHI (väder, vädervarningar och snödjup), Lantmäteriet (topografisk karta, CC BY 4.0), Kartverket (karta över Norge, CC BY 4.0), Mapterhorn (höjddata) och OpenStreetMap")}
+              {t("Naturvårdsverket (lavinprognoser), SMHI (väder, vädervarningar och snödjup), Lantmäteriet (topografisk karta, CC BY 4.0), Kartverket (karta och höjddata över Norge, CC BY 4.0), NVE (bratthet i Norge), Mapterhorn (höjddata) och OpenStreetMap")}
             </dd>
           </div>
           <div>

@@ -1,8 +1,9 @@
 // Height above sea level at any point, read from the same open elevation
 // tiles the slope layer draws (Mapterhorn, Terrarium encoding: metres =
-// R·256 + G + B/256 − 32768). In the Swedish mountains the data is ~30 m
-// resolution, so heights are good to a few metres and slopes are a rough
-// guide only. Tiles are decoded once and kept in memory.
+// R·256 + G + B/256 − 32768). In Sweden and Norway Mapterhorn is built from
+// the national 1 m height models (Lantmäteriet's Markhöjdmodell, Kartverket's
+// DTM); zoom 13 reads them at a few metres, and slopes are measured over
+// ±30 m so single boulders don't count. Tiles are decoded once and kept in memory.
 
 export const ELEVATION_TILE_URL = "https://tiles.mapterhorn.com/{z}/{x}/{y}.webp";
 /** Zoom level the heights are read at; finer than the data itself. */

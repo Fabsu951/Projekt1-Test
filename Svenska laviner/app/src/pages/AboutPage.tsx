@@ -136,10 +136,17 @@ export default function AboutPage() {
             {t(". Bearbetad: lutningen är uträknad och indelad i steg.")}
           </li>
           <li>
-            {t("Terränglutning: höjddata (SRTM/NASADEM, ~30 m upplösning) från")}{" "}
+            {t("Lutning (egen beräkning) och höjder i ruttplaneringen: beräknade av Snöläge från höjdmodeller med 1 m upplösning, Lantmäteriets Markhöjdmodell Nedladdning (©Lantmäteriet, CC0) och Kartverkets terrängmodell (©Kartverket, CC BY 4.0), hämtade via")}{" "}
             <a href="https://mapterhorn.com/attribution/" target="_blank" rel="noreferrer">
               {t("Mapterhorn")}
             </a>
+            {t(". Bearbetad: lutningen är uträknad och indelad i steg.")}
+          </li>
+          <li>
+            {t("Lutning i Norge:")}{" "}<a href="https://www.nve.no/" target="_blank" rel="noreferrer">
+              {t("NVE")}
+            </a>{" "}
+            {t("(Bratthet, samma karta som Varsom visar), ©NVE. Visas obearbetad.")}
           </li>
           <li>
             {t("Appen bygger på öppen källkod, bland annat React, Leaflet, React Leaflet, Capacitor och Firebase.")}{" "}
@@ -264,7 +271,7 @@ export default function AboutPage() {
             <strong>{t("På din enhet:")}</strong>{" "}{t("appen sparar din inloggning och senast hämtade prognoser och väder lokalt, så att den fungerar utan täckning. Vi använder inga kakor för spårning, ingen annonsering och ingen analys av hur du använder appen.")}
           </li>
           <li>
-            <strong>{t("Tjänster som appen hämtar från direkt:")}</strong>{" "}{t("för väder hämtar appen data direkt från SMHI, för höjder och lutning från Mapterhorn, kartan över Norge från Kartverket och utanför fjällen kan kartan hämtas från OpenStreetMap. Vid registrering kontrollerar Cloudflare Turnstile att du inte är en robot. De tjänsterna ser då din IP-adress, som vid vanlig surfning, men inget om ditt konto.")}
+            <strong>{t("Tjänster som appen hämtar från direkt:")}</strong>{" "}{t("för väder hämtar appen data direkt från SMHI, för höjder och lutning från Mapterhorn, kartan över Norge från Kartverket, lutningskartan över Norge från NVE och utanför fjällen kan kartan hämtas från OpenStreetMap. Vid registrering kontrollerar Cloudflare Turnstile att du inte är en robot. De tjänsterna ser då din IP-adress, som vid vanlig surfning, men inget om ditt konto.")}
           </li>
           <li>
             <strong>{t("Tekniska uppgifter:")}</strong>{" "}{t("vår leverantör Cloudflare behandlar din IP-adress tillfälligt för att kunna leverera sidan och skydda den mot attacker. Vi sparar den inte tillsammans med ditt konto.")}

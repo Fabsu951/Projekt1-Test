@@ -40,7 +40,6 @@ import { ObservationMarkers, RegionMarkers, TourMarkers } from "../components/Ma
 import { t } from "../i18n";
 
 const SLOPE_LEGEND: Array<[string, string]> = [
-  ["< 28°", "#325a82"],
   ["30–35°", "#ffeb3b"],
   ["35–40°", "#ff9800"],
   ["40–45°", "#f44336"],
@@ -433,7 +432,7 @@ export default function MapPage() {
                 onChange={(e) => setShowSlope(e.target.checked)}
               />
               <span>
-                {t("Lutning, egen beräkning")}{" "}<span className="map-layers__sub">{t("(zooma in för att se den)")}</span>
+                {t("Lutning, egen beräkning")}{" "}<span className="map-layers__sub">{t("(Sverige och Norge, zooma in)")}</span>
               </span>
             </label>
             {showSlope && (
@@ -460,7 +459,7 @@ export default function MapPage() {
                 </label>
                 {showDetailedSlope && (
                   <div className="slope-legend">
-                    {SLOPE_LEGEND.slice(1).map(([label, color]) => (
+                    {SLOPE_LEGEND.map(([label, color]) => (
                       <span key={label} className="slope-legend__item">
                         <span className="slope-legend__swatch" style={{ backgroundColor: color }} />
                         {label}
@@ -472,11 +471,11 @@ export default function MapPage() {
             )}
             {officialTerrainAvailable && (
               <div className="official-terrain">
-                <p className="official-terrain__title">{t("Från Naturvårdsverket")}</p>
+                <p className="official-terrain__title">{t("Officiella kartor")}</p>
                 {(
                   [
-                    ["lutning", t("Lutning")],
-                    ["riktning", t("Sluttningsriktning")],
+                    ["lutning", t("Lutning (Naturvårdsverket, i Norge NVE)")],
+                    ["riktning", t("Sluttningsriktning (Naturvårdsverket, bara Sverige)")],
                   ] as Array<[OfficialTerrain, string]>
                 ).map(([id, label]) => (
                   <label key={id} className="map-toolbar__toggle">
@@ -515,7 +514,9 @@ export default function MapPage() {
 
         {officialTerrain && (
           <p className="notice">
-            {officialTerrain === "lutning" ? t("Lutningskartan") : t("Kartan över sluttningsriktning")}{" "}{t("kommer från Naturvårdsverkets lavinprognostjänst. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos. Zooma in om lagret inte syns.")}
+            {officialTerrain === "lutning"
+              ? t("Lutningskartan kommer från Naturvårdsverkets lavinprognostjänst och i Norge från NVE. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos. Zooma in om lagret inte syns.")
+              : t("Kartan över sluttningsriktning kommer från Naturvårdsverkets lavinprognostjänst och finns bara för Sverige. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos. Zooma in om lagret inte syns.")}
           </p>
         )}
 
@@ -527,7 +528,7 @@ export default function MapPage() {
 
         {showSlope && (
           <p className="notice notice--stale">
-            {t("Terränglutningen är beräknad från öppen höjddata med ~30 m upplösning (SRTM/NASADEM) och är en grov approximation – inte tillräckligt exakt för att ensam avgöra om en specifik sluttning är säker.")}
+            {t("Lutningen är beräknad av Snöläge från höjdmodeller med 1 m upplösning (Lantmäteriet i Sverige, Kartverket i Norge). Under 30° visas ingenting. Den visar terrängen, inte lavinfaran, och snö och skavlar kan ändra den verkliga lutningen – läs alltid dagens prognos.")}
           </p>
         )}
       </div>

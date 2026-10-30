@@ -317,6 +317,28 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   `downloadTiles` takes `TileUrls` returning one or more URLs). CSP
   `img-src`/`connect-src` include `https://cache.kartverket.no`; About,
   press page and privacy policy (updated 30 Oct) credit/name Kartverket.
+  **Slope maps (2026-10-30, Fabian: "bättre lutningskarta", screenshot showed
+  NV's slope map stopping at the border):** measured from GitHub Actions
+  (one-off `kartkoll.yml`, removed): Mapterhorn's tiles (512 px, z ≤ 15 in
+  the mountains, 404 above) are built from **Lantmäteriet's Markhöjdmodell
+  Nedladdning 1 m (CC0)** and **Kartverket's DTM 1 m (CC BY 4.0)** (their
+  attribution.json) – not SRTM 30 m as the app used to say. So our own
+  `SlopeLayer` is already a detailed slope map for both countries; the
+  separate "Lutning, detaljerad" import (LUTNING.md, still waiting for
+  Fabian's access) is now mostly redundant. `SlopeLayer`: colours from
+  `utils/slopeColors.ts` = the route planner's `SLOPE_BANDS` steps, < 30°
+  transparent (leaflet-relief always draws opaque pixels, so a marker colour
+  is swapped for transparent by wrapping the instance's `_createSlopeColor`),
+  opacity 0.7, `maxNativeZoom` 14 (finer pixels were mostly boulder noise),
+  attribution Lantmäteriet/Kartverket via Mapterhorn. **Norway in the
+  official slope map:** NVE's "Bratthet" (what Varsom shows) is a public
+  EPSG:3857 tile cache `https://gis3.nve.no/arcgis/rest/services/wmts/Bratthet_2024/MapServer/tile/{z}/{y}/{x}`
+  (z ≤ 16, transparent outside Norway, classes 27–30 … > 50°, colours in
+  `NORWAY_SLOPE_LEGEND`), loaded directly (CSP `img-src` has
+  `https://gis3.nve.no`) by `OfficialTerrainLayer` together with NV's
+  "Lutning"; aspect stays Sweden-only. About, press page and privacy policy
+  name NVE and the real height models. Also NVE `Bratthet_med_utlop_2024`
+  (with runout zones) exists in the same folder if ever wanted.
   **Offline maps (feature 5, 2026-09-27):** "Karta offline" section on
   region pages (`OfflineMapCard.tsx`, `services/offlineMap.ts`): saves a
   ~60×60 km square around the region at z8–13 ("Översikt", ~30–40 MB) or
@@ -1509,6 +1531,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (319 tests as of 2026-10-30, all passing). Worker has its own Vitest
+  (321 tests as of 2026-10-30, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 211 tests, including the
   real-page fixtures).
