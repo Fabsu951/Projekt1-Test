@@ -1,0 +1,163 @@
+# One-off look at the map's detail when zoomed in: how detailed Mapterhorn's
+# heights (our own slope layer) really are over the Swedish mountains,
+# whether the detailed slope tiles exist, and screenshots of the live map at
+# high zoom. Cloud sessions can't reach these hosts; this runs when the file
+# changes and commits the screenshots to Svenska laviner/kartkoll/.
+
+name: Kartkoll
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha]
+    paths:
+      - ".github/workflows/kartkoll.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kartkoll
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -q pillow numpy
+
+      - name: Mapterhorn detail per zoom
+        shell: python
+        run: |
+          import io, math, re, urllib.request
+          import numpy as np
+          from PIL import Image
+          UA = {"User-Agent": "Snolage/1.0 (https://snolage.se)"}
+          def get(url):
+              try:
+                  with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
+                      return r.status, r.headers.get("Content-Type"), r.read()
+              except Exception as e:
+                  return getattr(e, "code", 0), str(e)[:150], b""
+          for u in ["https://tiles.mapterhorn.com/tilejson.json", "https://tiles.mapterhorn.com/", "https://mapterhorn.com/attribution/"]:
+              s, ct, body = get(u)
+              print("==", u, s, ct, len(body))
+              text = body.decode("utf-8", "replace")
+              if "json" in (ct or ""):
+                  print(text[:3000])
+              else:
+                  text = re.sub(r"<[^>]+>", " ", text)
+                  text = re.sub(r"\s+", " ", text)
+                  for m in re.finditer(r"(?i)(swed|sverige|lantm|norw|norge|kartverket|finland|glo-?30|copernicus|resolution|zoom)", text):
+                      print("  …", text[max(0, m.start() - 160): m.end() + 160])
+          def tile(lat, lon, z):
+              n = 2 ** z
+              x = (lon + 180) / 360 * n
+              r = math.radians(lat)
+              y = (1 - math.log(math.tan(r) + 1 / math.cos(r)) / math.pi) / 2 * n
+              return int(x), int(y)
+          def heights(z, x, y):
+              s, ct, body = get(f"https://tiles.mapterhorn.com/{z}/{x}/{y}.webp")
+              if s != 200:
+                  return s, None
+              a = np.asarray(Image.open(io.BytesIO(body)).convert("RGB")).astype(np.float64)
+              return s, a[:, :, 0] * 256 + a[:, :, 1] + a[:, :, 2] / 256 - 32768
+          places = {"Kebnekaise": (67.90, 18.55), "Abisko/Nuolja": (68.36, 18.75), "Riksgränsen": (68.43, 18.12), "Sylarna": (63.02, 12.24), "Hemavan": (65.81, 15.10), "Narvik (NO)": (68.43, 17.43)}
+          for name, (lat, lon) in places.items():
+              print(f"\n## {name}")
+              for z in range(11, 19):
+                  x, y = tile(lat, lon, z)
+                  s, h = heights(z, x, y)
+                  if h is None:
+                      print(f"  z{z} {x}/{y}: HTTP {s}")
+                      continue
+                  px = 40075016.686 * math.cos(math.radians(lat)) / (256 * 2 ** z)
+                  # Detail at the pixel scale: what a 2×2 average loses.
+                  coarse = h.reshape(128, 2, 128, 2).mean(axis=(1, 3)).repeat(2, 0).repeat(2, 1)
+                  fine = np.sqrt(np.mean((h - coarse) ** 2))
+                  gy, gx = np.gradient(h, px)
+                  slope = np.degrees(np.arctan(np.hypot(gx, gy)))
+                  # Distinct heights in a row: few means a staircase from upsampled data.
+                  print(f"  z{z}: pixel {px:5.1f} m, height {h.min():6.0f}–{h.max():6.0f} m, pixel-scale detail {fine:6.3f} m, slope p50 {np.percentile(slope,50):4.1f}° p95 {np.percentile(slope,95):4.1f}° max {slope.max():4.1f}°, ≥30° {np.mean(slope>=30)*100:4.1f} %")
+
+      - name: Our slope tiles and Naturvårdsverket's
+        run: |
+          W=https://fjallkoll-worker.fabian-n-sund.workers.dev
+          echo "slope meta:"; curl -s -o /dev/null -w "%{http_code}\n" "$W/tiles/slope/meta"; curl -s "$W/tiles/slope/meta" | head -c 400; echo
+          echo "kartor slope meta:"; curl -s -o /dev/null -w "%{http_code}\n" https://kartor.snolage.se/slope/meta.json
+          for z in 12 13 14 15; do
+            read x y < <(python3 -c "import math;lat,lon,z=67.90,18.55,$z;n=2**z;r=math.radians(lat);print(int((lon+180)/360*n),int((1-math.log(math.tan(r)+1/math.cos(r))/math.pi)/2*n))")
+            echo "z$z NV lutning: $(curl -s -o /dev/null -w '%{http_code} %{content_type} %{size_download}' "$W/terrain/lutning/$z/$x/$y.png")  topowebb: $(curl -s -o /dev/null -w '%{http_code} %{size_download}' https://kartor.snolage.se/topowebb/$z/$x/$y.png)"
+          done
+
+      - uses: actions/checkout@v4
+
+      - name: Screenshots of the live map
+        run: |
+          mkdir -p /tmp/shots && cd /tmp/shots
+          npm init -y >/dev/null
+          npm i -s playwright@1.49.1
+          npx playwright install --with-deps chromium >/dev/null
+          cat > shots.mjs <<'EOF'
+          import { chromium } from "playwright";
+          const out = process.argv[2];
+          const merc = (lat, lon, z) => { const n = 256 * 2 ** z; const r = lat * Math.PI / 180; return [(lon + 180) / 360 * n, (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n]; };
+          const browser = await chromium.launch();
+          const scenarios = [
+            { name: "karta", layer: null, zooms: [13, 14, 15, 16, 17] },
+            { name: "egen-lutning", layer: /Lutning, egen beräkning/, zooms: [12, 13, 14, 15, 16] },
+            { name: "nv-lutning", layer: /^Lutning$/, zooms: [12, 13, 14, 15, 16] },
+            { name: "detaljerad-lutning", layer: /Lutning, detaljerad/, zooms: [12, 13, 14, 15, 16] },
+          ];
+          for (const s of scenarios) {
+            const page = await browser.newPage({ viewport: { width: 1000, height: 700 }, locale: "sv-SE" });
+            await page.addInitScript(() => { try { localStorage.setItem("fjallkoll:welcome-done", "1"); localStorage.setItem("fjallkoll:language", "sv"); } catch {} });
+            await page.goto("https://snolage.se/karta", { waitUntil: "networkidle" });
+            await page.waitForSelector(".leaflet-container img.leaflet-tile");
+            await page.getByRole("button", { name: "Helskärm" }).click();
+            await page.waitForTimeout(1500);
+            const layersButton = page.getByRole("button", { name: /Kartlager/ });
+            const setPanel = async (open) => { if (((await layersButton.getAttribute("aria-expanded")) === "true") !== open) await layersButton.click(); await page.waitForTimeout(300); };
+            await setPanel(true);
+            if (s.layer) {
+              const box = page.getByRole("checkbox", { name: s.layer }).or(page.getByRole("radio", { name: s.layer }));
+              if (!(await box.count())) { console.log(s.name, "– no such layer on the page"); await page.close(); continue; }
+              await box.first().check();
+            }
+            await setPanel(false);
+            const vb = await page.locator(".leaflet-container").boundingBox();
+            const [cx, cy] = merc(65.6, 15.2, 5), [px, py] = merc(67.90, 18.55, 5);
+            const x = vb.x + vb.width / 2 + (px - cx), y = vb.y + vb.height / 2 + (py - cy);
+            for (let z = 6; z <= Math.max(...s.zooms); z++) {
+              await page.mouse.dblclick(x, y);
+              await page.waitForTimeout(z >= 12 ? 3500 : 1200);
+              if (s.zooms.includes(z)) {
+                await page.waitForLoadState("networkidle").catch(() => {});
+                await page.screenshot({ path: `${out}/${s.name}-z${z}.jpg`, type: "jpeg", quality: 72 });
+                console.log("saved", s.name, z);
+              }
+            }
+            await page.close();
+          }
+          await browser.close();
+          EOF
+          OUT="$GITHUB_WORKSPACE/Svenska laviner/kartkoll"
+          mkdir -p "$OUT"
+          node shots.mjs "$OUT"
+
+      - name: Commit the screenshots
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A "Svenska laviner/kartkoll"
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "Kartkoll screenshots (automatic)"
+          for i in 1 2 3; do git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH" && exit 0; sleep 5; done
+          exit 1
