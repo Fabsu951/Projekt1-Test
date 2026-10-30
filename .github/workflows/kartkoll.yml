@@ -49,6 +49,8 @@ jobs:
                   white = sum(1 for p in px if p[3] > 200 and min(p[:3]) > 245) / n
                   info += f" | {im.size} transparent {clear:.0%} white {white:.0%}"
               print(f"{name:<34}{info}\n    {url}")
+          for name, (z, x, y) in {'Kiruna z4': (4, 8, 3), 'Kiruna z5': (5, 17, 7), 'Kiruna z6': (6, 35, 15), 'Kiruna z7': (7, 71, 30), 'Kiruna z8': (8, 142, 61), 'Kiruna z9': (9, 284, 123), 'Kiruna z11': (11, 1139, 492), 'Kiruna z13': (13, 4556, 1969), 'Östersund z4': (4, 8, 4), 'Östersund z5': (5, 17, 8), 'Östersund z6': (6, 34, 17), 'Östersund z7': (7, 69, 34), 'Östersund z8': (8, 138, 69), 'Östersund z9': (9, 276, 139), 'Östersund z11': (11, 1107, 556), 'Östersund z13': (13, 4429, 2226), 'Tromsø (NO) z4': (4, 8, 3), 'Tromsø (NO) z5': (5, 17, 7), 'Tromsø (NO) z6': (6, 35, 14), 'Tromsø (NO) z7': (7, 70, 29), 'Tromsø (NO) z8': (8, 141, 58), 'Tromsø (NO) z9': (9, 282, 116), 'Tromsø (NO) z11': (11, 1131, 464), 'Tromsø (NO) z13': (13, 4527, 1856), 'Stockholm z4': (4, 8, 4), 'Stockholm z5': (5, 17, 9), 'Stockholm z6': (6, 35, 18), 'Stockholm z7': (7, 70, 37), 'Stockholm z8': (8, 140, 75), 'Stockholm z9': (9, 281, 150), 'Stockholm z11': (11, 1126, 602), 'Stockholm z13': (13, 4507, 2409)}.items():
+              describe("KV " + name, f"https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png")
           tiles = {"border Riksgränsen z12": (12, 2253, 966), "Norway Narvik z12": (12, 2248, 967), "Sweden Abisko z12": (12, 2261, 969), "border Riksgränsen z10": (10, 563, 241)}
           for name, (z, x, y) in tiles.items():
               describe("LM " + name, f"https://kartor.snolage.se/topowebb/{z}/{x}/{y}.png")
