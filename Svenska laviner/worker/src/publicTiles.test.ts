@@ -178,28 +178,27 @@ describe("moving tiles to the public bucket", () => {
     expect((await migrate(env, { keys: Array.from({ length: 51 }, () => "maptiles/topowebb/0/0/0") })).status).toBe(400);
   });
 
-  it("removes old tile copies only when the public copy exists with the same size", async () => {
+  it("lists both buckets with sizes and deletes only old tile keys", async () => {
     const images = memoryBucket({
       "maptiles/topowebb/15/1/1": png(4),
       "maptiles/topowebb/15/1/2": png(4),
-      "maptiles/topowebb/15/1/3": png(4),
       "tracks/abc.json": png(9),
       "avatar/xyz": png(9),
     });
     const tiles = memoryBucket();
     await tiles.put(publicTileKey(15, 1, 1), png(4));
-    await tiles.put(publicTileKey(15, 1, 2), new Uint8Array([0x89, 0x50, 0x4e, 0x47, 6, 6])); // different size: keep the old one
     const env = { IMAGES: images, TILES: tiles, TILE_UPLOAD_TOKEN: "hemlig" } as unknown as TilesEnv;
     const call = (body: unknown, token = "hemlig") =>
       cleanupOldTiles(new Request("https://w.test/admin/tiles/cleanup", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(body) }), env, "*");
 
-    expect((await call({}, "fel")).status).toBe(401);
-    const dry = await (await call({ dryRun: true })).json();
-    expect(dry).toMatchObject({ checked: 3, safe: 1, deleted: 0, kept: expect.arrayContaining(["maptiles/topowebb/15/1/2", "maptiles/topowebb/15/1/3"]) });
-    expect(images.store.size).toBe(5);
+    expect((await call({ list: "old" }, "fel")).status).toBe(401);
+    expect(await (await call({ list: "old" })).json()).toEqual({ objects: [["maptiles/topowebb/15/1/1", 5], ["maptiles/topowebb/15/1/2", 5]], cursor: null });
+    expect(await (await call({ list: "new" })).json()).toEqual({ objects: [["topowebb/15/1/1.png", 5]], cursor: null });
 
-    const real = await (await call({})).json();
-    expect(real).toMatchObject({ deleted: 1, cursor: null });
-    expect([...images.store.keys()].sort()).toEqual(["avatar/xyz", "maptiles/topowebb/15/1/2", "maptiles/topowebb/15/1/3", "tracks/abc.json"]);
+    expect((await call({ delete: ["tracks/abc.json"] })).status).toBe(400);
+    expect((await call({ delete: ["maptiles/topowebb/15/1/1", "avatar/xyz"] })).status).toBe(400);
+    expect(images.store.size).toBe(4);
+    expect(await (await call({ delete: ["maptiles/topowebb/15/1/1"] })).json()).toEqual({ deleted: 1 });
+    expect([...images.store.keys()].sort()).toEqual(["avatar/xyz", "maptiles/topowebb/15/1/2", "tracks/abc.json"]);
   });
 });

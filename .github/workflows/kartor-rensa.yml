@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: kartor-rensa
@@ -41,12 +42,15 @@ jobs:
 
       - run: npm ci --no-audit --no-fund
 
-      - name: Wait for the worker with the cleanup route
+      - name: Wait for this commit's worker deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          for i in $(seq 1 120); do
-            code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$WORKER/admin/tiles/cleanup")
-            if [ "$code" = "401" ]; then echo "route is live"; exit 0; fi
-            echo "route answers $code, waiting…"; sleep 20
+          for i in $(seq 1 90); do
+            state=$(gh api "repos/${{ github.repository }}/actions/runs?head_sha=${{ github.sha }}" --jq '[.workflow_runs[] | select(.name == "Deploy Snöläge") | "\(.status)/\(.conclusion)"][0] // "none"')
+            echo "deploy: $state"
+            case "$state" in completed/success) exit 0 ;; completed/*) exit 1 ;; esac
+            sleep 20
           done
           exit 1
 
@@ -61,7 +65,7 @@ jobs:
       - name: Check, then delete
         shell: python
         run: |
-          import json, os, time, urllib.request
+          import json, os, re, time, urllib.request
           url = os.environ["WORKER"] + "/admin/tiles/cleanup"
           def call(body):
               for attempt in range(6):
@@ -74,25 +78,29 @@ jobs:
                   except Exception as e:
                       print("  retry after", e); time.sleep(5 * (attempt + 1))
               raise SystemExit("worker kept failing")
-          # Pass 1: dry run over every old key.
-          cursor, checked, safe, size, kept = None, 0, 0, 0, []
-          while True:
-              res = call({"cursor": cursor, "dryRun": True})
-              checked += res["checked"]; safe += res["safe"]; size += res["bytes"]; kept += res["kept"]
-              cursor = res["cursor"]
-              if checked % 20000 < 500: print(f"  checked {checked:,}")
-              if not cursor: break
-          print(f"Dry run: {checked:,} old keys, {safe:,} have an identical copy ({size/1e9:.2f} GB), {len(kept):,} would be kept")
-          for k in kept[:50]: print("  kept:", k)
+          def listing(which):
+              out, cursor = {}, None
+              while True:
+                  res = call({"list": which, "cursor": cursor})
+                  out.update({k: size for k, size in res["objects"]})
+                  cursor = res["cursor"]
+                  if not cursor: return out
+          old = listing("old")
+          new = listing("new")
+          print(f"old copies: {len(old):,} keys, {sum(old.values())/1e9:.2f} GB; map bucket: {len(new):,} keys")
+          tile = re.compile(r"^maptiles/(topowebb|slope)/(\d{1,2})/(\d{1,6})/(\d{1,6})$")
+          safe, kept = [], []
+          for key, size in old.items():
+              m = tile.match(key)
+              copy = f"{m[1]}/{m[2]}/{m[3]}/{m[4]}.png" if m else None
+              (safe if copy and new.get(copy) == size else kept).append(key)
+          print(f"identical copy for {len(safe):,}, no identical copy for {len(kept):,}")
+          for k in kept[:50]: print("  kept:", k, old[k], "copy:", new.get(k))
           if kept:
-              raise SystemExit("Some old tiles have no identical copy – nothing deleted. Look at the list above.")
-          # Pass 2: delete, always from the start (deleted keys drop out of the listing).
+              raise SystemExit("Some old keys have no identical copy – nothing deleted. Look at the list above.")
           deleted = 0
-          while True:
-              res = call({})
-              deleted += res["deleted"]
-              if res["kept"]:
-                  raise SystemExit(f"Stopped: {len(res['kept'])} keys suddenly lack a copy, e.g. {res['kept'][:5]}")
-              if res["checked"] == 0: break
-              if deleted % 20000 < 500: print(f"  deleted {deleted:,}")
-          print(f"Done: deleted {deleted:,} old tile copies.")
+          for i in range(0, len(safe), 1000):
+              deleted += call({"delete": safe[i:i + 1000]})["deleted"]
+              if (i // 1000) % 50 == 0: print(f"  deleted {deleted:,}")
+          left = listing("old")
+          print(f"Done: deleted {deleted:,} old tile copies ({sum(old.values())/1e9:.2f} GB). Left under maptiles/: {len(left):,}")
