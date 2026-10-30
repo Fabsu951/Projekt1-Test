@@ -69,28 +69,25 @@ jobs:
             await page.waitForLoadState("networkidle").catch(() => {});
           }
           const shots = [
-            { name: "nv-nve-riksgransen-z13", layer: /^Lutning \(Naturvårdsverket/, at: [68.43, 18.12, 13] },
-            { name: "nv-nve-riksgransen-z15", layer: /^Lutning \(Naturvårdsverket/, at: [68.42, 18.08, 15] },
-            { name: "nv-nve-sylarna-z13", layer: /^Lutning \(Naturvårdsverket/, at: [63.02, 12.23, 13] },
-            { name: "egen-kebnekaise-z13", layer: /Lutning, egen beräkning/, at: [67.90, 18.55, 13] },
-            { name: "egen-kebnekaise-z15", layer: /Lutning, egen beräkning/, at: [67.90, 18.55, 15] },
-            { name: "egen-riksgransen-z14", layer: /Lutning, egen beräkning/, at: [68.43, 18.12, 14] },
-            { name: "egen-mork-sylarna-z13", layer: /Lutning, egen beräkning/, at: [63.02, 12.23, 13], dark: true },
-            { name: "riktning-z13", layer: /^Sluttningsriktning/, at: [67.90, 18.55, 13] },
+            { name: "panel-nv", layer: /^Lutning \(Naturvårdsverket/, at: [68.43, 18.12, 13] },
             { name: "mobil-egen-z14", layer: /Lutning, egen beräkning/, at: [67.90, 18.55, 14], width: 390, height: 844, mobile: true },
+            { name: "mobil-nv-riksgransen-z14", layer: /^Lutning \(Naturvårdsverket/, at: [68.42, 18.10, 14], width: 390, height: 844, mobile: true },
           ];
           for (const s of shots) {
             const page = await open(s.name, s);
             await panel(page, true);
-            const box = page.getByRole("checkbox", { name: s.layer });
-            if (!(await box.count())) { errors.push(`${s.name}: no checkbox ${s.layer}`); await page.close(); continue; }
-            await box.first().check();
-            await page.waitForTimeout(600);
-            if (s.name.startsWith("nv-nve-riksgransen-z13") || s.name.startsWith("egen-kebnekaise-z13") || s.name.startsWith("mobil")) {
-              await page.screenshot({ path: `${out}/${s.name}-panel.jpg`, type: "jpeg", quality: 75 });
-              const legend = page.locator(".official-terrain, .slope-legend").first();
-              if (await legend.count()) await page.locator(".map-layers, [class*=map-layers]").first().screenshot({ path: `${out}/${s.name}-lagerpanel.jpg`, type: "jpeg", quality: 80 }).catch(() => {});
-            }
+            await page.getByRole("checkbox", { name: s.layer }).first().check();
+            const legend = page.locator("img.official-terrain__legend");
+            if (await legend.count()) {
+              const ok = await legend.evaluate((img) => new Promise((res) => {
+                if (img.complete) return res(img.naturalWidth);
+                img.addEventListener("load", () => res(img.naturalWidth)); img.addEventListener("error", () => res(-1));
+                setTimeout(() => res(img.complete ? img.naturalWidth : -2), 15000);
+              }));
+              console.log(s.name, "NV legend naturalWidth:", ok, await legend.getAttribute("src"));
+            } else console.log(s.name, "no NV legend image", await page.locator(".official-terrain__legend-missing").count() ? "(missing notice shown)" : "");
+            await page.waitForTimeout(500);
+            await page.screenshot({ path: `${out}/${s.name}-panel.jpg`, type: "jpeg", quality: 75 });
             await panel(page, false);
             await goTo(page, ...s.at);
             await page.screenshot({ path: `${out}/${s.name}.jpg`, type: "jpeg", quality: 75 });

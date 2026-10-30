@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { encodeTiles } from "./tileBatch";
-import { migrateTiles, publicKeyFor, publicTileKey, saveSlopeMeta, serveSlopeTile, serveTile, slopeMeta, uploadTiles, type TilesEnv } from "./tiles";
+import { cleanupOldTiles, migrateTiles, publicKeyFor, publicTileKey, saveSlopeMeta, serveSlopeTile, serveTile, slopeMeta, uploadTiles, type TilesEnv } from "./tiles";
 
 const png = (n: number) => new Uint8Array([0x89, 0x50, 0x4e, 0x47, n]);
 
@@ -13,6 +13,7 @@ function memoryBucket(initial: Record<string, Uint8Array> = {}) {
     if (!v) return null;
     return {
       key,
+      size: v.data.length,
       body: v.data,
       httpMetadata: v.meta,
       arrayBuffer: async () => v.data.slice().buffer,
@@ -31,7 +32,10 @@ function memoryBucket(initial: Record<string, Uint8Array> = {}) {
       const start = cursor ? Number(cursor) : 0;
       const page = keys.slice(start, start + limit);
       const truncated = start + limit < keys.length;
-      return { objects: page.map((key) => ({ key })), truncated, cursor: truncated ? String(start + limit) : undefined };
+      return { objects: page.map((key) => ({ key, size: store.get(key)!.data.length })), truncated, cursor: truncated ? String(start + limit) : undefined };
+    },
+    delete: async (keys: string | string[]) => {
+      for (const k of Array.isArray(keys) ? keys : [keys]) store.delete(k);
     },
   };
 }
@@ -172,5 +176,30 @@ describe("moving tiles to the public bucket", () => {
     expect([...tiles.store.get("topowebb/7/70/32.png")!.data]).toEqual([...png(99)]);
     expect(tiles.store.get("topowebb/0/0/0.png")!.meta.cacheControl).toMatch(/^public, max-age=/);
     expect((await migrate(env, { keys: Array.from({ length: 51 }, () => "maptiles/topowebb/0/0/0") })).status).toBe(400);
+  });
+
+  it("removes old tile copies only when the public copy exists with the same size", async () => {
+    const images = memoryBucket({
+      "maptiles/topowebb/15/1/1": png(4),
+      "maptiles/topowebb/15/1/2": png(4),
+      "maptiles/topowebb/15/1/3": png(4),
+      "tracks/abc.json": png(9),
+      "avatar/xyz": png(9),
+    });
+    const tiles = memoryBucket();
+    await tiles.put(publicTileKey(15, 1, 1), png(4));
+    await tiles.put(publicTileKey(15, 1, 2), new Uint8Array([0x89, 0x50, 0x4e, 0x47, 6, 6])); // different size: keep the old one
+    const env = { IMAGES: images, TILES: tiles, TILE_UPLOAD_TOKEN: "hemlig" } as unknown as TilesEnv;
+    const call = (body: unknown, token = "hemlig") =>
+      cleanupOldTiles(new Request("https://w.test/admin/tiles/cleanup", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(body) }), env, "*");
+
+    expect((await call({}, "fel")).status).toBe(401);
+    const dry = await (await call({ dryRun: true })).json();
+    expect(dry).toMatchObject({ checked: 3, safe: 1, deleted: 0, kept: expect.arrayContaining(["maptiles/topowebb/15/1/2", "maptiles/topowebb/15/1/3"]) });
+    expect(images.store.size).toBe(5);
+
+    const real = await (await call({})).json();
+    expect(real).toMatchObject({ deleted: 1, cursor: null });
+    expect([...images.store.keys()].sort()).toEqual(["avatar/xyz", "maptiles/topowebb/15/1/2", "maptiles/topowebb/15/1/3", "tracks/abc.json"]);
   });
 });

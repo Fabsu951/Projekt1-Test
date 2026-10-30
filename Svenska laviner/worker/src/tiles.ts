@@ -414,3 +414,52 @@ export async function migrateTiles(request: Request, env: TilesEnv, origin: stri
   );
   return json({ copied, skipped });
 }
+
+const CLEANUP_PAGE = 200;
+
+/**
+ * POST /admin/tiles/cleanup {cursor?, dryRun?}: removes the old copies of map
+ * tiles in IMAGES (maptiles/<layer>/z/x/y), one listing page at a time – but
+ * only those whose copy in the public bucket exists with the same size.
+ * Everything else (photos, tracks, backups, any tile without a matching
+ * copy) is left alone and reported.
+ */
+export async function cleanupOldTiles(request: Request, env: TilesEnv, origin: string): Promise<Response> {
+  const json = (data: unknown, status = 200) =>
+    new Response(JSON.stringify(data), { status, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } });
+  const token = request.headers.get("Authorization")?.match(/^Bearer\s+(\S+)$/)?.[1] ?? "";
+  if (!env.TILE_UPLOAD_TOKEN || !token || !(await sameSecret(token, env.TILE_UPLOAD_TOKEN))) return json({ error: "Inte behörig." }, 401);
+  const tiles = env.TILES;
+  if (!tiles) return json({ error: "Kartlagringen (TILES) saknas." }, 500);
+  let body: { cursor?: unknown; dryRun?: unknown } = {};
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: "Ogiltig JSON." }, 400);
+  }
+  const cursor = typeof body.cursor === "string" && body.cursor ? body.cursor : undefined;
+  const listed = await env.IMAGES.list({ prefix: "maptiles/", cursor, limit: CLEANUP_PAGE });
+  const safe: string[] = [];
+  const kept: string[] = [];
+  let bytes = 0;
+  await Promise.all(
+    listed.objects.map(async (old) => {
+      const target = /^maptiles\/(topowebb|slope)\/\d{1,2}\/\d{1,6}\/\d{1,6}$/.test(old.key) ? publicKeyFor(old.key) : null;
+      const copy = target ? await tiles.head(target) : null;
+      if (copy && copy.size === old.size) {
+        safe.push(old.key);
+        bytes += old.size;
+      } else kept.push(old.key);
+    })
+  );
+  if (body.dryRun !== true && safe.length) await env.IMAGES.delete(safe);
+  return json({
+    checked: listed.objects.length,
+    deleted: body.dryRun === true ? 0 : safe.length,
+    safe: safe.length,
+    bytes,
+    kept,
+    cursor: listed.truncated ? listed.cursor : null,
+  });
+}
+

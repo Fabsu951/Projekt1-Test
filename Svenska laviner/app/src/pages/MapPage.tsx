@@ -528,7 +528,7 @@ export default function MapPage() {
 
         {showSlope && (
           <p className="notice notice--stale">
-            {t("Lutningen är beräknad av Snöläge från höjdmodeller med 1 m upplösning (Lantmäteriet i Sverige, Kartverket i Norge). Under 30° visas ingenting. Den visar terrängen, inte lavinfaran, och snö och skavlar kan ändra den verkliga lutningen – läs alltid dagens prognos.")}
+            {t("Beräknad från 1 m höjddata. Visar terrängen, inte lavinfaran – snö och skavlar ändrar lutningen. Läs alltid dagens prognos.")}
           </p>
         )}
       </div>

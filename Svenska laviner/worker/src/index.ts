@@ -44,7 +44,7 @@ import {
 } from "./social";
 import { block, unblock } from "./blocks";
 import { parseTerrainPath, serveTerrain } from "./terrain";
-import { migrateTiles, parseSlopePath, proxyTopowebbFile, parseTilePath, saveSlopeMeta, serveSlopeTile, serveTile, slopeMeta, uploadTiles, type TilesEnv } from "./tiles";
+import { cleanupOldTiles, migrateTiles, parseSlopePath, proxyTopowebbFile, parseTilePath, saveSlopeMeta, serveSlopeTile, serveTile, slopeMeta, uploadTiles, type TilesEnv } from "./tiles";
 import { publicKey, setPushLanguage, subscribe, unsubscribe, type PushEnv } from "./push";
 import { DRAIN_PATH, drainKey, drainOutbox, queueChanges, sendQueued } from "./outbox";
 import { registerDevice, setDeviceLanguage, unregisterDevice } from "./nativePush";
@@ -668,6 +668,7 @@ export default {
     if (url.pathname === "/admin/tiles/slope" && request.method === "POST") return uploadTiles(request, env, origin, "slope");
     if (url.pathname === "/admin/tiles/slope/meta" && request.method === "POST") return saveSlopeMeta(request, env, origin);
     if (url.pathname === "/admin/tiles/migrate" && request.method === "POST") return migrateTiles(request, env, origin);
+    if (url.pathname === "/admin/tiles/cleanup" && request.method === "POST") return cleanupOldTiles(request, env, origin);
     if (url.pathname === "/admin/lantmateriet/topowebb-3857.gpkg" && request.method === "GET") return proxyTopowebbFile(request, env);
     if (url.pathname === "/tiles/slope/meta" && request.method === "GET") return slopeMeta(env, origin);
     const slopeTile = request.method === "GET" ? parseSlopePath(url.pathname) : null;
