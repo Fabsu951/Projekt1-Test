@@ -268,10 +268,13 @@ export default function AboutPage() {
             <strong>{t("Notiser i mobilappen:")}</strong>{" "}{t("i Android- och iPhone-appen skickas notiser via Googles Firebase Cloud Messaging (till iPhone vidare via Apple). Slår du på notiser sparar vi telefonens notis-id från Firebase, om det är Android eller iPhone, vilka områden du valt och, bara om du slår på notiser för ditt konto, kopplingen till kontot. Notisens text (till exempel ny farograd eller vem som kommenterade) passerar Google och Apple på vägen till telefonen. Stänger du av notiserna raderas uppgifterna. Loggar du ut slutar telefonen få notiser om kontot.")}
           </li>
           <li>
-            <strong>{t("På din enhet:")}</strong>{" "}{t("appen sparar din inloggning och senast hämtade prognoser och väder lokalt, så att den fungerar utan täckning. Vi använder inga kakor för spårning, ingen annonsering och ingen analys av hur du använder appen.")}
+            <strong>{t("På din enhet:")}</strong>{" "}{t("appen sparar din inloggning och senast hämtade prognoser och väder lokalt, så att den fungerar utan täckning. Vi använder inga kakor för spårning och ingen annonsering.")}
           </li>
           <li>
             <strong>{t("Tjänster som appen hämtar från direkt:")}</strong>{" "}{t("för väder hämtar appen data direkt från SMHI, för höjder och lutning från Mapterhorn, kartan över Norge från Kartverket, lutningskartan över Norge från NVE och utanför fjällen kan kartan hämtas från OpenStreetMap. Vid registrering kontrollerar Cloudflare Turnstile att du inte är en robot. De tjänsterna ser då din IP-adress, som vid vanlig surfning, men inget om ditt konto.")}
+          </li>
+          <li>
+            <strong>{t("Besöksstatistik:")}</strong>{" "}{t("på webbplatsen snolage.se räknar Cloudflare Web Analytics besök och sidvisningar – vilken sida, varifrån du kom (t.ex. en länk på Instagram), land och typ av enhet och webbläsare – utan kakor och utan att känna igen dig mellan besök. Vi ser bara totaler, aldrig enskilda besökare. Apparna räknas inte.")}
           </li>
           <li>
             <strong>{t("Tekniska uppgifter:")}</strong>{" "}{t("vår leverantör Cloudflare behandlar din IP-adress tillfälligt för att kunna leverera sidan och skydda den mot attacker. Vi sparar den inte tillsammans med ditt konto.")}
@@ -285,6 +288,7 @@ export default function AboutPage() {
         <p>
           {t("Räkningen av inloggningsförsök, robotkontrollen vid registrering och hanteringen av anmälningar sker med stöd av vårt")}{" "}<strong>{t("berättigade intresse")}</strong>{" "}{t("av att skydda tjänsten och användarna mot intrång, skräpkonton och olämpligt innehåll (artikel 6.1 f). Du kan invända mot det, men utan dessa skydd kan vi inte erbjuda konton.")}
         </p>
+        <p>{t("Besöksstatistiken på webbplatsen sker med stöd av vårt berättigade intresse av att se hur webbplatsen används och kunna förbättra den (artikel 6.1 f). Den innehåller inga kakor och kan inte kopplas till dig eller ditt konto.")}</p>
 
         <h3>{t("Vem som ser vad")}</h3>
         <p>

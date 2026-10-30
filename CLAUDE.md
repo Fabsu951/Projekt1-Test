@@ -1481,7 +1481,10 @@ the start, exact map point.
   **Security headers:** `securityHeaders()` in `vite.config.ts` writes
   `dist/_headers` (Pages): CSP with only the hosts the app uses (worker and
   kartor origins from the build env, OSM tiles, Mapterhorn, SMHI metfcst/metobs,
-  Turnstile) and the inline theme script's sha256, `frame-ancestors 'none'`,
+  Turnstile; since 2026-10-30 also Cloudflare Web Analytics – script
+  `static.cloudflareinsights.com`, beacon `cloudflareinsights.com` – which Pages
+  injects and the CSP had blocked since 21 Oct; Fabian OK'd it, privacy policy
+  "Besöksstatistik" + 6.1 f paragraph) and the inline theme script's sha256, `frame-ancestors 'none'`,
   nosniff, Referrer-Policy, Permissions-Policy; `/assets/*` immutable, `sw.js`
   no-cache. **A new external host (API, tiles, script) must be added there**,
   or the browser blocks it on snolage.se (the apps don't get the headers).

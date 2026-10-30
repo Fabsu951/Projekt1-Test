@@ -149,6 +149,9 @@ function securityHeaders(): Plugin {
       }
       const ours = [origin(env.VITE_MAP_PROXY_URL), origin(env.VITE_TILE_DIRECT_URL)].filter(Boolean).join(' ')
       const turnstile = 'https://challenges.cloudflare.com'
+      // Cloudflare Web Analytics (cookieless visitor counts), which Pages adds to the site.
+      const analytics = 'https://static.cloudflareinsights.com'
+      const beacon = 'https://cloudflareinsights.com'
       const elevation = 'https://tiles.mapterhorn.com'
       // Kartverket: the map of Norway on top of ours (shown and saved offline).
       const norway = 'https://cache.kartverket.no'
@@ -156,12 +159,12 @@ function securityHeaders(): Plugin {
       const nve = 'https://gis3.nve.no'
       const csp = [
         "default-src 'self'",
-        `script-src 'self' ${hashes.join(' ')} ${turnstile}`,
+        `script-src 'self' ${hashes.join(' ')} ${turnstile} ${analytics}`,
         // Leaflet and React set inline styles.
         "style-src 'self' 'unsafe-inline'",
         // OpenStreetMap: the fallback map, and where the worker sends tiles it doesn't have.
         `img-src 'self' data: blob: ${ours} https://tile.openstreetmap.org ${norway} ${nve} ${elevation}`,
-        `connect-src 'self' ${ours} ${norway} ${elevation} https://opendata-download-metfcst.smhi.se https://opendata-download-metobs.smhi.se ${turnstile}`,
+        `connect-src 'self' ${ours} ${norway} ${elevation} https://opendata-download-metfcst.smhi.se https://opendata-download-metobs.smhi.se ${turnstile} ${beacon}`,
         `frame-src ${turnstile}`,
         "worker-src 'self'",
         "object-src 'none'",

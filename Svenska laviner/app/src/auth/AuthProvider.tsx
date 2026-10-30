@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Preferences } from "@capacitor/preferences";
 import { api, ApiError, UNAUTHORIZED_EVENT } from "../services/api";
 import { cached, clearUserCache, USER_SCOPE } from "../services/cache";
@@ -21,7 +21,14 @@ async function saveToken(token: string | null) {
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setTokenState] = useState<string | null>(null);
+  // The signed-in token as of now, for the sign-out listener below: it must
+  // match even if a 401 arrives before React has re-rendered.
+  const tokenRef = useRef<string | null>(null);
+  const setToken = useCallback((next: string | null) => {
+    tokenRef.current = next;
+    setTokenState(next);
+  }, []);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,14 +65,14 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [setToken]);
 
   // The session was ended elsewhere (password reset, logged out on all devices, deleted
   // by an admin): sign out here too instead of failing on every page.
   useEffect(() => {
-    if (!token) return;
     const ended = (e: Event) => {
-      if ((e as CustomEvent<{ token?: string }>).detail?.token !== token) return;
+      const current = tokenRef.current;
+      if (!current || (e as CustomEvent<{ token?: string }>).detail?.token !== current) return;
       void (async () => {
         await saveToken(null);
         await clearUserCache();
@@ -75,7 +82,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     };
     window.addEventListener(UNAUTHORIZED_EVENT, ended);
     return () => window.removeEventListener(UNAUTHORIZED_EVENT, ended);
-  }, [token]);
+  }, [setToken]);
 
   const start = useCallback(async (result: { token: string; user: User }) => {
     // Nothing saved for a previous account may show up for this one.
@@ -87,7 +94,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     cached(`${USER_SCOPE}me`, () => api<{ user: User }>("/auth/me", { token: result.token }))
       .then(({ user }) => setUser(user))
       .catch(() => {});
-  }, []);
+  }, [setToken]);
 
   // Notifications and emails follow the language the app is read in.
   useEffect(() => {
@@ -151,7 +158,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         await start(await api("/auth/reset", { method: "POST", json: { token: resetToken, password } }));
       },
     }),
-    [user, token, loading, start]
+    [user, token, loading, start, setToken]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
