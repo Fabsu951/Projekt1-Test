@@ -356,9 +356,12 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   `TOPOWEBB_Z16` in `mapTiles.ts` (false until imported) switches topo to
   native 16 inside `HOSTED_BOXES`. Held until 1 Nov because R2 class A writes
   were at 610k of the free 1 M in October (`worker-status.yml` now prints R2
-  ops/storage); storage after import ≈ 13 GB (free 10 GB → a few öre/month;
-  `fjallkoll-images` still holds the 3.3 GB of old `maptiles/` copies, which
-  could go – ask Fabian first).
+  ops/storage). **Old copies removed 2026-10-30** (Fabian's OK): all 286 196
+  `maptiles/` keys in `fjallkoll-images` (3.34 GB) had an identical-size copy
+  in `snolage-kartor` and were deleted via `POST /admin/tiles/cleanup`
+  (`{list: old|new}` pages with sizes, `{delete: [...]}` old tile keys only)
+  from a one-off workflow (removed); storage ≈ 3.4 GB, ≈ 9.7 GB after the z16
+  import – inside the free 10 GB. `readTile`'s IMAGES fallback now finds nothing.
   **Offline maps (feature 5, 2026-09-27):** "Karta offline" section on
   region pages (`OfflineMapCard.tsx`, `services/offlineMap.ts`): saves a
   ~60×60 km square around the region at z8–13 ("Översikt", ~30–40 MB) or
@@ -1552,5 +1555,5 @@ the start, exact map point.
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
   (321 tests as of 2026-10-30, all passing). Worker has its own Vitest
-  suite in `Svenska laviner/worker` (`npm test`, 211 tests, including the
+  suite in `Svenska laviner/worker` (`npm test`, 216 tests, including the
   real-page fixtures).
