@@ -31,124 +31,68 @@ jobs:
 
       - run: pip install -q pillow numpy
 
-      - name: Mapterhorn detail per zoom
+      - name: NVE slope tile caches and Mapterhorn sources
         continue-on-error: true
         shell: python
         run: |
-          import io, math, re, urllib.request
-          import numpy as np
+          import io, json, math, re, urllib.request
           from PIL import Image
           UA = {"User-Agent": "Snolage/1.0 (https://snolage.se)"}
           def get(url):
               try:
                   with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
-                      return r.status, r.headers.get("Content-Type"), r.read()
+                      return r.status, dict(r.headers), r.read()
               except Exception as e:
-                  return getattr(e, "code", 0), str(e)[:150], b""
-          for u in ["https://tiles.mapterhorn.com/tilejson.json", "https://tiles.mapterhorn.com/", "https://mapterhorn.com/attribution/"]:
-              s, ct, body = get(u)
-              print("==", u, s, ct, len(body))
-              text = body.decode("utf-8", "replace")
-              if "json" in (ct or "") or u.endswith(".json"):
-                  print(text[:3000])
-              else:
-                  text = re.sub(r"<[^>]+>", " ", text)
-                  text = re.sub(r"\s+", " ", text)
-                  for m in re.finditer(r"(?i)(swed|sverige|lantm|norw|norge|kartverket|finland|glo-?30|copernicus|resolution|zoom)", text):
-                      print("  …", text[max(0, m.start() - 160): m.end() + 160])
+                  return getattr(e, "code", 0), {}, str(e)[:200].encode()
+          s, h, body = get("https://mapterhorn.com/attribution/")
+          print("== mapterhorn attribution", s)
+          print(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", body.decode("utf-8", "replace")))[:4000])
+          s, h, body = get("https://mapterhorn.com/")
+          print("== mapterhorn home", s, re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", body.decode("utf-8", "replace")))[:2500])
           def tile(lat, lon, z):
               n = 2 ** z
-              x = (lon + 180) / 360 * n
               r = math.radians(lat)
-              y = (1 - math.log(math.tan(r) + 1 / math.cos(r)) / math.pi) / 2 * n
-              return int(x), int(y)
-          def heights(z, x, y):
-              s, ct, body = get(f"https://tiles.mapterhorn.com/{z}/{x}/{y}.webp")
-              if s != 200:
-                  return s, None
-              a = np.asarray(Image.open(io.BytesIO(body)).convert("RGB")).astype(np.float64)
-              return s, a[:, :, 0] * 256 + a[:, :, 1] + a[:, :, 2] / 256 - 32768
-          places = {"Kebnekaise": (67.90, 18.55), "Abisko/Nuolja": (68.36, 18.75), "Riksgränsen": (68.43, 18.12), "Sylarna": (63.02, 12.24), "Hemavan": (65.81, 15.10), "Narvik (NO)": (68.43, 17.43)}
-          for name, (lat, lon) in places.items():
-              print(f"\n## {name}")
-              for z in range(11, 19):
-                  x, y = tile(lat, lon, z)
-                  s, h = heights(z, x, y)
-                  if h is None:
-                      print(f"  z{z} {x}/{y}: HTTP {s}")
-                      continue
-                  size = h.shape[0]
-                  px = 40075016.686 * math.cos(math.radians(lat)) / (size * 2 ** z)
-                  # Detail at the pixel scale: what a 2×2 average loses.
-                  coarse = h.reshape(size // 2, 2, size // 2, 2).mean(axis=(1, 3)).repeat(2, 0).repeat(2, 1)
-                  fine = np.sqrt(np.mean((h - coarse) ** 2))
-                  gy, gx = np.gradient(h, px)
-                  slope = np.degrees(np.arctan(np.hypot(gx, gy)))
-                  # Distinct heights in a row: few means a staircase from upsampled data.
-                  print(f"  z{z}: pixel {px:5.1f} m, height {h.min():6.0f}–{h.max():6.0f} m, pixel-scale detail {fine:6.3f} m, slope p50 {np.percentile(slope,50):4.1f}° p95 {np.percentile(slope,95):4.1f}° max {slope.max():4.1f}°, ≥30° {np.mean(slope>=30)*100:4.1f} %")
-
-      - name: Norwegian slope maps (NVE)
-        continue-on-error: true
-        shell: python
-        run: |
-          import json, re, urllib.request
-          UA = {"User-Agent": "Snolage/1.0 (https://snolage.se)"}
-          def get(url):
-              try:
-                  with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
-                      return r.status, r.headers.get("Content-Type"), r.read()
-              except Exception as e:
-                  return getattr(e, "code", 0), str(e)[:150], b""
-          for base in ["https://gis3.nve.no/map/rest/services", "https://gis3.nve.no/arcgis/rest/services", "https://kart.nve.no/enterprise/rest/services", "https://nve.geodataonline.no/arcgis/rest/services"]:
-              s, ct, body = get(base + "?f=json")
-              print("==", base, s, len(body))
+              return int((lon + 180) / 360 * n), int((1 - math.log(math.tan(r) + 1 / math.cos(r)) / math.pi) / 2 * n)
+          for svc in ["https://gis3.nve.no/arcgis/rest/services/wmts/Bratthet_2024/MapServer", "https://gis3.nve.no/arcgis/rest/services/wmts/Bratthet_med_utlop_2024/MapServer", "https://kart.nve.no/enterprise/rest/services/Bratthet/MapServer"]:
+              s, h, body = get(svc + "?f=json")
+              print("\n==", svc, s)
               try:
                   d = json.loads(body)
               except Exception:
-                  continue
-              print("  folders:", d.get("folders"))
-              for sv in d.get("services", []):
-                  print("  service:", sv.get("name"), sv.get("type"))
-              for f in d.get("folders", []) or []:
-                  s2, _, b2 = get(f"{base}/{f}?f=json")
-                  try:
-                      for sv in json.loads(b2).get("services", []):
-                          if re.search(r"(?i)bratt|skred|snø|sno|helning|slope|terreng", sv.get("name", "")):
-                              print("  service:", sv.get("name"), sv.get("type"))
-                  except Exception:
-                      pass
-          for u in ["https://www.brattkart.no/", "https://www.varsom.no/snoskred/snoskredskolen/skredterreng/bratthet-og-utlopsomradekart/"]:
-              s, ct, body = get(u)
-              text = body.decode("utf-8", "replace")
-              print("==", u, s, len(body))
-              for m in set(re.findall(r"https?://[a-z0-9.-]*(?:nve|geodataonline|geonorge|kartverket|arcgis)[a-z0-9./_-]*[^\s\"'<>]{0,120}", text)):
-                  print("  url:", m)
-          for name in ["Bratthet", "Bratthet_med_utlop_2024", "BratthetMedUtlop", "SkredSnoAktR", "Skredfaresoner3"]:
-              for base in ["https://gis3.nve.no/map/services", "https://gis3.nve.no/arcgis/services", "https://kart.nve.no/enterprise/services"]:
-                  u = f"{base}/{name}/MapServer/WMSServer?request=GetCapabilities&service=WMS"
-                  s, ct, body = get(u)
-                  if s == 200 and b"WMS_Capabilities" in body or b"WMT_MS_Capabilities" in body:
-                      text = body.decode("utf-8", "replace")
-                      layers = re.findall(r"<Layer[^>]*>\s*<Name>([^<]+)</Name>\s*<Title>([^<]*)</Title>", text)
-                      print("== WMS", u, s, "layers:", layers[:20])
-                      print("   formats:", re.findall(r"<Format>(image/[^<]+)</Format>", text)[:6], "access:", re.findall(r"<AccessConstraints>([^<]*)</AccessConstraints>", text), "fees:", re.findall(r"<Fees>([^<]*)</Fees>", text))
-                  else:
-                      print("   ", u, s)
-
-      - name: Our slope tiles and Naturvårdsverket's
-        continue-on-error: true
-        run: |
-          W=https://fjallkoll-worker.fabian-n-sund.workers.dev
-          echo "slope meta:"; curl -s -o /dev/null -w "%{http_code}\n" "$W/tiles/slope/meta"; curl -s "$W/tiles/slope/meta" | head -c 400; echo
-          echo "kartor slope meta:"; curl -s -o /dev/null -w "%{http_code}\n" https://kartor.snolage.se/slope/meta.json
-          for z in 12 13 14 15; do
-            read x y < <(python3 -c "import math;lat,lon,z=67.90,18.55,$z;n=2**z;r=math.radians(lat);print(int((lon+180)/360*n),int((1-math.log(math.tan(r)+1/math.cos(r))/math.pi)/2*n))")
-            echo "z$z NV lutning: $(curl -s -o /dev/null -w '%{http_code} %{content_type} %{size_download}' "$W/terrain/lutning/$z/$x/$y.png")  topowebb: $(curl -s -o /dev/null -w '%{http_code} %{size_download}' https://kartor.snolage.se/topowebb/$z/$x/$y.png)"
-          done
+                  print(body[:300]); continue
+              ti = d.get("tileInfo") or {}
+              print("  name", d.get("mapName"), "| copyright:", d.get("copyrightText"), "| desc:", (d.get("serviceDescription") or d.get("description") or "")[:600])
+              print("  sr", d.get("spatialReference"), "single fused cache", d.get("singleFusedMapCache"), "max/min scale", d.get("maxScale"), d.get("minScale"))
+              print("  tile sr", ti.get("spatialReference"), "size", ti.get("rows"), ti.get("cols"), "format", ti.get("format"), "origin", ti.get("origin"))
+              print("  lods", [(l.get("level"), round(l.get("resolution"), 3)) for l in ti.get("lods", [])])
+              print("  fullExtent", d.get("fullExtent"))
+              print("  layers", [(l.get("id"), l.get("name")) for l in d.get("layers", [])][:20])
+              if ti:
+                  for name, lat, lon in [("Narvik NO", 68.43, 17.43), ("Riksgransen NO side", 68.43, 18.05), ("Kebnekaise SE", 67.90, 18.55), ("Sylarna NO side", 63.02, 12.18)]:
+                      for z in [10, 12, 14, 15, 16, 17]:
+                          x, y = tile(lat, lon, z)
+                          u = f"{svc}/tile/{z}/{y}/{x}"
+                          st, hh, b = get(u)
+                          info = ""
+                          if st == 200 and b[:4] in (b"\x89PNG", b"\xff\xd8\xff\xe0") or st == 200:
+                              try:
+                                  im = Image.open(io.BytesIO(b)).convert("RGBA")
+                                  px = list(im.getdata())
+                                  info = f"{im.size} transparent {sum(1 for p in px if p[3] == 0) / len(px) * 100:.0f} %, colours {len(set(px))}"
+                              except Exception as e:
+                                  info = str(e)[:80]
+                          print(f"  {name} z{z}: {st} {hh.get('Content-Type')} cors={hh.get('Access-Control-Allow-Origin')} cache={hh.get('Cache-Control')} {len(b)} B {info}")
+              s, h, body = get(svc + "/legend?f=json")
+              try:
+                  for lyr in json.loads(body).get("layers", []):
+                      print("  legend", lyr.get("layerName"), [(l.get("label"), l.get("url")) for l in lyr.get("legend", [])])
+              except Exception:
+                  pass
 
       - uses: actions/checkout@v4
 
       - name: Screenshots of the live map
+        if: false
         run: |
           mkdir -p /tmp/shots && cd /tmp/shots
           npm init -y >/dev/null
