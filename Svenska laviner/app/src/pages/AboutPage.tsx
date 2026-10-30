@@ -119,6 +119,16 @@ export default function AboutPage() {
             {t(". Kartbilderna visas obearbetade.")}
           </li>
           <li>
+            {t("Karta över Norge:")}{" "}<a href="https://www.kartverket.no/" target="_blank" rel="noreferrer">
+              {t("Kartverket")}
+            </a>{" "}
+            {t("(Topografisk Norgeskart), ©Kartverket,")}{" "}
+            <a href="https://creativecommons.org/licenses/by/4.0/deed.sv" target="_blank" rel="noreferrer">
+              {t("CC BY 4.0")}
+            </a>
+            {t(". Visas obearbetad ovanpå Lantmäteriets karta.")}
+          </li>
+          <li>
             {t("Detaljerad lutning (när den finns): beräknad av Snöläge från Lantmäteriets höjdmodell (Markhöjdmodell Nedladdning, grid 1+), ©Lantmäteriet,")}{" "}
             <a href="https://creativecommons.org/licenses/by/4.0/deed.sv" target="_blank" rel="noreferrer">
               {t("CC BY 4.0")}
@@ -193,7 +203,7 @@ export default function AboutPage() {
 
       <section className="section privacy" id="integritet">
         <h2>{t("Integritetspolicy")}</h2>
-        <p className="muted">{t("Senast uppdaterad 21 oktober 2026.")}</p>
+        <p className="muted">{t("Senast uppdaterad 30 oktober 2026.")}</p>
         {isEnglish() && <p className="muted">This is a translation. The Swedish version of the privacy policy is the one that applies.</p>}
         <p>
           <strong>{t("Personuppgiftsansvarig")}</strong>{" "}{t("är Fabian Sund, som driver Snöläge som privatperson")}
@@ -254,7 +264,7 @@ export default function AboutPage() {
             <strong>{t("På din enhet:")}</strong>{" "}{t("appen sparar din inloggning och senast hämtade prognoser och väder lokalt, så att den fungerar utan täckning. Vi använder inga kakor för spårning, ingen annonsering och ingen analys av hur du använder appen.")}
           </li>
           <li>
-            <strong>{t("Tjänster som appen hämtar från direkt:")}</strong>{" "}{t("för väder hämtar appen data direkt från SMHI, för höjder och lutning från Mapterhorn, och utanför fjällen kan kartan hämtas från OpenStreetMap. Vid registrering kontrollerar Cloudflare Turnstile att du inte är en robot. De tjänsterna ser då din IP-adress, som vid vanlig surfning, men inget om ditt konto.")}
+            <strong>{t("Tjänster som appen hämtar från direkt:")}</strong>{" "}{t("för väder hämtar appen data direkt från SMHI, för höjder och lutning från Mapterhorn, kartan över Norge från Kartverket och utanför fjällen kan kartan hämtas från OpenStreetMap. Vid registrering kontrollerar Cloudflare Turnstile att du inte är en robot. De tjänsterna ser då din IP-adress, som vid vanlig surfning, men inget om ditt konto.")}
           </li>
           <li>
             <strong>{t("Tekniska uppgifter:")}</strong>{" "}{t("vår leverantör Cloudflare behandlar din IP-adress tillfälligt för att kunna leverera sidan och skydda den mot attacker. Vi sparar den inte tillsammans med ditt konto.")}

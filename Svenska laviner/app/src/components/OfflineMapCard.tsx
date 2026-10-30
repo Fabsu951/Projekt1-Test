@@ -14,7 +14,7 @@ import {
   type OfflineLevel,
   type SavedArea,
 } from "../services/offlineMap";
-import { offlineMapsAvailable, topoTileUrl } from "../services/mapTiles";
+import { offlineMapsAvailable, mapTileUrls } from "../services/mapTiles";
 import { t, locale } from "../i18n";
 
 const DATE = new Intl.DateTimeFormat(locale(), { day: "numeric", month: "short" });
@@ -51,7 +51,7 @@ export default function OfflineMapCard({ region }: Props) {
     abort.current = new AbortController();
     setProgress({ done: 0, total: 1 });
     try {
-      setSaved(await downloadArea(region, level, topoTileUrl, setProgress, abort.current.signal));
+      setSaved(await downloadArea(region, level, mapTileUrls, setProgress, abort.current.signal));
     } catch (err) {
       if (!(err instanceof DOMException && err.name === "AbortError")) {
         setError(err instanceof Error ? err.message : t("Kunde inte spara kartan."));

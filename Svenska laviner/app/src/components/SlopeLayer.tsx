@@ -61,6 +61,7 @@ export default function SlopeLayer({ enabled }: Props) {
       opacity: 0.55,
       slopeColorFunction: slopeColor,
       minZoom: 11,
+      zIndex: 4, // above the Norwegian map layer (TopoLayer)
     });
     layer.addTo(map);
 

@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
   offlineRouteFor: vi.fn(),
   saveRouteOffline: vi.fn(),
 }));
-vi.mock("./mapTiles", () => ({ offlineMapsAvailable: true, topoTileUrl: () => "tile" }));
+vi.mock("./mapTiles", () => ({ offlineMapsAvailable: true, mapTileUrls: () => ["tile"] }));
 vi.mock("./offlineMap", () => ({ offlineSupported: () => true, savedArea: mocks.savedArea, downloadArea: mocks.downloadArea }));
 vi.mock("./offlineRoutes", () => ({ offlineRouteFor: mocks.offlineRouteFor, saveRouteOffline: mocks.saveRouteOffline }));
 

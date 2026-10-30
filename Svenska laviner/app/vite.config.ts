@@ -150,14 +150,16 @@ function securityHeaders(): Plugin {
       const ours = [origin(env.VITE_MAP_PROXY_URL), origin(env.VITE_TILE_DIRECT_URL)].filter(Boolean).join(' ')
       const turnstile = 'https://challenges.cloudflare.com'
       const elevation = 'https://tiles.mapterhorn.com'
+      // Kartverket: the map of Norway on top of ours (shown and saved offline).
+      const norway = 'https://cache.kartverket.no'
       const csp = [
         "default-src 'self'",
         `script-src 'self' ${hashes.join(' ')} ${turnstile}`,
         // Leaflet and React set inline styles.
         "style-src 'self' 'unsafe-inline'",
         // OpenStreetMap: the fallback map, and where the worker sends tiles it doesn't have.
-        `img-src 'self' data: blob: ${ours} https://tile.openstreetmap.org ${elevation}`,
-        `connect-src 'self' ${ours} ${elevation} https://opendata-download-metfcst.smhi.se https://opendata-download-metobs.smhi.se ${turnstile}`,
+        `img-src 'self' data: blob: ${ours} https://tile.openstreetmap.org ${norway} ${elevation}`,
+        `connect-src 'self' ${ours} ${norway} ${elevation} https://opendata-download-metfcst.smhi.se https://opendata-download-metobs.smhi.se ${turnstile}`,
         `frame-src ${turnstile}`,
         "worker-src 'self'",
         "object-src 'none'",

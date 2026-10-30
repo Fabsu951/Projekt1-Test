@@ -112,3 +112,43 @@ describe("offline download with the map bucket", () => {
     expect(asked).toContain(workerTile(...STHLM)); // not in the bucket: worker straight away
   });
 });
+
+describe("the map of Norway (Kartverket)", () => {
+  const kartverket = (z: number, x: number, y: number) =>
+    `https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/${z}/${y}/${x}.png`;
+
+  it("is drawn and saved with our map from zoom 7, row before column in its URL", async () => {
+    const { mapTileUrls, norwayTileUrl, NORWAY_TOPO_URL } = await load();
+    expect(NORWAY_TOPO_URL).not.toBeNull();
+    expect(norwayTileUrl(...KEBNE)).toBe(kartverket(...KEBNE));
+    expect(mapTileUrls(...KEBNE)).toEqual([workerTile(...KEBNE), kartverket(...KEBNE)]);
+    expect(mapTileUrls(6, 35, 15)).toEqual([workerTile(6, 35, 15)]);
+  });
+
+  it("isn't added to plain OpenStreetMap, which already shows Norway", async () => {
+    vi.stubEnv("VITE_MAP_PROXY_URL", "");
+    vi.resetModules();
+    const { mapTileUrls, NORWAY_TOPO_URL } = await import("./mapTiles");
+    expect(NORWAY_TOPO_URL).toBeNull();
+    expect(mapTileUrls(...KEBNE)).toHaveLength(1);
+  });
+
+  it("is saved offline next to our tiles", async () => {
+    const store = new Map<string, Response>();
+    vi.stubGlobal("caches", {
+      open: async () => ({
+        match: async (u: string) => store.get(u)?.clone(),
+        put: async (u: string, r: Response) => void store.set(u, r),
+      }),
+      keys: async () => [],
+    });
+    vi.stubGlobal("fetch", vi.fn(async () => pngResponse()));
+    const { mapTileUrls } = await load();
+    const { downloadTiles } = await import("./offlineMap");
+    const progress: number[] = [];
+    const result = await downloadTiles("fjallkoll-tiles-test", [[...KEBNE]], mapTileUrls, (p) => progress.push(p.total));
+    expect(result.tiles).toBe(2);
+    expect([...store.keys()].sort()).toEqual([kartverket(...KEBNE), workerTile(...KEBNE)].sort());
+    expect(progress).toEqual([2, 2]);
+  });
+});

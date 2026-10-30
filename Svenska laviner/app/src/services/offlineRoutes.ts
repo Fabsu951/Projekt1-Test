@@ -1,5 +1,5 @@
 import { Preferences } from "@capacitor/preferences";
-import { corridorTiles, downloadTiles, estimateBytes, forgetTileCaches, offlineSupported, TILE_CACHE_PREFIX, type DownloadProgress } from "./offlineMap";
+import { corridorTiles, downloadTiles, estimateBytes, forgetTileCaches, offlineSupported, TILE_CACHE_PREFIX, type DownloadProgress, type TileUrls } from "./offlineMap";
 import type { LatLon, RouteAnalysis, RouteSample } from "../utils/routePlan";
 import { t } from "../i18n";
 
@@ -89,7 +89,7 @@ function compact(analysis: RouteAnalysis): RouteAnalysis {
 export async function saveRouteOffline(
   route: { routeId: number | null; key?: string; title: string; waypoints: LatLon[] },
   analysis: RouteAnalysis,
-  tileUrl: (z: number, x: number, y: number) => string,
+  tileUrl: TileUrls,
   onProgress: (p: DownloadProgress) => void,
   signal?: AbortSignal
 ): Promise<OfflineRoute> {

@@ -305,6 +305,18 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   The domain answered `cf-cache-status: DYNAMIC` (not edge-cached; optional
   Cache Rule in KARTOR.md). `kartor.yml` has its own concurrency group and runs
   when the file changes (dispatch 404s on non-default branches).
+  **Norway (2026-10-30, Julia Sandström via Instagram: tours cross the
+  border):** Lantmäteriet's tiles are opaque white over Norway, so
+  `TopoLayer` draws Kartverket's topo on top (`NORWAY_TOPO_URL` in
+  `mapTiles.ts`: `cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png`
+  – row before column; CC BY 4.0, no key, CORS `*`; zIndex 2, our
+  `SlopeLayer` zIndex 4 above it). Checked live with a one-off workflow
+  (`kartkoll.yml`, removed after): its tiles are fully transparent over
+  Sweden from z7–8 (partly opaque at z ≤ 6), hence `NORWAY_MIN_ZOOM` 7,
+  maxNativeZoom 15 like ours. Offline saves store both (`mapTileUrls`;
+  `downloadTiles` takes `TileUrls` returning one or more URLs). CSP
+  `img-src`/`connect-src` include `https://cache.kartverket.no`; About,
+  press page and privacy policy (updated 30 Oct) credit/name Kartverket.
   **Offline maps (feature 5, 2026-09-27):** "Karta offline" section on
   region pages (`OfflineMapCard.tsx`, `services/offlineMap.ts`): saves a
   ~60×60 km square around the region at z8–13 ("Översikt", ~30–40 MB) or
@@ -1497,6 +1509,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (315 tests as of 2026-10-21, all passing). Worker has its own Vitest
+  (319 tests as of 2026-10-30, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 211 tests, including the
   real-page fixtures).

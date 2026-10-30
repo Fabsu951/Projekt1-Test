@@ -25,6 +25,9 @@ const AVERAGE_TILE_BYTES = 25_000;
 const PARALLEL = 6;
 const META_KEY = "fjallkoll:offline-maps";
 
+/** The tile URL(s) to save for one map tile: the map's own and any overlay drawn with it (Norway). */
+export type TileUrls = (z: number, x: number, y: number) => string | string[];
+
 export interface SavedArea {
   level: OfflineLevel;
   tiles: number;
@@ -196,7 +199,7 @@ async function fetchTile(url: string, signal?: AbortSignal): Promise<Response | 
 export async function downloadTiles(
   cacheKey: string,
   tiles: Array<[number, number, number]>,
-  tileUrl: (z: number, x: number, y: number) => string,
+  tileUrl: TileUrls,
   onProgress: (p: DownloadProgress) => void,
   signal?: AbortSignal,
   /** A new save (nothing saved under this key yet): a failed or cancelled one leaves no half map taking up space. */
@@ -216,12 +219,13 @@ export async function downloadTiles(
 async function fillCache(
   cacheKey: string,
   tiles: Array<[number, number, number]>,
-  tileUrl: (z: number, x: number, y: number) => string,
+  tileUrl: TileUrls,
   onProgress: (p: DownloadProgress) => void,
   signal?: AbortSignal
 ): Promise<{ tiles: number; bytes: number }> {
   forgetTileCaches();
   const cache = await caches.open(cacheKey);
+  const urls = tiles.flatMap(([z, x, y]) => tileUrl(z, x, y));
   let done = 0;
   let failed = 0;
   let skipped = 0;
@@ -229,17 +233,16 @@ async function fillCache(
   let next = 0;
 
   async function worker() {
-    while (next < tiles.length) {
+    while (next < urls.length) {
       if (signal?.aborted) throw new DOMException(t("Avbruten"), "AbortError");
-      const [z, x, y] = tiles[next++];
-      const url = tileUrl(z, x, y);
+      const url = urls[next++];
       try {
         let response = await cache.match(url);
         if (!response) {
           const fresh = await fetchTile(url, signal);
           if (!fresh) {
             skipped++;
-            onProgress({ done: ++done, total: tiles.length });
+            onProgress({ done: ++done, total: urls.length });
             continue;
           }
           // Saved under the worker URL whichever address it came from, so
@@ -259,22 +262,22 @@ async function fillCache(
         }
         failed++;
       }
-      onProgress({ done: ++done, total: tiles.length });
+      onProgress({ done: ++done, total: urls.length });
     }
   }
 
   await Promise.all(Array.from({ length: PARALLEL }, worker));
-  if (failed > tiles.length * 0.03) {
-    throw new Error(t("{failed} av {total} kartbitar kunde inte hämtas. Kontrollera anslutningen och försök igen.", { failed, total: tiles.length }));
+  if (failed > urls.length * 0.03) {
+    throw new Error(t("{failed} av {total} kartbitar kunde inte hämtas. Kontrollera anslutningen och försök igen.", { failed, total: urls.length }));
   }
-  return { tiles: tiles.length - failed - skipped, bytes };
+  return { tiles: urls.length - failed - skipped, bytes };
 }
 
 /** Downloads every tile for a region into its own cache. */
 export async function downloadArea(
   region: Pick<AvalancheRegion, "id" | "lat" | "lon">,
   level: OfflineLevel,
-  tileUrl: (z: number, x: number, y: number) => string,
+  tileUrl: TileUrls,
   onProgress: (p: DownloadProgress) => void,
   signal?: AbortSignal
 ): Promise<SavedArea> {
@@ -381,7 +384,7 @@ export async function listViews(): Promise<SavedView[]> {
 export async function saveView(
   bounds: Bounds,
   name: string,
-  tileUrl: (z: number, x: number, y: number) => string,
+  tileUrl: TileUrls,
   onProgress: (p: DownloadProgress) => void,
   signal?: AbortSignal
 ): Promise<SavedView> {

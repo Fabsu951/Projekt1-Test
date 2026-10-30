@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { formatMegabytes, offlineSupported } from "../services/offlineMap";
-import { offlineMapsAvailable, topoTileUrl } from "../services/mapTiles";
+import { offlineMapsAvailable, mapTileUrls } from "../services/mapTiles";
 import {
   estimateRouteBytes,
   listOfflineRoutes,
@@ -61,7 +61,7 @@ export default function RouteOfflineBox({
           waypoints: draft.points,
         },
         analysis,
-        topoTileUrl,
+        mapTileUrls,
         setProgress,
         abort.current.signal
       );

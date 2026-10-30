@@ -11,7 +11,7 @@ import {
   type Bounds,
   type SavedView,
 } from "../services/offlineMap";
-import { offlineMapsAvailable, topoTileUrl } from "../services/mapTiles";
+import { offlineMapsAvailable, mapTileUrls } from "../services/mapTiles";
 import { t, locale } from "../i18n";
 import Icon from "./Icon";
 
@@ -37,7 +37,7 @@ export default function OfflineViewBox({ bounds, onShow }: { bounds: Bounds | nu
     setProgress({ done: 0, total: plan?.tiles ?? 0 });
     try {
       const name = t("Kartområde {date}", { date: new Date().toLocaleDateString(locale(), { day: "numeric", month: "short" }) });
-      const view = await saveView(bounds, name, topoTileUrl, setProgress, abort.current.signal);
+      const view = await saveView(bounds, name, mapTileUrls, setProgress, abort.current.signal);
       setViews((list) => [view, ...list]);
     } catch (err) {
       if (!(err instanceof DOMException && err.name === "AbortError")) {

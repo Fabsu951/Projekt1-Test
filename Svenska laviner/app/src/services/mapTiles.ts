@@ -20,6 +20,28 @@ export function topoTileUrl(z: number, x: number, y: number): string {
   return TOPOWEBB_URL.replace("{z}", String(z)).replace("{x}", String(x)).replace("{y}", String(y));
 }
 
+// Lantmäteriet's map stops at the border (Norway is plain white), but tours
+// often cross it. Kartverket's topographic map (CC BY 4.0, open, no key) is
+// drawn on top: its tiles are transparent over Sweden from about zoom 7, so
+// only Norway shows from it. Not needed with plain OpenStreetMap.
+export const NORWAY_TOPO_URL = PROXY_BASE
+  ? "https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png"
+  : null;
+/** Below this Kartverket's tiles still cover parts of Sweden. */
+export const NORWAY_MIN_ZOOM = 7;
+
+/** One Kartverket tile's URL, exactly as the map layer requests it. */
+export function norwayTileUrl(z: number, x: number, y: number): string | null {
+  if (!NORWAY_TOPO_URL || z < NORWAY_MIN_ZOOM) return null;
+  return NORWAY_TOPO_URL.replace("{z}", String(z)).replace("{x}", String(x)).replace("{y}", String(y));
+}
+
+/** Every tile the map shows at one place (Lantmäteriet's and, near Norway, Kartverket's): what offline saves store. */
+export function mapTileUrls(z: number, x: number, y: number): string[] {
+  const norway = norwayTileUrl(z, x, y);
+  return norway ? [topoTileUrl(z, x, y), norway] : [topoTileUrl(z, x, y)];
+}
+
 // The same tiles are public in the map bucket at kartor.snolage.se (R2 custom
 // domain), which the app uses instead of the worker whenever it answers:
 // worker requests are capped per day on Cloudflare's free plan, R2 reads
@@ -115,6 +137,7 @@ const OSM_ATTRIBUTION = t('&copy; <a href="https://www.openstreetmap.org/copyrig
 export const TOPOWEBB_ATTRIBUTION = PROXY_BASE
   ? t('&copy; Lantmäteriet, <a href="https://creativecommons.org/licenses/by/4.0/deed.sv">CC BY 4.0</a> · utanför fjällen {osm}', { osm: OSM_ATTRIBUTION })
   : OSM_ATTRIBUTION;
+export const NORWAY_TOPO_ATTRIBUTION = t('Norge: &copy; <a href="https://www.kartverket.no/">Kartverket</a>, <a href="https://creativecommons.org/licenses/by/4.0/deed.sv">CC BY 4.0</a>');
 
 /**
  * Naturvårdsverket's official terrain maps (slope angle and aspect), through

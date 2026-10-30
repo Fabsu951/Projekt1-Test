@@ -1,7 +1,7 @@
 import { getRegionById } from "../data/regions";
 import type { PlannedRoute } from "../types/route";
 import type { RouteAnalysis } from "../utils/routePlan";
-import { offlineMapsAvailable, topoTileUrl } from "./mapTiles";
+import { offlineMapsAvailable, mapTileUrls } from "./mapTiles";
 import { downloadArea, offlineSupported, savedArea, type DownloadProgress } from "./offlineMap";
 import { offlineRouteFor, saveRouteOffline } from "./offlineRoutes";
 
@@ -47,14 +47,14 @@ export async function prepareTripOffline(
 ): Promise<TripOfflineResult> {
   const region = getRegionById(regionId);
   if (!region || !tripOfflineAvailable()) return { area: false, route: false };
-  if (!(await savedArea(region.id))) await downloadArea(region, "oversikt", topoTileUrl, onProgress, signal);
+  if (!(await savedArea(region.id))) await downloadArea(region, "oversikt", mapTileUrls, onProgress, signal);
   if (!route) return { area: true, route: false };
   const saved = await offlineRouteFor(route.route.id);
   if (!saved || saved.savedAt < route.route.updatedAt) {
     await saveRouteOffline(
       { routeId: route.route.id, title: route.route.title, waypoints: route.route.waypoints },
       route.analysis,
-      topoTileUrl,
+      mapTileUrls,
       onProgress,
       signal
     );
