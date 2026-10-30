@@ -1,0 +1,61 @@
+# Looks at map tiles near the Swedish–Norwegian border: whether
+# Lantmäteriet's tiles (kartor.snolage.se) are transparent or filled over
+# Norway, and which address Kartverket's open topo map answers on. Cloud
+# sessions can't reach these hosts; this runs when the file changes.
+
+name: Kartkoll
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha]
+    paths:
+      - ".github/workflows/kartkoll.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Tiles at the border
+        shell: python
+        run: |
+          import io, subprocess, sys, urllib.request
+          subprocess.run([sys.executable, "-m", "pip", "install", "-q", "pillow"], check=True)
+          from PIL import Image
+          def get(url):
+              req = urllib.request.Request(url, headers={"User-Agent": "Snolage/1.0 (https://snolage.se)"})
+              try:
+                  with urllib.request.urlopen(req, timeout=20) as r:
+                      return r.status, r.headers.get("Content-Type"), r.read()
+              except Exception as e:
+                  return getattr(e, "code", 0), str(e)[:120], b""
+          def describe(name, url):
+              status, ctype, body = get(url)
+              info = f"{status} {ctype} {len(body)} B"
+              if body[:4] == b"\x89PNG" or body[:3] == b"\xff\xd8\xff":
+                  im = Image.open(io.BytesIO(body)).convert("RGBA")
+                  px = list(im.getdata())
+                  n = len(px)
+                  clear = sum(1 for p in px if p[3] < 10) / n
+                  white = sum(1 for p in px if p[3] > 200 and min(p[:3]) > 245) / n
+                  info += f" | {im.size} transparent {clear:.0%} white {white:.0%}"
+              print(f"{name:<34}{info}\n    {url}")
+          tiles = {"border Riksgränsen z12": (12, 2253, 966), "Norway Narvik z12": (12, 2248, 967), "Sweden Abisko z12": (12, 2261, 969), "border Riksgränsen z10": (10, 563, 241)}
+          for name, (z, x, y) in tiles.items():
+              describe("LM " + name, f"https://kartor.snolage.se/topowebb/{z}/{x}/{y}.png")
+              describe("KV rest " + name, f"https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png")
+              describe("KV kvp " + name, f"https://cache.kartverket.no/v1/service?service=WMTS&request=GetTile&version=1.0.0&layer=topo&style=default&format=image/png&tilematrixset=webmercator&tilematrix={z}&tilerow={y}&tilecol={x}")
+          status, ctype, body = get("https://cache.kartverket.no/v1/wmts/1.0.0/WMTSCapabilities.xml")
+          print("capabilities (rest):", status, ctype, len(body))
+          if not body:
+              status, ctype, body = get("https://cache.kartverket.no/v1/service?service=WMTS&request=GetCapabilities")
+              print("capabilities (kvp):", status, ctype, len(body))
+          text = body.decode("utf-8", "replace")
+          import re
+          print("layers:", sorted(set(re.findall(r"<ows:Identifier>([^<]+)</ows:Identifier>", text)))[:60])
+          print("resource urls:", sorted(set(re.findall(r'template="([^"]+)"', text)))[:10])
+          print("access constraints:", re.findall(r"<ows:AccessConstraints>([^<]+)<", text)[:3])
