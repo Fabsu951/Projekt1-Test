@@ -8,8 +8,16 @@ import { timedFetch } from "../utils/timedFetch";
 // dev) the map shows plain OpenStreetMap.
 const PROXY_BASE = import.meta.env.VITE_MAP_PROXY_URL as string | undefined;
 
+/**
+ * Zoom 16 is in the map bucket for the mountain boxes (workflow "Kartbitar
+ * zoom 16"); elsewhere, and for tiles not saved offline, the map shows zoom
+ * 15 enlarged (OfflineTileLayer's enlargeParentAbove). Off until imported.
+ */
+export const TOPOWEBB_Z16 = false;
 /** Highest zoom we host tiles for; Leaflet enlarges them beyond that. */
-export const TOPOWEBB_MAX_NATIVE_ZOOM = PROXY_BASE ? 15 : undefined;
+export const TOPOWEBB_MAX_NATIVE_ZOOM = PROXY_BASE ? (TOPOWEBB_Z16 ? 16 : 15) : undefined;
+/** Above this, a missing tile shows its parent enlarged. */
+export const TOPOWEBB_FULL_ZOOM = 15;
 
 export const TOPOWEBB_URL = PROXY_BASE
   ? `${PROXY_BASE.replace(/\/$/, "")}/tiles/topowebb/{z}/{x}/{y}.png`
@@ -29,6 +37,8 @@ export const NORWAY_TOPO_URL = PROXY_BASE
   : null;
 /** Below this Kartverket's tiles still cover parts of Sweden. */
 export const NORWAY_MIN_ZOOM = 7;
+/** Kartverket has zoom 16 everywhere; offline copies stop at 15, which is then enlarged. */
+export const NORWAY_MAX_NATIVE_ZOOM = 16;
 
 /** One Kartverket tile's URL, exactly as the map layer requests it. */
 export function norwayTileUrl(z: number, x: number, y: number): string | null {
@@ -59,7 +69,7 @@ const HOSTED_BOXES: Array<[number, number, number, number]> = [
   [11.65, 62.11, 14.2, 63.94],
 ];
 const HOSTED_OVERVIEW_MAX_ZOOM = 7;
-const HOSTED_MAX_ZOOM = 15;
+const HOSTED_MAX_ZOOM = TOPOWEBB_Z16 ? 16 : 15;
 
 /** Whether the map bucket should have this tile (outside, the worker decides where it comes from). */
 export function hostedTile(z: number, x: number, y: number): boolean {

@@ -161,7 +161,10 @@ export class RemoteGpkg {
     table: string,
     keys: Array<{ level: number; col: number; row: number; rowid: number }>,
     chunk = 200,
-    ahead = 3
+    ahead = 3,
+    /** Passed to prefetchRows: page runs this close are merged, ≤ maxPages per request. */
+    gap?: number,
+    maxPages?: number
   ): AsyncGenerator<GpkgTile> {
     const index = this.tileIndex(table);
     const parts: Array<typeof keys> = [];
@@ -169,7 +172,7 @@ export class RemoteGpkg {
     // Fetch the next few chunks' pages while this one is handed out and uploaded.
     const pending: Array<Promise<void>> = [];
     const queue = (n: number) => {
-      const p = this.db.prefetchRows(index.tableRoot, parts[n].map((k) => k.rowid));
+      const p = this.db.prefetchRows(index.tableRoot, parts[n].map((k) => k.rowid), gap, maxPages);
       p.catch(() => {}); // awaited below; this only keeps an early failure from being "unhandled"
       pending.push(p);
     };

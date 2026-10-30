@@ -175,6 +175,9 @@ export async function serveTile(
       const type = imageType(data)!;
       ctx.waitUntil(storeTile(env, "topowebb", z, x, y, data, type));
       response = tileResponse(data, type, origin);
+    } else if (z > FETCH_MAX_ZOOM) {
+      // Zoom 16 exists only where it was imported; the app enlarges zoom 15 elsewhere.
+      return new Response("Not found", { status: 404, headers: corsHeaders(origin) });
     } else {
       // Outside what we host, once Lantmäteriet's service is gone.
       return Response.redirect(`https://tile.openstreetmap.org/${z}/${x}/${y}.png`, 302);

@@ -213,7 +213,10 @@ async function openRemote(url: string, opts: Options): Promise<TileSource> {
       console.log(`  ${keys.length.toLocaleString("sv-SE")} kartbitar att hämta ${mb()}`);
       if (opts.skip) console.log(`  hoppar över de första ${opts.skip.toLocaleString("sv-SE")} (--skip)`);
       plannedCount = Math.max(0, keys.length - opts.skip);
-      yield* gpkg.tiles(table, keys.slice(opts.skip)) as AsyncIterable<Row>;
+      // Fewer, larger reads (e.g. through the worker's proxy, whose requests count
+      // against the free plan's 100 000 a day): IMPORT_CHUNK / IMPORT_GAP / IMPORT_MAX_PAGES.
+      const env = (name: string) => Number(process.env[name]) || undefined;
+      yield* gpkg.tiles(table, keys.slice(opts.skip), env("IMPORT_CHUNK"), 3, env("IMPORT_GAP"), env("IMPORT_MAX_PAGES")) as AsyncIterable<Row>;
     },
     async dryRun(wanted) {
       console.log("  letar upp kartbitarna i filens index…");

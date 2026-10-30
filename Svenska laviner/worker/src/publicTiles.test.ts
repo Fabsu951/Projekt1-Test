@@ -89,6 +89,16 @@ describe("public map bucket", () => {
     expect(res.headers.get("Location")).toBe("https://tile.openstreetmap.org/15/1/1.png");
   });
 
+  it("answers 404 for a missing zoom-16 tile, so the app enlarges zoom 15 instead", async () => {
+    const tiles = memoryBucket();
+    await tiles.put(publicTileKey(16, 36152, 15736), png(5), { httpMetadata: { contentType: "image/png" } });
+    const env = { IMAGES: memoryBucket(), TILES: tiles } as unknown as TilesEnv;
+    const hit = await serveTile(new Request("https://w.test/tiles/topowebb/16/36152/15736.png"), env, context().ctx, "*", { z: 16, x: 36152, y: 15736 });
+    expect(await bytes(hit)).toEqual([...png(5)]);
+    const miss = await serveTile(new Request("https://w.test/tiles/topowebb/16/2/2.png"), env, context().ctx, "*", { z: 16, x: 2, y: 2 });
+    expect(miss.status).toBe(404);
+  });
+
   it("stores uploads in the public bucket only", async () => {
     const images = memoryBucket();
     const tiles = memoryBucket();

@@ -339,6 +339,26 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   "Lutning"; aspect stays Sweden-only. About, press page and privacy policy
   name NVE and the real height models. Also NVE `Bratthet_med_utlop_2024`
   (with runout zones) exists in the same folder if ever wanted.
+  **Zoom 16 (2026-10-30, "bättre zoom": the map is blurry past z15):**
+  Lantmäteriet's GeoPackage has z16–17. Built: worker
+  `GET /admin/lantmateriet/topowebb-3857.gpkg` (range proxy with the
+  worker's own `LANTMATERIET_*` login, upload token required, ≤ 16 MB per
+  range – so imports run from GitHub Actions without Fabian),
+  `import-tiles.ts --min-zoom`, env `IMPORT_CHUNK/IMPORT_GAP/IMPORT_MAX_PAGES`
+  (fewer, larger proxied reads), workflow `kartor-z16.yml` ("Kartbitar zoom
+  16", runs when the file changes; `MODE: dry-run | import`, `SKIP`). Dry run
+  2026-10-30: **833 348 z16 tiles in the mountain boxes, ~6.3 GB**, 12/12
+  valid, the proxy works with the worker's login. Worker: missing z > 15 tile
+  → 404 (not OSM). App: `OfflineTileLayer` option `enlargeParentAbove` (+
+  `hasTile`): a tile above it that is missing/fails – or isn't saved offline –
+  shows the parent quadrant enlarged in a frame (checked in a browser with
+  quadrant-coloured test tiles); Kartverket layer native z16 already.
+  `TOPOWEBB_Z16` in `mapTiles.ts` (false until imported) switches topo to
+  native 16 inside `HOSTED_BOXES`. Held until 1 Nov because R2 class A writes
+  were at 610k of the free 1 M in October (`worker-status.yml` now prints R2
+  ops/storage); storage after import ≈ 13 GB (free 10 GB → a few öre/month;
+  `fjallkoll-images` still holds the 3.3 GB of old `maptiles/` copies, which
+  could go – ask Fabian first).
   **Offline maps (feature 5, 2026-09-27):** "Karta offline" section on
   region pages (`OfflineMapCard.tsx`, `services/offlineMap.ts`): saves a
   ~60×60 km square around the region at z8–13 ("Översikt", ~30–40 MB) or
