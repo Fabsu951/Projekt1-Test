@@ -31,63 +31,33 @@ jobs:
 
       - run: pip install -q pillow numpy
 
-      - name: NVE slope tile caches and Mapterhorn sources
+      - name: Mapterhorn sources and NVE legend colours
         continue-on-error: true
         shell: python
         run: |
-          import io, json, math, re, urllib.request
+          import base64, io, json, urllib.request
           from PIL import Image
           UA = {"User-Agent": "Snolage/1.0 (https://snolage.se)"}
           def get(url):
-              try:
-                  with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
-                      return r.status, dict(r.headers), r.read()
-              except Exception as e:
-                  return getattr(e, "code", 0), {}, str(e)[:200].encode()
-          s, h, body = get("https://mapterhorn.com/attribution/")
-          print("== mapterhorn attribution", s)
-          print(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", body.decode("utf-8", "replace")))[:4000])
-          s, h, body = get("https://mapterhorn.com/")
-          print("== mapterhorn home", s, re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", body.decode("utf-8", "replace")))[:2500])
-          def tile(lat, lon, z):
-              n = 2 ** z
-              r = math.radians(lat)
-              return int((lon + 180) / 360 * n), int((1 - math.log(math.tan(r) + 1 / math.cos(r)) / math.pi) / 2 * n)
-          for svc in ["https://gis3.nve.no/arcgis/rest/services/wmts/Bratthet_2024/MapServer", "https://gis3.nve.no/arcgis/rest/services/wmts/Bratthet_med_utlop_2024/MapServer", "https://kart.nve.no/enterprise/rest/services/Bratthet/MapServer"]:
-              s, h, body = get(svc + "?f=json")
-              print("\n==", svc, s)
-              try:
-                  d = json.loads(body)
-              except Exception:
-                  print(body[:300]); continue
-              ti = d.get("tileInfo") or {}
-              print("  name", d.get("mapName"), "| copyright:", d.get("copyrightText"), "| desc:", (d.get("serviceDescription") or d.get("description") or "")[:600])
-              print("  sr", d.get("spatialReference"), "single fused cache", d.get("singleFusedMapCache"), "max/min scale", d.get("maxScale"), d.get("minScale"))
-              print("  tile sr", ti.get("spatialReference"), "size", ti.get("rows"), ti.get("cols"), "format", ti.get("format"), "origin", ti.get("origin"))
-              print("  lods", [(l.get("level"), round(l.get("resolution"), 3)) for l in ti.get("lods", [])])
-              print("  fullExtent", d.get("fullExtent"))
-              print("  layers", [(l.get("id"), l.get("name")) for l in d.get("layers", [])][:20])
-              if ti:
-                  for name, lat, lon in [("Narvik NO", 68.43, 17.43), ("Riksgransen NO side", 68.43, 18.05), ("Kebnekaise SE", 67.90, 18.55), ("Sylarna NO side", 63.02, 12.18)]:
-                      for z in [10, 12, 14, 15, 16, 17]:
-                          x, y = tile(lat, lon, z)
-                          u = f"{svc}/tile/{z}/{y}/{x}"
-                          st, hh, b = get(u)
-                          info = ""
-                          if st == 200 and b[:4] in (b"\x89PNG", b"\xff\xd8\xff\xe0") or st == 200:
-                              try:
-                                  im = Image.open(io.BytesIO(b)).convert("RGBA")
-                                  px = list(im.getdata())
-                                  info = f"{im.size} transparent {sum(1 for p in px if p[3] == 0) / len(px) * 100:.0f} %, colours {len(set(px))}"
-                              except Exception as e:
-                                  info = str(e)[:80]
-                          print(f"  {name} z{z}: {st} {hh.get('Content-Type')} cors={hh.get('Access-Control-Allow-Origin')} cache={hh.get('Cache-Control')} {len(b)} B {info}")
-              s, h, body = get(svc + "/legend?f=json")
-              try:
-                  for lyr in json.loads(body).get("layers", []):
-                      print("  legend", lyr.get("layerName"), [(l.get("label"), l.get("url")) for l in lyr.get("legend", [])])
-              except Exception:
-                  pass
+              with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
+                  return r.read()
+          entries = json.loads(get("https://download.mapterhorn.com/attribution.json"))
+          print("entries", len(entries), "keys", list(entries[0].keys()))
+          for e in entries:
+              text = json.dumps(e, ensure_ascii=False)
+              if any(k in text.lower() for k in ["swe", "sverige", "lantm", "norw", "norge", "kartverket", "glo30", "copernicus"]):
+                  print(text)
+          for svc in ["https://gis3.nve.no/arcgis/rest/services/wmts/Bratthet_2024/MapServer", "https://kart.nve.no/enterprise/rest/services/Bratthet/MapServer"]:
+              d = json.loads(get(svc + "/legend?f=json"))
+              for lyr in d.get("layers", [])[:1]:
+                  for l in lyr.get("legend", []):
+                      im = Image.open(io.BytesIO(base64.b64decode(l["imageData"]))).convert("RGBA")
+                      w, h = im.size
+                      print(svc.split("/")[-2], lyr.get("layerName"), l.get("label"), im.getpixel((w // 2, h // 2)))
+          # Colours actually drawn in a Norwegian tile, with counts
+          from collections import Counter
+          im = Image.open(io.BytesIO(get("https://gis3.nve.no/arcgis/rest/services/wmts/Bratthet_2024/MapServer/tile/12/966/2246"))).convert("RGBA")
+          print("tile colours", Counter(im.getdata()).most_common(10))
 
       - uses: actions/checkout@v4
 
