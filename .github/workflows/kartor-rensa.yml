@@ -1,0 +1,97 @@
+# Removes the old copies of the map tiles in fjallkoll-images (maptiles/…),
+# left over from before the tiles moved to snolage-kartor (2026-10-19).
+# First a dry run over everything; only if every old tile has a copy of
+# the same size in snolage-kartor does the second pass delete them
+# (POST /admin/tiles/cleanup checks each one again before deleting).
+# Photos, tracks, avatars and backups are never touched.
+
+name: Rensa gamla kartkopior
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha]
+    paths:
+      - ".github/workflows/kartor-rensa.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kartor-rensa
+  cancel-in-progress: false
+
+env:
+  WORKER: https://fjallkoll-worker.fabian-n-sund.workers.dev
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: dba2a7031f0d281c2f34301d23a315ca
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    defaults:
+      run:
+        working-directory: Svenska laviner/worker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Wait for the worker with the cleanup route
+        run: |
+          for i in $(seq 1 120); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$WORKER/admin/tiles/cleanup")
+            if [ "$code" = "401" ]; then echo "route is live"; exit 0; fi
+            echo "route answers $code, waiting…"; sleep 20
+          done
+          exit 1
+
+      - name: Fresh upload token
+        run: |
+          token=$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=')
+          echo "::add-mask::$token"
+          printf '%s' "$token" | npx wrangler secret put TILE_UPLOAD_TOKEN
+          echo "TILE_UPLOAD_TOKEN=$token" >> "$GITHUB_ENV"
+          sleep 15
+
+      - name: Check, then delete
+        shell: python
+        run: |
+          import json, os, time, urllib.request
+          url = os.environ["WORKER"] + "/admin/tiles/cleanup"
+          def call(body):
+              for attempt in range(6):
+                  try:
+                      req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={
+                          "Authorization": "Bearer " + os.environ["TILE_UPLOAD_TOKEN"], "Content-Type": "application/json"})
+                      with urllib.request.urlopen(req, timeout=120) as r:
+                          return json.load(r)
+                  except Exception as e:
+                      print("  retry after", e); time.sleep(5 * (attempt + 1))
+              raise SystemExit("worker kept failing")
+          # Pass 1: dry run over every old key.
+          cursor, checked, safe, size, kept = None, 0, 0, 0, []
+          while True:
+              res = call({"cursor": cursor, "dryRun": True})
+              checked += res["checked"]; safe += res["safe"]; size += res["bytes"]; kept += res["kept"]
+              cursor = res["cursor"]
+              if checked % 20000 < 500: print(f"  checked {checked:,}")
+              if not cursor: break
+          print(f"Dry run: {checked:,} old keys, {safe:,} have an identical copy ({size/1e9:.2f} GB), {len(kept):,} would be kept")
+          for k in kept[:50]: print("  kept:", k)
+          if kept:
+              raise SystemExit("Some old tiles have no identical copy – nothing deleted. Look at the list above.")
+          # Pass 2: delete, always from the start (deleted keys drop out of the listing).
+          deleted = 0
+          while True:
+              res = call({})
+              deleted += res["deleted"]
+              if res["kept"]:
+                  raise SystemExit(f"Stopped: {len(res['kept'])} keys suddenly lack a copy, e.g. {res['kept'][:5]}")
+              if res["checked"] == 0: break
+              if deleted % 20000 < 500: print(f"  deleted {deleted:,}")
+          print(f"Done: deleted {deleted:,} old tile copies.")

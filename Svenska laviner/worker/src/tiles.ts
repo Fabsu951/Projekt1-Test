@@ -415,7 +415,7 @@ export async function migrateTiles(request: Request, env: TilesEnv, origin: stri
   return json({ copied, skipped });
 }
 
-const CLEANUP_PAGE = 200;
+const CLEANUP_PAGE = 500;
 
 /**
  * POST /admin/tiles/cleanup {cursor?, dryRun?}: removes the old copies of map
