@@ -95,3 +95,55 @@ jobs:
               d, s = r["dimensions"], r["sum"]
               print(f"{d['date']:<12}{s['readQueries']:>10}{s['writeQueries']:>10}{s['rowsRead']:>14}{s['rowsRead']/5e6*100:>8.1f}%{s['rowsWritten']:>14}{s['rowsWritten']/1e5*100:>10.1f}%")
 
+
+      - name: R2 this month (storage and operations)
+        shell: python
+        run: |
+          import json, os, urllib.request, datetime as dt
+          now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
+          month = now.replace(day=1, hour=0, minute=0, second=0)
+          query = """
+          query($acc: string!, $since: Time!, $until: Time!) {
+            viewer { accounts(filter: {accountTag: $acc}) {
+              ops: r2OperationsAdaptiveGroups(limit: 1000, filter: {datetime_geq: $since, datetime_leq: $until}) {
+                dimensions { actionType bucketName }
+                sum { requests }
+              }
+              storage: r2StorageAdaptiveGroups(limit: 100, filter: {datetime_geq: $since, datetime_leq: $until}, orderBy: [datetime_DESC]) {
+                dimensions { bucketName datetime }
+                max { objectCount payloadSize metadataSize }
+              }
+            } }
+          }"""
+          body = json.dumps({"query": query, "variables": {
+              "acc": os.environ["CLOUDFLARE_ACCOUNT_ID"],
+              "since": month.isoformat().replace("+00:00", "Z"),
+              "until": now.isoformat().replace("+00:00", "Z")}}).encode()
+          req = urllib.request.Request("https://api.cloudflare.com/client/v4/graphql", data=body, headers={
+              "Authorization": "Bearer " + os.environ["CLOUDFLARE_API_TOKEN"], "Content-Type": "application/json"})
+          data = json.load(urllib.request.urlopen(req))
+          if data.get("errors"):
+              print("Cloudflare answered with errors:")
+              print(json.dumps(data["errors"], indent=2))
+              raise SystemExit(0)
+          acc = data["data"]["viewer"]["accounts"][0]
+          class_a = {"ListBuckets", "PutBucket", "ListObjects", "PutObject", "CopyObject", "CompleteMultipartUpload",
+                     "CreateMultipartUpload", "LifecycleStorageTierTransition", "ListMultipartUploads", "UploadPart",
+                     "UploadPartCopy", "ListParts", "PutBucketEncryption", "PutBucketCors", "PutBucketLifecycleConfiguration"}
+          totals = {}
+          for r in acc["ops"]:
+              d = r["dimensions"]
+              totals[(d["bucketName"], d["actionType"])] = totals.get((d["bucketName"], d["actionType"]), 0) + r["sum"]["requests"]
+          a = sum(n for (b, t), n in totals.items() if t in class_a)
+          b = sum(n for (b, t), n in totals.items() if t not in class_a)
+          print(f"Since {month.date()}: class A {a:,} ({a/1e6*100:.0f} % of 1 M free), class B {b:,} ({b/1e7*100:.1f} % of 10 M free)")
+          for (bucket, t), n in sorted(totals.items(), key=lambda kv: -kv[1])[:20]:
+              print(f"  {bucket:<22}{t:<26}{n:>10,}")
+          latest = {}
+          for r in acc["storage"]:
+              latest.setdefault(r["dimensions"]["bucketName"], r["max"])
+          total = 0
+          for bucket, m in latest.items():
+              total += m["payloadSize"] + m["metadataSize"]
+              print(f"  {bucket:<22}{m['objectCount']:>10,} objects {m['payloadSize']/1e9:>7.2f} GB")
+          print(f"Stored now: {total/1e9:.2f} GB (10 GB-month free)")
