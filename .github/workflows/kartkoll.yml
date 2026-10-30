@@ -1,0 +1,117 @@
+# One-off: screenshots of the live map's new slope layers (own slope, the
+# official one with NVE in Norway) and the layer panel, desktop and phone,
+# light and dark. Commits them to Svenska laviner/kartkoll/ for review.
+
+name: Kartkoll
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha]
+    paths:
+      - ".github/workflows/kartkoll.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kartkoll
+  cancel-in-progress: true
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Screenshots of the live map
+        run: |
+          mkdir -p /tmp/shots && cd /tmp/shots
+          npm init -y >/dev/null
+          npm i -s playwright@1.49.1
+          npx playwright install --with-deps chromium >/dev/null
+          cat > shots.mjs <<'EOF'
+          import { chromium } from "playwright";
+          const out = process.argv[2];
+          const merc = (lat, lon, z) => { const n = 256 * 2 ** z; const r = lat * Math.PI / 180; return [(lon + 180) / 360 * n, (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n]; };
+          const browser = await chromium.launch();
+          const errors = [];
+          async function open(name, { width = 1000, height = 700, dark = false, mobile = false } = {}) {
+            const page = await browser.newPage({ viewport: { width, height }, locale: "sv-SE", colorScheme: dark ? "dark" : "light", isMobile: mobile, hasTouch: mobile, deviceScaleFactor: mobile ? 2 : 1 });
+            page.on("console", (m) => { if (m.type() === "error") errors.push(`${name}: ${m.text()}`); });
+            page.on("requestfailed", (r) => { if (/nve|mapterhorn|kartverket|kartor/.test(r.url())) errors.push(`${name}: failed ${r.url()} ${r.failure()?.errorText}`); });
+            page.on("response", (r) => { if (/nve\.no|mapterhorn/.test(r.url()) && r.status() >= 400 && r.status() !== 404) errors.push(`${name}: HTTP ${r.status()} ${r.url()}`); });
+            await page.addInitScript(() => { try { localStorage.setItem("fjallkoll:welcome-done", "1"); localStorage.setItem("fjallkoll:language", "sv"); } catch {} });
+            await page.goto("https://snolage.se/karta", { waitUntil: "networkidle" });
+            await page.waitForSelector(".leaflet-container img.leaflet-tile");
+            await page.getByRole("button", { name: "Helskärm" }).click();
+            await page.waitForTimeout(1200);
+            return page;
+          }
+          const layersButton = (page) => page.getByRole("button", { name: /Kartlager/ });
+          async function panel(page, open) {
+            const b = layersButton(page);
+            if (((await b.getAttribute("aria-expanded")) === "true") !== open) await b.click();
+            await page.waitForTimeout(400);
+          }
+          async function goTo(page, lat, lon, zoom) {
+            const vb = await page.locator(".leaflet-container").boundingBox();
+            const c = { x: vb.x + vb.width / 2, y: vb.y + vb.height / 2 };
+            const [cx, cy] = merc(65.6, 15.2, 5), [px, py] = merc(lat, lon, 5);
+            const dx = px - cx, dy = py - cy;
+            // Drag in steps from the lower part of the map (the notices sit at the top).
+            const startY = vb.y + vb.height * 0.8;
+            await page.mouse.move(c.x, startY); await page.mouse.down();
+            await page.mouse.move(c.x - dx, startY - dy, { steps: 12 }); await page.mouse.up();
+            await page.waitForTimeout(400);
+            for (let z = 6; z <= zoom; z++) { await page.locator(".leaflet-control-zoom-in").click(); await page.waitForTimeout(500); }
+            await page.waitForTimeout(3000);
+            await page.waitForLoadState("networkidle").catch(() => {});
+          }
+          const shots = [
+            { name: "nv-nve-riksgransen-z13", layer: /^Lutning \(Naturvårdsverket/, at: [68.43, 18.12, 13] },
+            { name: "nv-nve-riksgransen-z15", layer: /^Lutning \(Naturvårdsverket/, at: [68.42, 18.08, 15] },
+            { name: "nv-nve-sylarna-z13", layer: /^Lutning \(Naturvårdsverket/, at: [63.02, 12.23, 13] },
+            { name: "egen-kebnekaise-z13", layer: /Lutning, egen beräkning/, at: [67.90, 18.55, 13] },
+            { name: "egen-kebnekaise-z15", layer: /Lutning, egen beräkning/, at: [67.90, 18.55, 15] },
+            { name: "egen-riksgransen-z14", layer: /Lutning, egen beräkning/, at: [68.43, 18.12, 14] },
+            { name: "egen-mork-sylarna-z13", layer: /Lutning, egen beräkning/, at: [63.02, 12.23, 13], dark: true },
+            { name: "riktning-z13", layer: /^Sluttningsriktning/, at: [67.90, 18.55, 13] },
+            { name: "mobil-egen-z14", layer: /Lutning, egen beräkning/, at: [67.90, 18.55, 14], width: 390, height: 844, mobile: true },
+          ];
+          for (const s of shots) {
+            const page = await open(s.name, s);
+            await panel(page, true);
+            const box = page.getByRole("checkbox", { name: s.layer });
+            if (!(await box.count())) { errors.push(`${s.name}: no checkbox ${s.layer}`); await page.close(); continue; }
+            await box.first().check();
+            await page.waitForTimeout(600);
+            if (s.name.startsWith("nv-nve-riksgransen-z13") || s.name.startsWith("egen-kebnekaise-z13") || s.name.startsWith("mobil")) {
+              await page.screenshot({ path: `${out}/${s.name}-panel.jpg`, type: "jpeg", quality: 75 });
+              const legend = page.locator(".official-terrain, .slope-legend").first();
+              if (await legend.count()) await page.locator(".map-layers, [class*=map-layers]").first().screenshot({ path: `${out}/${s.name}-lagerpanel.jpg`, type: "jpeg", quality: 80 }).catch(() => {});
+            }
+            await panel(page, false);
+            await goTo(page, ...s.at);
+            await page.screenshot({ path: `${out}/${s.name}.jpg`, type: "jpeg", quality: 75 });
+            console.log("saved", s.name);
+            await page.close();
+          }
+          console.log("ERRORS:", errors.length ? "\n" + errors.join("\n") : "none");
+          await browser.close();
+          EOF
+          OUT="$GITHUB_WORKSPACE/Svenska laviner/kartkoll"
+          mkdir -p "$OUT"
+          node shots.mjs "$OUT"
+
+      - name: Commit the screenshots
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A "Svenska laviner/kartkoll"
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "Kartkoll screenshots (automatic)"
+          for i in 1 2 3; do git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH" && exit 0; sleep 5; done
+          exit 1
