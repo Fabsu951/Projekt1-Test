@@ -130,10 +130,10 @@ Filma själv på telefonen. Det är också ett test av appen.
 
 | Tid | Bild | Du säger | Text i bild |
 | --- | --- | --- | --- |
-| 0–3 s | Du | "Noll streck på fjället? Kartan bryr sig inte." | **Noll streck?** |
-| 3–10 s | Kartan vid Kebnekaise → Kartlager → Spara det som syns | "Kvällen innan: zooma dit du ska och tryck Spara. Klart." | Spara kartan |
-| 10–17 s | Slå på flygplansläge, zooma in | "På fjället: flygplansläge – och kartan är kvar. Höjdkurvor och allt. Batteriet tackar dig också." | ✈️ Flygplansläge |
-| 17–20 s | Du | "Spara på wifi, åk utan. Snöläge – kolla läget!" | **Kolla läget. Snöläge.** |
+| 0–3 s | Du, håller upp telefonen och spanar efter täckning | "Täckning på fjället? Haha… nej." | **Täckning? Haha… nej.** |
+| 3–10 s | Kartan vid Kebnekaise → Kartlager → Spara det som syns | "Så kvällen innan – i soffan, med wifi och chips – zoomar du dit du ska och trycker Spara." | Spara i soffan 🛋️ |
+| 10–17 s | Slå på flygplansläge, zooma in | "Uppe på fjället: flygplansläge. Kartan? Sitter kvar. Höjdkurvor och allt. Och batteriet blir din nya bästis." | ✈️ Kartan sitter kvar |
+| 17–20 s | Du | "Spara i soffan, åk på fjället. Snöläge – kolla läget!" | **Kolla läget. Snöläge.** |
 
 Blir kartan tom i flygplansläget: posta inte. Berätta det i appsessionen
 i stället, så att felet kan fixas. Reserv: `vinter/D4-spara-kartan-offline.mp4`.
