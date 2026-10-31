@@ -130,7 +130,7 @@ Filma själv på telefonen. Det är också ett test av appen.
 
 | Tid | Bild | Du säger | Text i bild |
 | --- | --- | --- | --- |
-| 0–3 s | Du, tittar ner på telefonen och sedan ironiskt in i kameran | "Kartan laddar inte och du står mitt i ingenstans. Mysigt?" | **Laddar…** |
+| 0–3 s | `oktober/A3-intro-laddar.png` (kartan offline, tom), din röst över | "Kartan laddar inte och du står mitt i ingenstans. Mysigt?" | **Laddar…** |
 | 3–10 s | Kartan vid Kebnekaise → Kartlager → Spara det som syns | "Så kvällen innan – i soffan, med wifi och chips – zoomar du dit du ska och trycker Spara." | Spara i soffan 🛋️ |
 | 10–17 s | Slå på flygplansläge, zooma in | "Uppe på fjället: flygplansläge. Kartan? Sitter kvar. Höjdkurvor och allt. Och batteriet blir din nya bästis." | ✈️ Kartan sitter kvar |
 | 17–20 s | Du | "Spara i soffan, åk på fjället. Snöläge – kolla läget!" | **Kolla läget. Snöläge.** |
