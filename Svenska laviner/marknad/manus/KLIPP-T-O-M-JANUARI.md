@@ -130,10 +130,10 @@ Filma själv på telefonen. Det är också ett test av appen.
 
 | Tid | Bild | Du säger | Text i bild |
 | --- | --- | --- | --- |
-| 0–2 s | Du | "Ingen täckning på fjället? Kartan funkar ändå." | **Ingen täckning?** |
-| 2–10 s | Kartan vid Kebnekaise → Kartlager → Spara det som syns offline | "Spara det du ska åka i innan du går." | Spara kartan |
-| 10–17 s | Slå på flygplansläge, zooma in | "Sen funkar kartan utan nät." | ✈️ Flygplansläge |
-| 17–20 s | Du | "Gör det på wifi kvällen innan." | **Kolla läget. Snöläge.** |
+| 0–3 s | Du | "Noll streck på fjället? Kartan bryr sig inte." | **Noll streck?** |
+| 3–10 s | Kartan vid Kebnekaise → Kartlager → Spara det som syns | "Kvällen innan: zooma dit du ska och tryck Spara. Klart." | Spara kartan |
+| 10–17 s | Slå på flygplansläge, zooma in | "På fjället: flygplansläge – och kartan är kvar. Höjdkurvor och allt. Batteriet tackar dig också." | ✈️ Flygplansläge |
+| 17–20 s | Du | "Spara på wifi, åk utan. Snöläge – kolla läget!" | **Kolla läget. Snöläge.** |
 
 Blir kartan tom i flygplansläget: posta inte. Berätta det i appsessionen
 i stället, så att felet kan fixas. Reserv: `vinter/D4-spara-kartan-offline.mp4`.
@@ -141,7 +141,9 @@ i stället, så att felet kan fixas. Reserv: `vinter/D4-spara-kartan-offline.mp4
 ```
 Ingen täckning på fjället? Kartan funkar ändå. 📵
 
-Spara kartan i Snöläge innan turen, så funkar den i flygplansläge. Lantmäteriets karta med lutning, gratis.
+Spara kartan i Snöläge innan turen, så funkar den i flygplansläge. Lantmäteriets topografiska karta, gratis.
+
+Karta: ©Lantmäteriet (CC BY 4.0).
 
 Länk i bion.
 
