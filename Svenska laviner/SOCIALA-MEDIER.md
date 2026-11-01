@@ -341,7 +341,8 @@ Varje måndag, i 10 minuter, efter `/admin/oversikt`:
 
 Sätt **egna adresser** i bion per kanal (till exempel `snolage.se/tiktok`
 och `snolage.se/insta` som omdirigeringar i Cloudflare), så ser du vilka
-kanaler som ger besök. Inga spårningspixlar, se `MARKNADSFORING.md` 8.
+kanaler som ger besök (Cloudflare Web Analytics visar också varifrån
+besöken kom). Inga spårningspixlar, se `MARKNADSFORING.md` 8.
 
 ---
 

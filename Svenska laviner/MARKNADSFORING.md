@@ -56,9 +56,12 @@ som något som gör fjället säkert.** Se avsnitt 4.3.
 
 ### Förutsättningar som styr planen
 
-- **Gratis, ingen reklam, ingen analys av hur folk använder appen.** Det
-  står i integritetspolicyn och är ett säljargument. Marknadsföringen får
-  inte bryta mot det (inga spårningspixlar, inga reklamkakor, se avsnitt 8).
+- **Gratis, ingen reklam, ingen spårning.** Sedan 30 okt 2026 räknar
+  Cloudflare Web Analytics besök på `snolage.se` (sida, varifrån man kom,
+  land, enhet) utan kakor och utan att känna igen någon, och det står i
+  integritetspolicyn ("Besöksstatistik"). Apparna räknas inte.
+  Marknadsföringen får inte gå längre än så (inga spårningspixlar, inga
+  reklamkakor, se avsnitt 8).
 - **E-postadresser används inte för marknadsföring.** Det står också i
   policyn. Vill du ha ett nyhetsbrev krävs ett separat frivilligt
   samtycke och en uppdaterad policy.
@@ -544,11 +547,12 @@ deras TikTok-konton `@oneboldchemist.se` och `@one.bold.chemist`.
 
 ## 8. Mätning och uppföljning
 
-Snöläge lovar ingen analys av hur folk använder appen, så mätningen bygger
-på summerade siffror som redan finns.
+Snöläge spårar ingen, så mätningen bygger på summerade siffror som redan
+finns.
 
 | Vad | Var |
 | --- | --- |
+| Besök på `snolage.se` per sida och varifrån de kom (Instagram, TikTok, Google …), utan kakor | Cloudflare → Web Analytics |
 | Konton, aktiva senaste veckan, observationer, turer, rutter, notiser per vecka och per område | `/admin/oversikt` i appen |
 | Installationer, avinstallationer, betyg, recensioner, sökord i butiken | Google Play Console, App Store Connect |
 | Sökord och besök från Google till `snolage.se` | Google Search Console |
