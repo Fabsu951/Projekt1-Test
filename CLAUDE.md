@@ -365,7 +365,15 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   legend; from "all", the first tap picks one) – filter remembered in
   localStorage `fjallkoll:terrain-finder`, default 15–25° all aspects.
   Notice: shows terrain, not safety; avalanches from steeper ground above
-  reach below 30°. Presets turn it off. Checked in a browser with mocked
+  reach below 30°. Presets turn it off. **"Använd dagens prognos för
+  <område>" (2026-11-01, Fabian):** `forecastFilter()` = the aspects of a
+  *published* forecast's problems (a problem without aspects = all) on 30°
+  and steeper (max 60 = "och brantare": `matchesTerrain` treats the top of
+  the scale as open-ended); area = `nearestArea()` to the map centre within
+  80 km; the button only shows then, with "Prognosens höjder ingår inte".
+  **NV's "Sluttningsriktning" removed from the menu the same day** (Fabian;
+  "Hitta åk" covers it, works in Norway too): `OfficialTerrain` is now only
+  `"lutning"`; the worker's `/terrain/riktning` route stays for old builds. Checked in a browser with mocked
   cone terrain (east ring only for NO–SO, 20–30°), desktop + phone dark.
   **Zoom 16 (2026-10-30, "bättre zoom": the map is blurry past z15):**
   Lantmäteriet's GeoPackage has z16–17. Built: worker
@@ -1588,6 +1596,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (335 tests as of 2026-11-01, all passing). Worker has its own Vitest
+  (340 tests as of 2026-11-01, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 216 tests, including the
   real-page fixtures).

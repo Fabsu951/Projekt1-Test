@@ -391,9 +391,7 @@ export const EN: Record<string, string> = {
   "I Norge (NVE)": "In Norway (NVE)",
   "Officiella kartor": "Official maps",
   "Lutning (Naturvårdsverket, i Norge NVE)": "Slope angle (Naturvårdsverket, in Norway NVE)",
-  "Sluttningsriktning (Naturvårdsverket, bara Sverige)": "Slope aspect (Naturvårdsverket, Sweden only)",
   "Lutningskartan kommer från Naturvårdsverkets lavinprognostjänst och i Norge från NVE. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos. Zooma in om lagret inte syns.": "The slope angle map comes from Naturvårdsverket's avalanche forecast service and, in Norway, from NVE. It shows the terrain, not the avalanche danger – always read today's forecast. Zoom in if the layer doesn't show.",
-  "Kartan över sluttningsriktning kommer från Naturvårdsverkets lavinprognostjänst och finns bara för Sverige. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos. Zooma in om lagret inte syns.": "The slope aspect map comes from Naturvårdsverket's avalanche forecast service and only covers Sweden. It shows the terrain, not the avalanche danger – always read today's forecast. Zoom in if the layer doesn't show.",
   "Lutning: höjdmodeller &copy; Lantmäteriet och &copy; Kartverket (<a href=\"https://creativecommons.org/licenses/by/4.0/deed.sv\">CC BY 4.0</a>) via <a href=\"https://mapterhorn.com/attribution/\">Mapterhorn</a>": "Slope: height models &copy; Lantmäteriet and &copy; Kartverket (<a href=\"https://creativecommons.org/licenses/by/4.0/\">CC BY 4.0</a>) via <a href=\"https://mapterhorn.com/attribution/\">Mapterhorn</a>",
   "Höjder och lutning i ruttplaneringen och i ”Hitta åk”: beräknade av Snöläge från höjdmodeller med 1 m upplösning, Lantmäteriets Markhöjdmodell Nedladdning (©Lantmäteriet, CC0) och Kartverkets terrängmodell (©Kartverket, CC BY 4.0), hämtade via": "Heights and slope in route planning and in “Find runs”: calculated by Snöläge from 1 m height models, Lantmäteriet's Markhöjdmodell Nedladdning (©Lantmäteriet, CC0) and Kartverket's terrain model (©Kartverket, CC BY 4.0), fetched via",
   "Lutning i Norge:": "Slope steepness in Norway:",
@@ -1438,4 +1436,7 @@ export const EN: Record<string, string> = {
   "Hitta åk: välj lutning och väderstreck": "Find runs: choose slope and aspect",
   "(zooma in)": "(zoom in)",
   "Det färgade är terräng med den lutning och det väderstreck du valt – inte var det är säkert. Även under 30° kan en lavin nå dig från brantare terräng ovanför eller bredvid, och snö och skavlar ändrar lutningen. Läs alltid dagens prognos.": "The coloured ground has the slope and aspect you chose – it does not show where it is safe. Even below 30° an avalanche can reach you from steeper terrain above or beside you, and snow and cornices change the slope. Always read today's forecast.",
+  "Använd dagens prognos för {area}": "Use today's forecast for {area}",
+  "Väljer väderstrecken i dagens lavinproblem och 30° eller brantare. Prognosens höjder ingår inte – läs dem i prognosen.": "Picks the aspects of today's avalanche problems and 30° or steeper. The forecast's elevations are not included – read them in the forecast.",
+  "Visar {min}° och brantare, {directions}.": "Showing {min}° and steeper, {directions}.",
 };

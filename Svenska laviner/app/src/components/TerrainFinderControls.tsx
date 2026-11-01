@@ -43,10 +43,15 @@ const OPTIONS = Array.from({ length: SLOPE_LIMIT / SLOPE_STEP + 1 }, (_, i) => i
 interface Props {
   filter: TerrainFilter;
   onChange: (filter: TerrainFilter) => void;
+  /** Today's problems in the area in the middle of the map, when a forecast is published there. */
+  fromForecast?: { area: string; filter: TerrainFilter } | null;
 }
 
+const sameFilter = (a: TerrainFilter, b: TerrainFilter) =>
+  a.min === b.min && a.max === b.max && a.sectors.every((on, i) => on === b.sectors[i]);
+
 /** Steepness range + an aspect rose to tap; the rose is also the layer's legend. */
-export default function TerrainFinderControls({ filter, onChange }: Props) {
+export default function TerrainFinderControls({ filter, onChange, fromForecast }: Props) {
   const toggle = (index: number) => {
     // From "every direction", the first tap picks just that one.
     const sectors = allSectors(filter)
@@ -63,6 +68,21 @@ export default function TerrainFinderControls({ filter, onChange }: Props) {
 
   return (
     <div className="terrain-finder">
+      {fromForecast && (
+        <div className="terrain-finder__forecast">
+          <button
+            type="button"
+            className="button"
+            aria-pressed={sameFilter(filter, fromForecast.filter)}
+            onClick={() => onChange(fromForecast.filter)}
+          >
+            {t("Använd dagens prognos för {area}", { area: fromForecast.area })}
+          </button>
+          <p className="map-layers__sub">
+            {t("Väljer väderstrecken i dagens lavinproblem och 30° eller brantare. Prognosens höjder ingår inte – läs dem i prognosen.")}
+          </p>
+        </div>
+      )}
       <div className="terrain-finder__slope">
         <label className="terrain-finder__field">
           {t("Lutning från")}
@@ -126,11 +146,13 @@ export default function TerrainFinderControls({ filter, onChange }: Props) {
         </svg>
         <div className="terrain-finder__aspect-text">
           <p className="terrain-finder__summary" aria-live="polite">
-            {t("Visar {min}–{max}°, {directions}.", {
-              min: filter.min,
-              max: filter.max,
-              directions: sectorSummary(filter.sectors),
-            })}
+            {filter.max >= SLOPE_LIMIT
+              ? t("Visar {min}° och brantare, {directions}.", { min: filter.min, directions: sectorSummary(filter.sectors) })
+              : t("Visar {min}–{max}°, {directions}.", {
+                  min: filter.min,
+                  max: filter.max,
+                  directions: sectorSummary(filter.sectors),
+                })}
           </p>
           <p className="map-layers__sub">{t("Tryck på väderstrecken du vill se.")}</p>
           {!allSectors(filter) && (

@@ -10,7 +10,7 @@ import { loadForecasts } from "../services/avalancheService";
 import type { AvalancheForecast } from "../types/avalanche";
 import TerrainFinderLayer from "../components/TerrainFinderLayer";
 import TerrainFinderControls from "../components/TerrainFinderControls";
-import { loadFilter, saveFilter, type TerrainFilter } from "../utils/terrainFinder";
+import { forecastFilter, loadFilter, nearestArea, saveFilter, type TerrainFilter } from "../utils/terrainFinder";
 import OfficialTerrainLayer from "../components/OfficialTerrainLayer";
 import DetailedSlopeLayer from "../components/DetailedSlopeLayer";
 import OfficialTerrainLegend from "../components/OfficialTerrainLegend";
@@ -191,6 +191,14 @@ export default function MapPage() {
   const [flyTarget, setFlyTarget] = useState<Bounds | null>(null);
   const [frameKey, setFrameKey] = useState(0);
   const [offlineListKey, setOfflineListKey] = useState(0);
+
+  // "Använd dagens prognos" in Hitta åk: today's problems in the area in the middle of the map.
+  const finderForecast = useMemo(() => {
+    if (!viewBounds) return null;
+    const area = nearestArea((viewBounds.north + viewBounds.south) / 2, (viewBounds.east + viewBounds.west) / 2, REGIONS);
+    const filter = area ? forecastFilter(forecasts[area.id]) : null;
+    return area && filter ? { area: area.name, filter } : null;
+  }, [viewBounds, forecasts]);
 
   // Today's forecast for the area the route lies in, and where they meet.
   const routeRegionId = useMemo(() => (analysis ? regionForRoute(analysis.samples, REGIONS) : null), [analysis]);
@@ -440,7 +448,7 @@ export default function MapPage() {
                 {t("Hitta åk: välj lutning och väderstreck")}{" "}<span className="map-layers__sub">{t("(zooma in)")}</span>
               </span>
             </label>
-            {showFinder && <TerrainFinderControls filter={finderFilter} onChange={changeFinderFilter} />}
+            {showFinder && <TerrainFinderControls filter={finderFilter} onChange={changeFinderFilter} fromForecast={finderForecast} />}
             {detailedSlope && (
               <>
                 <label className="map-toolbar__toggle">
@@ -471,7 +479,6 @@ export default function MapPage() {
                 {(
                   [
                     ["lutning", t("Lutning (Naturvårdsverket, i Norge NVE)")],
-                    ["riktning", t("Sluttningsriktning (Naturvårdsverket, bara Sverige)")],
                   ] as Array<[OfficialTerrain, string]>
                 ).map(([id, label]) => (
                   <label key={id} className="map-toolbar__toggle">
@@ -510,9 +517,7 @@ export default function MapPage() {
 
         {officialTerrain && (
           <p className="notice">
-            {officialTerrain === "lutning"
-              ? t("Lutningskartan kommer från Naturvårdsverkets lavinprognostjänst och i Norge från NVE. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos. Zooma in om lagret inte syns.")
-              : t("Kartan över sluttningsriktning kommer från Naturvårdsverkets lavinprognostjänst och finns bara för Sverige. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos. Zooma in om lagret inte syns.")}
+            {t("Lutningskartan kommer från Naturvårdsverkets lavinprognostjänst och i Norge från NVE. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos. Zooma in om lagret inte syns.")}
           </p>
         )}
 

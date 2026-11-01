@@ -155,7 +155,8 @@ export const NORWAY_TOPO_ATTRIBUTION = t('Norge: &copy; <a href="https://www.kar
  * Naturvårdsverket's official terrain maps (slope angle and aspect), through
  * the worker so their servers are asked once per tile, not once per user.
  */
-export type OfficialTerrain = "lutning" | "riktning";
+/** Naturvårdsverket's slope map (their aspect map was removed from the menu 2026-11-01; the worker route stays for old app builds). */
+export type OfficialTerrain = "lutning";
 export const officialTerrainAvailable = Boolean(PROXY_BASE);
 const workerBase = () => (PROXY_BASE ?? "").replace(/\/$/, "");
 export const officialTerrainUrl = (layer: OfficialTerrain) => `${workerBase()}/terrain/${layer}/{z}/{x}/{y}.png`;

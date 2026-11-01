@@ -5708,6 +5708,17 @@ h1 .admin-badge {
   margin: 4px 0 4px 26px;
 }
 
+.terrain-finder__forecast {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.terrain-finder__forecast .map-layers__sub {
+  margin: 0;
+}
+
 .terrain-finder__slope {
   display: flex;
   flex-wrap: wrap;

@@ -1,4 +1,6 @@
 import { COMPASS_SECTORS } from "./windAnalysis";
+import { distanceM } from "./routePlan";
+import type { AvalancheForecast } from "../types/avalanche";
 import { compass, t } from "../i18n";
 
 // "Hitta åk": marks ground whose steepness and aspect fall inside the
@@ -46,7 +48,8 @@ export function allSectors(filter: TerrainFilter): boolean {
 }
 
 export function matchesTerrain(filter: TerrainFilter, slope: number, aspect: number | null): boolean {
-  if (slope < filter.min || slope >= filter.max) return false;
+  // The top of the scale (60°) also takes in anything steeper.
+  if (slope < filter.min || (filter.max < SLOPE_LIMIT && slope >= filter.max)) return false;
   if (allSectors(filter)) return true;
   return aspect !== null && filter.sectors[sectorOf(aspect)];
 }
@@ -78,6 +81,34 @@ export function sectorSummary(sectors: boolean[]): string {
   const name = (i: number) => compass(COMPASS_SECTORS[i]);
   runs.sort((x, y) => x[0] - y[0]);
   return runs.map(([a, b]) => (a === b ? name(a) : `${name(a)}\u2060–\u2060${name(b)}`)).join(", ");
+}
+
+/** Steepness from which ground counts as avalanche terrain (as in the route check). */
+export const AVALANCHE_TERRAIN_DEG = 30;
+
+/**
+ * "Använd dagens prognos": the aspects of today's avalanche problems on
+ * ground of 30° and steeper. Only from a published forecast with problems;
+ * a problem listed without aspects counts for all of them. The forecast's
+ * heights are not applied (the layer has no height filter).
+ */
+export function forecastFilter(forecast: AvalancheForecast | null | undefined): TerrainFilter | null {
+  if (!forecast || forecast.status !== "published" || forecast.problems.length === 0) return null;
+  const all = forecast.problems.some((p) => p.aspects.length === 0);
+  const sectors = COMPASS_SECTORS.map((c) => all || forecast.problems.some((p) => p.aspects.includes(c)));
+  return { min: AVALANCHE_TERRAIN_DEG, max: SLOPE_LIMIT, sectors };
+}
+
+const AREA_RADIUS_M = 80_000;
+
+/** The forecast area nearest to a point (the middle of the map), within 80 km. */
+export function nearestArea<T extends { lat: number; lon: number }>(lat: number, lon: number, areas: T[]): T | null {
+  let best: { area: T; d: number } | null = null;
+  for (const area of areas) {
+    const d = distanceM([lat, lon], [area.lat, area.lon]);
+    if (!best || d < best.d) best = { area, d };
+  }
+  return best && best.d <= AREA_RADIUS_M ? best.area : null;
 }
 
 const STORAGE_KEY = "fjallkoll:terrain-finder";

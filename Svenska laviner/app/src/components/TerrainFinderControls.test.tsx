@@ -4,9 +4,11 @@ import { describe, expect, it } from "vitest";
 import TerrainFinderControls from "./TerrainFinderControls";
 import { DEFAULT_FILTER, type TerrainFilter } from "../utils/terrainFinder";
 
-function Harness({ start = DEFAULT_FILTER }: { start?: TerrainFilter }) {
+type FromForecast = { area: string; filter: TerrainFilter } | null;
+
+function Harness({ start = DEFAULT_FILTER, fromForecast = null }: { start?: TerrainFilter; fromForecast?: FromForecast }) {
   const [filter, setFilter] = useState(start);
-  return <TerrainFinderControls filter={filter} onChange={setFilter} />;
+  return <TerrainFinderControls filter={filter} onChange={setFilter} fromForecast={fromForecast} />;
 }
 
 describe("TerrainFinderControls", () => {
@@ -34,5 +36,20 @@ describe("TerrainFinderControls", () => {
     fireEvent.change(screen.getByLabelText("Lutning från"), { target: { value: "30" } });
     expect(screen.getByLabelText("till")).toHaveValue("35");
     expect(screen.getByText("Visar 30–35°, alla väderstreck.")).toBeInTheDocument();
+  });
+
+  it("takes today's forecast with one tap, only when there is one", () => {
+    const { rerender } = render(<Harness />);
+    expect(screen.queryByRole("button", { name: /Använd dagens prognos/ })).toBeNull();
+    const fromForecast = {
+      area: "Kebnekaisefjällen",
+      filter: { min: 30, max: 60, sectors: [false, true, true, false, false, false, false, false] },
+    };
+    rerender(<Harness fromForecast={fromForecast} />);
+    const button = screen.getByRole("button", { name: "Använd dagens prognos för Kebnekaisefjällen" });
+    expect(button).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(button);
+    expect(screen.getByText("Visar 30° och brantare, NO\u2060–\u2060O.")).toBeInTheDocument();
+    expect(button).toHaveAttribute("aria-pressed", "true");
   });
 });

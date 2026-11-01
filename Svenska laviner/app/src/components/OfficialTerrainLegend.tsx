@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NORWAY_SLOPE_LEGEND, officialTerrainLegendUrl, type OfficialTerrain } from "../services/mapTiles";
 import { t } from "../i18n";
 
-const NAMES: Record<OfficialTerrain, string> = { lutning: "lutning", riktning: "sluttningsriktning" };
+const NAMES: Record<OfficialTerrain, string> = { lutning: "lutning" };
 
 /** The legend exactly as Naturvårdsverket draws it (their GetLegendGraphic), via the worker. */
 export default function OfficialTerrainLegend({ layer }: { layer: OfficialTerrain }) {

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_FILTER,
+  forecastFilter,
   matchesTerrain,
+  nearestArea,
   sectorOf,
   sectorSummary as summary,
   slopeAspect,
@@ -95,5 +97,33 @@ describe("direction summary", () => {
     expect(sectorSummary(sectors(5))).toBe("SV");
     expect(sectorSummary(sectors(0, 1, 2, 3, 4, 5, 6, 7))).toBe("alla väderstreck");
     expect(sectorSummary(sectors())).toBe("inget väderstreck");
+  });
+});
+
+describe("from today's forecast", () => {
+  const problem = (aspects: string[]) => ({ aspects }) as never;
+  const forecast = (status: string, problems: unknown[]) => ({ regionId: "x", status, problems }) as never;
+
+  it("takes the problems' aspects on ground of 30° and steeper", () => {
+    const filter = forecastFilter(forecast("published", [problem(["NO", "O"]), problem(["O", "SO"])]));
+    expect(filter).toEqual({ min: 30, max: 60, sectors: sectors(1, 2, 3) });
+    expect(matchesTerrain(filter!, 72, 90)).toBe(true); // the top of the scale includes steeper ground
+    expect(matchesTerrain(filter!, 29, 90)).toBe(false);
+  });
+
+  it("counts a problem without aspects as all of them", () => {
+    expect(forecastFilter(forecast("published", [problem(["N"]), problem([])]))?.sectors).toEqual(sectors(0, 1, 2, 3, 4, 5, 6, 7));
+  });
+
+  it("gives nothing without a published forecast with problems", () => {
+    expect(forecastFilter(forecast("season-over", [problem(["N"])]))).toBeNull();
+    expect(forecastFilter(forecast("published", []))).toBeNull();
+    expect(forecastFilter(null)).toBeNull();
+  });
+
+  it("finds the area in the middle of the map, not far away", () => {
+    const areas = [{ id: "kebne", lat: 67.9, lon: 18.55 }, { id: "riks", lat: 68.42, lon: 18.13 }];
+    expect(nearestArea(67.95, 18.4, areas)?.id).toBe("kebne");
+    expect(nearestArea(59.3, 18.0, areas)).toBeNull();
   });
 });
