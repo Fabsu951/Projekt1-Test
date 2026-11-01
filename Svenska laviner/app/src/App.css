@@ -5698,3 +5698,92 @@ h1 .admin-badge {
   color: var(--text-muted);
   font-size: 0.9rem;
 }
+
+/* "Hitta åk": steepness range + an aspect rose that doubles as the legend
+   (its filled wedges are the colour the map marks). */
+.terrain-finder {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 4px 0 4px 26px;
+}
+
+.terrain-finder__slope {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.terrain-finder__field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.terrain-finder__aspect {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.terrain-finder__rose {
+  flex: none;
+  overflow: visible;
+}
+
+.terrain-finder__wedge {
+  fill: var(--bg-raised);
+  stroke: var(--border);
+  stroke-width: 1;
+  cursor: pointer;
+}
+
+.terrain-finder__wedge:hover {
+  fill: color-mix(in srgb, var(--finder) 25%, var(--bg-raised));
+}
+
+.terrain-finder__wedge--on,
+.terrain-finder__wedge--on:hover {
+  fill: var(--finder);
+  stroke: var(--bg);
+}
+
+.terrain-finder__wedge:focus {
+  outline: none;
+}
+
+.terrain-finder__wedge:focus-visible {
+  stroke: var(--text);
+  stroke-width: 2.5;
+}
+
+.terrain-finder__compass {
+  fill: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.terrain-finder__aspect-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.terrain-finder__summary {
+  margin: 0;
+  font-weight: 600;
+}
+
+.terrain-finder__aspect-text .map-layers__sub {
+  margin: 0;
+}
+
+@media (max-width: 360px) {
+  .terrain-finder {
+    margin-left: 0;
+  }
+}

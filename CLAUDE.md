@@ -339,6 +339,24 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   "Lutning"; aspect stays Sweden-only. About, press page and privacy policy
   name NVE and the real height models. Also NVE `Bratthet_med_utlop_2024`
   (with runout zones) exists in the same folder if ever wanted.
+  **"Hitta åk" (2026-11-01, idea from Jonas Edlund by email: find runs by
+  steepness + aspect, e.g. 20–30° facing NO–SO):** Kartlager → Terräng
+  checkbox "Hitta åk: välj lutning och väderstreck". `TerrainFinderLayer`
+  = leaflet-relief in slope mode on the same Mapterhorn tiles with
+  `_createSlopeColor` replaced: `utils/terrainFinder.ts` `slopeAspect` (Sobel
+  on relief's 3×3 window – index (col+1)·3+(row+1), rows southwards; tested
+  with synthetic planes) + `matchesTerrain` (min inclusive, max exclusive,
+  8 sectors; all sectors = aspect ignored) → violet `#5a3fd6` (opacity 0.6)
+  or transparent; minZoom 10, maxNativeZoom 13 (~7 m pixels, less boulder
+  noise). Filter changes `redraw()` – only at zoom ≥ 10, since Leaflet's
+  redraw ignores minZoom (it fetched 140 z5 tiles in a test). Controls
+  `TerrainFinderControls` (5° selects, `withRange` keeps min < max; an SVG
+  aspect rose of role=checkbox wedges in `--finder`, which doubles as the
+  legend; from "all", the first tap picks one) – filter remembered in
+  localStorage `fjallkoll:terrain-finder`, default 15–25° all aspects.
+  Notice: shows terrain, not safety; avalanches from steeper ground above
+  reach below 30°. Presets turn it off. Checked in a browser with mocked
+  cone terrain (east ring only for NO–SO, 20–30°), desktop + phone dark.
   **Zoom 16 (2026-10-30, "bättre zoom": the map is blurry past z15):**
   Lantmäteriet's GeoPackage has z16–17. Built: worker
   `GET /admin/lantmateriet/topowebb-3857.gpkg` (range proxy with the
@@ -1560,6 +1578,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (321 tests as of 2026-10-30, all passing). Worker has its own Vitest
+  (337 tests as of 2026-11-01, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 216 tests, including the
   real-page fixtures).

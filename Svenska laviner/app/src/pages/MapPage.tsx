@@ -9,6 +9,9 @@ import { REGIONS } from "../data/regions";
 import { loadForecasts } from "../services/avalancheService";
 import type { AvalancheForecast } from "../types/avalanche";
 import SlopeLayer from "../components/SlopeLayer";
+import TerrainFinderLayer from "../components/TerrainFinderLayer";
+import TerrainFinderControls from "../components/TerrainFinderControls";
+import { loadFilter, saveFilter, type TerrainFilter } from "../utils/terrainFinder";
 import OfficialTerrainLayer from "../components/OfficialTerrainLayer";
 import DetailedSlopeLayer from "../components/DetailedSlopeLayer";
 import OfficialTerrainLegend from "../components/OfficialTerrainLegend";
@@ -121,6 +124,12 @@ export default function MapPage() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
   const [showSlope, setShowSlope] = useState(false);
   const [showDetailedSlope, setShowDetailedSlope] = useState(false);
+  const [showFinder, setShowFinder] = useState(false);
+  const [finderFilter, setFinderFilter] = useState<TerrainFilter>(loadFilter);
+  const changeFinderFilter = useCallback((filter: TerrainFilter) => {
+    setFinderFilter(filter);
+    saveFilter(filter);
+  }, []);
   const [detailedSlope, setDetailedSlope] = useState(false);
   useEffect(() => {
     let live = true;
@@ -266,10 +275,13 @@ export default function MapPage() {
     setShowDetailedSlope(preset === "plan" && planSlope === "detailed");
     setOfficialTerrain(preset === "plan" && planSlope === "official" ? "lutning" : null);
     setPlanning(preset === "plan");
+    setShowFinder(false);
   };
   const slopeOn = showSlope || showDetailedSlope || officialTerrain === "lutning";
   const currentPreset: Preset | null =
-    showObservations && !showTours && !showHeatmap && !slopeOn && officialTerrain === null && !planning
+    showFinder
+      ? null
+      : showObservations && !showTours && !showHeatmap && !slopeOn && officialTerrain === null && !planning
       ? "now"
       : showObservations && !showTours && !showHeatmap && slopeOn && planning
         ? "plan"
@@ -288,6 +300,7 @@ export default function MapPage() {
     showHeatmap,
     showSlope,
     showDetailedSlope,
+    showFinder,
     officialTerrain !== null,
     friendsShown && (friendCount ?? 0) > 0,
   ].filter(Boolean).length;
@@ -445,6 +458,13 @@ export default function MapPage() {
                 ))}
               </div>
             )}
+            <label className="map-toolbar__toggle">
+              <input type="checkbox" checked={showFinder} onChange={(e) => setShowFinder(e.target.checked)} />
+              <span>
+                {t("Hitta åk: välj lutning och väderstreck")}{" "}<span className="map-layers__sub">{t("(zooma in)")}</span>
+              </span>
+            </label>
+            {showFinder && <TerrainFinderControls filter={finderFilter} onChange={changeFinderFilter} />}
             {detailedSlope && (
               <>
                 <label className="map-toolbar__toggle">
@@ -526,6 +546,12 @@ export default function MapPage() {
           </p>
         )}
 
+        {showFinder && (
+          <p className="notice notice--stale">
+            {t("Det färgade är terräng med den lutning och det väderstreck du valt – inte var det är säkert. Även under 30° kan en lavin nå dig från brantare terräng ovanför eller bredvid, och snö och skavlar ändrar lutningen. Läs alltid dagens prognos.")}
+          </p>
+        )}
+
         {showSlope && (
           <p className="notice notice--stale">
             {t("Beräknad från 1 m höjddata. Visar terrängen, inte lavinfaran – snö och skavlar ändrar lutningen. Läs alltid dagens prognos.")}
@@ -550,6 +576,7 @@ export default function MapPage() {
           )}
           <TopoLayer />
           <SlopeLayer enabled={showSlope} />
+          <TerrainFinderLayer filter={showFinder ? finderFilter : null} />
           <OfficialTerrainLayer layer={officialTerrain} />
           <DetailedSlopeLayer enabled={showDetailedSlope} />
           <MyPosition enabled={showPosition} onStatus={onPositionStatus} />
