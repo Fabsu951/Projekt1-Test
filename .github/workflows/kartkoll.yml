@@ -1,0 +1,45 @@
+# One-off: where is border cairn 237, Sweden's outline (Natural Earth 10m),
+# and how fast each map tile source answers. Removed afterwards.
+name: Kartkoll
+on:
+  push:
+    branches: [claude/bold-lamport-juktha]
+    paths: [".github/workflows/kartkoll.yml"]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Border cairn 237 (OpenStreetMap)
+        run: |
+          q='[out:json][timeout:60];node["historic"="boundary_stone"](61,10,70,22);out tags center;'
+          curl -s --retry 3 -A "snolage-kartkoll" --data-urlencode "data=$q" https://overpass-api.de/api/interpreter -o stones.json || true
+          jq -c '.elements[] | select((.tags.ref // .tags.name // "") | test("(^|[^0-9])237([^0-9]|$)")) | {lat, lon, tags}' stones.json | head -5
+          echo "stones: $(jq '.elements | length' stones.json)"
+      - name: Sweden outline (Natural Earth 10m)
+        run: |
+          curl -sL --retry 3 https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_0_countries.geojson -o ne.json
+          jq -c '.features[] | select(.properties.ADM0_A3=="SWE") | .geometry' ne.json > swe.json
+          python3 - <<'PY'
+          import json
+          g=json.load(open("swe.json"))
+          polys=g["coordinates"] if g["type"]=="MultiPolygon" else [g["coordinates"]]
+          big=max(polys,key=lambda p:len(p[0]))
+          ring=big[0]
+          print("polygons",len(polys),"mainland points",len(ring))
+          # simplify: keep every point but round to 4 decimals; print as compact JSON
+          out=[[round(x,4),round(y,4)] for x,y in ring]
+          print("RING", json.dumps(out,separators=(",",":")))
+          PY
+      - name: Tile timings
+        run: |
+          t() { curl -s -o /dev/null -w "%{http_code} %{time_total}s %{size_download}B $1\n" "$1"; }
+          W=https://fjallkoll-worker.fabian-n-sund.workers.dev
+          for i in 1 2; do
+            t https://kartor.snolage.se/topowebb/15/18073/7863.png
+            t $W/tiles/topowebb/15/18073/7863.png
+            t $W/tiles/topowebb/14/8840/3930.png
+            t $W/tiles/topowebb/13/4410/1960.png
+            t https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/14/3930/8840.png
+          done
