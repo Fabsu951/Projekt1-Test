@@ -70,6 +70,20 @@ const HOSTED_BOXES: Array<[number, number, number, number]> = [
   [13.77, 64.7, 16.43, 66.35],
   [11.65, 62.11, 14.2, 63.94],
 ];
+/**
+ * The gaps along the border (worker MORE_MOUNTAIN_BOXES), in the bucket up to
+ * zoom 15 once imported with kartor-fler.yml – until then MORE_HOSTED stays
+ * false, so the app doesn't ask the bucket for tiles it hasn't got.
+ */
+export const MORE_HOSTED = false;
+const MORE_HOSTED_BOXES: Array<[number, number, number, number]> = [
+  [15.3, 66.35, 18.6, 67.43],
+  [15.9, 67.43, 16.85, 68.4],
+  [13.5, 63.94, 15.2, 64.7],
+  [12.0, 61.5, 13.6, 62.11],
+  [19.9, 68.72, 21.2, 69.07],
+];
+const MORE_HOSTED_MAX_ZOOM = 15;
 const HOSTED_OVERVIEW_MAX_ZOOM = 7;
 const HOSTED_MAX_ZOOM = TOPOWEBB_Z16 ? 16 : 15;
 
@@ -83,7 +97,9 @@ export function hostedTile(z: number, x: number, y: number): boolean {
     const r = (lat * Math.PI) / 180;
     return Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n);
   };
-  return HOSTED_BOXES.some(([west, south, east, north]) => x >= tileX(west) && x <= tileX(east) && y >= tileY(north) && y <= tileY(south));
+  const inBox = ([west, south, east, north]: [number, number, number, number]) =>
+    x >= tileX(west) && x <= tileX(east) && y >= tileY(north) && y <= tileY(south);
+  return HOSTED_BOXES.some(inBox) || (MORE_HOSTED && z <= MORE_HOSTED_MAX_ZOOM && MORE_HOSTED_BOXES.some(inBox));
 }
 
 /** The map bucket's address for a worker tile URL, or null when it isn't one we host there. */

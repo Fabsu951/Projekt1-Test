@@ -66,6 +66,34 @@ export const MOUNTAIN_BOXES: Record<string, LonLatBox> = {
   sodra: [11.65, 62.11, 14.2, 63.94],
 };
 
+/**
+ * The gaps along the border between those boxes, added 2026-11-01 after
+ * the map was slow at border cairn 237 (Sulitjelma): there every tile came
+ * through the worker from Lantmäteriet's WMTS, which closes 2026-12-31.
+ * Kept up to zoom 15 only (zoom 16 is only in MOUNTAIN_BOXES). The boxes
+ * don't overlap each other or MOUNTAIN_BOXES.
+ */
+export const MORE_MOUNTAIN_BOXES: Record<string, LonLatBox> = {
+  // Arjeplog–Sulitjelma–Padjelanta–Kvikkjokk–Sarek, between "mitten" and "norra".
+  sarek: [15.3, 66.35, 18.6, 67.43],
+  // Padjelanta and Vastenjaure west of "norra".
+  padjelanta: [15.9, 67.43, 16.85, 68.4],
+  // Frostviken–Gäddede–Borgafjäll, between "sodra" and "mitten".
+  frostviken: [13.5, 63.94, 15.2, 64.7],
+  // Grövelsjön–Idre–Långfjället–Fulufjället, south of "sodra".
+  grovelsjon: [12.0, 61.5, 13.6, 62.11],
+  // Treriksröset, north of "norra".
+  treriksroset: [19.9, 68.72, 21.2, 69.07],
+};
+
+export type BoxSet = "main" | "more" | "all";
+
+export function mountainBoxes(set: BoxSet): LonLatBox[] {
+  if (set === "main") return Object.values(MOUNTAIN_BOXES);
+  if (set === "more") return Object.values(MORE_MOUNTAIN_BOXES);
+  return [...Object.values(MOUNTAIN_BOXES), ...Object.values(MORE_MOUNTAIN_BOXES)];
+}
+
 /** Up to this zoom the whole file is kept, so zoomed-out views show all of Sweden (a few hundred tiles). */
 export const OVERVIEW_MAX_ZOOM = 7;
 

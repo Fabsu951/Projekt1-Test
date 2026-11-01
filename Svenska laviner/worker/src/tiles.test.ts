@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { decodeTiles, encodeTiles, imageType, validTile } from "./tileBatch";
-import { gpkgRange, HALF_WORLD, mapLevel, MOUNTAIN_BOXES, tileRange } from "./gpkgTiles";
+import { gpkgRange, HALF_WORLD, mapLevel, MORE_MOUNTAIN_BOXES, MOUNTAIN_BOXES, tileRange } from "./gpkgTiles";
 import { fetchable, parseTilePath } from "./tiles";
 
 const png = (n: number) => new Uint8Array([0x89, 0x50, 0x4e, 0x47, n]);
@@ -120,12 +120,27 @@ describe("mountain areas", () => {
 });
 
 describe("the app's list of hosted areas", () => {
+  it("has mountain boxes that never overlap", () => {
+    const boxes = [...Object.values(MOUNTAIN_BOXES), ...Object.values(MORE_MOUNTAIN_BOXES)];
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const [w1, s1, e1, n1] = boxes[i];
+        const [w2, s2, e2, n2] = boxes[j];
+        const overlap = w1 < e2 && w2 < e1 && s1 < n2 && s2 < n1;
+        expect(overlap, `${boxes[i]} / ${boxes[j]}`).toBe(false);
+      }
+    }
+  });
+
   it("matches MOUNTAIN_BOXES, so the app asks the map bucket only for tiles it has", async () => {
     const { readFileSync } = await import("node:fs");
     const source = readFileSync(new URL("../../app/src/services/mapTiles.ts", import.meta.url), "utf8");
-    const block = source.match(/HOSTED_BOXES[^=]*=\s*\[([\s\S]*?)\];/)?.[1] ?? "";
-    const boxes = [...block.matchAll(/\[([^\]]+)\]/g)].map((m) => m[1].split(",").map(Number));
-    expect(boxes).toEqual(Object.values(MOUNTAIN_BOXES));
+    const boxesOf = (name: string) => {
+      const block = source.match(new RegExp(`const ${name}[^=]*=\\s*\\[([\\s\\S]*?)\\];`))?.[1] ?? "";
+      return [...block.matchAll(/\[([^\]]+)\]/g)].map((m) => m[1].split(",").map(Number));
+    };
+    expect(boxesOf("HOSTED_BOXES")).toEqual(Object.values(MOUNTAIN_BOXES));
+    expect(boxesOf("MORE_HOSTED_BOXES")).toEqual(Object.values(MORE_MOUNTAIN_BOXES));
     expect(source).toMatch(/HOSTED_OVERVIEW_MAX_ZOOM = 7;/);
   });
 });

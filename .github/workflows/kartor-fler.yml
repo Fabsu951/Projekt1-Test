@@ -1,0 +1,77 @@
+# Adds Lantmäteriet's map tiles (zoom 8–15) for the gaps along the border
+# (worker MORE_MOUNTAIN_BOXES: Sarek–Sulitjelma, Padjelanta, Frostviken,
+# Grövelsjön, Treriksröset) to the map bucket (kartor.snolage.se), so those
+# tiles stop coming through the worker from the WMTS that closes 2026-12-31.
+# Tiles wholly in Norway are left out (white; the app never asks for them).
+# Reads the all-Sweden GeoPackage through the worker's range proxy
+# (/admin/lantmateriet/topowebb-3857.gpkg, the worker's own Lantmäteriet
+# login) and uploads with a fresh TILE_UPLOAD_TOKEN. MODE: dry-run counts
+# tiles and estimates the size; import uploads (SKIP resumes an
+# interrupted run). After the import, set MORE_HOSTED = true in the app's
+# mapTiles.ts. Runs when this file changes – keep MODE at dry-run unless an
+# import is wanted (R2's free plan has 1 M writes a month).
+
+name: Kartbitar fler fjällområden
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/bold-lamport-juktha]
+    paths: [".github/workflows/kartor-fler.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kartor-fler
+  cancel-in-progress: false
+
+env:
+  MODE: dry-run
+  SKIP: "0"
+  # Fewer, larger reads through the worker's proxy (its requests count against 100 000 a day).
+  IMPORT_CHUNK: "1000"
+  IMPORT_GAP: "64"
+  IMPORT_MAX_PAGES: "3000"
+  WORKER: https://fjallkoll-worker.fabian-n-sund.workers.dev
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: dba2a7031f0d281c2f34301d23a315ca
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    defaults:
+      run:
+        working-directory: Svenska laviner/worker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Wait for the worker with the range proxy
+        run: |
+          for i in $(seq 1 120); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$WORKER/admin/lantmateriet/topowebb-3857.gpkg")
+            if [ "$code" = "401" ]; then echo "proxy is live"; exit 0; fi
+            echo "proxy answers $code, waiting…"; sleep 20
+          done
+          exit 1
+
+      - name: Fresh upload token
+        run: |
+          token=$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=')
+          echo "::add-mask::$token"
+          printf '%s' "$token" | npx wrangler secret put TILE_UPLOAD_TOKEN
+          echo "TILE_UPLOAD_TOKEN=$token" >> "$GITHUB_ENV"
+          sleep 15
+
+      - name: Import the border boxes
+        run: |
+          args="--boxes more --min-zoom 8 --max-zoom 15 --skip $SKIP"
+          if [ "$MODE" != "import" ]; then args="$args --dry-run"; fi
+          LM_AUTH="Bearer $TILE_UPLOAD_TOKEN" npx tsx scripts/import-tiles.ts "$WORKER/admin/lantmateriet/topowebb-3857.gpkg" $args

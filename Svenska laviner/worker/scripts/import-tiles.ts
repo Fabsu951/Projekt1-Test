@@ -13,6 +13,8 @@
 // Options: --max-zoom 15 (default; the app zooms in further from there),
 //          --min-zoom <n> (skip the levels below, e.g. to add zoom 16 only),
 //          --table <name> (which tile table, if the file has several),
+//          --boxes main|more|all (which mountain boxes: MOUNTAIN_BOXES (default),
+//                 MORE_MOUNTAIN_BOXES along the border, or both),
 //          --all (all of the file, not just the mountain areas),
 //          --skip <n> (remote only: continue after the first n tiles of an interrupted run),
 //          --dry-run (just count what would be uploaded).
@@ -27,12 +29,17 @@ import { httpReader } from "./remoteSqlite";
 import {
   gpkgRange,
   mapLevel,
+  MORE_MOUNTAIN_BOXES,
   MOUNTAIN_BOXES,
+  mountainBoxes,
   OVERVIEW_MAX_ZOOM,
+  type BoxSet,
   type LevelMapping,
   type TileMatrix,
   type TileMatrixSet,
 } from "../src/gpkgTiles";
+// The app never asks for Lantmäteriet's (white) tiles wholly in Norway – Kartverket's map covers them.
+import { tileInNorwayOnly } from "../../app/src/utils/norwayTiles";
 
 // Well inside a Worker invocation's limits on the free plan.
 // Small batches: on the free plan a Worker gets ~10 ms CPU per request, and
@@ -50,10 +57,11 @@ interface Options {
   dryRun: boolean;
   all: boolean;
   skip: number;
+  boxes: BoxSet;
 }
 
 function parseArgs(argv: string[]): Options {
-  const opts: Options = { files: [], maxZoom: 15, minZoom: 0, table: null, dryRun: false, all: false, skip: 0 };
+  const opts: Options = { files: [], maxZoom: 15, minZoom: 0, table: null, dryRun: false, all: false, skip: 0, boxes: "main" };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--max-zoom") opts.maxZoom = Number(argv[++i]);
@@ -61,6 +69,14 @@ function parseArgs(argv: string[]): Options {
     else if (arg === "--table") opts.table = argv[++i];
     else if (arg === "--dry-run") opts.dryRun = true;
     else if (arg === "--all") opts.all = true;
+    else if (arg === "--boxes") {
+      const set = argv[++i];
+      if (set !== "main" && set !== "more" && set !== "all") {
+        console.error("--boxes ska vara main, more eller all.");
+        process.exit(1);
+      }
+      opts.boxes = set;
+    }
     else if (arg === "--skip") opts.skip = Math.max(0, Math.floor(Number(argv[++i]) || 0));
     else opts.files.push(arg);
   }
@@ -134,7 +150,7 @@ const SELECT_TILES = (table: string) =>
   `SELECT zoom_level AS level, tile_column AS col, tile_row AS row, tile_data AS data FROM "${table.replace(/"/g, '""')}"`;
 
 /** The rows to import: everything, or per level only the mountain boxes (uses the table's unique index). */
-function* tileRows(db: import("node:sqlite").DatabaseSync, table: string, levels: LevelMapping[], all: boolean): Generator<unknown> {
+function* tileRows(db: import("node:sqlite").DatabaseSync, table: string, levels: LevelMapping[], all: boolean, boxes: BoxSet): Generator<unknown> {
   if (all) {
     yield* db.prepare(SELECT_TILES(table)).iterate();
     return;
@@ -149,7 +165,7 @@ function* tileRows(db: import("node:sqlite").DatabaseSync, table: string, levels
       continue;
     }
     // The boxes don't overlap, so no tile comes twice.
-    for (const area of Object.values(MOUNTAIN_BOXES)) {
+    for (const area of mountainBoxes(boxes)) {
       const r = gpkgRange(level, area);
       yield* box.iterate(level.gpkgLevel, r.minX, r.maxX, r.minY, r.maxY);
     }
@@ -178,9 +194,20 @@ async function openLocal(file: string, opts: Options): Promise<TileSource> {
     tables,
     table,
     levels,
-    rows: (wanted) => tileRows(db, table, wanted, opts.all) as Iterable<Row>,
+    rows: (wanted) => tileRows(db, table, wanted, opts.all, opts.boxes) as Iterable<Row>,
     close: () => db.close(),
   };
+}
+
+/** Drops tiles wholly in Norway (see tileInNorwayOnly) – they're white and the app never asks for them. */
+function withoutNorway<K extends { level: number; col: number; row: number }>(keys: K[], levels: LevelMapping[]): K[] {
+  const byLevel = new Map(levels.map((l) => [l.gpkgLevel, l]));
+  const kept = keys.filter((k) => {
+    const l = byLevel.get(k.level);
+    return !l || !tileInNorwayOnly(l.z, k.col + l.offsetX, k.row + l.offsetY);
+  });
+  if (kept.length < keys.length) console.log(`  ${(keys.length - kept.length).toLocaleString("sv-SE")} kartbitar helt i Norge hoppas över`);
+  return kept;
 }
 
 /**
@@ -209,7 +236,7 @@ async function openRemote(url: string, opts: Options): Promise<TileSource> {
     levels,
     async *rows(wanted) {
       console.log("  letar upp kartbitarna i filens index…");
-      const keys = await gpkg.tileKeys(table, wanted);
+      const keys = withoutNorway(await gpkg.tileKeys(table, wanted, 6, mountainBoxes(opts.boxes)), wanted);
       console.log(`  ${keys.length.toLocaleString("sv-SE")} kartbitar att hämta ${mb()}`);
       if (opts.skip) console.log(`  hoppar över de första ${opts.skip.toLocaleString("sv-SE")} (--skip)`);
       plannedCount = Math.max(0, keys.length - opts.skip);
@@ -220,7 +247,7 @@ async function openRemote(url: string, opts: Options): Promise<TileSource> {
     },
     async dryRun(wanted) {
       console.log("  letar upp kartbitarna i filens index…");
-      const keys = await gpkg.tileKeys(table, wanted);
+      const keys = withoutNorway(await gpkg.tileKeys(table, wanted, 6, mountainBoxes(opts.boxes)), wanted);
       const byLevel = new Map(wanted.map((l) => [l.gpkgLevel, l]));
       const perZoom = new Map<number, number>();
       for (const k of keys) {
@@ -282,7 +309,7 @@ async function main() {
     const wanted = levels.filter((l) => l.z <= opts.maxZoom && l.z >= opts.minZoom);
     console.log(`\n${source.label}\n  tabell: ${table}${tables.length > 1 ? ` (finns även: ${tables.filter((t) => t !== table).join(", ")})` : ""}`);
     console.log(`  zoomnivåer: ${wanted.map((l) => l.z).join(", ")}${wanted.length < levels.length ? ` (hoppar över nivåer utanför ${opts.minZoom}–${opts.maxZoom})` : ""}`);
-    console.log(`  område: ${opts.all ? "hela filen" : `fjällrutorna (${Object.keys(MOUNTAIN_BOXES).join(", ")}), hela filen upp till zoom ${OVERVIEW_MAX_ZOOM}`}`);
+    console.log(`  område: ${opts.all ? "hela filen" : `fjällrutorna (${Object.keys(opts.boxes === "more" ? MORE_MOUNTAIN_BOXES : opts.boxes === "all" ? { ...MOUNTAIN_BOXES, ...MORE_MOUNTAIN_BOXES } : MOUNTAIN_BOXES).join(", ")}), hela filen upp till zoom ${OVERVIEW_MAX_ZOOM}`}`);
 
     if (opts.dryRun && source.dryRun) {
       const counted = await source.dryRun(wanted);
@@ -315,7 +342,7 @@ async function main() {
       const z = level.z;
       const x = Number(r.col) + level.offsetX;
       const y = Number(r.row) + level.offsetY;
-      if (!data?.length || !imageType(data) || !validTile(z, x, y)) {
+      if (!data?.length || !imageType(data) || !validTile(z, x, y) || (!opts.all && tileInNorwayOnly(z, x, y))) {
         skipped++;
         continue;
       }

@@ -1,7 +1,7 @@
 // Lantmäteriet's GeoPackage read over HTTP Range requests (see remoteSqlite.ts):
 // the tile pyramid's metadata, and the tiles inside the mountain boxes found
 // through the tile table's unique (zoom_level, tile_column, tile_row) index.
-import { gpkgRange, MOUNTAIN_BOXES, OVERVIEW_MAX_ZOOM, type LevelMapping, type TileMatrix, type TileMatrixSet } from "../src/gpkgTiles";
+import { gpkgRange, MOUNTAIN_BOXES, OVERVIEW_MAX_ZOOM, type LevelMapping, type LonLatBox, type TileMatrix, type TileMatrixSet } from "../src/gpkgTiles";
 import { indexColumns, readTable, RemoteSqlite, tableColumns, type RangeReader, type SchemaEntry, type Value } from "./remoteSqlite";
 
 export interface GpkgTile {
@@ -131,7 +131,12 @@ export class RemoteGpkg {
   }
 
   /** Index entries (level, col, row, rowid) for the mountain boxes, everything up to OVERVIEW_MAX_ZOOM. */
-  async tileKeys(table: string, levels: LevelMapping[], parallel = 6): Promise<Array<{ level: number; col: number; row: number; rowid: number }>> {
+  async tileKeys(
+    table: string,
+    levels: LevelMapping[],
+    parallel = 6,
+    boxes: LonLatBox[] = Object.values(MOUNTAIN_BOXES)
+  ): Promise<Array<{ level: number; col: number; row: number; rowid: number }>> {
     const index = this.tileIndex(table);
     const ranges: Array<{ lo: number[]; hi: number[] }> = [];
     for (const level of levels) {
@@ -139,7 +144,7 @@ export class RemoteGpkg {
         ranges.push({ lo: [level.gpkgLevel], hi: [level.gpkgLevel] });
         continue;
       }
-      for (const box of Object.values(MOUNTAIN_BOXES)) {
+      for (const box of boxes) {
         const r = gpkgRange(level, box);
         const [outerLo, outerHi, innerLo, innerHi] = index.order === "col-row" ? [r.minX, r.maxX, r.minY, r.maxY] : [r.minY, r.maxY, r.minX, r.maxX];
         for (let v = outerLo; v <= outerHi; v++) ranges.push({ lo: [level.gpkgLevel, v, innerLo], hi: [level.gpkgLevel, v, innerHi] });
