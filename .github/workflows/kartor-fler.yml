@@ -7,17 +7,15 @@
 # (/admin/lantmateriet/topowebb-3857.gpkg, the worker's own Lantmäteriet
 # login) and uploads with a fresh TILE_UPLOAD_TOKEN. MODE: dry-run counts
 # tiles and estimates the size; import uploads (SKIP resumes an
-# interrupted run). After the import, set MORE_HOSTED = true in the app's
-# mapTiles.ts. Runs when this file changes – keep MODE at dry-run unless an
-# import is wanted (R2's free plan has 1 M writes a month).
+# interrupted run). Imported 1 Nov 2026 (145 661 tiles); the app's
+# MORE_HOSTED is on. The push trigger is removed so an edit can't re-upload
+# them (R2's free plan has 1 M writes a month); to run it again, put a push
+# trigger back (dispatch only works on the default branch).
 
 name: Kartbitar fler fjällområden
 
 on:
   workflow_dispatch:
-  push:
-    branches: [claude/bold-lamport-juktha]
-    paths: [".github/workflows/kartor-fler.yml"]
 
 permissions:
   contents: read
@@ -27,7 +25,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  MODE: import
+  MODE: dry-run
   SKIP: "0"
   # Fewer, larger reads through the worker's proxy (its requests count against 100 000 a day).
   IMPORT_CHUNK: "1000"

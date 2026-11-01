@@ -334,14 +334,16 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   centre is in Norway; outlines in `data/borders.ts` from Natural Earth 10m –
   Sweden simplified ~1.5 km, Norway grown 0.25° to cover islands/coast);
   map background `--map-paper` (light, also at night) instead of `--bg`.
-  **More hosted boxes (2026-11-01, prepared):** `MORE_MOUNTAIN_BOXES` in
+  **More hosted boxes (2026-11-01, imported – 145 661 tiles, ~1.2 GB):** `MORE_MOUNTAIN_BOXES` in
   `gpkgTiles.ts` (sarek 15.3–18.6/66.35–67.43, padjelanta, frostviken,
   grovelsjon, treriksroset – the gaps along the border, no overlap, worker
   test) up to z15; `import-tiles.ts --boxes main|more|all` (default main) and
   the import skips tiles `tileInNorwayOnly` (imported from the app).
-  Workflow `kartor-fler.yml` (push on itself, `MODE: dry-run | import`); after
-  an import set `MORE_HOSTED = true` in `mapTiles.ts` (the app's copy of the
-  boxes, checked against the worker's by `tiles.test.ts`).
+  Workflow `kartor-fler.yml` (`MODE: dry-run | import`, push trigger removed
+  after the import); `MORE_HOSTED = true` in `mapTiles.ts` (the app's copy of
+  the boxes, checked against the worker's by `tiles.test.ts`). deploy.yml's
+  live check also fetches a z15 tile at Rr 237. R2 now ≈ 10.9 GB (slightly
+  over the free 10 GB, ~$0.015/GB-month).
   **Slope maps (2026-10-30, Fabian: "bättre lutningskarta", screenshot showed
   NV's slope map stopping at the border):** measured from GitHub Actions
   (one-off `kartkoll.yml`, removed): Mapterhorn's tiles (512 px, z ≤ 15 in

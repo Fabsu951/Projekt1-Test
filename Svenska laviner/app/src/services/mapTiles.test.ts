@@ -32,6 +32,9 @@ describe("tiles from the map bucket", () => {
     expect(hostedTile(16, KEBNE[1] * 2, KEBNE[2] * 2)).toBe(true);
     expect(hostedTile(16, STHLM[1] * 2, STHLM[2] * 2)).toBe(false);
     expect(hostedTile(17, KEBNE[1] * 4, KEBNE[2] * 4)).toBe(false);
+    // Border cairn 237 (MORE_HOSTED boxes): in the bucket up to zoom 15 only.
+    expect(hostedTile(15, 17869, 8075)).toBe(true);
+    expect(hostedTile(16, 17869 * 2, 8075 * 2)).toBe(false);
   });
 
   it("maps worker tile URLs to the bucket, only for tiles it has", async () => {

@@ -72,10 +72,10 @@ const HOSTED_BOXES: Array<[number, number, number, number]> = [
 ];
 /**
  * The gaps along the border (worker MORE_MOUNTAIN_BOXES), in the bucket up to
- * zoom 15 once imported with kartor-fler.yml – until then MORE_HOSTED stays
- * false, so the app doesn't ask the bucket for tiles it hasn't got.
+ * zoom 15 (imported with kartor-fler.yml on 2026-11-01; false would make the
+ * app fetch them through the worker again).
  */
-export const MORE_HOSTED = false;
+export const MORE_HOSTED = true;
 const MORE_HOSTED_BOXES: Array<[number, number, number, number]> = [
   [15.3, 66.35, 18.6, 67.43],
   [15.9, 67.43, 16.85, 68.4],

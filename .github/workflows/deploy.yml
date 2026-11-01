@@ -105,6 +105,9 @@ jobs:
           # A zoom-16 map tile over Kebnekaise straight from the map bucket.
           type=$(curl -fsS --retry 3 --retry-all-errors -o /dev/null -w '%{content_type}' https://kartor.snolage.se/topowebb/16/36141/15732.png)
           case "$type" in image/*) ;; *) { echo "::error::kartor.snolage.se zoom 16 tile answered $type"; exit 1; } ;; esac
+          # A zoom-15 tile at border cairn 237 (MORE_MOUNTAIN_BOXES, imported 2026-11-01).
+          type=$(curl -fsS --retry 3 --retry-all-errors -o /dev/null -w '%{content_type}' https://kartor.snolage.se/topowebb/15/17869/8075.png)
+          case "$type" in image/*) ;; *) { echo "::error::kartor.snolage.se border tile answered $type"; exit 1; } ;; esac
           echo "Live checks OK"
 
       - name: Summary
