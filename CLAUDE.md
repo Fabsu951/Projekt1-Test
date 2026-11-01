@@ -424,8 +424,8 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   cached 30 days. App: "Naturvårdsverkets terrängkartor" fieldset in
   Kartlager (Lutning / Sluttningsriktning, one at a time,
   `OfficialTerrainLayer` opacity 0.85 + CSS `mix-blend-mode: multiply` (their slope tiles draw < 25° as light grey; multiply keeps the topo map readable), `OfficialTerrainLegend` shows their
-  legend image), notice "visar terrängen, inte lavinfaran"; our own
-  ~30 m slope layer stays as "Terränglutning, egen beräkning". Fabian checked
+  legend image), notice "visar terrängen, inte lavinfaran" (our own slope
+  layer and NV's aspect map were removed from the menu 2026-11-01). Fabian checked
   their live server 2026-10-07: GetMap tile over Kebnekaise and the
   slope legend (25–30° green … > 50° dark brown) both work. Avalanche size
   codes confirmed by Jan Granlund (NV) 2026-10-08: `size_meter_value` 5/40/85/130/165
@@ -1249,7 +1249,7 @@ the start, exact map point.
   section via `OPEN_SECTION_EVENT`), problems moved right under the forecast,
   observations before tours, Om området/Karta offline near the end. Map
   presets (`map-presets` on `/karta`: Läget nu / Planera tur — slope:
-  detailed if imported, else NV's lutning, else our own — / Turer; pressed
+  detailed if imported, else NV's lutning, else none — / Turer; pressed
   state derived from the layer state; hidden in full screen so the map gets the room — Fabian's ask 2026-10-11). Start page `TodayTrip` leads with a
   planned day today or tomorrow (`cached(USER_SCOPE + "trips")`; tomorrow's
   level only from `/forecasts/history`, else "publiceras runt kl 18").

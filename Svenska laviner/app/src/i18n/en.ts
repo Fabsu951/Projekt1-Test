@@ -880,7 +880,7 @@ export const EN: Record<string, string> = {
   "Rita en ny rutt": "Drawing a new route",
   "Höjder och lutning hämtas från internet. Planera hemma och spara rutten offline.": "Elevation and slope come from the internet. Plan at home and save the route offline.",
   "Karta utanför det du sparat": "Map outside what you saved",
-  "Även lutningslagret och värmekartan över turer.": "Also the slope layer and the tour heatmap.",
+  "Även lutningskartan, ”Hitta åk” och värmekartan över turer.": "Also the slope map, “Find runs” and the tour heatmap.",
   "Logga in, skapa konto": "Signing in, creating an account",
   "Och byta lösenord eller profilbild.": "And changing password or profile picture.",
   "Kommer när telefonen har täckning igen.": "Arrive when the phone has coverage again.",
@@ -1439,4 +1439,5 @@ export const EN: Record<string, string> = {
   "Använd dagens prognos för {area}": "Use today's forecast for {area}",
   "Väljer väderstrecken i dagens lavinproblem och 30° eller brantare. Prognosens höjder ingår inte – läs dem i prognosen.": "Picks the aspects of today's avalanche problems and 30° or steeper. The forecast's elevations are not included – read them in the forecast.",
   "Visar {min}° och brantare, {directions}.": "Showing {min}° and steeper, {directions}.",
+  "{deg}° och brantare": "{deg}° and steeper",
 };

@@ -28,7 +28,7 @@ const NEEDS: Array<[string, string]> = [
   [t("Ny prognos och nytt väder"), t("Hämtas automatiskt så fort du har täckning igen.")],
   [t("Lägga upp något"), t("Observationer, turer, kommentarer, gilla, följa och spara rutter i kontot.")],
   [t("Rita en ny rutt"), t("Höjder och lutning hämtas från internet. Planera hemma och spara rutten offline.")],
-  [t("Karta utanför det du sparat"), t("Även lutningslagret och värmekartan över turer.")],
+  [t("Karta utanför det du sparat"), t("Även lutningskartan, ”Hitta åk” och värmekartan över turer.")],
   [t("Logga in, skapa konto"), t("Och byta lösenord eller profilbild.")],
   [t("Notiser"), t("Kommer när telefonen har täckning igen.")],
 ];

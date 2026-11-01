@@ -99,7 +99,7 @@ export default function TerrainFinderControls({ filter, onChange, fromForecast }
           <select value={filter.max} onChange={(e) => onChange(withRange(filter, "max", Number(e.target.value)))}>
             {OPTIONS.slice(1).map((deg) => (
               <option key={deg} value={deg}>
-                {deg}°
+                {deg === SLOPE_LIMIT ? t("{deg}° och brantare", { deg }) : `${deg}°`}
               </option>
             ))}
           </select>

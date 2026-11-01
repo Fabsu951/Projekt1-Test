@@ -5715,6 +5715,11 @@ h1 .admin-badge {
   gap: 4px;
 }
 
+.terrain-finder__forecast .button[aria-pressed="true"] {
+  border-color: var(--finder);
+  box-shadow: inset 0 0 0 1px var(--finder);
+}
+
 .terrain-finder__forecast .map-layers__sub {
   margin: 0;
 }

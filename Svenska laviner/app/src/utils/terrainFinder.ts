@@ -6,13 +6,13 @@ import { compass, t } from "../i18n";
 // "Hitta åk": marks ground whose steepness and aspect fall inside the
 // ranges the user picks (an idea from Jonas Edlund, 2026-11-01: find runs of
 // e.g. 20–30° facing NE–SE in areas without guidebooks). Heights come from
-// the same Mapterhorn tiles as the slope layer (1 m national height models).
+// the same Mapterhorn tiles as the route planner (1 m national height models).
 // It shows terrain only – never where it is safe.
 
 export interface TerrainFilter {
   /** Lowest steepness shown, degrees (inclusive). */
   min: number;
-  /** Steepness shown below this, degrees (exclusive). */
+  /** Steepness shown below this, degrees (exclusive); SLOPE_LIMIT means "and steeper". */
   max: number;
   /** Aspects shown, N first, clockwise (N, NO, O, SO, S, SV, V, NV). */
   sectors: boolean[];

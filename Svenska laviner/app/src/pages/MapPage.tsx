@@ -532,7 +532,6 @@ export default function MapPage() {
             {t("Det färgade är terräng med den lutning och det väderstreck du valt – inte var det är säkert. Även under 30° kan en lavin nå dig från brantare terräng ovanför eller bredvid, och snö och skavlar ändrar lutningen. Läs alltid dagens prognos.")}
           </p>
         )}
-
       </div>
 
       <div className="map-container">
