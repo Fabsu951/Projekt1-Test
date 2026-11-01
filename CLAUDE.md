@@ -321,6 +321,19 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   `downloadTiles` takes `TileUrls` returning one or more URLs). CSP
   `img-src`/`connect-src` include `https://cache.kartverket.no`; About,
   press page and privacy policy (updated 30 Oct) credit/name Kartverket.
+  **Faster at the border (2026-11-01, Fabian's video at border cairn Rr 237,
+  67.02 N 16.31 E – between the hosted boxes, so Lantmäteriet tiles came via
+  the worker + WMTS at 1–1.6 s each, dark holes and grey half-faded tiles while
+  zooming):** `TopoLayer` `updateWhenZooming: false` (every level passed on the
+  way was fetched, hundreds of requests thrown away); `OfflineTileLayer` waits
+  `AFTER_ZOOM_WAIT_MS` 150 ms after a zoomend before fetching, aborts dropped
+  tiles (AbortController per tile on `tileunload`/`tileabort`, also stops a
+  pending offline-cache lookup from starting a download) and has `skipTile`;
+  LM tiles wholly in Norway are skipped (`utils/norwayTiles.ts`
+  `tileInNorwayOnly`: z > 7, tile + 5 km buffer doesn't touch Sweden and its
+  centre is in Norway; outlines in `data/borders.ts` from Natural Earth 10m –
+  Sweden simplified ~1.5 km, Norway grown 0.25° to cover islands/coast);
+  map background `--map-paper` (light, also at night) instead of `--bg`.
   **Slope maps (2026-10-30, Fabian: "bättre lutningskarta", screenshot showed
   NV's slope map stopping at the border):** measured from GitHub Actions
   (one-off `kartkoll.yml`, removed): Mapterhorn's tiles (512 px, z ≤ 15 in
@@ -1596,6 +1609,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (340 tests as of 2026-11-01, all passing). Worker has its own Vitest
+  (343 tests as of 2026-11-01, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 216 tests, including the
   real-page fixtures).

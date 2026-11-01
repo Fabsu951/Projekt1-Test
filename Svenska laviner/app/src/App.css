@@ -537,7 +537,9 @@ p.muted a:not(.button) {
 .map-container .leaflet-container {
   width: 100%;
   height: 100%;
-  background: var(--bg);
+  /* The map's own paper tone, also at night: tiles that are still loading
+     show as blank paper instead of dark holes. */
+  background: var(--map-paper);
 }
 
 .region-marker span {
@@ -992,7 +994,7 @@ p.muted a:not(.button) {
 .location-picker__map .leaflet-container {
   width: 100%;
   height: 100%;
-  background: var(--bg);
+  background: var(--map-paper);
   cursor: crosshair;
 }
 
@@ -1548,6 +1550,7 @@ p.muted a:not(.button) {
 
 .track-map .leaflet-container {
   height: 100%;
+  background: var(--map-paper);
 }
 
 .track-map__line {

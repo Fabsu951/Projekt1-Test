@@ -31,6 +31,7 @@
   --on-accent: #0a1622;
   --signal: var(--text);
   --finder: #8f7cf0; /* "Hitta åk" rose; the map layer is #5a3fd6 */
+  --map-paper: #e9ebe6; /* behind map tiles while they load */
   --on-signal: var(--bg);
   --snow: #e9eff4;
   --border: #253a4b;
@@ -102,6 +103,7 @@
   --on-accent: #ffffff;
   --signal: var(--text);
   --finder: #5a3fd6;
+  --map-paper: #f3f3ef;
   --on-signal: #ffffff;
   --snow: rgba(23, 34, 43, 0.85);
   --border: #d6dbdc;
@@ -148,6 +150,7 @@
     --on-accent: #ffffff;
     --signal: var(--text);
     --finder: #5a3fd6;
+  --map-paper: #f3f3ef;
     --on-signal: #ffffff;
     --snow: rgba(23, 34, 43, 0.85);
     --border: #d6dbdc;

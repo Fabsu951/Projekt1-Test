@@ -17,6 +17,7 @@ import {
   TOPOWEBB_MAX_NATIVE_ZOOM,
   TOPOWEBB_URL,
 } from "../services/mapTiles";
+import { tileInNorwayOnly } from "../utils/norwayTiles";
 
 /** Tiles saved for offline use (services/offlineMap.ts) are shown first when present. */
 const OfflineAwareTileLayer = createTileLayerComponent<OfflineTileLayer, TileLayerProps & OfflineTileLayerOptions>(
@@ -29,10 +30,13 @@ const OfflineAwareTileLayer = createTileLayerComponent<OfflineTileLayer, TileLay
   }
 );
 
-// Keep more tiles around the view so panning back doesn't flash empty,
-// and load new ones while the finger still pans or pinches (tiles come
-// straight from kartor.snolage.se, so this costs no worker requests).
-const SMOOTH = { keepBuffer: 4, updateWhenIdle: false, updateWhenZooming: true, updateInterval: 150 } as const;
+// Keep more tiles around the view so panning back doesn't flash empty, and
+// load new ones while the finger still pans. While zooming, only the level
+// the map ends on is fetched: loading every level passed on the way (a
+// mouse wheel step jumps two) queued hundreds of tiles that were thrown
+// away, and outside our map bucket each one still cost a worker request –
+// the map near the border took many seconds to sharpen (2026-11-01).
+const SMOOTH = { keepBuffer: 4, updateWhenIdle: false, updateWhenZooming: false, updateInterval: 150 } as const;
 
 export default function TopoLayer() {
   return (
@@ -44,6 +48,7 @@ export default function TopoLayer() {
         maxNativeZoom={TOPOWEBB_MAX_NATIVE_ZOOM}
         enlargeParentAbove={TOPOWEBB_FULL_ZOOM}
         hasTile={hostedTile}
+        skipTile={NORWAY_TOPO_URL ? tileInNorwayOnly : undefined}
         {...SMOOTH}
       />
       {NORWAY_TOPO_URL && (
