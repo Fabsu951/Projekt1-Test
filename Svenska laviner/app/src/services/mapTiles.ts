@@ -29,15 +29,16 @@ export function topoTileUrl(z: number, x: number, y: number): string {
   return TOPOWEBB_URL.replace("{z}", String(z)).replace("{x}", String(x)).replace("{y}", String(y));
 }
 
-// Lantmäteriet's map stops at the border (Norway is plain white), but tours
-// often cross it. Kartverket's topographic map (CC BY 4.0, open, no key) is
-// drawn on top: its tiles are transparent over Sweden from about zoom 7, so
-// only Norway shows from it. Not needed with plain OpenStreetMap.
+// Lantmäteriet's map stops at the border (Norway is white close up and a
+// faded backdrop zoomed out), but tours often cross it. Kartverket's
+// topographic map (CC BY 4.0, open, no key) is drawn on top: its tiles are
+// transparent outside Norway (checked at zoom 4–8, 2026-11-01), so only
+// Norway shows from it. Not needed with plain OpenStreetMap.
 export const NORWAY_TOPO_URL = PROXY_BASE
   ? "https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png"
   : null;
-/** Below this Kartverket's tiles still cover parts of Sweden. */
-export const NORWAY_MIN_ZOOM = 7;
+/** From the overview zoom, so both countries are drawn and outlined alike. */
+export const NORWAY_MIN_ZOOM = 4;
 /** Kartverket has zoom 16 everywhere; offline copies stop at 15, which is then enlarged. */
 export const NORWAY_MAX_NATIVE_ZOOM = 16;
 

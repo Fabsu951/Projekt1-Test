@@ -119,12 +119,13 @@ describe("the map of Norway (Kartverket)", () => {
   const kartverket = (z: number, x: number, y: number) =>
     `https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/${z}/${y}/${x}.png`;
 
-  it("is drawn and saved with our map from zoom 7, row before column in its URL", async () => {
+  it("is drawn and saved with our map from zoom 4, row before column in its URL", async () => {
     const { mapTileUrls, norwayTileUrl, NORWAY_TOPO_URL } = await load();
     expect(NORWAY_TOPO_URL).not.toBeNull();
     expect(norwayTileUrl(...KEBNE)).toBe(kartverket(...KEBNE));
     expect(mapTileUrls(...KEBNE)).toEqual([workerTile(...KEBNE), kartverket(...KEBNE)]);
-    expect(mapTileUrls(6, 35, 15)).toEqual([workerTile(6, 35, 15)]);
+    expect(mapTileUrls(5, 17, 8)).toEqual([workerTile(5, 17, 8), kartverket(5, 17, 8)]);
+    expect(mapTileUrls(3, 4, 2)).toEqual([workerTile(3, 4, 2)]);
   });
 
   it("isn't added to plain OpenStreetMap, which already shows Norway", async () => {

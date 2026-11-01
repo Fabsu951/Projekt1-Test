@@ -312,8 +312,12 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   – row before column; CC BY 4.0, no key, CORS `*`; zIndex 2, our
   `SlopeLayer` zIndex 4 above it). Checked live with a one-off workflow
   (`kartkoll.yml`, removed after): its tiles are fully transparent over
-  Sweden from z7–8 (partly opaque at z ≤ 6), hence `NORWAY_MIN_ZOOM` 7,
-  maxNativeZoom 15 like ours. Offline saves store both (`mapTileUrls`;
+  Sweden from z7–8, hence `NORWAY_MIN_ZOOM` 7 at first; **lowered to 4 on
+  2026-11-01** (Fabian: the overview map outlined only Sweden, Norway was
+  Lantmäteriet's faded backdrop) after a one-off `kartkoll.yml` printed z4–6
+  tiles of both: Kartverket's are transparent outside Norway there too
+  (the earlier "partly opaque" meant tiles covering both countries), so
+  both countries now show in full with their outlines. maxNativeZoom 16. Offline saves store both (`mapTileUrls`;
   `downloadTiles` takes `TileUrls` returning one or more URLs). CSP
   `img-src`/`connect-src` include `https://cache.kartverket.no`; About,
   press page and privacy policy (updated 30 Oct) credit/name Kartverket.
