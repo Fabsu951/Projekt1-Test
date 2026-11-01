@@ -27,7 +27,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  MODE: dry-run
+  MODE: import
   SKIP: "0"
   # Fewer, larger reads through the worker's proxy (its requests count against 100 000 a day).
   IMPORT_CHUNK: "1000"
