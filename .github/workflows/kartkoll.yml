@@ -1,4 +1,4 @@
-# One-off: simplified outlines of Sweden and Norway (Natural Earth 10m) for
+# One-off: Norway's outline grown to cover islands and coast (Natural Earth 10m) for
 # the map's "is this tile in Norway" test. Removed afterwards.
 name: Kartkoll
 on:
@@ -19,12 +19,12 @@ jobs:
           import json
           from shapely.geometry import shape, mapping
           fs=json.load(open("ne.json"))["features"]
-          for code in ("SWE","NOR"):
-              g=shape(next(f for f in fs if f["properties"]["ADM0_A3"]==code)["geometry"])
-              polys=list(g.geoms) if g.geom_type=="MultiPolygon" else [g]
-              main=max(polys,key=lambda p:p.area)
-              s=main.simplify(0.01,preserve_topology=True)
-              ring=[[round(x,3),round(y,3)] for x,y in s.exterior.coords]
-              print(code,"points",len(main.exterior.coords),"->",len(ring),"area",round(main.area,2),"bounds",main.bounds)
-              print("RING_"+code, json.dumps(ring,separators=(",",":")))
+          # Norway with its islands and coastal waters: every part, grown by ~0.25°, one ring.
+          g=shape(next(f for f in fs if f["properties"]["ADM0_A3"]=="NOR")["geometry"])
+          b=g.buffer(0.25).simplify(0.05,preserve_topology=True)
+          parts=list(b.geoms) if b.geom_type=="MultiPolygon" else [b]
+          main=max(parts,key=lambda p:p.area)
+          ring=[[round(x,2),round(y,2)] for x,y in main.exterior.coords]
+          print("NORBUF parts",len(parts),"points",len(ring),"holes",len(main.interiors))
+          print("RING_NORBUF", json.dumps(ring,separators=(",",":")))
           PY
