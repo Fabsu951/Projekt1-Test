@@ -343,6 +343,12 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   "Lutning"; aspect stays Sweden-only. About, press page and privacy policy
   name NVE and the real height models. Also NVE `Bratthet_med_utlop_2024`
   (with runout zones) exists in the same folder if ever wanted.
+  **Own slope layer removed from the menu (2026-11-01, Fabian: "ta bort
+  egna beräkningen från menyn"):** only NV's/NVE's official "Lutning" (and
+  "Lutning, detaljerad" if ever imported) remain as slope layers;
+  `SlopeLayer.tsx` + `utils/slopeColors.ts` deleted. The same Mapterhorn
+  heights still drive the route planner and "Hitta åk". The "Planera tur"
+  preset turns on the official slope, or none when it isn't available.
   **"Hitta åk" (2026-11-01, idea from Jonas Edlund by email: find runs by
   steepness + aspect, e.g. 20–30° facing NO–SO):** Kartlager → Terräng
   checkbox "Hitta åk: välj lutning och väderstreck". `TerrainFinderLayer`
@@ -1582,6 +1588,6 @@ the start, exact map point.
   Registered in `main.tsx` for web production builds only, not in the
   native apps (they bundle the site).
 - Test suite: Vitest, run via `npm run test -- --run` from `Svenska laviner/app`
-  (337 tests as of 2026-11-01, all passing). Worker has its own Vitest
+  (335 tests as of 2026-11-01, all passing). Worker has its own Vitest
   suite in `Svenska laviner/worker` (`npm test`, 216 tests, including the
   real-page fixtures).

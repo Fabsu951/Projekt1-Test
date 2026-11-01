@@ -136,7 +136,7 @@ export default function AboutPage() {
             {t(". Bearbetad: lutningen är uträknad och indelad i steg.")}
           </li>
           <li>
-            {t("Lutning (egen beräkning) och höjder i ruttplaneringen: beräknade av Snöläge från höjdmodeller med 1 m upplösning, Lantmäteriets Markhöjdmodell Nedladdning (©Lantmäteriet, CC0) och Kartverkets terrängmodell (©Kartverket, CC BY 4.0), hämtade via")}{" "}
+            {t("Höjder och lutning i ruttplaneringen och i ”Hitta åk”: beräknade av Snöläge från höjdmodeller med 1 m upplösning, Lantmäteriets Markhöjdmodell Nedladdning (©Lantmäteriet, CC0) och Kartverkets terrängmodell (©Kartverket, CC BY 4.0), hämtade via")}{" "}
             <a href="https://mapterhorn.com/attribution/" target="_blank" rel="noreferrer">
               {t("Mapterhorn")}
             </a>

@@ -45,7 +45,6 @@ vi.mock("../services/mapTiles", async (orig) => ({
 }));
 vi.mock("../components/DetailedSlopeLayer", () => ({ default: () => null }));
 vi.mock("../components/TopoLayer", () => ({ default: () => null }));
-vi.mock("../components/SlopeLayer", () => ({ default: () => null }));
 vi.mock("../components/MyPosition", () => ({ default: () => null }));
 
 import MapPage from "./MapPage";

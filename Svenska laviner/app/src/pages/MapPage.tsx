@@ -8,7 +8,6 @@ import "leaflet/dist/leaflet.css";
 import { REGIONS } from "../data/regions";
 import { loadForecasts } from "../services/avalancheService";
 import type { AvalancheForecast } from "../types/avalanche";
-import SlopeLayer from "../components/SlopeLayer";
 import TerrainFinderLayer from "../components/TerrainFinderLayer";
 import TerrainFinderControls from "../components/TerrainFinderControls";
 import { loadFilter, saveFilter, type TerrainFilter } from "../utils/terrainFinder";
@@ -122,7 +121,6 @@ function saveLayersOpen(open: boolean) {
 
 export default function MapPage() {
   const [forecasts, setForecasts] = useState<Record<string, AvalancheForecast>>({});
-  const [showSlope, setShowSlope] = useState(false);
   const [showDetailedSlope, setShowDetailedSlope] = useState(false);
   const [showFinder, setShowFinder] = useState(false);
   const [finderFilter, setFinderFilter] = useState<TerrainFilter>(loadFilter);
@@ -266,24 +264,23 @@ export default function MapPage() {
     };
   }, [fullscreen]);
   type Preset = "now" | "plan" | "tours";
-  const planSlope: "detailed" | "official" | "own" = detailedSlope ? "detailed" : officialTerrainAvailable ? "official" : "own";
+  const planSlope: "detailed" | "official" | null = detailedSlope ? "detailed" : officialTerrainAvailable ? "official" : null;
   const applyPreset = (preset: Preset) => {
     setShowObservations(preset !== "tours");
     setShowTours(preset === "tours");
     setShowHeatmap(preset === "tours");
-    setShowSlope(preset === "plan" && planSlope === "own");
     setShowDetailedSlope(preset === "plan" && planSlope === "detailed");
     setOfficialTerrain(preset === "plan" && planSlope === "official" ? "lutning" : null);
     setPlanning(preset === "plan");
     setShowFinder(false);
   };
-  const slopeOn = showSlope || showDetailedSlope || officialTerrain === "lutning";
+  const slopeOn = showDetailedSlope || officialTerrain === "lutning";
   const currentPreset: Preset | null =
     showFinder
       ? null
       : showObservations && !showTours && !showHeatmap && !slopeOn && officialTerrain === null && !planning
       ? "now"
-      : showObservations && !showTours && !showHeatmap && slopeOn && planning
+      : showObservations && !showTours && !showHeatmap && (slopeOn || planSlope === null) && planning
         ? "plan"
         : !showObservations && showTours && showHeatmap && !slopeOn && officialTerrain === null && !planning
           ? "tours"
@@ -298,7 +295,6 @@ export default function MapPage() {
     showObservations,
     showTours,
     showHeatmap,
-    showSlope,
     showDetailedSlope,
     showFinder,
     officialTerrain !== null,
@@ -439,26 +435,6 @@ export default function MapPage() {
               {t("Terräng")}
             </p>
             <label className="map-toolbar__toggle">
-              <input
-                type="checkbox"
-                checked={showSlope}
-                onChange={(e) => setShowSlope(e.target.checked)}
-              />
-              <span>
-                {t("Lutning, egen beräkning")}{" "}<span className="map-layers__sub">{t("(Sverige och Norge, zooma in)")}</span>
-              </span>
-            </label>
-            {showSlope && (
-              <div className="slope-legend">
-                {SLOPE_LEGEND.map(([label, color]) => (
-                  <span key={label} className="slope-legend__item">
-                    <span className="slope-legend__swatch" style={{ backgroundColor: color }} />
-                    {label}
-                  </span>
-                ))}
-              </div>
-            )}
-            <label className="map-toolbar__toggle">
               <input type="checkbox" checked={showFinder} onChange={(e) => setShowFinder(e.target.checked)} />
               <span>
                 {t("Hitta åk: välj lutning och väderstreck")}{" "}<span className="map-layers__sub">{t("(zooma in)")}</span>
@@ -552,11 +528,6 @@ export default function MapPage() {
           </p>
         )}
 
-        {showSlope && (
-          <p className="notice notice--stale">
-            {t("Beräknad från 1 m höjddata. Visar terrängen, inte lavinfaran – snö och skavlar ändrar lutningen. Läs alltid dagens prognos.")}
-          </p>
-        )}
       </div>
 
       <div className="map-container">
@@ -575,7 +546,6 @@ export default function MapPage() {
             />
           )}
           <TopoLayer />
-          <SlopeLayer enabled={showSlope} />
           <TerrainFinderLayer filter={showFinder ? finderFilter : null} />
           <OfficialTerrainLayer layer={officialTerrain} />
           <DetailedSlopeLayer enabled={showDetailedSlope} />
