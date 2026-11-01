@@ -10,10 +10,11 @@ const PROXY_BASE = import.meta.env.VITE_MAP_PROXY_URL as string | undefined;
 
 /**
  * Zoom 16 is in the map bucket for the mountain boxes (workflow "Kartbitar
- * zoom 16"); elsewhere, and for tiles not saved offline, the map shows zoom
- * 15 enlarged (OfflineTileLayer's enlargeParentAbove). Off until imported.
+ * zoom 16", imported 1 Nov 2026: 833 348 tiles); elsewhere, and for tiles not
+ * saved offline, the map shows zoom 15 enlarged (OfflineTileLayer's
+ * enlargeParentAbove).
  */
-export const TOPOWEBB_Z16 = false;
+export const TOPOWEBB_Z16 = true;
 /** Highest zoom we host tiles for; Leaflet enlarges them beyond that. */
 export const TOPOWEBB_MAX_NATIVE_ZOOM = PROXY_BASE ? (TOPOWEBB_Z16 ? 16 : 15) : undefined;
 /** Above this, a missing tile shows its parent enlarged. */

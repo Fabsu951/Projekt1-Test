@@ -353,10 +353,13 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   `hasTile`): a tile above it that is missing/fails – or isn't saved offline –
   shows the parent quadrant enlarged in a frame (checked in a browser with
   quadrant-coloured test tiles); Kartverket layer native z16 already.
-  `TOPOWEBB_Z16` in `mapTiles.ts` (false until imported) switches topo to
-  native 16 inside `HOSTED_BOXES`. Held until 1 Nov because R2 class A writes
-  were at 610k of the free 1 M in October (`worker-status.yml` now prints R2
-  ops/storage). **Old copies removed 2026-10-30** (Fabian's OK): all 286 196
+  `TOPOWEBB_Z16` in `mapTiles.ts` switches topo to native 16 inside
+  `HOSTED_BOXES`. **Imported 2026-11-01** (waited for R2's monthly class A
+  writes to reset – October was at 610k of 1 M; `worker-status.yml` prints R2
+  ops/storage): 833 348 tiles in 179 min, ~12k proxied reads; flag now
+  **true**. deploy.yml's live check fetches a z16 tile over Kebnekaise from
+  kartor.snolage.se. `kartor-z16.yml` is back on `MODE: dry-run` with **no
+  push trigger** (an edit would otherwise re-upload ~830k tiles). **Old copies removed 2026-10-30** (Fabian's OK): all 286 196
   `maptiles/` keys in `fjallkoll-images` (3.34 GB) had an identical-size copy
   in `snolage-kartor` and were deleted via `POST /admin/tiles/cleanup`
   (`{list: old|new}` pages with sizes, `{delete: [...]}` old tile keys only)

@@ -29,7 +29,9 @@ describe("tiles from the map bucket", () => {
     expect(hostedTile(7, 70, 30)).toBe(true);
     expect(hostedTile(...KEBNE)).toBe(true);
     expect(hostedTile(...STHLM)).toBe(false);
-    expect(hostedTile(16, KEBNE[1] * 2, KEBNE[2] * 2)).toBe(false);
+    expect(hostedTile(16, KEBNE[1] * 2, KEBNE[2] * 2)).toBe(true);
+    expect(hostedTile(16, STHLM[1] * 2, STHLM[2] * 2)).toBe(false);
+    expect(hostedTile(17, KEBNE[1] * 4, KEBNE[2] * 4)).toBe(false);
   });
 
   it("maps worker tile URLs to the bucket, only for tiles it has", async () => {
