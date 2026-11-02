@@ -33,8 +33,9 @@ hittar appen tipsar sina turkompisar.
 5. **Vinterklar-tävlingen** 1–13 december: tagga turkompisen, och dela i
    din story för en extra lott.
 
-**Veckorytm i november:** två reels och en karusell i veckan, och en
-story varje dag du lägger upp något. Ungefär 3 timmar i veckan.
+**Veckorytm i november:** två reels och en karusell i veckan, en story
+varje dag du lägger upp något och 15 minuter i Facebook-grupperna varje
+onsdag. Ungefär 3 timmar i veckan.
 
 **Under säsongen:** Snöläget inför helgen varje torsdag kväll, och en fast
 rytm måndag till söndag (avsnitt 7). Ungefär 3–4 timmar i veckan.
@@ -294,6 +295,23 @@ Du som bygger appen: "Sitter och fixar Norge-kartan i kväll", en ny siffra
 kontot mänskligt. Ett par gånger i veckan i story, aldrig som inlägg i
 flödet.
 
+### 4.11 Facebook-grupperna
+
+Där finns de som redan åker topptur och offpist, så grupperna är den
+viktigaste platsen på Facebook. De har också de strängaste reglerna.
+
+| När | Vad |
+| --- | --- |
+| **Varje onsdag från 4 nov** | **Var med:** svara på 2–3 frågor om prognoser, väder eller terräng. Ingen reklam och ingen länk. Målet är att folk känner igen ditt namn som någon som kan. |
+| **Mån 9 nov** | **Fråga administratörerna** om ett presentationsinlägg i december (mall J). |
+| **Mån 23 nov** | **Följ upp** dem som inte svarat. Gör listan: vilka som sagt ja, störst grupp först. |
+| **15–18 dec** | **Presentationsinlägget** (mall J), bara där administratören sagt ja. Högst 2–3 grupper per dag (fler ser ut som spam för Facebook). Svara på varje kommentar samma dag. |
+| **Under säsongen, onsdagar** | Fortsätt svara på frågor. Nämn Snöläge bara när det faktiskt svarar på frågan och gruppens regler tillåter det, till exempel `Det syns i Snöläges karta under Hitta åk`. |
+| **Inför sportlovet (början av februari)** | Fråga de grupper som var positiva om du får lägga ett inlägg om det nya sedan december. Bara en gång per grupp och säsong, om inte administratören vill ha mer. |
+
+**Aldrig:** samma inlägg i många grupper samma dag, länkar i varje svar,
+eller inlägg i grupper där administratören sagt nej eller inte svarat.
+
 ---
 
 ## 5. Premiärveckan (15–20 dec)
@@ -322,6 +340,7 @@ Samma sak finns i kalenderfilen, med en påminnelse 15 minuter innan.
 | mån 2 nov 19:00 | **Fixa profilen.** Bio, länk snolage.se/insta, höjdpunkterna Börja här · Funktioner · Ni frågar · Gänget. Fäst A1, A2 och F1 överst. Svara Jonas (utan Hitta åk) och Julia. |
 | tis 3 nov 19:00 | **Nedräkningen startar: 6 veckor kvar.** Reel 'Ni frågade: Norge finns nu på kartan' (Julia, med lov eller utan namn). Story med nedräkningsklistermärket 'Säsongspremiär i Snöläge' 15 dec 07:30 – spara den i höjdpunkten Börja här. |
 | ons 4 nov 19:00 | **F2 Gissa lutningen.** Reel F2-fraga. Lägg samma bild i story med frågesport-klistermärket A/B/C/D. |
+| ons 4 nov 20:00 | **Var med i grupperna.** Svara på 2–3 frågor om prognoser, väder eller terräng i Facebook-grupperna. Ingen reklam, ingen länk. |
 | tor 5 nov 19:00 | **F2-svaret + Facebook-evenemang.** Story F2-svar + fäst kommentaren. Facebook: skapa evenemanget 'Snöläges säsongspremiär' (tis 15 dec) från sidan och bjud in dina vänner att gilla sidan. |
 | fre 6 nov 19:00 | **Mejla Jonas: nu finns den.** Berätta att Hitta åk finns och fråga om du får nämna honom vid förnamn i ett klipp. |
 | lör 7 nov 10:00 | **Reel: Hitta åk.** 'En skidåkare mejlade en idé – nu finns den.' Lutning + väderstreck. Uppmana: skicka till den du letar åk med. |
@@ -333,6 +352,7 @@ Samma sak finns i kalenderfilen, med en påminnelse 15 minuter innan.
 | --- | --- |
 | mån 9 nov 19:00 | **Bjud in gänget.** Ambassadörsinbjudan (mall C) till Magnus Wembrand och 5 från listan. Fråga administratörerna i Facebook-grupperna om ett presentationsinlägg i december (mall J). |
 | tis 10 nov 19:00 | **5 veckor kvar: skarpare fjällkarta.** Reel: kartan i zoom 16 + lutning från 1 m höjddata, Sverige och Norge. Nedräkningsstory. |
+| ons 11 nov 19:00 | **Var med i grupperna.** Svara på 2–3 frågor i Facebook-grupperna. Ingen reklam. |
 | tor 12 nov 19:00 | **Karusell: Vinterklar.** 8 saker att fixa före första turen. Sista bilden: 'Skicka till den du åker med'. |
 | lör 14 nov 10:00 | **A4 Snabbobservation.** Reel A4. Story: 'Har du lagt in en observation någon gång?' (omröstning). |
 | sön 15 nov 19:00 | **Fråga Snöläge + veckokoll + schemalägg.** Svara på veckans frågor i story. Schemalägg nästa veckas inlägg i Meta Business Suite. |
@@ -342,6 +362,7 @@ Samma sak finns i kalenderfilen, med en påminnelse 15 minuter innan.
 | När | Vad |
 | --- | --- |
 | tis 17 nov 19:00 | **4 veckor kvar: turdag med kompisar.** Reel J1. Text i bild och inlägg: 'Tagga den du ska åka med i vinter 👇'. |
+| ons 18 nov 19:00 | **Var med i grupperna.** Svara på 2–3 frågor i Facebook-grupperna. Ingen reklam. |
 | tor 19 nov 19:00 | **K1 De sex lavinproblemen.** Karusell. 'Spara till vintern.' |
 | lör 21 nov 10:00 | **F3 Min koll före turen.** Reel F3. |
 | sön 22 nov 19:00 | **Ni frågar #1 + veckokoll.** Reel där du svarar på en riktig fråga från frågelådan (läs upp den, visa svaret i appen). |
@@ -350,7 +371,9 @@ Samma sak finns i kalenderfilen, med en påminnelse 15 minuter innan.
 
 | När | Vad |
 | --- | --- |
+| mån 23 nov 19:00 | **Följ upp administratörerna.** Skriv en vänlig påminnelse till de administratörer som inte svarat. Gör listan: vilka grupper som sagt ja, i vilken ordning de ska få inlägget (störst först). |
 | tis 24 nov 19:00 | **3 veckor kvar: prognos inför din tur.** Reel: planera dagen → notis när prognosen kommer. 'Skicka till den du planerar fjällresan med.' |
+| ons 25 nov 19:00 | **Var med i grupperna.** Svara på 2–3 frågor i Facebook-grupperna. Ingen reklam. |
 | tor 26 nov 19:00 | **K2 Varningstecken.** Karusell. |
 | lör 28 nov 10:00 | **B1 Lavinskalan.** Reel B1. |
 | sön 29 nov 19:00 | **Lägg till din: bästa toppturbilden.** Story med 'Lägg till din'-klistermärket: 'Din bästa toppturbild ❄️'. Dela de bästa svaren vidare (de syns för deras följare). Veckokoll. |
@@ -362,6 +385,7 @@ Samma sak finns i kalenderfilen, med en påminnelse 15 minuter innan.
 | mån 30 nov 19:00 | **Förbered tävlingen.** Pris klart, bild klar, regler (mall E) inklistrade i ett utkast. Kanalen 'Snöläget' förberedd. |
 | tis 1 dec 19:00 | **2 veckor kvar + Vinterklar-tävlingen.** Inlägg + reel: tagga turkompisen, dela i story för bonuslott. Slutar sön 13 dec 20:00. Öppna Instagram-kanalen 'Snöläget' och bjud in följarna. |
 | ons 2 dec 19:00 | **S1 Snart.** Story S1 + påminn om tävlingen. |
+| ons 2 dec 20:00 | **Var med i grupperna.** Svara på 2–3 frågor i Facebook-grupperna. Ingen reklam. |
 | tor 3 dec 19:00 | **K3 Därför är 30 grader viktigt.** Karusell. |
 | lör 5 dec 10:00 | **E1 Myt: skogen + 10 dagar.** Reel E1. Story S2 '10 dagar kvar'. |
 | sön 6 dec 19:00 | **Möt gänget #1.** Samarbetsinlägg (collab) med en ambassadör: vem, var hen åker, bästa tipset. Påminn om tävlingen. Veckokoll. |
@@ -373,6 +397,7 @@ Samma sak finns i kalenderfilen, med en påminnelse 15 minuter innan.
 | mån 7 dec 19:00 | **8 dagar kvar.** Story-omröstning: 'Var åker du först i vinter?' (norr/söder). |
 | tis 8 dec 19:00 | **B9 Lutning 30 grader + 7 dagar.** Reel B9. Story S3 '7 dagar kvar'. |
 | ons 9 dec 19:00 | **6 dagar kvar.** Story-frågesport om lavinskalan. |
+| ons 9 dec 20:00 | **Var med i grupperna.** Svara på 2–3 frågor. Klistra in presentationsinlägget (mall J) i ett utkast så det är klart. |
 | tor 10 dec 19:00 | **A6 Nedräkning + 5 dagar.** Reel A6 (du + välkomstguiden). Inlägg på din privata Facebook med länk till evenemanget (mall G). |
 | fre 11 dec 19:00 | **4 dagar kvar.** Story: 'Ställ din fråga inför premiären'. |
 | lör 12 dec 10:00 | **B8 Varningstecken + 3 dagar.** Reel B8. Story S4 '3 dagar kvar'. |
@@ -405,6 +430,7 @@ Samma sak finns i kalenderfilen, med en påminnelse 15 minuter innan.
 | Tisdag | 19:00 | Lär dig, myt eller Ni frågar (reel eller karusell) |
 | Torsdag | 19:30 | **Snöläget inför helgen** (karusell + story + kanalen) |
 | Lördag | 10:00 | Fältklipp, gänget eller en funktion på 15 sekunder |
+| Onsdag | 19:00 | Var med i Facebook-grupperna (15 min) |
 | Söndag | 19:00 | Fråga Snöläge-story, veckokoll, schemalägg veckan |
 
 **Månadernas teman och toppar:**
