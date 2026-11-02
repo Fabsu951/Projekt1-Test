@@ -44,7 +44,7 @@ rytm måndag till söndag (avsnitt 7). Ungefär 3–4 timmar i veckan.
 ## 1. Läget i dag
 
 **Publicerat:** A1 (17 okt), A2 Ruttkollen (29 okt), F1 3 appar → 1
-(30 okt) och A3 Kartan utan täckning (1 nov).
+(30 okt) och A3 Kartan utan täckning (31 okt).
 
 **Nytt i appen som är bra att visa** (allt är live på snolage.se):
 
@@ -60,8 +60,11 @@ rytm måndag till söndag (avsnitt 7). Ungefär 3–4 timmar i veckan.
 | Snabbobservation, snödjup, SMHI:s vädervarningar, säsongen dag för dag, engelsk version, fältläge | Material till "funktionen på 15 sekunder". |
 
 **Färdigt material som inte är publicerat än:** F2, F3, A4, B1–B4, B5–B9,
-K1–K3, E1–E3, A6, D4, J1 och storybilderna S1–S5 (se
+K1–K3, E1–E3, A6, J1 och storybilderna S1–S5 (se
 `marknad/manus/KLIPP-T-O-M-JANUARI.md`). Allt det används i den här planen.
+D4 (spara kartan offline) är för likt A3 och sparas som reserv. A1, A2,
+F1 och A3 publiceras inte igen som nya inlägg, men delas i story när de
+passar (till exempel A3 före julresan).
 
 ---
 
@@ -159,7 +162,7 @@ når en ny person.
 | Vinterklar-karusellen: 8 saker före första turen (ny, se 10) | `Skicka till den du åker med` |
 | Prognos inför din tur | `Skicka till den du planerar fjällresan med` |
 | Hitta åk | `Skicka till den som alltid letar nya åk` |
-| D4 Spara kartan före julresan | `Skicka till den du åker till fjällen med i jul` |
+| Dela position före julresan (ny) | `Skicka till den du åker till fjällen med i jul` |
 | Lättsamma storybilder (ny, se 10) | `Tagga den som …` – se listan nedan |
 
 **Lättsamma tagga-texter** (en i taget, i story eller som enkel bild):
@@ -298,9 +301,9 @@ flödet.
 | Dag | Vad |
 | --- | --- |
 | **Tis 15 dec** | 07:30 A7 på Instagram och Facebook. Gänget delar som samarbetsinlägg eller story. Uppdatera evenemanget. Kl 12: 2–3 Facebook-grupper. Kl 19: vinnaren dras live. Svara på allt. Ditt privata inlägg på Facebook och Instagram (bilaga G). |
-| **Ons 16 dec** | Ruttkollen med dagens riktiga prognos. 2–3 grupper till. |
+| **Ons 16 dec** | Ruttkollen med dagens riktiga prognos (ny inspelning, inte A2 igen). 2–3 grupper till. |
 | **Tor 17 dec** | Snöläget inför helgen #1. Öppna kanalen för alla följare. 2–3 grupper till. |
-| **Fre 18 dec** | D4 Spara kartan före julresan. Sista grupperna. |
+| **Fre 18 dec** | Dela position före julresan (ny reel) + A3 i story som påminnelse. Sista grupperna. |
 | **Lör 19 dec** | Fältklipp. |
 | **Sön 20 dec** | En vecka med Snöläge, med riktiga siffror. Fråga Snöläge. |
 
@@ -385,7 +388,7 @@ Samma sak finns i kalenderfilen, med en påminnelse 15 minuter innan.
 | tis 15 dec 19:00 | **Vinnaren dras + svara på allt.** Dra vinnaren i story (slumpa bland numrerade kommentarer). Svara på kommentarer och DM. |
 | ons 16 dec 19:00 | **Ruttkollen med riktig prognos.** Reel som A2 men med dagens publicerade prognos. 2–3 grupper till. |
 | tor 17 dec 19:30 | **Snöläget inför helgen #1.** Efter kvällens prognos: karusell av 'Dela som bild' (en bild per område med publicerad nivå) + story + kanalen. 2–3 grupper till. |
-| fre 18 dec 19:00 | **Spara kartan före julresan.** Reel D4. 'Skicka till den du åker till fjällen med i jul.' |
+| fre 18 dec 19:00 | **Dela position före julresan.** Ny reel: kompisen ser var du är på fjället (+ 'Ersätter inte sändare/mottagare. Vid olycka: ring 112.'). Dela A3 i story som påminnelse: 'Inför julresan: spara kartan offline'. Sista grupperna. |
 | lör 19 dec 10:00 | **Fältklipp.** Du eller en ambassadör i fjället (aldrig nära lavinterräng för ett bättre klipp). |
 | sön 20 dec 18:00 | **En vecka med Snöläge.** Reel: du + riktiga siffror från /admin/oversikt. Fråga Snöläge-story. Veckokoll. |
 
@@ -408,7 +411,7 @@ Samma sak finns i kalenderfilen, med en påminnelse 15 minuter innan.
 
 | När | Tema |
 | --- | --- |
-| 21 dec – 6 jan | **Fjällresan:** spara kartan offline, turdag med kompisar, "Tagga dem du firar nyår i fjällen med". E3 Myt: låg farograd (29 dec). Säsongen hittills (2 jan). |
+| 21 dec – 6 jan | **Fjällresan:** A3 i story (spara kartan offline), turdag med kompisar, "Tagga dem du firar nyår i fjällen med". E3 Myt: låg farograd (29 dec). Säsongen hittills (2 jan). |
 | Januari | B2–B4 igen på tisdagarna, J1. Be om betyg i Play Butik (12 jan, om appen ligger där). Första "Möt gänget" med en guide. |
 | **Sportlovet v. 7–10** (15 feb – 12 mars 2027, olika veckor i olika län) | **Sportlovskollen** varje torsdag: Snöläget inför helgen med extra fokus på områdena där folk är. Boosta veckans bästa reel. "Skicka till den du åker med på sportlovet." |
 | **Påsk** (skärtorsdag 25 mars – annandag påsk 29 mars 2027) | "Packa för påskfjällen" (mån 22 mars) och Snöläget inför påsk (tor 25 mars). |
@@ -473,6 +476,7 @@ Skriv in siffrorna i en anteckning i telefonen:
 | Reel "Skarpare fjällkarta" | tis 10 nov | Claude |
 | Karusell "Vinterklar: 8 saker före första turen" | tor 12 nov | Claude |
 | Reel "Prognos inför din tur" | tis 24 nov | Claude |
+| Reel "Dela position" | fre 18 dec | Claude |
 | Nedräkningsbilder "6 veckor" … "2 veckor" | tisdagarna | Claude |
 | Lättsamma tagga-bilder (5 st) | november | Claude |
 | Tävlingsbild + omslag till Facebook-evenemanget | 30 nov resp. 5 nov | Claude |

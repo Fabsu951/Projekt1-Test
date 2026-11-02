@@ -1,6 +1,8 @@
 # Facit och manus: alla klipp till och med januari
 
-Skrivet 28 oktober 2026. Datumen följer `SCHEMA-SOCIALA-MEDIER.md`.
+Skrivet 28 oktober 2026. **Datumen gäller inte längre:** sedan 2 november
+styr `MARKNADSPLAN-INSTAGRAM-FACEBOOK.md` när varje klipp läggs upp. Manus
+och facit här gäller fortfarande.
 Materialet ligger i `marknad/film/` (`A1/`, `oktober/`, `vinter/`).
 
 **Gäller alla klipp:** lodrätt 9:16, kroken de första 2 sekunderna,
@@ -18,9 +20,9 @@ annat står. **Sista raden i varje inläggstext:** `Länk i bion.`
 
 | Datum | Klipp | Typ | Material | Du i bild? |
 | --- | --- | --- | --- | --- |
-| så snart som möjligt | A2 Så funkar ruttkollen | Klipp | `oktober/A2-oppning-brant-terrang.mp4` + `oktober/A2-ruttkollen.mp4` | Slut |
-| så snart som möjligt | F1 3 appar → 1 | Klipp | `oktober/F1-klart.mp4` (färdig) | Nej |
-| lör 31 okt | A3 Kartan utan täckning | Klipp | din egen inspelning i flygplansläge | Krok |
+| tor 29 okt ✅ publicerad | A2 Så funkar ruttkollen | Klipp | `oktober/A2-oppning-brant-terrang.mp4` + `oktober/A2-ruttkollen.mp4` | Slut |
+| fre 30 okt ✅ publicerad | F1 3 appar → 1 | Klipp | `oktober/F1-klart.mp4` (färdig) | Nej |
+| lör 31 okt ✅ publicerad | A3 Kartan utan täckning | Klipp | din egen inspelning i flygplansläge | Krok |
 | ons 4 nov | F2 Gissa lutningen | Klipp | `oktober/F2-fraga.png` | Nej |
 | tor 5 nov | F2 svaret | Story + fäst kommentar | `oktober/F2-svar.mp4`, `F2-teckenforklaring.png` | Nej |
 | lör 7 nov | A4 Snabbobservation | Klipp | `oktober/A4-snabbobservation.mp4` | Krok |

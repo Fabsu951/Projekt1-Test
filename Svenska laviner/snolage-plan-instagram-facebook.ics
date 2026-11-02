@@ -550,11 +550,13 @@ UID:snolage-igfb-39@snolage.se
 DTSTAMP:20261102T120000Z
 DTSTART:20261218T190000
 DTEND:20261218T192000
-SUMMARY:Snöläge: Spara kartan före julresan
-DESCRIPTION:Reel D4. 'Skicka till den du åker till fjällen med i jul.'
+SUMMARY:Snöläge: Dela position före julresan
+DESCRIPTION:Ny reel: kompisen ser var du är på fjället (+ 'Ersätter in
+ te sändare/mottagare. Vid olycka: ring 112.'). Dela A3 i story som påmin
+ nelse: 'Inför julresan: spara kartan offline'. Sista grupperna.
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Spara kartan före julresan
+DESCRIPTION:Dela position före julresan
 TRIGGER:-PT15M
 END:VALARM
 END:VEVENT
