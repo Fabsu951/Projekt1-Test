@@ -848,6 +848,18 @@ the start, exact map point.
   art. 9, age, DPAs, transfers) in `Svenska laviner/JURIDIK.md`. Name
   check 2026-10-07: no "Snöläge"/"Snolage" trademarks at PRV or TMview
   (only an unrelated vehicle patent) — free to use; registering is optional.
+- **Instagram + Facebook plan (2026-11-02, replaces SCHEMA-SOCIALA-MEDIER.md;
+  Fabian now uses only Instagram and Facebook):** `Svenska laviner/MARKNADSPLAN-INSTAGRAM-FACEBOOK.md`
+  (Word `marknad/word/14-Marknadsplan-Instagram-Facebook.docx`, calendar
+  `snolage-plan-instagram-facebook.ics`, both generated with the day table from a
+  scratchpad `plan/schema.py`, not in git). Countdown to Snöläge's own season
+  premiere **tis 15 dec 07:30** (weekly from 3 Nov, daily the last week),
+  send/tag posts, "Ni frågar" + "Ni frågade – nu finns det" (Julia → Norway map,
+  Jonas → Hitta åk; names only with permission), Snöläge-gänget (guides, area
+  ambassadors, pilots; collab posts; mark paid partnerships), Vinterklar giveaway
+  1–13 Dec (rules incl. the Meta disclaimer in appendix E), Snöläget inför helgen
+  every Thursday 19:30 from 17 Dec (Dela som bild, published levels only, Instagram
+  channel), weekly season rhythm to 30 Apr, sportlov v. 7–10 and påsk (28 Mar 2027).
 - **Marketing plan (2026-10-11):** `Svenska laviner/MARKNADSFORING.md`
   (Swedish): target groups, messaging rules (never "säker", no NV
   endorsement, no tracking pixels — the privacy policy promises no

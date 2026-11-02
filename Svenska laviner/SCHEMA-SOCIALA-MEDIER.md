@@ -1,5 +1,10 @@
 # Schema för sociala medier, säsongen 2026/27
 
+> **Ersatt 2 november 2026** av `MARKNADSPLAN-INSTAGRAM-FACEBOOK.md`
+> (bara Instagram och Facebook) och kalendern
+> `snolage-plan-instagram-facebook.ics`. Det här schemat sparas som
+> historik.
+
 Skrivet 11 oktober 2026. Hör ihop med `SOCIALA-MEDIER.md` (manus och
 regler) och `MARKNADSFORING.md` (hela planen).
 

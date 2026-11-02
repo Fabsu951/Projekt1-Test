@@ -1,0 +1,786 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Snolage//Plan Instagram Facebook//SV
+CALSCALE:GREGORIAN
+X-WR-CALNAME:Snöläge Instagram + Facebook
+BEGIN:VEVENT
+UID:snolage-igfb-0@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261102T190000
+DTEND:20261102T193000
+SUMMARY:Snöläge: Fixa profilen
+DESCRIPTION:Bio\, länk snolage.se/insta\, höjdpunkterna Börja här · F
+ unktioner · Ni frågar · Gänget. Fäst A1\, A2 och F1 överst. Svara Jo
+ nas (utan Hitta åk) och Julia.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Fixa profilen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-1@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261103T190000
+DTEND:20261103T193000
+SUMMARY:Snöläge: Nedräkningen startar: 6 veckor kvar
+DESCRIPTION:Reel 'Ni frågade: Norge finns nu på kartan' (Julia\, med lov
+  eller utan namn). Story med nedräkningsklistermärket 'Säsongspremiär 
+ i Snöläge' 15 dec 07:30 – spara den i höjdpunkten Börja här.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Nedräkningen startar: 6 veckor kvar
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-2@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261104T190000
+DTEND:20261104T191500
+SUMMARY:Snöläge: F2 Gissa lutningen
+DESCRIPTION:Reel F2-fraga. Lägg samma bild i story med frågesport-kliste
+ rmärket A/B/C/D.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:F2 Gissa lutningen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-3@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261105T190000
+DTEND:20261105T193000
+SUMMARY:Snöläge: F2-svaret + Facebook-evenemang
+DESCRIPTION:Story F2-svar + fäst kommentaren. Facebook: skapa evenemanget
+  'Snöläges säsongspremiär' (tis 15 dec) från sidan och bjud in dina v
+ änner att gilla sidan.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:F2-svaret + Facebook-evenemang
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-4@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261106T190000
+DTEND:20261106T191000
+SUMMARY:Snöläge: Mejla Jonas: nu finns den
+DESCRIPTION:Berätta att Hitta åk finns och fråga om du får nämna hono
+ m vid förnamn i ett klipp.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Mejla Jonas: nu finns den
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-5@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261107T100000
+DTEND:20261107T102000
+SUMMARY:Snöläge: Reel: Hitta åk
+DESCRIPTION:'En skidåkare mejlade en idé – nu finns den.' Lutning + v
+ äderstreck. Uppmana: skicka till den du letar åk med.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Reel: Hitta åk
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-6@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261108T190000
+DTEND:20261108T193000
+SUMMARY:Snöläge: Fråga Snöläge + veckokoll
+DESCRIPTION:Story med frågeklistermärket 'Fråga Snöläge vad du vill'.
+  Veckokoll 15 min: räckvidd\, delningar\, sparningar\, nya följare\, bes
+ ök från Instagram/Facebook i Cloudflare.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Fråga Snöläge + veckokoll
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-7@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261109T190000
+DTEND:20261109T194500
+SUMMARY:Snöläge: Bjud in gänget
+DESCRIPTION:Ambassadörsinbjudan (mall C) till Magnus Wembrand och 5 från
+  listan. Fråga administratörerna i Facebook-grupperna om ett presentatio
+ nsinlägg i december (mall J).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Bjud in gänget
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-8@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261110T190000
+DTEND:20261110T192000
+SUMMARY:Snöläge: 5 veckor kvar: skarpare fjällkarta
+DESCRIPTION:Reel: kartan i zoom 16 + lutning från 1 m höjddata\, Sverige
+  och Norge. Nedräkningsstory.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:5 veckor kvar: skarpare fjällkarta
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-9@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261112T190000
+DTEND:20261112T192000
+SUMMARY:Snöläge: Karusell: Vinterklar
+DESCRIPTION:8 saker att fixa före första turen. Sista bilden: 'Skicka ti
+ ll den du åker med'.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Karusell: Vinterklar
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-10@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261114T100000
+DTEND:20261114T102000
+SUMMARY:Snöläge: A4 Snabbobservation
+DESCRIPTION:Reel A4. Story: 'Har du lagt in en observation någon gång?' 
+ (omröstning).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:A4 Snabbobservation
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-11@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261115T190000
+DTEND:20261115T193000
+SUMMARY:Snöläge: Fråga Snöläge + veckokoll + schemalägg
+DESCRIPTION:Svara på veckans frågor i story. Schemalägg nästa veckas i
+ nlägg i Meta Business Suite.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Fråga Snöläge + veckokoll + schemalägg
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-12@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261117T190000
+DTEND:20261117T192000
+SUMMARY:Snöläge: 4 veckor kvar: turdag med kompisar
+DESCRIPTION:Reel J1. Text i bild och inlägg: 'Tagga den du ska åka med i
+  vinter 👇'.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:4 veckor kvar: turdag med kompisar
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-13@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261119T190000
+DTEND:20261119T192000
+SUMMARY:Snöläge: K1 De sex lavinproblemen
+DESCRIPTION:Karusell. 'Spara till vintern.'
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:K1 De sex lavinproblemen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-14@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261121T100000
+DTEND:20261121T102000
+SUMMARY:Snöläge: F3 Min koll före turen
+DESCRIPTION:Reel F3.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:F3 Min koll före turen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-15@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261122T190000
+DTEND:20261122T193000
+SUMMARY:Snöläge: Ni frågar #1 + veckokoll
+DESCRIPTION:Reel där du svarar på en riktig fråga från frågelådan (l
+ äs upp den\, visa svaret i appen).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Ni frågar #1 + veckokoll
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-16@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261124T190000
+DTEND:20261124T192000
+SUMMARY:Snöläge: 3 veckor kvar: prognos inför din tur
+DESCRIPTION:Reel: planera dagen → notis när prognosen kommer. 'Skicka t
+ ill den du planerar fjällresan med.'
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:3 veckor kvar: prognos inför din tur
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-17@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261126T190000
+DTEND:20261126T192000
+SUMMARY:Snöläge: K2 Varningstecken
+DESCRIPTION:Karusell.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:K2 Varningstecken
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-18@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261128T100000
+DTEND:20261128T102000
+SUMMARY:Snöläge: B1 Lavinskalan
+DESCRIPTION:Reel B1.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:B1 Lavinskalan
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-19@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261129T190000
+DTEND:20261129T193000
+SUMMARY:Snöläge: Lägg till din: bästa toppturbilden
+DESCRIPTION:Story med 'Lägg till din'-klistermärket: 'Din bästa topptur
+ bild ❄️'. Dela de bästa svaren vidare (de syns för deras följare). 
+ Veckokoll.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Lägg till din: bästa toppturbilden
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-20@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261130T190000
+DTEND:20261130T193000
+SUMMARY:Snöläge: Förbered tävlingen
+DESCRIPTION:Pris klart\, bild klar\, regler (mall E) inklistrade i ett utk
+ ast. Kanalen 'Snöläget' förberedd.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Förbered tävlingen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-21@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261201T190000
+DTEND:20261201T193000
+SUMMARY:Snöläge: 2 veckor kvar + Vinterklar-tävlingen
+DESCRIPTION:Inlägg + reel: tagga turkompisen\, dela i story för bonuslot
+ t. Slutar sön 13 dec 20:00. Öppna Instagram-kanalen 'Snöläget' och bju
+ d in följarna.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:2 veckor kvar + Vinterklar-tävlingen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-22@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261202T190000
+DTEND:20261202T191000
+SUMMARY:Snöläge: S1 Snart
+DESCRIPTION:Story S1 + påminn om tävlingen.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:S1 Snart
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-23@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261203T190000
+DTEND:20261203T192000
+SUMMARY:Snöläge: K3 Därför är 30 grader viktigt
+DESCRIPTION:Karusell.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:K3 Därför är 30 grader viktigt
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-24@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261205T100000
+DTEND:20261205T102000
+SUMMARY:Snöläge: E1 Myt: skogen + 10 dagar
+DESCRIPTION:Reel E1. Story S2 '10 dagar kvar'.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:E1 Myt: skogen + 10 dagar
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-25@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261206T190000
+DTEND:20261206T193000
+SUMMARY:Snöläge: Möt gänget #1
+DESCRIPTION:Samarbetsinlägg (collab) med en ambassadör: vem\, var hen å
+ ker\, bästa tipset. Påminn om tävlingen. Veckokoll.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Möt gänget #1
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-26@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261207T190000
+DTEND:20261207T191000
+SUMMARY:Snöläge: 8 dagar kvar
+DESCRIPTION:Story-omröstning: 'Var åker du först i vinter?' (norr/söde
+ r).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:8 dagar kvar
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-27@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261208T190000
+DTEND:20261208T192000
+SUMMARY:Snöläge: B9 Lutning 30 grader + 7 dagar
+DESCRIPTION:Reel B9. Story S3 '7 dagar kvar'.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:B9 Lutning 30 grader + 7 dagar
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-28@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261209T190000
+DTEND:20261209T191000
+SUMMARY:Snöläge: 6 dagar kvar
+DESCRIPTION:Story-frågesport om lavinskalan.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:6 dagar kvar
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-29@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261210T190000
+DTEND:20261210T193000
+SUMMARY:Snöläge: A6 Nedräkning + 5 dagar
+DESCRIPTION:Reel A6 (du + välkomstguiden). Inlägg på din privata Facebo
+ ok med länk till evenemanget (mall G).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:A6 Nedräkning + 5 dagar
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-30@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261211T190000
+DTEND:20261211T191000
+SUMMARY:Snöläge: 4 dagar kvar
+DESCRIPTION:Story: 'Ställ din fråga inför premiären'.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:4 dagar kvar
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-31@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261212T100000
+DTEND:20261212T102000
+SUMMARY:Snöläge: B8 Varningstecken + 3 dagar
+DESCRIPTION:Reel B8. Story S4 '3 dagar kvar'.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:B8 Varningstecken + 3 dagar
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-32@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261213T170000
+DTEND:20261213T183000
+SUMMARY:Snöläge: Filma A7 + tävlingen stänger
+DESCRIPTION:Filma lanseringsklippet. Kolla Naturvårdsverkets startdatum. 
+ Tävlingen stänger 20:00. Story '2 dagar kvar'.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Filma A7 + tävlingen stänger
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-33@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261214T190000
+DTEND:20261214T193000
+SUMMARY:Snöläge: I morgon
+DESCRIPTION:Story S5. Schemalägg A7 till 07:30. Skicka 'i morgon'-meddela
+ nde till gänget.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:I morgon
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-34@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261215T073000
+DTEND:20261215T080000
+SUMMARY:Snöläge: PREMIÄR: A7
+DESCRIPTION:A7 på Instagram (delas till Facebook). Gänget delar med sama
+ rbetsinlägg/story. Uppdatera Facebook-evenemanget.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:PREMIÄR: A7
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-35@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261215T120000
+DTEND:20261215T123000
+SUMMARY:Snöläge: Facebook-grupper (2–3)
+DESCRIPTION:Presentationsinlägg (mall J) bara där administratören sagt 
+ ja.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Facebook-grupper (2–3)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-36@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261215T190000
+DTEND:20261215T193000
+SUMMARY:Snöläge: Vinnaren dras + svara på allt
+DESCRIPTION:Dra vinnaren i story (slumpa bland numrerade kommentarer). Sva
+ ra på kommentarer och DM.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Vinnaren dras + svara på allt
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-37@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261216T190000
+DTEND:20261216T193000
+SUMMARY:Snöläge: Ruttkollen med riktig prognos
+DESCRIPTION:Reel som A2 men med dagens publicerade prognos. 2–3 grupper 
+ till.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Ruttkollen med riktig prognos
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-38@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261217T193000
+DTEND:20261217T201000
+SUMMARY:Snöläge: Snöläget inför helgen #1
+DESCRIPTION:Efter kvällens prognos: karusell av 'Dela som bild' (en bild 
+ per område med publicerad nivå) + story + kanalen. 2–3 grupper till.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Snöläget inför helgen #1
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-39@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261218T190000
+DTEND:20261218T192000
+SUMMARY:Snöläge: Spara kartan före julresan
+DESCRIPTION:Reel D4. 'Skicka till den du åker till fjällen med i jul.'
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Spara kartan före julresan
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-40@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261219T100000
+DTEND:20261219T102000
+SUMMARY:Snöläge: Fältklipp
+DESCRIPTION:Du eller en ambassadör i fjället (aldrig nära lavinterräng
+  för ett bättre klipp).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Fältklipp
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-41@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261220T180000
+DTEND:20261220T183000
+SUMMARY:Snöläge: En vecka med Snöläge
+DESCRIPTION:Reel: du + riktiga siffror från /admin/oversikt. Fråga Snöl
+ äge-story. Veckokoll.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:En vecka med Snöläge
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-42@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261221T190000
+DTEND:20261221T191500
+RRULE:FREQ=WEEKLY;UNTIL=20270430T235959
+SUMMARY:Snöläge: Veckans observation
+DESCRIPTION:Skärmbild av en observation (med lov)\, i story eller inlägg
+ .
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Veckans observation
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-43@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261222T190000
+DTEND:20261222T192000
+RRULE:FREQ=WEEKLY;UNTIL=20270430T235959
+SUMMARY:Snöläge: Tisdag: lär dig / ni frågar
+DESCRIPTION:Ett utbildningsklipp\, en myt eller ett svar på en fråga (se
+  månadens teman i planen).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tisdag: lär dig / ni frågar
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-44@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261224T193000
+DTEND:20261224T201000
+RRULE:FREQ=WEEKLY;UNTIL=20270430T235959
+SUMMARY:Snöläge: Snöläget inför helgen
+DESCRIPTION:Torsdag efter kvällens prognos: karusell 'Dela som bild' + st
+ ory + kanalen. Bara publicerade farograder.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Snöläget inför helgen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-45@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261226T100000
+DTEND:20261226T102000
+RRULE:FREQ=WEEKLY;UNTIL=20270430T235959
+SUMMARY:Snöläge: Lördag: fältklipp / gänget / funktion
+DESCRIPTION:Ambassadörens klipp (repost eller collab)\, ett fältklipp el
+ ler en funktion på 15 sekunder.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Lördag: fältklipp / gänget / funktion
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-46@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261227T190000
+DTEND:20261227T193000
+RRULE:FREQ=WEEKLY;UNTIL=20270430T235959
+SUMMARY:Snöläge: Söndag: Fråga Snöläge + veckokoll
+DESCRIPTION:Frågeklistermärke\, svara på förra veckans frågor\, vecko
+ koll\, schemalägg veckan.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Söndag: Fråga Snöläge + veckokoll
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-47@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20261229T190000
+DTEND:20261229T192000
+SUMMARY:Snöläge: E3 Myt: låg farograd
+DESCRIPTION:Reel E3 (ersätter tisdagens inlägg).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:E3 Myt: låg farograd
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-48@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20270102T100000
+DTEND:20270102T103000
+SUMMARY:Snöläge: Säsongen hittills
+DESCRIPTION:Du + skärmbilder: farograder\, observationer\, nya funktioner
+ .
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Säsongen hittills
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-49@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20270112T190000
+DTEND:20270112T191500
+SUMMARY:Snöläge: Be om betyg
+DESCRIPTION:Story: be om betyg i Play Butik (bara om appen ligger där).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Be om betyg
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-50@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20270201T190000
+DTEND:20270201T194500
+SUMMARY:Snöläge: Sportlovet startar (v. 7–10)
+DESCRIPTION:Plocka årets bästa reel att boosta (300–500 kr). Planera '
+ Sportlovskollen' varje torsdag v. 6–10. Påminn om 'Spara kartan offline
+ '.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Sportlovet startar (v. 7–10)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-51@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20270316T190000
+DTEND:20270316T192000
+SUMMARY:Snöläge: B5 Våta laviner
+DESCRIPTION:Reel/bild B5 (ersätter tisdagens inlägg).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:B5 Våta laviner
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-52@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20270322T190000
+DTEND:20270322T193000
+SUMMARY:Snöläge: Påskfjällen
+DESCRIPTION:Påskafton 27 mars. Reel 'Packa för påskfjällen' + Snöläg
+ et inför påsk tor 25 mars.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Påskfjällen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-53@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20270330T190000
+DTEND:20270330T192000
+SUMMARY:Snöläge: B6 Glidlaviner
+DESCRIPTION:Reel/bild B6.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:B6 Glidlaviner
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-54@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20270413T190000
+DTEND:20270413T192000
+SUMMARY:Snöläge: B7 Hängdrivor
+DESCRIPTION:Reel/bild B7.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:B7 Hängdrivor
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-55@snolage.se
+DTSTAMP:20261102T120000Z
+DTSTART:20270502T190000
+DTEND:20270502T194500
+SUMMARY:Snöläge: Säsongen i siffror + tack
+DESCRIPTION:Reel med säsongens siffror\, tacka gänget och alla som skriv
+ it. Fråga vad de vill ha till nästa säsong.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Säsongen i siffror + tack
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+END:VCALENDAR
