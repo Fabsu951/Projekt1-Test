@@ -17,6 +17,8 @@ const ONLY = process.env.ONLY ? process.env.ONLY.split(",") : null;
 const BORDER = [68.428, 18.128];
 const NORWAY = /cache\.kartverket\.no|gis3\.nve\.no/;
 const SLOPE_LABEL = /^Lutning \(Naturvårdsverket/;
+// A transparent 1×1 PNG, so blocked tiles show nothing instead of a broken-image icon.
+const EMPTY_PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==", "base64");
 
 async function mapPage(fullscreen = false) {
   const page = await rec.open("/karta", { theme: "dark", forecasts: offSeasonForecasts });
@@ -64,7 +66,7 @@ const CLIPS = {
     let before, now;
     {
       const page = await mapPage(true);
-      await page.route(NORWAY, (r) => r.abort());
+      await page.route(NORWAY, (r) => r.fulfill({ status: 200, contentType: "image/png", body: EMPTY_PNG }));
       await jump(page, BORDER, 12);
       await tilesLoaded(page);
       await wait(page, 1500);
@@ -96,7 +98,7 @@ const CLIPS = {
       await cleanMap(page);
       const slope = await rec.shot(page, "N1-3-lutning");
       rec.fade("N1-3-karta-lutning", topo13, slope, 3);
-      await rec.zoomFrames(page, "N1-4-zoom-gransen", [68.44, 18.105], 14.3, 4);
+      await rec.zoomFrames(page, "N1-4-zoom-gransen", [68.427, 18.108], 14.3, 4);
       await page.context().close();
     }
 
