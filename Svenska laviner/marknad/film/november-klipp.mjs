@@ -18,9 +18,13 @@ const BORDER = [68.428, 18.128];
 const NORWAY = /cache\.kartverket\.no|gis3\.nve\.no/;
 const SLOPE_LABEL = /^Lutning \(Naturvårdsverket/;
 
-async function mapPage() {
+async function mapPage(fullscreen = false) {
   const page = await rec.open("/karta", { theme: "dark", forecasts: offSeasonForecasts });
   await wait(page, 2500); // the map page may still move itself once its data has loaded
+  if (fullscreen) {
+    await page.getByRole("button", { name: /Helskärm/ }).first().click();
+    await wait(page, 800);
+  }
   return page;
 }
 async function slopeOn(page) {
@@ -59,7 +63,7 @@ const CLIPS = {
     // Before and now: the same view at the border, first without Norway's maps.
     let before, now;
     {
-      const page = await mapPage();
+      const page = await mapPage(true);
       await page.route(NORWAY, (r) => r.abort());
       await jump(page, BORDER, 12);
       await tilesLoaded(page);
@@ -69,7 +73,7 @@ const CLIPS = {
       await page.context().close();
     }
     {
-      const page = await mapPage();
+      const page = await mapPage(true);
       await jump(page, BORDER, 12);
       await tilesLoaded(page);
       await wait(page, 2500);
@@ -79,21 +83,27 @@ const CLIPS = {
       await undo();
 
       // The official slope map, Naturvårdsverket's in Sweden and NVE's in Norway.
-      await slopeOn(page);
-      await jump(page, BORDER, 12);
+      await jump(page, BORDER, 13);
       await tilesLoaded(page);
-      await wait(page, 3000);
+      await wait(page, 2500);
+      const undo13 = await cleanMap(page);
+      const topo13 = await rec.shot(page, ".N1-topo13");
+      await undo13();
+      await slopeOn(page);
+      await jump(page, BORDER, 13);
+      await tilesLoaded(page);
+      await wait(page, 3500);
       await cleanMap(page);
       const slope = await rec.shot(page, "N1-3-lutning");
-      rec.fade("N1-3-karta-lutning", now, slope, 3);
-      await rec.zoomFrames(page, "N1-4-zoom-gransen", [68.435, 18.11], 13.5, 4);
+      rec.fade("N1-3-karta-lutning", topo13, slope, 3);
+      await rec.zoomFrames(page, "N1-4-zoom-gransen", [68.44, 18.105], 14.3, 4);
       await page.context().close();
     }
 
     // The same in the app: Kartlager → Lutning, at the border.
     {
       const page = await mapPage();
-      await jump(page, BORDER, 11);
+      await jump(page, BORDER, 12.5);
       await tilesLoaded(page);
       await rec.record(page, "N1-5-i-appen", async () => {
         await wait(page, 1200);
