@@ -5,9 +5,14 @@
 // in the app's layer panel. Run by .github/workflows/november-klipp.yml; locally
 // (map tiles stubbed), with vite preview running in "Svenska laviner/app":
 //   cp klipp-lib.mjs november-klipp.mjs "../../app/scripts/" && STUB_TILES=1 node "../../app/scripts/november-klipp.mjs" out/
+// H: covers and story pictures for the Instagram highlights (Börja här,
+// Funktioner, Ni frågar, Gänget, Snöläget), with stills from earlier clips in
+// ../kallor/ and fresh map shots.
 // ONLY=N1 records just those.
+import fs from "node:fs";
+import path from "node:path";
 import {
-  recorder, wait, tap, jump, tilesLoaded, cleanMap, SITE, W, H, offSeasonForecasts,
+  recorder, wait, tap, jump, tilesLoaded, cleanMap, SITE, W, H, offSeasonForecasts, exampleForecasts,
 } from "./klipp-lib.mjs";
 
 const rec = recorder(process.argv[2] ?? "klipp");
@@ -36,7 +41,102 @@ async function slopeOn(page) {
   await page.getByRole("button", { name: /^Kartlager/ }).click();
 }
 
+
+// --- Highlights ------------------------------------------------------------------
+const ICONS = {
+  start: `<svg viewBox="0 0 32 32"><path d="M4 25 L13.2 8.5 L18 16.6 L20.6 12.6 L28 25 Z" fill="#fff"/><path d="M6.6 20.6 L11.4 18.4 L13.4 19.9 L17.6 17.4 L19.6 18.9 L25.2 16.8" fill="none" stroke="#1c5d99" stroke-width="1.7"/></svg>`,
+  map: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>`,
+  ask: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4.5h16v11.5H10l-6 4.5z"/><path d="M10 8.6a2.1 2.1 0 1 1 3 1.9c-.7.4-1 .9-1 1.7"/><circle cx="12" cy="14" r=".4" fill="#fff"/></svg>`,
+  crew: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.4 2.7-6 6-6s6 2.6 6 6"/><path d="M15.5 4.9a3.2 3.2 0 0 1 0 6.2"/><path d="M17.5 14.3c2.1.6 3.5 2.8 3.5 5.7"/></svg>`,
+  snow: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M12 2.5v19M3.8 7.25l16.4 9.5M3.8 16.75l16.4-9.5"/><path d="M9.6 4.2 12 6.3l2.4-2.1M9.6 19.8 12 17.7l2.4 2.1M3.9 10.4l3.1.6-1-3M20.1 13.6l-3.1-.6 1 3M3.9 13.6l3.1-.6-1 3M20.1 10.4l-3.1.6 1-3"/></svg>`,
+};
+const COVERS = [["borja-har", "start"], ["funktioner", "map"], ["ni-fragar", "ask"], ["ganget", "crew"], ["snolaget", "snow"]];
+// [file, kicker, title, text, picture (file) or icon name, note]
+const STORIES = [
+  ["borja-har-1", "Börja här", "Det här är Snöläge", "Lavinprognos, väder och karta med lutning för svenska fjällen – på ett ställe.", "start"],
+  ["borja-har-2", "Dagens läge", "Prognosen för dina områden", "Farograd och lavinproblem från Naturvårdsverket, vind och väder från SMHI.", "start-shot"],
+  ["borja-har-3", "Kartan", "Lutning i Sverige och Norge", "Lantmäteriets och Kartverkets kartor, med Naturvårdsverkets och NVE:s lutningskarta.", "N1-3-lutning"],
+  ["borja-har-4", "Gratis", "Gratis och utan reklam", "Öppna snolage.se i webbläsaren. Android-appen testas just nu.", "start", "Ersätter inte lavinkurs eller egen bedömning."],
+  ["borja-har-5", "Nedräkning", "Säsongspremiär 15 december", "Tryck på påminnelsen så får du en notis när det är dags.", "countdown"],
+  ["funktioner-1", "Funktion", "Rita rutten", "Längd, höjdmeter, tid – och var rutten går över brant mark där dagens lavinproblem finns.", "A2-rutt"],
+  ["funktioner-2", "Funktion", "Kartan utan täckning", "Spara kartan innan turen, så funkar den i flygplansläge.", "D4-offline"],
+  ["funktioner-3", "Funktion", "Norge på kartan", "Kartverkets karta och NVE:s lutningskarta – turen kan gå över gränsen.", "N1-2-nu"],
+  ["funktioner-4", "Funktion", "Hitta åk", "Välj lutning och väderstreck, så färgas terrängen som matchar.", "hitta-ak", "Visar terrängen, inte lavinfaran."],
+  ["funktioner-5", "Funktion", "Planera turdagen", "Få en notis när prognosen för din dag kommer – och bjud med kompisarna.", "J1-turdag"],
+  ["funktioner-6", "Funktion", "Snabbobservation", "Sprickor, wumpf eller snödrev? Tryck på det du ser – klart på tio sekunder.", "A4-snabbobs"],
+  ["ni-fragar-1", "Ni frågar", "Snöläge svarar", "Ställ din fråga i söndagens story. Svaren hamnar här.", "ask"],
+  ["ni-fragar-3", "Svar", "Nu finns Norge på kartan", "Och lutningskartan fortsätter över gränsen.", "N1-3-lutning"],
+  ["ganget-1", "Snöläge-gänget", "Åkare och guider som formar appen", "Snart presenterar vi dem här.", "crew"],
+  ["ganget-2", "Snöläge-gänget", "Vill du vara med?", "Testa nya funktioner före alla andra och var med och forma Snöläge. Skicka ett DM!", "crew"],
+  ["snolaget-1", "Snöläget", "Snöläget inför helgen", "Varje torsdag kväll från 17 december – bara publicerade prognoser från Naturvårdsverket.", "snow"],
+];
+const HL_CSS = `
+  html,body{margin:0;background:var(--bg)}
+  .c{box-sizing:border-box;width:${W}px;height:${H}px;padding:112px 26px 156px;display:flex;flex-direction:column;
+    background:radial-gradient(120% 70% at 100% 0%, rgba(142,197,240,.16), transparent 60%), var(--bg);color:var(--text);font-family:var(--font-body)}
+  .k{font:600 11px/1.2 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+  h1{font-family:var(--font-display);font-size:33px;line-height:1.06;margin:8px 0 10px;letter-spacing:-.01em}
+  p{font-size:16px;line-height:1.45;color:var(--text-soft);margin:0}
+  .pic{flex:1;min-height:0;margin-top:16px;border-radius:14px;overflow:hidden;border:1px solid var(--border)}
+  .pic img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+  .ico{flex:1;display:grid;place-items:center}
+  .ico div{width:150px;height:150px;border-radius:36px;background:#1c5d99;display:grid;place-items:center}
+  .ico svg{width:96px;height:96px}
+  .cd{flex:1;margin-top:16px;border:2px dashed var(--border);border-radius:14px}
+  .note{margin-top:10px;font-size:12px;color:var(--text-muted)}
+  .url{align-self:flex-start;margin-top:12px;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:8px 16px;font:700 16px/1 var(--font-body)}
+`;
+async function highlights() {
+  // Fresh shots: the start page with sample forecasts, and Hitta åk at Kebnekaise.
+  const shots = {};
+  {
+    const page = await rec.open("/", { theme: "dark", label: "Exempelprognos" });
+    await wait(page, 2500);
+    shots["start-shot"] = await rec.shot(page, ".H-start");
+    await page.context().close();
+  }
+  {
+    const page = await mapPage(true);
+    await page.getByRole("button", { name: /^Kartlager/ }).click();
+    await wait(page, 400);
+    await page.getByLabel(/^Hitta åk/).check();
+    await page.getByRole("button", { name: /^Kartlager/ }).click();
+    await jump(page, [67.905, 18.56], 13);
+    await tilesLoaded(page);
+    await wait(page, 4000);
+    await cleanMap(page);
+    shots["hitta-ak"] = await rec.shot(page, "H-hitta-ak");
+    await page.context().close();
+  }
+  const src = (name) => shots[name] ?? [path.join(rec.OUT, `${name}.png`), path.join(rec.OUT, "..", "kallor", `${name}.png`)].find((f) => fs.existsSync(f));
+  const dataUrl = (file) => `data:image/png;base64,${fs.readFileSync(file).toString("base64")}`;
+
+  const page = await rec.open("/om-appen", { theme: "dark", forecasts: offSeasonForecasts });
+  const links = await page.evaluate(() => [...document.querySelectorAll('link[rel="stylesheet"], style')].map((n) => n.outerHTML).join(""));
+  const render = async (name, body, css = HL_CSS) => {
+    await page.setContent(`<!doctype html><html data-theme="dark"><head><base href="${SITE}/"><meta charset="utf-8">${links}<style>${css}</style></head><body>${body}</body></html>`, { waitUntil: "networkidle" });
+    await page.evaluate(() => document.fonts.ready);
+    await wait(page, 200);
+    await rec.shot(page, name);
+  };
+  for (const [name, icon] of COVERS) {
+    await render(`H-omslag-${name}`, `<div style="width:${W}px;height:${H}px;background:#1c5d99;display:grid;place-items:center">` +
+      `<div style="width:150px;height:150px">${ICONS[icon].replace("<svg ", '<svg width="150" height="150" ')}</div></div>`, "html,body{margin:0}");
+  }
+  for (const [name, kicker, title, text, visual, note] of STORIES) {
+    const file = ICONS[visual] || visual === "countdown" ? null : src(visual);
+    if (!ICONS[visual] && visual !== "countdown" && !file) { console.log("missing picture", visual); continue; }
+    const pic = visual === "countdown" ? `<div class="cd"></div>`
+      : ICONS[visual] ? `<div class="ico"><div>${ICONS[visual]}</div></div>`
+      : `<div class="pic"><img src="${dataUrl(file)}"></div>`;
+    const url = name === "borja-har-4" ? `<div class="url">snolage.se</div>` : "";
+    await render(`H-${name}`, `<div class="c"><div class="k">${kicker}</div><h1>${title}</h1><p>${text}</p>${url}${pic}${note ? `<div class="note">${note}</div>` : ""}</div>`);
+  }
+  await page.context().close();
+}
+
 const CLIPS = {
+  H: highlights,
   N1: async () => {
     // The hook: the question as a message bubble, without name or picture.
     {
