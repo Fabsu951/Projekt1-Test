@@ -103,10 +103,14 @@ Det här är vad algoritmerna belönar, och hur planen använder det.
 | **Facebook-grupper** | Där finns de som redan åker. Var med och hjälp till hela november, och presentera Snöläge först när administratören sagt ja. |
 | **Din privata Facebook och Instagram** | Dina vänner ger första skjutsen. Använd dem sparsamt: högst en gång i veckan, och mest vid de stora tillfällena (avsnitt 8). |
 
-**Facebook-sidan:** dela alla reels och karuseller från Instagram till
-sidan (reglaget "Dela till Facebook"). Kolla varje gång att det hamnade på
-Snöläges sida och inte på ditt privata konto. Det enda du gör för hand på
-Facebook är evenemanget, grupperna och dina privata inlägg.
+**Facebook-sidan:** publicera reels, storys och karuseller via **Meta
+Business Suite** (Snöläge → Reel / Händelse / Skapa inlägg) med både
+Instagram och Facebook påslagna. Instagram-appens "Dela till Facebook" går
+bara till din privata profil (kollat 3 nov), så den ska vara avstängd
+(Meta-konto → Gemensamma profilupplevelser → Dina händelser, reels och
+inlägg). Storys med klistermärken (nedräkning, frågor, omröstning) läggs upp
+direkt i Instagram, bara där. För hand på Facebook: evenemanget, grupperna
+och dina privata inlägg.
 
 **Profilen (mån 2 nov):**
 - **Bio:** `Lavinprognos, väder och karta med lutning för svenska fjällen. Gratis, utan reklam. 🏔️`
