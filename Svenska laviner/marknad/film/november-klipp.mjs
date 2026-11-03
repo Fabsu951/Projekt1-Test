@@ -64,7 +64,7 @@ const STORIES = [
   ["funktioner-4", "Funktion", "Hitta åk", "Välj lutning och väderstreck, så färgas terrängen som matchar.", "hitta-ak", "Visar terrängen, inte lavinfaran."],
   ["funktioner-5", "Funktion", "Planera turdagen", "Få en notis när prognosen för din dag kommer – och bjud med kompisarna.", "J1-turdag"],
   ["funktioner-6", "Funktion", "Snabbobservation", "Sprickor, wumpf eller snödrev? Tryck på det du ser – klart på tio sekunder.", "A4-snabbobs"],
-  ["ni-fragar-1", "Ni frågar", "Snöläge svarar", "Ställ din fråga i söndagens story. Svaren hamnar här.", "ask"],
+  ["ni-fragar-1", "Ni frågar", "Snöläge svarar", "Ställ frågor och ge feedback. Alla har chans att påverka!", "ask"],
   ["ni-fragar-3", "Svar", "Nu finns Norge på kartan", "Och lutningskartan fortsätter över gränsen.", "N1-3-lutning"],
   ["ganget-1", "Snöläge-gänget", "Åkare och guider som formar appen", "Snart presenterar vi dem här.", "crew"],
   ["ganget-2", "Snöläge-gänget", "Vill du vara med?", "Testa nya funktioner före alla andra och var med och forma Snöläge. Skicka ett DM!", "crew"],
