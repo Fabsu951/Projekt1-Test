@@ -18,7 +18,7 @@ const BORDER = [68.428, 18.128];
 const NORWAY = /cache\.kartverket\.no|gis3\.nve\.no/;
 const SLOPE_LABEL = /^Lutning \(Naturvårdsverket/;
 // A transparent 1×1 PNG, so blocked tiles show nothing instead of a broken-image icon.
-const EMPTY_PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==", "base64");
+const EMPTY_PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAXpeqz8AAAAASUVORK5CYII=", "base64");
 
 async function mapPage(fullscreen = false) {
   const page = await rec.open("/karta", { theme: "dark", forecasts: offSeasonForecasts });
