@@ -56,7 +56,7 @@ const STORIES = [
   ["borja-har-1", "Börja här", "Det här är Snöläge", "Lavinprognos, väder och karta med lutning för svenska fjällen – på ett ställe.", "start"],
   ["borja-har-2", "Dagens läge", "Prognosen för dina områden", "Farograd och lavinproblem från Naturvårdsverket, vind och väder från SMHI.", "start-shot"],
   ["borja-har-3", "Kartan", "Lutning i Sverige och Norge", "Lantmäteriets och Kartverkets kartor, med Naturvårdsverkets och NVE:s lutningskarta.", "N1-3-lutning"],
-  ["borja-har-4", "Gratis", "Gratis och utan reklam", "Öppna snolage.se i webbläsaren. Android-appen testas just nu.", "start", "Ersätter inte lavinkurs eller egen bedömning."],
+  ["borja-har-4", "Gratis", "Gratis och utan reklam", "Öppna snolage.se i webbläsaren. Appen för Android och iPhone kommer snart.", "start", "Ersätter inte lavinkurs eller egen bedömning."],
   ["borja-har-5", "Nedräkning", "Säsongspremiär 15 december", "Tryck på påminnelsen så får du en notis när det är dags.", "countdown"],
   ["funktioner-1", "Funktion", "Rita rutten", "Längd, höjdmeter, tid – och var rutten går över brant mark där dagens lavinproblem finns.", "A2-rutt"],
   ["funktioner-2", "Funktion", "Kartan utan täckning", "Spara kartan innan turen, så funkar den i flygplansläge.", "D4-offline"],
