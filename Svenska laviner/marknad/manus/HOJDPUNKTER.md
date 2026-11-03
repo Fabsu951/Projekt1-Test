@@ -26,6 +26,11 @@ Tips: dina följare ser storyn i 24 timmar. Vill du inte att det blir en
 lång rad storys samma dag kan du lägga upp dem med **Nära vänner** (bara
 du på listan) – de kan ändå sparas i höjdpunkter och syns där för alla.
 
+**Reels i en höjdpunkt:** en höjdpunkt kan bara innehålla storys. Öppna
+reelen → pappersflygplanet → **Lägg till i din story**, skriv till exempel
+`Ni frågade – här är svaret 👇`, publicera och spara storyn i höjdpunkten.
+Den som tittar trycker på bilden och kommer till hela reelen.
+
 ## Höjdpunkterna
 
 | Höjdpunkt (namn) | Omslag | Storybilder | När |
@@ -33,7 +38,7 @@ du på listan) – de kan ändå sparas i höjdpunkter och syns där för alla.
 | **Börja här** | `H-omslag-borja-har.png` | `H-borja-har-1` … `5` | Nu. På bild 5: lägg **nedräkningsklistermärket** "Säsongspremiär i Snöläge", 15 dec 07:30, i den streckade rutan. |
 | **Funktioner** | `H-omslag-funktioner.png` | `H-funktioner-1`, `2`, `3`, `5`, `6` | Nu. |
 | | | `H-funktioner-4` (Hitta åk) | **Lör 7 nov**, samma dag som reelen – inte före, Jonas ska få höra det först. |
-| **Ni frågar** | `H-omslag-ni-fragar.png` | `H-ni-fragar-1`, `N1-1-krok.png`, `H-ni-fragar-3` | Nu. Fyll på med varje "Ni frågar"-svar. |
+| **Ni frågar** | `H-omslag-ni-fragar.png` | `H-ni-fragar-1`, `N1-1-krok.png`, `H-ni-fragar-3`, sist **N1-reelen** delad till story | Nu. Fyll på med varje "Ni frågar"-svar. |
 | **Gänget** | `H-omslag-ganget.png` | `H-ganget-1`, `H-ganget-2` | När du skickat inbjudningarna (mån 9 nov). Byt mot "Möt gänget" när de första tackat ja. |
 | **Snöläget** | `H-omslag-snolaget.png` | `H-snolaget-1` | I december, inför första "Snöläget inför helgen" (17 dec). Fyll sedan på varje torsdag. |
 
