@@ -1,7 +1,6 @@
-# One-off check (removed after): the live map right at the border near
-# Ingenmansland/Ohtjevaartoe (Fabian's video 2026-11-04), zoomed in to the
-# map's maximum. Finds the border from Kartverket's own tiles, puts the
-# position 100 m into Sweden, prints the tiles shown and screenshots (base64).
+# One-off check (removed after): what colour are Lantmäteriet's tiles over
+# Norway (zoom 4–16), and Kartverket's flat strip over Sweden? Prints the
+# pixel colour counts of a few tiles.
 name: Kartkoll
 
 on:
@@ -15,66 +14,41 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
     steps:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-      - name: Live map at the border
+      - name: Colours
         run: |
-          mkdir k && cd k && npm init -y >/dev/null && npm i playwright@1.56.1 sharp@0.34 >/dev/null 2>&1
-          npx playwright install --with-deps chromium >/dev/null 2>&1
-          cat > run.mjs <<'EOF'
-          import { chromium } from "playwright";
+          mkdir k && cd k && npm init -y >/dev/null && npm i sharp@0.34 >/dev/null 2>&1
+          cat > check.mjs <<'EOF'
           import sharp from "sharp";
           const KV = (z, x, y) => `https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/${z}/${y}/${x}.png`;
-          const n16 = 2 ** 16;
-          const tx = (lon) => (lon + 180) / 360 * n16;
-          const ty = (lat) => { const r = lat * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n16; };
-          // Kartverket is opaque in Norway, transparent in Sweden: walk east until a pixel is transparent.
-          async function borderLon(lat) {
-            const y = ty(lat);
-            for (let lon = 13.95; lon < 14.35; lon += 0.0005) {
-              const x = tx(lon);
-              const res = await fetch(KV(16, Math.floor(x), Math.floor(y)));
-              const { data, info } = await sharp(Buffer.from(await res.arrayBuffer())).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-              const px = Math.floor((x % 1) * info.width), py = Math.floor((y % 1) * info.height);
-              if (data[(py * info.width + px) * 4 + 3] < 50) return lon;
-            }
-            return null;
+          const LM = (z, x, y) => `https://kartor.snolage.se/topowebb/${z}/${x}/${y}.png`;
+          const W = (z, x, y) => `https://fjallkoll-worker.fabian-n-sund.workers.dev/tiles/topowebb/${z}/${x}/${y}.png`;
+          const tile = (lat, lon, z) => { const n = 2 ** z, r = lat * Math.PI / 180; return [Math.floor((lon + 180) / 360 * n), Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n)]; };
+          async function colours(url) {
+            const res = await fetch(url, { redirect: "manual" });
+            if (!res.ok) return `${res.status}`;
+            const { data } = await sharp(Buffer.from(await res.arrayBuffer())).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+            const count = new Map();
+            for (let i = 0; i < data.length; i += 4) { const k = `${data[i]},${data[i + 1]},${data[i + 2]},${data[i + 3]}`; count.set(k, (count.get(k) ?? 0) + 1); }
+            const total = data.length / 4;
+            return [...count].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, n]) => `${k}:${Math.round(100 * n / total)}%`).join(" ");
           }
-          const browser = await chromium.launch();
-          for (const lat of [64.925, 64.945]) {
-            const b = await borderLon(lat);
-            console.log(`lat ${lat}: Kartverket ends at lon ${b?.toFixed(4)}`);
-            if (b === null) continue;
-            const lon = b + 0.002; // ~100 m into Sweden
-            const ctx = await browser.newContext({ viewport: { width: 1000, height: 640 }, locale: "sv-SE", geolocation: { latitude: lat, longitude: lon, accuracy: 5 }, permissions: ["geolocation"] });
-            await ctx.addInitScript(() => localStorage.setItem("fjallkoll:welcome-done", "1"));
-            const page = await ctx.newPage();
-            await page.goto("https://snolage.se/karta", { waitUntil: "networkidle" });
-            await page.getByRole("button", { name: "Helskärm" }).click();
-            await page.getByRole("button", { name: "Visa min position" }).click();
-            await page.waitForTimeout(4000);
-            for (let step = 0; step <= 6; step++) {
-              if (step > 0) { await page.locator(".leaflet-control-zoom-in").click(); await page.waitForTimeout(4000); }
-              const info = await page.evaluate(() => {
-                const byLayer = {};
-                for (const i of document.querySelectorAll(".leaflet-tile-pane img")) {
-                  if (!i.getBoundingClientRect().width) continue;
-                  const u = new URL(i.src, location.href);
-                  const m = u.pathname.match(/(\d+)\/(\d+)\/(\d+)\.png$/);
-                  const key = `${u.host.split(".")[0]} z${m ? m[1] : "?"}${i.complete && i.naturalWidth ? "" : " (ej laddad)"}`;
-                  byLayer[key] = (byLayer[key] ?? 0) + 1;
-                }
-                return byLayer;
-              });
-              console.log(`lat ${lat} step ${step}: ${JSON.stringify(info)}`);
-              const small = await sharp(await page.screenshot()).resize(500).jpeg({ quality: 50 }).toBuffer();
-              console.log(`IMG b${String(lat).slice(-3)}-${step} ${small.toString("base64")}`);
+          // Inside Norway (Lantmäteriet over Norway), at several zooms.
+          for (const [name, lat, lon] of [["norge-korall", 64.90, 13.90], ["sulitjelma", 67.12, 16.05], ["lyngen", 69.58, 20.20]]) {
+            for (const z of [4, 6, 7, 8, 10, 12, 14, 15, 16]) {
+              const [x, y] = tile(lat, lon, z);
+              const lm = await colours(z <= 7 ? LM(z, x, y) : W(z, x, y));
+              console.log(`LM over Norway ${name} z${z}: ${lm}`);
             }
-            await ctx.close();
           }
-          await browser.close();
+          // Kartverket's strip over Sweden near Korallgrottan.
+          for (const z of [14, 15, 16]) {
+            const [x, y] = tile(64.90, 14.05, z);
+            console.log(`KV strip z${z}: ${await colours(KV(z, x, y))}`);
+          }
           EOF
-          node run.mjs
+          node check.mjs
