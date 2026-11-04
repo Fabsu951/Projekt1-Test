@@ -42,22 +42,23 @@ jobs:
             return Math.round(100 * opaque / n);
           }
           // [name, lat, lon]: a point on the Swedish side, ~1–4 km from the border.
-          // Lantmäteriet zoom 15 vs its four zoom-16 children, side by side.
-          const SITES = [["hemavan", 65.81, 15.09], ["ammarnas", 65.96, 16.21], ["leipik", 64.93, 14.25]];
-          for (const [name, lat, lon] of SITES) {
-            const [x, y] = tile(lat, lon, 15);
-            const z15 = await get(LM(15, x, y));
-            const kids = [];
-            for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
-              const r = await get(LM(16, 2 * x + dx, 2 * y + dy));
-              console.log(`${name} z16 ${2 * x + dx}/${2 * y + dy}: ${r.status} ${r.buf?.length ?? 0} B`);
-              if (r.buf) kids.push({ input: await sharp(r.buf).resize(128, 128).png().toBuffer(), left: 256 + dx * 128, top: dy * 128 });
+          // Kartverket's opacity along a line across the border near Korallgrottan, zoom 14 and 16.
+          for (const z of [14, 16]) {
+            let last = -1;
+            const out = [];
+            for (let lon = 13.90; lon <= 14.20; lon += 0.002) {
+              const [x, y] = tile(64.90, lon, z);
+              if (x === last) continue;
+              last = x;
+              const kv = await get(KV(z, x, y));
+              const a = kv.buf ? await alpha(kv.buf) : null;
+              out.push(`${lon.toFixed(3)}:${a}%`);
+              if (z === 16 && a !== null && a > 0 && a < 100) {
+                const img = await sharp(kv.buf).flatten({ background: "#ff00ff" }).resize(200, 200).jpeg({ quality: 55 }).toBuffer();
+                console.log(`IMG kv${x} ${img.toString("base64")}`);
+              }
             }
-            console.log(`${name} z15 ${x}/${y}: ${z15.status} ${z15.buf?.length ?? 0} B`);
-            const layers = [...kids];
-            if (z15.buf) layers.push({ input: await sharp(z15.buf).resize(256, 256).png().toBuffer(), left: 0, top: 0 });
-            const img = await sharp({ create: { width: 512, height: 256, channels: 3, background: "#ff00ff" } }).composite(layers).jpeg({ quality: 55 }).toBuffer();
-            console.log(`IMG ${name} ${img.toString("base64")}`);
+            console.log(`z${z} ` + out.join(" "));
           }
           EOF
           node check.mjs
