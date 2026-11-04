@@ -1,0 +1,45 @@
+# One-off check (removed after): the live map at Korallgrottan's border after
+# the Lantmäteriet-over-Kartverket blend, zoom 13–18, screenshots (base64).
+name: Kartkoll
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha]
+    paths: [".github/workflows/kartkoll.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Live map at the border
+        run: |
+          mkdir k && cd k && npm init -y >/dev/null && npm i playwright@1.56.1 sharp@0.34 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+          cat > run.mjs <<'EOF'
+          import { chromium } from "playwright";
+          import sharp from "sharp";
+          const browser = await chromium.launch();
+          const ctx = await browser.newContext({ viewport: { width: 1000, height: 640 }, locale: "sv-SE", geolocation: { latitude: 64.902, longitude: 14.052, accuracy: 5 }, permissions: ["geolocation"] });
+          await ctx.addInitScript(() => { localStorage.setItem("fjallkoll:welcome-done", "1"); localStorage.setItem("fjallkoll:map-layers-open", "0"); });
+          const page = await ctx.newPage();
+          await page.goto("https://snolage.se/karta", { waitUntil: "networkidle" });
+          await page.getByRole("button", { name: "Helskärm" }).click();
+          await page.getByRole("button", { name: "Visa min position" }).click();
+          await page.waitForTimeout(4000);
+          for (let step = 0; step <= 5; step++) {
+            if (step > 0) { await page.locator(".leaflet-control-zoom-in").click(); await page.waitForTimeout(4500); }
+            const blend = await page.evaluate(() => document.querySelector(".leaflet-container").classList.contains("map--blend-topo"));
+            console.log(`step ${step} blend ${blend}`);
+            const small = await sharp(await page.screenshot()).resize(500).jpeg({ quality: 55 }).toBuffer();
+            console.log(`IMG s${step} ${small.toString("base64")}`);
+          }
+          await browser.close();
+          EOF
+          node run.mjs
