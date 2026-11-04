@@ -79,9 +79,10 @@ export default function OverviewMap({ forecasts, favorites }: Props) {
                 e.preventDefault();
                 navigate(`/omrade/${r.id}`);
               }}
-              aria-label={`${r.name}: ${info ? info.label : t("ingen farograd")}`}
               className="overview-map__area"
             >
+              {/* The link's name; a <title> rather than aria-label, whose text would have to repeat the drawn number and name. */}
+              <title>{`${r.name}: ${info ? info.label : t("ingen farograd")}`}</title>
               <circle cx={x} cy={y} r={R} fill={info?.color ?? "var(--bg-raised)"} stroke="var(--snow)" strokeWidth={2} />
               <text aria-hidden="true" x={x} y={y + 5} textAnchor="middle" className="overview-map__level" fill={level === 5 ? "#fff" : info ? "#1a1a1a" : "var(--text-muted)"}>
                 {level ?? "–"}

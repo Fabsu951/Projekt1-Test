@@ -1679,7 +1679,7 @@ p.muted a:not(.button) {
 
 .map-layers__sub {
   font-size: 0.85em;
-  opacity: 0.8;
+  color: var(--text-muted);
 }
 
 .offline-box__row {

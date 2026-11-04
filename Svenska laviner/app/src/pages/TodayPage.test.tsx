@@ -74,7 +74,8 @@ describe("TodayPage", () => {
   it("lists every area with its danger level and shows when the forecast was published", async () => {
     mockLoad.mockResolvedValue(forecasts("published", 2));
     renderPage();
-    await waitFor(() => expect(screen.getAllByText(/Måttlig fara/)).toHaveLength(REGIONS.length));
+    // The overview map names its links with <title>; count the list rows.
+    await waitFor(() => expect(screen.getAllByText(/Måttlig fara/, { ignore: "title, script, style" })).toHaveLength(REGIONS.length));
     expect(screen.getByText(/Prognosen publicerad 5 februari 2027, 08:00/)).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Översiktskarta över prognosområdena" })).toBeInTheDocument();
   });

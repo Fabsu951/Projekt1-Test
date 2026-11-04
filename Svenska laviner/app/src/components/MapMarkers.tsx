@@ -84,7 +84,7 @@ export const RegionMarkers = memo(function RegionMarkers({ forecasts }: { foreca
 
 const ObservationMarker = memo(function ObservationMarker({ o }: { o: Observation }) {
   return (
-    <Marker position={[o.lat, o.lon]} icon={OBSERVATION_ICON} zIndexOffset={1000}>
+    <Marker position={[o.lat, o.lon]} icon={OBSERVATION_ICON} zIndexOffset={1000} title={observationTypeLabel(o.type)}>
       <Popup>
         <strong>{observationTypeLabel(o.type)}</strong>
         <br />
