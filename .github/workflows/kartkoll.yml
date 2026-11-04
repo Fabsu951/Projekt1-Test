@@ -1,6 +1,7 @@
-# One-off check (removed after): does Kartverket's topo cache have real
-# detail at zoom 16, or only a flat fill? Kartverket zoom 15 tile vs its four
-# zoom-16 children at a few Norwegian points near the border (base64 images).
+# One-off check (removed after): the live map right at the border near
+# Ingenmansland/Ohtjevaartoe (Fabian's video 2026-11-04), zoomed in to the
+# map's maximum. Finds the border from Kartverket's own tiles, puts the
+# position 100 m into Sweden, prints the tiles shown and screenshots (base64).
 name: Kartkoll
 
 on:
@@ -14,35 +15,66 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-      - name: Kartverket zoom 15 vs 16
+      - name: Live map at the border
         run: |
-          mkdir k && cd k && npm init -y >/dev/null && npm i sharp@0.34 >/dev/null 2>&1
-          cat > check.mjs <<'EOF'
+          mkdir k && cd k && npm init -y >/dev/null && npm i playwright@1.56.1 sharp@0.34 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+          cat > run.mjs <<'EOF'
+          import { chromium } from "playwright";
           import sharp from "sharp";
           const KV = (z, x, y) => `https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/${z}/${y}/${x}.png`;
-          const tile = (lat, lon, z) => { const n = 2 ** z, r = lat * Math.PI / 180; return [Math.floor((lon + 180) / 360 * n), Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n)]; };
-          async function get(url) { const res = await fetch(url); return res.ok ? Buffer.from(await res.arrayBuffer()) : null; }
-          const SITES = [["norge-korall", 64.90, 13.98], ["sulitjelma", 67.12, 16.05], ["lyngen", 69.58, 20.20], ["tromso", 69.65, 18.96]];
-          for (const [name, lat, lon] of SITES) {
-            const [x, y] = tile(lat, lon, 15);
-            const parent = await get(KV(15, x, y));
-            const layers = [];
-            if (parent) layers.push({ input: await sharp(parent).resize(256, 256).png().toBuffer(), left: 0, top: 0 });
-            const sizes = [];
-            for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
-              const b = await get(KV(16, 2 * x + dx, 2 * y + dy));
-              sizes.push(b?.length ?? 0);
-              if (b) layers.push({ input: await sharp(b).resize(128, 128).png().toBuffer(), left: 256 + dx * 128, top: dy * 128 });
+          const n16 = 2 ** 16;
+          const tx = (lon) => (lon + 180) / 360 * n16;
+          const ty = (lat) => { const r = lat * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n16; };
+          // Kartverket is opaque in Norway, transparent in Sweden: walk east until a pixel is transparent.
+          async function borderLon(lat) {
+            const y = ty(lat);
+            for (let lon = 13.95; lon < 14.35; lon += 0.0005) {
+              const x = tx(lon);
+              const res = await fetch(KV(16, Math.floor(x), Math.floor(y)));
+              const { data, info } = await sharp(Buffer.from(await res.arrayBuffer())).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+              const px = Math.floor((x % 1) * info.width), py = Math.floor((y % 1) * info.height);
+              if (data[(py * info.width + px) * 4 + 3] < 50) return lon;
             }
-            const z17 = await get(KV(17, 4 * x, 4 * y));
-            console.log(`${name}: z15 ${parent?.length ?? 0} B, z16 ${sizes.join("/")} B, z17 ${z17?.length ?? "none"}`);
-            const img = await sharp({ create: { width: 512, height: 256, channels: 3, background: "#ff00ff" } }).composite(layers).jpeg({ quality: 55 }).toBuffer();
-            console.log(`IMG ${name} ${img.toString("base64")}`);
+            return null;
           }
+          const browser = await chromium.launch();
+          for (const lat of [64.925, 64.945]) {
+            const b = await borderLon(lat);
+            console.log(`lat ${lat}: Kartverket ends at lon ${b?.toFixed(4)}`);
+            if (b === null) continue;
+            const lon = b + 0.002; // ~100 m into Sweden
+            const ctx = await browser.newContext({ viewport: { width: 1000, height: 640 }, locale: "sv-SE", geolocation: { latitude: lat, longitude: lon, accuracy: 5 }, permissions: ["geolocation"] });
+            await ctx.addInitScript(() => localStorage.setItem("fjallkoll:welcome-done", "1"));
+            const page = await ctx.newPage();
+            await page.goto("https://snolage.se/karta", { waitUntil: "networkidle" });
+            await page.getByRole("button", { name: "Helskärm" }).click();
+            await page.getByRole("button", { name: "Visa min position" }).click();
+            await page.waitForTimeout(4000);
+            for (let step = 0; step <= 6; step++) {
+              if (step > 0) { await page.locator(".leaflet-control-zoom-in").click(); await page.waitForTimeout(4000); }
+              const info = await page.evaluate(() => {
+                const byLayer = {};
+                for (const i of document.querySelectorAll(".leaflet-tile-pane img")) {
+                  if (!i.getBoundingClientRect().width) continue;
+                  const u = new URL(i.src, location.href);
+                  const m = u.pathname.match(/(\d+)\/(\d+)\/(\d+)\.png$/);
+                  const key = `${u.host.split(".")[0]} z${m ? m[1] : "?"}${i.complete && i.naturalWidth ? "" : " (ej laddad)"}`;
+                  byLayer[key] = (byLayer[key] ?? 0) + 1;
+                }
+                return byLayer;
+              });
+              console.log(`lat ${lat} step ${step}: ${JSON.stringify(info)}`);
+              const small = await sharp(await page.screenshot()).resize(500).jpeg({ quality: 50 }).toBuffer();
+              console.log(`IMG b${String(lat).slice(-3)}-${step} ${small.toString("base64")}`);
+            }
+            await ctx.close();
+          }
+          await browser.close();
           EOF
-          node check.mjs
+          node run.mjs
