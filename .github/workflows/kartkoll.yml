@@ -1,6 +1,6 @@
-# One-off check (removed after): the live map at the border, zoomed in step
-# by step like Fabian's video (2026-11-04), with real tiles. Prints which tile
-# URLs the page shows and which failed, and small screenshots (base64).
+# One-off check (removed after): does Kartverket's topo cache have real
+# detail at zoom 16, or only a flat fill? Kartverket zoom 15 tile vs its four
+# zoom-16 children at a few Norwegian points near the border (base64 images).
 name: Kartkoll
 
 on:
@@ -14,53 +14,35 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-      - name: Live map at the border
+      - name: Kartverket zoom 15 vs 16
         run: |
-          mkdir k && cd k && npm init -y >/dev/null && npm i playwright@1.56.1 sharp@0.34 >/dev/null 2>&1
-          npx playwright install --with-deps chromium >/dev/null 2>&1
-          cat > run.mjs <<'EOF'
-          import { chromium } from "playwright";
+          mkdir k && cd k && npm init -y >/dev/null && npm i sharp@0.34 >/dev/null 2>&1
+          cat > check.mjs <<'EOF'
           import sharp from "sharp";
-          const SITES = [["korall", 64.902, 14.056], ["rr232", 66.93, 15.97]];
-          const browser = await chromium.launch();
+          const KV = (z, x, y) => `https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/${z}/${y}/${x}.png`;
+          const tile = (lat, lon, z) => { const n = 2 ** z, r = lat * Math.PI / 180; return [Math.floor((lon + 180) / 360 * n), Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n)]; };
+          async function get(url) { const res = await fetch(url); return res.ok ? Buffer.from(await res.arrayBuffer()) : null; }
+          const SITES = [["norge-korall", 64.90, 13.98], ["sulitjelma", 67.12, 16.05], ["lyngen", 69.58, 20.20], ["tromso", 69.65, 18.96]];
           for (const [name, lat, lon] of SITES) {
-            const ctx = await browser.newContext({ viewport: { width: 1000, height: 640 }, locale: "sv-SE", geolocation: { latitude: lat, longitude: lon, accuracy: 10 }, permissions: ["geolocation"] });
-            await ctx.addInitScript(() => localStorage.setItem("fjallkoll:welcome-done", "1"));
-            const page = await ctx.newPage();
-            const log = [];
-            page.on("requestfailed", (r) => { if (/\.png/.test(r.url())) log.push(`FAILED ${r.url()} ${r.failure()?.errorText}`); });
-            page.on("response", (r) => { if (/\.png/.test(r.url()) && r.status() >= 300) log.push(`${r.status()} ${r.url()}`); });
-            await page.goto("https://snolage.se/karta", { waitUntil: "networkidle" });
-            await page.getByRole("button", { name: "Visa min position" }).click();
-            await page.waitForTimeout(4000);
-            for (let step = 0; step <= 5; step++) {
-              if (step > 0) { await page.locator(".leaflet-control-zoom-in").click(); await page.waitForTimeout(4500); }
-              const info = await page.evaluate(() => {
-                const imgs = [...document.querySelectorAll(".leaflet-tile-pane img")].filter((i) => i.getBoundingClientRect().width > 0);
-                const byLayer = {};
-                for (const i of imgs) {
-                  const u = new URL(i.src, location.href);
-                  const m = u.pathname.match(/(\d+)\/(\d+)\/(\d+)\.png$/);
-                  const key = `${u.host}${u.pathname.includes("/tiles/") ? " worker" : ""} z${m ? m[1] : "?"}`;
-                  byLayer[key] = (byLayer[key] ?? 0) + 1;
-                }
-                const frames = document.querySelectorAll(".leaflet-tile-pane div.leaflet-tile").length;
-                const zoom = document.querySelector(".leaflet-tile-container:last-child img")?.src ?? "";
-                return { byLayer, frames };
-              });
-              console.log(`${name} step ${step}: ${JSON.stringify(info)}`);
-              const shot = await page.screenshot();
-              const small = await sharp(shot).resize(500).jpeg({ quality: 50 }).toBuffer();
-              console.log(`IMG ${name}-${step} ${small.toString("base64")}`);
+            const [x, y] = tile(lat, lon, 15);
+            const parent = await get(KV(15, x, y));
+            const layers = [];
+            if (parent) layers.push({ input: await sharp(parent).resize(256, 256).png().toBuffer(), left: 0, top: 0 });
+            const sizes = [];
+            for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
+              const b = await get(KV(16, 2 * x + dx, 2 * y + dy));
+              sizes.push(b?.length ?? 0);
+              if (b) layers.push({ input: await sharp(b).resize(128, 128).png().toBuffer(), left: 256 + dx * 128, top: dy * 128 });
             }
-            console.log(log.slice(0, 40).join("\n"));
-            await ctx.close();
+            const z17 = await get(KV(17, 4 * x, 4 * y));
+            console.log(`${name}: z15 ${parent?.length ?? 0} B, z16 ${sizes.join("/")} B, z17 ${z17?.length ?? "none"}`);
+            const img = await sharp({ create: { width: 512, height: 256, channels: 3, background: "#ff00ff" } }).composite(layers).jpeg({ quality: 55 }).toBuffer();
+            console.log(`IMG ${name} ${img.toString("base64")}`);
           }
-          await browser.close();
           EOF
-          node run.mjs
+          node check.mjs
