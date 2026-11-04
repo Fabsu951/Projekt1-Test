@@ -1565,6 +1565,16 @@ the start, exact map point.
   deploy reloads once (`vite:preloadError` in `start.tsx`); dialogs trap focus
   (`hooks/useFocusTrap.ts`); worker-status.yml also prints D1 rows read/written
   per day (21 Oct: ~0.1 % of the free plan's 5 M / 100 k).
+- **Smaller start bundle (2026-11-04, Fabian: "optimera koden"):** knip found
+  almost no dead code (app or worker – the flagged worker exports are used by
+  tests/scripts). Initial JS 125 → 100 kB gzip: `RegionDetail` and
+  `OfflinePage` lazy (RegionDetail prefetched on idle with MapPage);
+  `shareImage.ts` = drawing/sharing, loaded by `ShareImageButton` when the
+  dialog opens, models in `shareImageModel.ts` (re-exported); `HealthNotice`
+  lazy-loads `HealthImportNotice` only in the apps; `TodayTrip` imports
+  `offlineMap` dynamically. `@react-leaflet/core` listed explicitly,
+  `@testing-library/user-event` removed. Checked in a browser (share dialogs,
+  area page, phone + desktop).
 - **Known gaps**: not yet reviewed by a lawyer (see JURIDIK.md).
 
  (context for why some code looks the way it does)
