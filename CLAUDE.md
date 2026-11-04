@@ -352,6 +352,20 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   1 Nov import had used the 5 km rule: `import-tiles.ts --only-near-border`
   (tiles the 5 km rule skips but 30 km keeps) uploaded the 539 missing tiles
   via `kartor-fler.yml` (`EXTRA`, back to dry-run).
+  **Lantmäteriet over Kartverket from zoom 12 (2026-11-04, Fabian's video at
+  Korallgrottan/Ohtjevaartoe: zoomed in, the Swedish side turned flat cream):**
+  checked live from Actions – Kartverket's **z16** tiles carry a flat,
+  featureless cream strip (255,255,230, opaque) up to ~1.5 km into Sweden
+  (z14/15 are clean at the border), which covered Lantmäteriet; Lantmäteriet is
+  pure white (255,255,255) over Norway from z12 (z ≤ 10 it draws Norway as a
+  faded backdrop). So `TopoLayer`'s `BorderBlend` sets `map--blend-topo` on the
+  map container at zoom ≥ 12 (`BLEND_FROM_ZOOM`), and CSS puts the LM layer
+  (`className="topo-lm"`) above Kartverket with `mix-blend-mode: multiply`
+  (`z-index: 3 !important`, below the terrain overlays 4–6);
+  `.leaflet-tile-pane { isolation: isolate }` keeps the blend among the map
+  layers. White × Kartverket = Kartverket in Norway; in the strip Lantmäteriet
+  shows barely tinted. Checked in a browser with synthetic tiles (colours read
+  back at z11/12/13).
   **Slope maps (2026-10-30, Fabian: "bättre lutningskarta", screenshot showed
   NV's slope map stopping at the border):** measured from GitHub Actions
   (one-off `kartkoll.yml`, removed): Mapterhorn's tiles (512 px, z ≤ 15 in

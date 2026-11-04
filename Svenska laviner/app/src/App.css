@@ -467,6 +467,17 @@ p.muted a:not(.button) {
   cursor: pointer;
 }
 
+/* Lantmäteriet over Kartverket along the border (TopoLayer BorderBlend): the
+   blend only mixes the map layers with each other, not with the page behind. */
+.leaflet-tile-pane {
+  isolation: isolate;
+}
+
+.map--blend-topo .topo-lm {
+  mix-blend-mode: multiply;
+  z-index: 3 !important;
+}
+
 .official-terrain-tiles {
   mix-blend-mode: multiply;
 }
