@@ -42,34 +42,22 @@ jobs:
             return Math.round(100 * opaque / n);
           }
           // [name, lat, lon]: a point on the Swedish side, ~1–4 km from the border.
-          const SITES = [["korallgrottan", 64.885, 14.10], ["rr232", 66.945, 15.95], ["rr237", 67.02, 16.36]];
+          // Lantmäteriet zoom 15 vs its four zoom-16 children, side by side.
+          const SITES = [["korallgrottan", 64.885, 14.10], ["korall-gräns", 64.90, 14.045], ["kebnekaise", 67.90, 18.55], ["abisko", 68.35, 18.80]];
           for (const [name, lat, lon] of SITES) {
-            for (const z of [12, 13, 14, 15, 16]) {
-              const [cx, cy] = tile(lat, lon, z);
-              const row = [];
-              const tiles = [];
-              for (let dy = -1; dy <= 1; dy++) for (let dx = -2; dx <= 2; dx++) {
-                const x = cx + dx, y = cy + dy;
-                const [kv, lm] = await Promise.all([get(KV(z, x, y)), get(LM(z, x, y))]);
-                const a = kv.buf ? await alpha(kv.buf) : null;
-                row.push(`${dx},${dy}: kv ${kv.status} ${a ?? "-"}% opak ${kv.ms}ms | lm ${lm.status} ${lm.ms}ms`);
-                tiles.push({ dx: dx + 2, dy: dy + 1, kv: kv.buf, lm: lm.buf });
-              }
-              console.log(`\n== ${name} z${z} centre ${cx}/${cy}`);
-              console.log(row.join("\n"));
-              // Mosaic: Lantmäteriet below, Kartverket on top, like the app (128 px per tile).
-              const S = 128;
-              const layers = [];
-              for (const t of tiles) {
-                if (t.lm) layers.push({ input: await sharp(t.lm).resize(S, S).png().toBuffer(), left: t.dx * S, top: t.dy * S });
-                if (t.kv) layers.push({ input: await sharp(t.kv).resize(S, S).png().toBuffer(), left: t.dx * S, top: t.dy * S });
-              }
-              const png = await sharp({ create: { width: 5 * S, height: 3 * S, channels: 4, background: "#ff00ff" } }).composite(layers).png().toBuffer();
-              if (name === "korallgrottan" && z >= 15) {
-                const small = await sharp(png).resize(400).jpeg({ quality: 45 }).toBuffer();
-                console.log(`MOSAIC ${name} ${z} ${small.toString("base64")}`);
-              }
+            const [x, y] = tile(lat, lon, 15);
+            const z15 = await get(LM(15, x, y));
+            const kids = [];
+            for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
+              const r = await get(LM(16, 2 * x + dx, 2 * y + dy));
+              console.log(`${name} z16 ${2 * x + dx}/${2 * y + dy}: ${r.status} ${r.buf?.length ?? 0} B`);
+              if (r.buf) kids.push({ input: await sharp(r.buf).resize(128, 128).png().toBuffer(), left: 256 + dx * 128, top: dy * 128 });
             }
+            console.log(`${name} z15 ${x}/${y}: ${z15.status} ${z15.buf?.length ?? 0} B`);
+            const layers = [...kids];
+            if (z15.buf) layers.push({ input: await sharp(z15.buf).resize(256, 256).png().toBuffer(), left: 0, top: 0 });
+            const img = await sharp({ create: { width: 512, height: 256, channels: 3, background: "#ff00ff" } }).composite(layers).jpeg({ quality: 55 }).toBuffer();
+            if (name === "korallgrottan" || name === "kebnekaise") console.log(`IMG ${name} ${img.toString("base64")}`);
           }
           EOF
           node check.mjs
