@@ -1,0 +1,72 @@
+# One-off check (removed after): are Kartverket's tiles transparent over
+# Sweden near the border at every zoom? Fetches Kartverket + our Lantmäteriet
+# tiles around Korallgrottan and border cairn 232 at zoom 12–16, prints the
+# share of opaque pixels on the Swedish side and small mosaics (base64).
+name: Kartkoll
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha]
+    paths: [".github/workflows/kartkoll.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Fetch and compare
+        run: |
+          mkdir k && cd k && npm init -y >/dev/null && npm i sharp@0.34 >/dev/null 2>&1
+          cat > check.mjs <<'EOF'
+          import sharp from "sharp";
+          const KV = (z, x, y) => `https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/${z}/${y}/${x}.png`;
+          const LM = (z, x, y) => `https://kartor.snolage.se/topowebb/${z}/${x}/${y}.png`;
+          const tile = (lat, lon, z) => { const n = 2 ** z, r = lat * Math.PI / 180; return [Math.floor((lon + 180) / 360 * n), Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n)]; };
+          async function get(url) {
+            const t0 = Date.now();
+            const res = await fetch(url);
+            const ms = Date.now() - t0;
+            if (!res.ok) return { status: res.status, ms, buf: null };
+            return { status: res.status, ms, buf: Buffer.from(await res.arrayBuffer()) };
+          }
+          async function alpha(buf) {
+            const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+            let opaque = 0; const n = info.width * info.height;
+            for (let i = 3; i < data.length; i += 4) if (data[i] > 200) opaque++;
+            return Math.round(100 * opaque / n);
+          }
+          // [name, lat, lon]: a point on the Swedish side, ~1–4 km from the border.
+          const SITES = [["korallgrottan", 64.885, 14.10], ["rr232", 66.945, 15.95], ["rr237", 67.02, 16.36]];
+          for (const [name, lat, lon] of SITES) {
+            for (const z of [12, 13, 14, 15, 16]) {
+              const [cx, cy] = tile(lat, lon, z);
+              const row = [];
+              const tiles = [];
+              for (let dy = -1; dy <= 1; dy++) for (let dx = -2; dx <= 2; dx++) {
+                const x = cx + dx, y = cy + dy;
+                const [kv, lm] = await Promise.all([get(KV(z, x, y)), get(LM(z, x, y))]);
+                const a = kv.buf ? await alpha(kv.buf) : null;
+                row.push(`${dx},${dy}: kv ${kv.status} ${a ?? "-"}% opak ${kv.ms}ms | lm ${lm.status} ${lm.ms}ms`);
+                tiles.push({ dx: dx + 2, dy: dy + 1, kv: kv.buf, lm: lm.buf });
+              }
+              console.log(`\n== ${name} z${z} centre ${cx}/${cy}`);
+              console.log(row.join("\n"));
+              // Mosaic: Lantmäteriet below, Kartverket on top, like the app (128 px per tile).
+              const S = 128;
+              const layers = [];
+              for (const t of tiles) {
+                if (t.lm) layers.push({ input: await sharp(t.lm).resize(S, S).png().toBuffer(), left: t.dx * S, top: t.dy * S });
+                if (t.kv) layers.push({ input: await sharp(t.kv).resize(S, S).png().toBuffer(), left: t.dx * S, top: t.dy * S });
+              }
+              const png = await sharp({ create: { width: 5 * S, height: 3 * S, channels: 4, background: "#ff00ff" } }).composite(layers).png().toBuffer();
+              console.log(`MOSAIC ${name} ${z} ${png.toString("base64")}`);
+            }
+          }
+          EOF
+          node check.mjs
