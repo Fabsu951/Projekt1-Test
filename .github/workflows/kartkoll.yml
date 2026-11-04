@@ -43,7 +43,7 @@ jobs:
           }
           // [name, lat, lon]: a point on the Swedish side, ~1–4 km from the border.
           // Lantmäteriet zoom 15 vs its four zoom-16 children, side by side.
-          const SITES = [["korallgrottan", 64.885, 14.10], ["korall-gräns", 64.90, 14.045], ["kebnekaise", 67.90, 18.55], ["abisko", 68.35, 18.80]];
+          const SITES = [["hemavan", 65.81, 15.09], ["ammarnas", 65.96, 16.21], ["leipik", 64.93, 14.25]];
           for (const [name, lat, lon] of SITES) {
             const [x, y] = tile(lat, lon, 15);
             const z15 = await get(LM(15, x, y));
@@ -57,7 +57,7 @@ jobs:
             const layers = [...kids];
             if (z15.buf) layers.push({ input: await sharp(z15.buf).resize(256, 256).png().toBuffer(), left: 0, top: 0 });
             const img = await sharp({ create: { width: 512, height: 256, channels: 3, background: "#ff00ff" } }).composite(layers).jpeg({ quality: 55 }).toBuffer();
-            if (name === "korallgrottan" || name === "kebnekaise") console.log(`IMG ${name} ${img.toString("base64")}`);
+            console.log(`IMG ${name} ${img.toString("base64")}`);
           }
           EOF
           node check.mjs
