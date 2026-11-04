@@ -65,7 +65,10 @@ jobs:
                 if (t.kv) layers.push({ input: await sharp(t.kv).resize(S, S).png().toBuffer(), left: t.dx * S, top: t.dy * S });
               }
               const png = await sharp({ create: { width: 5 * S, height: 3 * S, channels: 4, background: "#ff00ff" } }).composite(layers).png().toBuffer();
-              console.log(`MOSAIC ${name} ${z} ${png.toString("base64")}`);
+              if (name === "korallgrottan" && z >= 15) {
+                const small = await sharp(png).resize(400).jpeg({ quality: 45 }).toBuffer();
+                console.log(`MOSAIC ${name} ${z} ${small.toString("base64")}`);
+              }
             }
           }
           EOF
