@@ -8,7 +8,7 @@ import SeasonFilter from "../components/SeasonFilter";
 import { seasonMonths } from "../data/tourSeasons";
 import { fetchTours } from "../services/tourService";
 import type { Tour } from "../types/tour";
-import HealthImportNotice from "../components/HealthImportNotice";
+import HealthNotice from "../components/HealthNotice";
 import { t } from "../i18n";
 
 export default function ToursPage() {
@@ -50,7 +50,7 @@ export default function ToursPage() {
         </div>
       </header>
 
-      <HealthImportNotice invite />
+      <HealthNotice invite />
 
       <p className="notice">
         {t("Turerna delas av användare. Förhållandena en annan dag kan vara helt andra – kontrollera alltid dagens lavinprognos och gör din egen bedömning.")}

@@ -4,7 +4,6 @@ import { useAuth } from "../../auth/useAuth";
 import { REGIONS } from "../../data/regions";
 import { fetchForecastHistory, type HistoryDay } from "../../services/avalancheService";
 import { cached, USER_SCOPE, withCache } from "../../services/cache";
-import { savedArea } from "../../services/offlineMap";
 import { fetchTrips, type TripPlan } from "../../services/tripService";
 import type { AvalancheForecast } from "../../types/avalanche";
 import { swedishDate } from "../../utils/today";
@@ -47,7 +46,9 @@ export default function TodayTrip({ forecasts, now }: Props) {
         ];
         setShown(list);
         for (const { trip, when } of list) {
-          void savedArea(trip.regionId)
+          // Loaded only when there is a planned day, so the start page stays small.
+          void import("../../services/offlineMap")
+            .then((m) => m.savedArea(trip.regionId))
             .then((area) => live && setOffline((o) => ({ ...o, [trip.regionId]: !!area })))
             .catch(() => undefined);
           if (when === "tomorrow") {

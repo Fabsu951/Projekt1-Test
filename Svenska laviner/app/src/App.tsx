@@ -2,8 +2,6 @@ import { lazy } from "react";
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import TodayPage from "./pages/TodayPage";
-import RegionDetail from "./pages/RegionDetail";
-import OfflinePage from "./pages/OfflinePage";
 import ObservationsPage from "./pages/ObservationsPage";
 import ToursPage from "./pages/ToursPage";
 import LoginPage from "./pages/LoginPage";
@@ -15,6 +13,8 @@ import "./App.css";
 // service worker keeps them all for offline use). Leaflet in particular
 // (map, location picker, track map) stays out of the first load. Layout
 // shows PageLoading while a page loads.
+const RegionDetail = lazy(() => import("./pages/RegionDetail"));
+const OfflinePage = lazy(() => import("./pages/OfflinePage"));
 const SeasonPage = lazy(() => import("./pages/SeasonPage"));
 const MapPage = lazy(() => import("./pages/MapPage"));
 const SafetyGuide = lazy(() => import("./pages/SafetyGuide"));
@@ -37,11 +37,15 @@ const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const VerifyEmailPage = lazy(() => import("./pages/VerifyEmailPage"));
 
-// The map is the page most often opened next: fetch its code (with Leaflet)
-// once the browser is idle, so opening it doesn't wait for the download.
+// The map and the area pages are the pages most often opened next: fetch
+// their code (the map with Leaflet) once the browser is idle, so opening
+// them doesn't wait for the download.
 if (typeof window !== "undefined") {
   const later = window.requestIdleCallback ?? ((fn: () => void) => window.setTimeout(fn, 2000));
-  later(() => void import("./pages/MapPage").catch(() => {}));
+  later(() => {
+    void import("./pages/RegionDetail").catch(() => {});
+    void import("./pages/MapPage").catch(() => {});
+  });
 }
 
 function App() {

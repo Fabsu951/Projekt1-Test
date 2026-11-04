@@ -6,7 +6,7 @@ import DangerHistory from "../components/DangerHistory";
 import FavoriteButton from "../components/FavoriteButton";
 import ShareButton from "../components/ShareButton";
 import ShareImageButton from "../components/ShareImageButton";
-import { areaImage } from "../services/shareImage";
+import { areaImage } from "../services/shareImageModel";
 import OfflineMapCard from "../components/OfflineMapCard";
 import TripPlanCard from "../components/TripPlanCard";
 import SnowDepthCard from "../components/SnowDepthCard";

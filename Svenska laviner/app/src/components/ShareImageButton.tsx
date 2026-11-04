@@ -1,13 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import {
-  canShareImage,
-  downloadImage,
-  drawShareImage,
-  shareImageFile,
-  type ImageFormat,
-  type ShareImageModel,
-} from "../services/shareImage";
+import type { ImageFormat, ShareImageModel } from "../services/shareImageModel";
 import { isNativeApp } from "../services/native";
 import { t } from "../i18n";
 
@@ -21,6 +14,9 @@ interface Props {
   /** The button's text. */
   label: string;
 }
+
+/** The drawing code is only needed once someone opens the dialog. */
+const drawing = () => import("../services/shareImage");
 
 const FORMATS: Array<{ id: ImageFormat; label: string; hint: string }> = [
   { id: "post", label: t("Inlägg"), hint: t("4:5, för flöden") },
@@ -38,6 +34,7 @@ export default function ShareImageButton({ model, fileName, title, text, label }
   const [image, setImage] = useState<{ blob: Blob; url: string; format: ImageFormat } | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [canShare, setCanShare] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
@@ -46,7 +43,11 @@ export default function ShareImageButton({ model, fileName, title, text, label }
   useEffect(() => {
     if (!open) return;
     let live = true;
-    drawShareImage(model, format)
+    drawing()
+      .then((m) => {
+        if (live) setCanShare(m.canShareImage());
+        return m.drawShareImage(model, format);
+      })
       .then((blob) => {
         if (!live) return;
         const url = URL.createObjectURL(blob);
@@ -87,13 +88,13 @@ export default function ShareImageButton({ model, fileName, title, text, label }
 
   async function share() {
     if (!image) return;
-    const outcome = await shareImageFile(image.blob, name, title, text);
+    const outcome = await (await drawing()).shareImageFile(image.blob, name, title, text);
     setStatus(outcome === "failed" ? t("Bilden kunde inte delas. Spara den och dela den därifrån.") : null);
   }
 
-  function save() {
+  async function save() {
     if (!image) return;
-    downloadImage(image.blob, name);
+    (await drawing()).downloadImage(image.blob, name);
     setStatus(t("Bilden är sparad."));
   }
 
@@ -146,7 +147,7 @@ export default function ShareImageButton({ model, fileName, title, text, label }
               {t("Bilden visar prognosen som den är nu och uppdateras inte. Dela den samma dag.")}
             </p>
             <div className="share-image__actions">
-              {canShareImage() && (
+              {canShare && (
                 <button type="button" className="button button--primary" disabled={!ready} onClick={() => void share()}>
                   {t("Dela bilden")}
                 </button>

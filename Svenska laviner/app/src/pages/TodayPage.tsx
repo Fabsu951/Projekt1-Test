@@ -20,11 +20,11 @@ import NearestRegion from "../components/NearestRegion";
 import PushToggle from "../components/PushToggle";
 import ForecastBadge from "../components/ForecastBadge";
 import FavoriteButton from "../components/FavoriteButton";
-import HealthImportNotice from "../components/HealthImportNotice";
+import HealthNotice from "../components/HealthNotice";
 import { t, locale } from "../i18n";
 import Icon from "../components/Icon";
 import ShareImageButton from "../components/ShareImageButton";
-import { overviewImage } from "../services/shareImage";
+import { overviewImage } from "../services/shareImageModel";
 import { shareableUrl } from "../services/native";
 
 // The start page, "Idag i fjällen": today's forecast for your starred areas
@@ -124,7 +124,7 @@ export default function TodayPage() {
         </div>
       )}
 
-      <HealthImportNotice />
+      <HealthNotice />
 
       <div className="today__grid">
         <div className="today__main">

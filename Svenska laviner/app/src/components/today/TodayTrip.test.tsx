@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import TodayTrip from "./TodayTrip";
@@ -40,7 +40,7 @@ describe("TodayTrip", () => {
     expect(screen.getByText("Betydande lavinfara på kalfjället")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Sydtoppen" })).toHaveAttribute("href", "/karta?rutt=4");
     expect(screen.getByText(/Med dig: Bertil/)).toBeInTheDocument();
-    expect(await screen.findAllByText("Kartan är inte sparad offline än.")).toHaveLength(2);
+    await waitFor(() => expect(screen.getAllByText("Kartan är inte sparad offline än.")).toHaveLength(2));
     expect(screen.getByRole("link", { name: "Riksgränsfjällen" })).toBeInTheDocument();
     expect(screen.getByText(/publiceras runt kl 18/)).toBeInTheDocument();
     expect(screen.queryByText(/Södra Jämtland/)).not.toBeInTheDocument();
