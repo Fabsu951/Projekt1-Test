@@ -25,7 +25,9 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  MODE: dry-run
+  MODE: import
+  # 2026-11-04: only the Swedish tiles near cairn 232 that the first run's 5 km Norway rule left out.
+  EXTRA: --only-near-border
   SKIP: "0"
   # Fewer, larger reads through the worker's proxy (its requests count against 100 000 a day).
   IMPORT_CHUNK: "1000"
@@ -70,6 +72,6 @@ jobs:
 
       - name: Import the border boxes
         run: |
-          args="--boxes more --min-zoom 8 --max-zoom 15 --skip $SKIP"
+          args="--boxes more --min-zoom 8 --max-zoom 15 --skip $SKIP $EXTRA"
           if [ "$MODE" != "import" ]; then args="$args --dry-run"; fi
           LM_AUTH="Bearer $TILE_UPLOAD_TOKEN" npx tsx scripts/import-tiles.ts "$WORKER/admin/lantmateriet/topowebb-3857.gpkg" $args

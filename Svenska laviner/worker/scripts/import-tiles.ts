@@ -15,6 +15,8 @@
 //          --table <name> (which tile table, if the file has several),
 //          --boxes main|more|all (which mountain boxes: MOUNTAIN_BOXES (default),
 //                 MORE_MOUNTAIN_BOXES along the border, or both),
+//          --only-near-border (only tiles an older 5 km Norway rule left out but
+//                 the current one keeps – fills the gaps from that import),
 //          --all (all of the file, not just the mountain areas),
 //          --skip <n> (remote only: continue after the first n tiles of an interrupted run),
 //          --dry-run (just count what would be uploaded).
@@ -58,10 +60,11 @@ interface Options {
   all: boolean;
   skip: number;
   boxes: BoxSet;
+  onlyNearBorder: boolean;
 }
 
 function parseArgs(argv: string[]): Options {
-  const opts: Options = { files: [], maxZoom: 15, minZoom: 0, table: null, dryRun: false, all: false, skip: 0, boxes: "main" };
+  const opts: Options = { files: [], maxZoom: 15, minZoom: 0, table: null, dryRun: false, all: false, skip: 0, boxes: "main", onlyNearBorder: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--max-zoom") opts.maxZoom = Number(argv[++i]);
@@ -69,6 +72,7 @@ function parseArgs(argv: string[]): Options {
     else if (arg === "--table") opts.table = argv[++i];
     else if (arg === "--dry-run") opts.dryRun = true;
     else if (arg === "--all") opts.all = true;
+    else if (arg === "--only-near-border") opts.onlyNearBorder = true;
     else if (arg === "--boxes") {
       const set = argv[++i];
       if (set !== "main" && set !== "more" && set !== "all") {
@@ -199,14 +203,25 @@ async function openLocal(file: string, opts: Options): Promise<TileSource> {
   };
 }
 
+/** The margin the first border-box import (1 Nov 2026) used; it left out Swedish tiles near cairn 232. */
+const OLD_BUFFER_KM = 5;
+
+/** Whether this run uploads the tile: never one wholly in Norway, and with --only-near-border only the old gaps. */
+function shouldUpload(z: number, x: number, y: number, onlyNearBorder: boolean): boolean {
+  if (tileInNorwayOnly(z, x, y)) return false;
+  return !onlyNearBorder || tileInNorwayOnly(z, x, y, OLD_BUFFER_KM);
+}
+
 /** Drops tiles wholly in Norway (see tileInNorwayOnly) – they're white and the app never asks for them. */
-function withoutNorway<K extends { level: number; col: number; row: number }>(keys: K[], levels: LevelMapping[]): K[] {
+function withoutNorway<K extends { level: number; col: number; row: number }>(keys: K[], levels: LevelMapping[], onlyNearBorder: boolean): K[] {
   const byLevel = new Map(levels.map((l) => [l.gpkgLevel, l]));
   const kept = keys.filter((k) => {
     const l = byLevel.get(k.level);
-    return !l || !tileInNorwayOnly(l.z, k.col + l.offsetX, k.row + l.offsetY);
+    return !l || shouldUpload(l.z, k.col + l.offsetX, k.row + l.offsetY, onlyNearBorder);
   });
-  if (kept.length < keys.length) console.log(`  ${(keys.length - kept.length).toLocaleString("sv-SE")} kartbitar helt i Norge hoppas över`);
+  if (kept.length < keys.length) {
+    console.log(`  ${(keys.length - kept.length).toLocaleString("sv-SE")} kartbitar hoppas över (${onlyNearBorder ? "bara luckorna nära gränsen tas med" : "helt i Norge"})`);
+  }
   return kept;
 }
 
@@ -236,7 +251,7 @@ async function openRemote(url: string, opts: Options): Promise<TileSource> {
     levels,
     async *rows(wanted) {
       console.log("  letar upp kartbitarna i filens index…");
-      const keys = withoutNorway(await gpkg.tileKeys(table, wanted, 6, mountainBoxes(opts.boxes)), wanted);
+      const keys = withoutNorway(await gpkg.tileKeys(table, wanted, 6, mountainBoxes(opts.boxes)), wanted, opts.onlyNearBorder);
       console.log(`  ${keys.length.toLocaleString("sv-SE")} kartbitar att hämta ${mb()}`);
       if (opts.skip) console.log(`  hoppar över de första ${opts.skip.toLocaleString("sv-SE")} (--skip)`);
       plannedCount = Math.max(0, keys.length - opts.skip);
@@ -247,7 +262,7 @@ async function openRemote(url: string, opts: Options): Promise<TileSource> {
     },
     async dryRun(wanted) {
       console.log("  letar upp kartbitarna i filens index…");
-      const keys = withoutNorway(await gpkg.tileKeys(table, wanted, 6, mountainBoxes(opts.boxes)), wanted);
+      const keys = withoutNorway(await gpkg.tileKeys(table, wanted, 6, mountainBoxes(opts.boxes)), wanted, opts.onlyNearBorder);
       const byLevel = new Map(wanted.map((l) => [l.gpkgLevel, l]));
       const perZoom = new Map<number, number>();
       for (const k of keys) {
@@ -342,7 +357,7 @@ async function main() {
       const z = level.z;
       const x = Number(r.col) + level.offsetX;
       const y = Number(r.row) + level.offsetY;
-      if (!data?.length || !imageType(data) || !validTile(z, x, y) || (!opts.all && tileInNorwayOnly(z, x, y))) {
+      if (!data?.length || !imageType(data) || !validTile(z, x, y) || (!opts.all && !shouldUpload(z, x, y, opts.onlyNearBorder))) {
         skipped++;
         continue;
       }

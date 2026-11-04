@@ -12,7 +12,6 @@ describe("Lantmäteriet tiles wholly in Norway", () => {
     expect(tileInNorwayOnly(...tile(67.28, 14.4, 12))).toBe(true); // Bodø
     expect(tileInNorwayOnly(...tile(59.91, 10.75, 13))).toBe(true); // Oslo
     expect(tileInNorwayOnly(...tile(69.65, 18.96, 11))).toBe(true); // Tromsø
-    expect(tileInNorwayOnly(...tile(67.05, 16.0, 15))).toBe(true); // Sulitjelma, ~12 km from the border
   });
 
   it("keeps tiles in Sweden and along the border", () => {
@@ -22,6 +21,14 @@ describe("Lantmäteriet tiles wholly in Norway", () => {
     expect(tileInNorwayOnly(...tile(63.2, 12.3, 12))).toBe(false); // Storlien
     expect(tileInNorwayOnly(...tile(68.42, 18.13, 13))).toBe(false); // Riksgränsen
     expect(tileInNorwayOnly(...tile(67.05, 16.0, 9))).toBe(false); // big tile reaching Sweden
+    expect(tileInNorwayOnly(...tile(67.05, 16.0, 15))).toBe(false); // Sulitjelma, ~12 km from the border
+  });
+
+  it("keeps the Swedish side at border cairn 232, where the simplified outline is ~15 km off", () => {
+    // Fabian's video 2026-11-04: zoomed in, the Swedish map vanished east of the cairn.
+    for (const lon of [15.6, 15.7, 15.8, 15.9, 16.0]) {
+      for (const z of [12, 14, 15, 16, 17]) expect(tileInNorwayOnly(...tile(66.95, lon, z))).toBe(false);
+    }
   });
 
   it("keeps the overview zooms and places outside Norway", () => {

@@ -4,10 +4,12 @@ import { NORWAY, SWEDEN } from "../data/borders";
 // drawn on top of it anyway. Fetching those white tiles only slows the map
 // down (outside our own map bucket each one goes through the worker), so a
 // tile that lies wholly in Norway – well clear of the Swedish border – is
-// left out. The outlines are simplified (≈ 2.5 km at worst), so a tile is
+// left out. The outlines are simplified: near border cairn 232 the Swedish
+// outline runs ~15 km inside Norway's real border, and a 5 km margin hid the
+// Swedish map there when zoomed in (Fabian's video, 2026-11-04). So a tile is
 // only skipped when it stays more than BUFFER_KM from Sweden.
 
-const BUFFER_KM = 5;
+export const BUFFER_KM = 30;
 /** Up to here our map bucket has every tile, and Lantmäteriet's own backdrop shows the neighbours. */
 const ALWAYS_UP_TO_ZOOM = 7;
 
@@ -55,15 +57,15 @@ const tileLat = (y: number, n: number) => (Math.atan(Math.sinh(Math.PI * (1 - (2
 
 const seen = new Map<string, boolean>();
 
-/** True for a Lantmäteriet tile that lies wholly in Norway, more than BUFFER_KM from Sweden. */
-export function tileInNorwayOnly(z: number, x: number, y: number): boolean {
+/** True for a Lantmäteriet tile that lies wholly in Norway, more than `bufferKm` from Sweden. */
+export function tileInNorwayOnly(z: number, x: number, y: number, bufferKm = BUFFER_KM): boolean {
   if (z <= ALWAYS_UP_TO_ZOOM) return false;
-  const key = `${z}/${x}/${y}`;
+  const key = `${z}/${x}/${y}/${bufferKm}`;
   const known = seen.get(key);
   if (known !== undefined) return known;
   const n = 2 ** z;
   const north = tileLat(y, n), south = tileLat(y + 1, n);
-  const dLat = BUFFER_KM / 111.32;
+  const dLat = bufferKm / 111.32;
   const dLon = dLat / Math.cos((((north + south) / 2) * Math.PI) / 180);
   const west = tileLon(x, n) - dLon, east = tileLon(x + 1, n) + dLon;
   const result =
