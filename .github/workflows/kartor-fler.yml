@@ -25,9 +25,9 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  MODE: import
-  # 2026-11-04: only the Swedish tiles near cairn 232 that the first run's 5 km Norway rule left out.
-  EXTRA: --only-near-border
+  MODE: dry-run
+  # e.g. --only-near-border (used once 2026-11-04: 539 Swedish tiles near cairn 232 the first run left out).
+  EXTRA: ""
   SKIP: "0"
   # Fewer, larger reads through the worker's proxy (its requests count against 100 000 a day).
   IMPORT_CHUNK: "1000"

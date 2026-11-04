@@ -344,6 +344,14 @@ Swedish en dash, sentence case etc. from "Design + themes" below.
   the boxes, checked against the worker's by `tiles.test.ts`). deploy.yml's
   live check also fetches a z15 tile at Rr 237. R2 now ≈ 10.9 GB (slightly
   over the free 10 GB, ~$0.015/GB-month).
+  **Norway margin 30 km (2026-11-04, Fabian's video at Rr 232):** zoomed in,
+  the Swedish map vanished: the simplified SWEDEN ring in `data/borders.ts`
+  runs ~15 km inside Norway's real border there, and the 5 km margin made
+  small Swedish tiles count as Norwegian. `BUFFER_KM` is now 30
+  (`tileInNorwayOnly(z, x, y, bufferKm)`; test at the cairn z12–17). The
+  1 Nov import had used the 5 km rule: `import-tiles.ts --only-near-border`
+  (tiles the 5 km rule skips but 30 km keeps) uploaded the 539 missing tiles
+  via `kartor-fler.yml` (`EXTRA`, back to dry-run).
   **Slope maps (2026-10-30, Fabian: "bättre lutningskarta", screenshot showed
   NV's slope map stopping at the border):** measured from GitHub Actions
   (one-off `kartkoll.yml`, removed): Mapterhorn's tiles (512 px, z ≤ 15 in
