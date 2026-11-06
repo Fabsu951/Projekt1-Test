@@ -1,0 +1,105 @@
+# Page views for snolage.se from Cloudflare, for marketing numbers: the zone's
+# own count (what Cloudflare's milestone emails use) and Web Analytics (real
+# browser page loads, no bots), per day since the site went live, plus where
+# visitors came from. Writes "Svenska laviner/marknad/statistik/cloudflare.md"
+# on this branch. Runs when this file changes or by hand.
+
+name: Cloudflare-statistik
+
+on:
+  push:
+    branches: [ccr-a4c9657a-dnz9f4]
+    paths:
+      - ".github/workflows/cloudflare-statistik.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Fetch
+        shell: python
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: dba2a7031f0d281c2f34301d23a315ca
+        run: |
+          import json, os, urllib.request, datetime as dt
+          TOKEN, ACC = os.environ["CLOUDFLARE_API_TOKEN"], os.environ["CLOUDFLARE_ACCOUNT_ID"]
+          START = dt.date(2026, 10, 7)
+          today = dt.datetime.now(dt.timezone.utc).date()
+          out = [f"# Cloudflare-statistik för snolage.se", "", f"Hämtad {dt.datetime.now(dt.timezone.utc):%Y-%m-%d %H:%M} UTC.", ""]
+          def call(url, body=None):
+              req = urllib.request.Request(url, data=json.dumps(body).encode() if body else None,
+                  headers={"Authorization": "Bearer " + TOKEN, "Content-Type": "application/json"})
+              try:
+                  return json.load(urllib.request.urlopen(req))
+              except urllib.error.HTTPError as e:
+                  return {"errors": [{"message": f"HTTP {e.code}: {e.read().decode()[:300]}"}]}
+          def gql(query, variables):
+              return call("https://api.cloudflare.com/client/v4/graphql", {"query": query, "variables": variables})
+
+          # 1. The zone's page views (Cloudflare's own "pageviews", as in the milestone email).
+          out += ["## Zonens sidvisningar (som i Cloudflares mejl)", ""]
+          zones = call("https://api.cloudflare.com/client/v4/zones?name=snolage.se")
+          zone = (zones.get("result") or [{}])[0].get("id")
+          if not zone:
+              out += [f"Kunde inte läsa zonen (nyckeln saknar troligen Zone: Read): {json.dumps(zones.get('errors'))[:300]}", ""]
+          else:
+              total, rows = 0, []
+              d = START
+              while d <= today:  # the dataset allows ~30 days per query
+                  end = min(d + dt.timedelta(days=29), today)
+                  r = gql("""query($z: string!, $a: Date!, $b: Date!) { viewer { zones(filter: {zoneTag: $z}) {
+                      httpRequests1dGroups(limit: 100, filter: {date_geq: $a, date_leq: $b}, orderBy: [date_ASC]) {
+                        dimensions { date } sum { pageViews requests } uniq { uniques } } } } }""",
+                      {"z": zone, "a": d.isoformat(), "b": end.isoformat()})
+                  if r.get("errors"):
+                      out += [f"Fel: {json.dumps(r['errors'])[:300]}", ""]; break
+                  rows += r["data"]["viewer"]["zones"][0]["httpRequests1dGroups"]
+                  d = end + dt.timedelta(days=1)
+              if rows:
+                  out += ["| Datum | Sidvisningar | Unika besökare (IP) |", "| --- | ---: | ---: |"]
+                  for x in rows:
+                      total += x["sum"]["pageViews"]
+                      out.append(f"| {x['dimensions']['date']} | {x['sum']['pageViews']} | {x['uniq']['uniques']} |")
+                  last30 = sum(x["sum"]["pageViews"] for x in rows if x["dimensions"]["date"] >= (today - dt.timedelta(days=29)).isoformat())
+                  out += ["", f"**Totalt sedan {START}: {total} sidvisningar.** Senaste 30 dagarna: {last30}.", ""]
+
+          # 2. Web Analytics: real browser page loads (bots don't run the script).
+          out += ["## Web Analytics (riktiga sidladdningar i webbläsare)", ""]
+          r = gql("""query($acc: string!, $a: Date!, $b: Date!) { viewer { accounts(filter: {accountTag: $acc}) {
+              days: rumPageloadEventsAdaptiveGroups(limit: 1000, filter: {date_geq: $a, date_leq: $b}, orderBy: [date_ASC]) {
+                count sum { visits } dimensions { date requestHost } }
+              refs: rumPageloadEventsAdaptiveGroups(limit: 25, filter: {date_geq: $a, date_leq: $b}, orderBy: [count_DESC]) {
+                count dimensions { refererHost } }
+              pages: rumPageloadEventsAdaptiveGroups(limit: 15, filter: {date_geq: $a, date_leq: $b}, orderBy: [count_DESC]) {
+                count dimensions { requestPath } } } } }""",
+              {"acc": ACC, "a": (today - dt.timedelta(days=89)).isoformat(), "b": today.isoformat()})
+          if r.get("errors"):
+              out += [f"Fel: {json.dumps(r['errors'])[:400]}", ""]
+          else:
+              a = r["data"]["viewer"]["accounts"][0]
+              days = [x for x in a["days"] if "snolage" in (x["dimensions"]["requestHost"] or "")]
+              loads = sum(x["count"] for x in days); visits = sum(x["sum"]["visits"] for x in days)
+              out += [f"**Sidladdningar: {loads}. Besök: {visits}** (från första datum Web Analytics har, se tabellen).", "",
+                      "| Datum | Värd | Sidladdningar | Besök |", "| --- | --- | ---: | ---: |"]
+              out += [f"| {x['dimensions']['date']} | {x['dimensions']['requestHost']} | {x['count']} | {x['sum']['visits']} |" for x in days]
+              out += ["", "**Varifrån (referer):**", ""] + [f"- {x['dimensions']['refererHost'] or '(direkt)'}: {x['count']}" for x in a["refs"]]
+              out += ["", "**Mest visade sidor:**", ""] + [f"- {x['dimensions']['requestPath']}: {x['count']}" for x in a["pages"]]
+          os.makedirs("Svenska laviner/marknad/statistik", exist_ok=True)
+          open("Svenska laviner/marknad/statistik/cloudflare.md", "w").write("\n".join(out) + "\n")
+          print("\n".join(out))
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "Svenska laviner/marknad/statistik/cloudflare.md"
+          git diff --cached --quiet && exit 0
+          git commit -m "Cloudflare statistics (automatic) [skip ci]"
+          for i in 1 2 3; do git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0; sleep 5; done
+          exit 1
