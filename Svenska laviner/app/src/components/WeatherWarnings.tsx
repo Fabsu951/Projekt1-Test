@@ -37,7 +37,7 @@ export function WarningLines({ regionId }: { regionId: string }) {
     <ul className="warning-lines" aria-label={t("Vädervarningar från SMHI")}>
       {list.map((w) => (
         <li key={w.id}>
-          <WarningChip level={w.level} /> {pick(w.event)}
+          <span className="warning-lines__source">{t("SMHI:")}</span> <WarningChip level={w.level} /> {pick(w.event)}
         </li>
       ))}
     </ul>

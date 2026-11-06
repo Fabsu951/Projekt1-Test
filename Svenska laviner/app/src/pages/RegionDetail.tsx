@@ -43,7 +43,7 @@ import {
   type WindStation,
   type WindSample,
 } from "../services/windStationService";
-import { t } from "../i18n";
+import { locale, t } from "../i18n";
 import { shareableUrl } from "../services/native";
 import Icon from "../components/Icon";
 
@@ -245,6 +245,14 @@ export default function RegionDetail() {
               ))}
           </div>
         )}
+        {weather && (
+          <p className="muted section__source">
+            {t("Källa: SMHI, prognos för punkten {lat}° N, {lon}° Ö (öppna data, CC BY 4.0).", {
+              lat: region.lat.toLocaleString(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+              lon: region.lon.toLocaleString(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            })}
+          </p>
+        )}
       </section>
 
       <SnowDepthCard regionId={region.id} lat={region.lat} lon={region.lon} />
@@ -292,6 +300,9 @@ export default function RegionDetail() {
               />
             </div>
           )}
+          <p className="muted section__source">
+            {t("Vindlasten är beräknad av Snöläge från SMHI:s mätningar och prognos (öppna data, CC BY 4.0).")}
+          </p>
         </section>
       )}
 

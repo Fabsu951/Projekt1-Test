@@ -4432,6 +4432,13 @@ h1 .admin-badge {
   gap: 4px;
   font-size: 0.9rem;
 }
+.warning-lines__source {
+  color: var(--text-muted);
+}
+.section__source {
+  margin-top: 8px;
+  font-size: 0.85rem;
+}
 .weather-warnings__list {
   list-style: none;
   padding: 0;

@@ -99,9 +99,9 @@ export default function AboutPage() {
         <h2>{t("Källor")}</h2>
         <ul>
           <li>
-            {t("Väderprognos och uppmätt vinddata:")}{" "}
+            {t("Väderprognos, uppmätt vind, snödjup och vädervarningar:")}{" "}
             <a href="https://www.smhi.se" target="_blank" rel="noreferrer">{t("SMHI")}</a>{" "}
-            {t("öppna data")}
+            {t("öppna data (CC BY 4.0). Vindlasten per väderstreck är Snöläges egen beräkning från SMHI:s vind.")}
           </li>
           <li>
             {t("Lavinprognoser:")}{" "}<a href="https://www.lavinprognoser.se" target="_blank" rel="noreferrer">
