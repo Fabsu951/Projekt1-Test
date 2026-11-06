@@ -39,45 +39,19 @@ jobs:
             } catch (e) { return { status: 0, ms: Date.now() - t0, body: String(e) }; }
           }
           const MODELS = ["best_match", "ecmwf_ifs025", "ecmwf_ifs", "icon_seamless", "metno_seamless", "dmi_seamless", "gfs_seamless"];
-          console.log("=== Open-Meteo: snow_depth now (m) and snowfall next 72 h (cm) ===");
-          for (const [name, lat, lon] of [...AREAS, ...NORWAY]) {
-            const row = [];
-            let elev = null;
-            for (const m of MODELS) {
-              const r = await json(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=snow_depth,snowfall&models=${m}&past_days=3&forecast_days=4&timezone=Europe%2FStockholm`);
-              if (r.status !== 200) { row.push(`${m}: HTTP ${r.status} ${typeof r.body === "object" ? r.body.reason ?? "" : r.body}`.slice(0, 120)); continue; }
-              elev = r.body.elevation;
-              const h = r.body.hourly, now = new Date().toISOString().slice(0, 13);
-              const i = Math.max(0, h.time.findIndex((t) => t.startsWith(new Date(Date.now() + 3600e3).toISOString().slice(0, 13).replace("T", "T")) ) );
-              const idx = h.time.findIndex((t) => new Date(t) > new Date()) ;
-              const sd = h.snow_depth?.[idx];
-              const nonNull = (h.snow_depth ?? []).filter((v) => v !== null).length;
-              const fall = (h.snowfall ?? []).slice(idx, idx + 72).reduce((a, b) => a + (b ?? 0), 0);
-              row.push(`${m}: djup ${sd ?? "null"} m (${nonNull}/${h.time.length} värden), nysnö 72h ${fall.toFixed(1)} cm`);
-            }
-            console.log(`\n${name} (${lat}, ${lon}), modellhöjd ${elev} m`);
-            for (const l of row) console.log("  " + l);
-          }
           console.log("\n=== NVE seNorge GridTimeSeries ===");
           const themes = await json("https://gts.nve.no/api/GridTimeSeries/Themes/json");
           console.log(`themes: HTTP ${themes.status}`);
           if (Array.isArray(themes.body)) for (const t of themes.body) if (/sd|snow|sno|fsw|swe|qsw/i.test(JSON.stringify(t))) console.log("  " + JSON.stringify(t).slice(0, 220));
           const utm = "+proj=utm +zone=33 +ellps=WGS84 +datum=WGS84 +units=m +no_defs";
           const today = new Date().toISOString().slice(0, 10), weekAgo = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
-          for (const [name, lat, lon] of [...NORWAY, ...AREAS.slice(0, 2)]) {
+          for (const [name, lat, lon] of [...AREAS, ["Inland Sverige: Arvidsjaur", 65.59, 19.17], ["Inland Sverige: Östersund", 63.18, 14.64], ["Lappland mitt i: Kvikkjokk", 66.95, 17.72]]) {
             const [x, y] = proj4("WGS84", utm, [lon, lat]).map(Math.round);
-            for (const theme of ["sd", "fsw", "swe"]) {
+            for (const theme of ["sd", "fsw"]) {
               const r = await json(`https://gts.nve.no/api/GridTimeSeries/${x}/${y}/${weekAgo}/${today}/${theme}.json`);
               const d = typeof r.body === "object" && r.body ? r.body : null;
               console.log(`${name} ${theme}: HTTP ${r.status} ${d ? `unit ${d.Unit ?? d.unit} alt ${d.Altitude ?? ""} nodata ${d.NoDataValue ?? ""} data ${JSON.stringify(d.Data ?? d.data)?.slice(0, 120)}` : String(r.body).slice(0, 150)}`);
             }
-          }
-          console.log("\n=== SMHI snow1g: keys in the point forecast ===");
-          const s = await json("https://opendata-download-metfcst.smhi.se/api/category/snow1g/version/1/geotype/point/lon/18.55/lat/67.9/data.json");
-          console.log(`HTTP ${s.status}`);
-          if (s.body?.timeSeries) {
-            const keys = new Set(); for (const e of s.body.timeSeries) for (const k of Object.keys(e.data ?? {})) keys.add(k);
-            console.log("keys: " + [...keys].join(", "));
           }
           EOF
           node check.mjs
