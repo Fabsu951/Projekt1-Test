@@ -176,7 +176,7 @@ export default function MapPage() {
       saveLayersOpen(!open);
       return !open;
     });
-  // On phones the map tab opens straight onto the map, covering the page (tab bar stays).
+  // On phones the map tab opens straight onto the full-screen map, without the menus.
   const [fullscreen, setFullscreen] = useState(isPhoneLayout);
   // "Planera rutt" on the start page links to /karta?planera=1.
   const [planning, setPlanning] = useState(searchParams.get("planera") === "1");

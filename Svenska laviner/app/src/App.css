@@ -2869,26 +2869,6 @@ p.muted a:not(.button) {
   right: var(--safe-right);
 }
 
-/* Phones: the full-screen map stops at the tab bar, which stays on top so the
-   other tabs are one tap away (the map tab opens in full screen there). */
-.app-shell--tabs .page--map-full .map-container {
-  bottom: var(--tab-bar-h, 56px);
-}
-
-.app-shell--tabs:has(.page--map-full) .tab-bar {
-  z-index: 55;
-}
-
-/* Clear of the raised Observera button. */
-.app-shell--tabs .page--map-full .leaflet-bottom {
-  bottom: 14px;
-}
-
-.app-shell--tabs .page--map-full .route-panel {
-  bottom: calc(10px + var(--tab-bar-h, 56px));
-  max-height: 40vh;
-}
-
 /* Offline banner + "Utan täckning" page */
 .offline-banner {
   display: flex;

@@ -1347,11 +1347,10 @@ the start, exact map point.
   phones the header shows bell + avatar (`app-shell__quick`) and "Meny"
   holds only the rest (`tab: true` items filtered out of `NAV_GROUPS`, empty
   groups dropped, language + theme). Desktop unchanged.
-  **Karta opens in full screen on phones (2026-11-07, Fabian's screenshot):**
-  `MapPage` starts with `fullscreen = isPhoneLayout()`; on phones the full-screen
-  map stops at the tab bar (`--tab-bar-h`, set by TabBar's ResizeObserver) and the
-  bar stays above it (z 55), so the other tabs are one tap away; "Stäng helskärm"
-  still shows the normal page with the presets. z-index 30 (the
+  **Karta opens in full screen on phones (2026-11-07, Fabian: "att menyerna
+  inte syns direkt"):** `MapPage` starts with `fullscreen = isPhoneLayout()` –
+  the map covers header and tab bar like the Helskärm button; "Stäng helskärm"
+  (or back) brings the menus back. z-index 30 (the
   full-screen map at 50 covers it); `main` gets bottom padding.
 - **Warning signs on tours (2026-10-11, Fabian: "Inga varningstecken" belongs
   to the tour, not an observation):** migration `0024` `tours.danger_signs`

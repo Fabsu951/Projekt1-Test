@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { t } from "../i18n";
 import Icon, { type IconName } from "./Icon";
@@ -28,23 +27,8 @@ function isActive(tab: Tab, path: string): boolean {
 /** The phone's main navigation, within thumb reach at the bottom of the screen. */
 export default function TabBar() {
   const { pathname } = useLocation();
-  const ref = useRef<HTMLElement>(null);
-  // The full-screen map stops above the bar, so it needs the bar's height.
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const root = document.documentElement;
-    const observer = new ResizeObserver(() =>
-      root.style.setProperty("--tab-bar-h", `${Math.round(el.getBoundingClientRect().height)}px`)
-    );
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-      root.style.removeProperty("--tab-bar-h");
-    };
-  }, []);
   return (
-    <nav ref={ref} className="tab-bar" aria-label={t("Flikar")}>
+    <nav className="tab-bar" aria-label={t("Flikar")}>
       {TABS.map((tab) => {
         const active = !tab.primary && isActive(tab, pathname);
         return (
