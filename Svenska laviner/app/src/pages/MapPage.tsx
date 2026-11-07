@@ -17,6 +17,7 @@ import OfficialTerrainLegend from "../components/OfficialTerrainLegend";
 import { detailedSlopeAvailable, officialTerrainAvailable, type OfficialTerrain } from "../services/mapTiles";
 import TopoLayer from "../components/TopoLayer";
 import MyPosition from "../components/MyPosition";
+import { isPhoneLayout } from "../hooks/usePhoneLayout";
 import FriendPositions from "../components/FriendPositions";
 import { fetchObservations } from "../services/observationService";
 import type { Observation } from "../types/observation";
@@ -175,7 +176,8 @@ export default function MapPage() {
       saveLayersOpen(!open);
       return !open;
     });
-  const [fullscreen, setFullscreen] = useState(false);
+  // On phones the map tab opens straight onto the map, covering the page (tab bar stays).
+  const [fullscreen, setFullscreen] = useState(isPhoneLayout);
   // "Planera rutt" on the start page links to /karta?planera=1.
   const [planning, setPlanning] = useState(searchParams.get("planera") === "1");
   const route = useRouteDraft();
