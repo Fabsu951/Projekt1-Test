@@ -135,32 +135,60 @@ async function highlights() {
   await page.context().close();
 }
 
+// The hook of a "Ni frågade" clip: the question as a message bubble, without name or picture.
+async function quoteCard(name, who, quote) {
+  const page = await rec.open("/om-appen", { theme: "dark", forecasts: offSeasonForecasts });
+  const links = await page.evaluate(() => [...document.querySelectorAll('link[rel="stylesheet"], style')].map((n) => n.outerHTML).join(""));
+  await page.setContent(`<!doctype html><html data-theme="dark"><head><base href="${SITE}/"><meta charset="utf-8">${links}<style>
+    html,body{margin:0;background:var(--bg)}
+    .s{box-sizing:border-box;width:${W}px;height:${H}px;padding:0 26px;display:flex;flex-direction:column;justify-content:center;gap:18px;
+      background:radial-gradient(120% 70% at 100% 0%, rgba(142,197,240,.16), transparent 60%), var(--bg);color:var(--text);font-family:var(--font-body)}
+    .who{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-muted)}
+    .dot{width:34px;height:34px;border-radius:50%;background:var(--bg-raised);border:1px solid var(--border)}
+    .msg{background:var(--bg-raised);border:1px solid var(--border);border-radius:20px 20px 20px 6px;padding:16px 18px;font-size:19px;line-height:1.45}
+    .ask{font:700 30px/1.15 var(--font-display);margin-top:8px}
+    .ask span{color:var(--accent)}
+  </style></head><body><div class="s">
+    <div class="who"><div class="dot"></div>${who}</div>
+    <div class="msg">"${quote}"</div>
+    <div class="ask">Ni frågade.<br><span>Här är svaret.</span></div>
+  </div></body></html>`, { waitUntil: "networkidle" });
+  await page.evaluate(() => document.fonts.ready);
+  await wait(page, 300);
+  await rec.shot(page, name);
+  await page.context().close();
+}
+
+// Hitta åk: opens the layer panel, turns the finder on and picks 20–30° facing NO, O and SO.
+const KEB = [67.905, 18.56];
+async function finderOn(page, show = false) {
+  const go = show ? (l) => tap(page, l) : (l) => l.click();
+  await go(page.getByRole("button", { name: /^Kartlager/ }));
+  await wait(page, show ? 900 : 300);
+  const box = page.getByLabel(/^Hitta åk/);
+  await box.scrollIntoViewIfNeeded();
+  await wait(page, show ? 500 : 100);
+  await go(box);
+  await wait(page, show ? 1200 : 300);
+  const from = page.getByLabel("Lutning från");
+  await from.scrollIntoViewIfNeeded();
+  await wait(page, show ? 400 : 50);
+  await from.selectOption("20");
+  await wait(page, show ? 900 : 50);
+  await page.getByLabel("till", { exact: true }).selectOption("30");
+  await wait(page, show ? 900 : 50);
+  for (const dir of ["nordost", "öster", "sydost"]) {
+    await go(page.getByRole("checkbox", { name: dir, exact: true }));
+    await wait(page, show ? 700 : 50);
+  }
+  await wait(page, show ? 1200 : 200);
+  await go(page.getByRole("button", { name: /^Kartlager/ }));
+}
+
 const CLIPS = {
   H: highlights,
   N1: async () => {
-    // The hook: the question as a message bubble, without name or picture.
-    {
-      const page = await rec.open("/om-appen", { theme: "dark", forecasts: offSeasonForecasts });
-      const links = await page.evaluate(() => [...document.querySelectorAll('link[rel="stylesheet"], style')].map((n) => n.outerHTML).join(""));
-      await page.setContent(`<!doctype html><html data-theme="dark"><head><base href="${SITE}/"><meta charset="utf-8">${links}<style>
-        html,body{margin:0;background:var(--bg)}
-        .s{box-sizing:border-box;width:${W}px;height:${H}px;padding:0 26px;display:flex;flex-direction:column;justify-content:center;gap:18px;
-          background:radial-gradient(120% 70% at 100% 0%, rgba(142,197,240,.16), transparent 60%), var(--bg);color:var(--text);font-family:var(--font-body)}
-        .who{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-muted)}
-        .dot{width:34px;height:34px;border-radius:50%;background:var(--bg-raised);border:1px solid var(--border)}
-        .msg{background:var(--bg-raised);border:1px solid var(--border);border-radius:20px 20px 20px 6px;padding:16px 18px;font-size:19px;line-height:1.45}
-        .ask{font:700 30px/1.15 var(--font-display);margin-top:8px}
-        .ask span{color:var(--accent)}
-      </style></head><body><div class="s">
-        <div class="who"><div class="dot"></div>En skidåkare på Instagram</div>
-        <div class="msg">"Det är inte helt ovanligt att man går en tur som korsar gränsen till Norge – på flera ställen."</div>
-        <div class="ask">Ni frågade.<br><span>Här är svaret.</span></div>
-      </div></body></html>`, { waitUntil: "networkidle" });
-      await page.evaluate(() => document.fonts.ready);
-      await wait(page, 300);
-      await rec.shot(page, "N1-1-krok");
-      await page.context().close();
-    }
+    await quoteCard("N1-1-krok", "En skidåkare på Instagram", "Det är inte helt ovanligt att man går en tur som korsar gränsen till Norge – på flera ställen.");
 
     // Before and now: the same view at the border, first without Norway's maps.
     let before, now;
@@ -220,6 +248,43 @@ const CLIPS = {
         await tilesLoaded(page);
         await wait(page, 3500);
       });
+      await page.context().close();
+    }
+  },
+  N2: async () => {
+    await quoteCard("N2-1-krok", "En skidåkare i ett mejl", "Vore det inte coolt med en funktion där man väljer lutning och väderstreck – och får fram allt som lutar 20–30 grader åt nordost till sydost?");
+
+    // In the app: Kartlager → Hitta åk → 20–30°, NO–SO.
+    {
+      const page = await mapPage();
+      await jump(page, KEB, 13);
+      await tilesLoaded(page);
+      await rec.record(page, "N2-2-i-appen", async () => {
+        await wait(page, 1000);
+        await finderOn(page, true);
+        await tilesLoaded(page);
+        await wait(page, 3500);
+      });
+      await page.context().close();
+    }
+
+    // Full screen: the plain map fading into the matching terrain, then a zoom.
+    {
+      const page = await mapPage(true);
+      await jump(page, KEB, 13);
+      await tilesLoaded(page);
+      await wait(page, 2500);
+      const undo = await cleanMap(page);
+      const topo = await rec.shot(page, ".N2-topo");
+      await undo();
+      await finderOn(page);
+      await jump(page, KEB, 13);
+      await tilesLoaded(page);
+      await wait(page, 4000);
+      await cleanMap(page);
+      const found = await rec.shot(page, "N2-3-hitta-ak");
+      rec.fade("N2-3-karta-hitta-ak", topo, found, 3);
+      await rec.zoomFrames(page, "N2-4-zoom", KEB, 14.2, 4);
       await page.context().close();
     }
   },
