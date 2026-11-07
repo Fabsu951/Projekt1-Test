@@ -6,7 +6,7 @@ står det "en skidåkare" som nedan.
 
 | Tid | Bild | Du säger (röst över bilden) | Text i bild |
 | --- | --- | --- | --- |
-| 0–3 s | `N2-1-krok.png` (idén från mejlet, utan namn) | "En skidåkare mejlade mig en idé." | – (texten finns i bilden) |
+| 0–3 s | `N2-1-krok.png` (idén från mejlet, ordagrant, utan namn) | "En skidåkare mejlade mig en idé." | – (texten finns i bilden) |
 | 3–11 s | `N2-2-i-appen.mp4` (Kartlager → Hitta åk → 20–30°, NO–SO) | "Välj lutning och väderstreck – så färgar kartan all terräng som matchar." | Lutning + väderstreck |
 | 11–14 s | `N2-3-karta-hitta-ak.mp4` (kartan tonar över till de lila åken) | "Fina åk i 20–30 grader som vetter österut. Där." | 20–30° · NO–SO |
 | 14–18 s | `N2-4-zoom.mp4` | – (låt bilden tala, musik) | – |

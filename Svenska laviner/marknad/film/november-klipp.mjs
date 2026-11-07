@@ -170,12 +170,12 @@ async function finderOn(page, show = false) {
   await wait(page, show ? 500 : 100);
   await go(box);
   await wait(page, show ? 1200 : 300);
-  const from = page.getByLabel("Lutning från");
+  const from = page.locator(".terrain-finder__field select").nth(0);
   await from.scrollIntoViewIfNeeded();
   await wait(page, show ? 400 : 50);
   await from.selectOption("20");
   await wait(page, show ? 900 : 50);
-  await page.getByLabel("till", { exact: true }).selectOption("30");
+  await page.locator(".terrain-finder__field select").nth(1).selectOption("30");
   await wait(page, show ? 900 : 50);
   for (const dir of ["nordost", "öster", "sydost"]) {
     await go(page.getByRole("checkbox", { name: dir, exact: true }));
@@ -252,7 +252,7 @@ const CLIPS = {
     }
   },
   N2: async () => {
-    await quoteCard("N2-1-krok", "En skidåkare i ett mejl", "Vore det inte coolt med en funktion där man väljer lutning och väderstreck – och får fram allt som lutar 20–30 grader åt nordost till sydost?");
+    await quoteCard("N2-1-krok", "En skidåkare i ett mejl", "Vore det inte coolt med en funktion där man kan välja spann på lutning och aspekt och exempelvis få ut allt som lutar 20–30 grader och ligger i aspekten NO till SO?");
 
     // In the app: Kartlager → Hitta åk → 20–30°, NO–SO.
     {
