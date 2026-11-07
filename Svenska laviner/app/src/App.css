@@ -876,13 +876,6 @@ p.muted a:not(.button) {
   color: var(--accent);
 }
 
-.form__preview {
-  max-width: 100%;
-  max-height: 260px;
-  border-radius: var(--radius);
-  align-self: flex-start;
-}
-
 .button {
   display: inline-flex;
   align-items: center;
@@ -4218,6 +4211,37 @@ h1 .admin-badge {
 .quick-obs__more {
   margin-top: 14px;
   font-size: 0.88rem;
+}
+
+/* Photo on an observation (PhotoField): camera first, gallery second. */
+.photo-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.photo-field__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.photo-field__camera {
+  min-height: var(--tap, 44px);
+}
+
+.photo-field__preview {
+  display: block;
+  max-width: 100%;
+  max-height: 180px;
+  border-radius: var(--radius);
+}
+
+.quick-obs__photo {
+  margin-top: 16px;
 }
 
 /* Observations waiting for coverage */

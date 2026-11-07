@@ -1114,6 +1114,13 @@ the start, exact map point.
   `LocationPicker` shown if it fails or accuracy > 500 m). Start page
   "Ny observation" and the primary button on `/observationer` go here; the
   full form stays at `/observationer/ny` ("+ Utförlig observation").
+  **Photo from the camera (2026-11-07, Fabian):** `components/PhotoField.tsx` on
+  both forms: "Ta bild" (hidden `<input capture="environment">`, opens the camera
+  directly – shown in the apps and on touch screens) + "Välj från galleriet"
+  ("Välj bild" on computers), preview, "Ta bort bilden"; `prepareImage` shrinks it
+  and drops EXIF/GPS. The quick observation sends the photo too (also queued
+  offline). Android uses Capacitor's file chooser (CAMERA permission + FileProvider
+  already in the manifest); not yet tried on a real phone.
 - **Observations without coverage (2026-10-10):** `services/observationQueue.ts`
   — `submitObservation()` (both forms) sends with a fresh `clientId`; on a
   connection error (ApiError status 0 / no ApiError) the observation is

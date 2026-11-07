@@ -1,6 +1,6 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import FilePicker from "../components/FilePicker";
+import PhotoField from "../components/PhotoField";
 import { useAuth } from "../auth/useAuth";
 import LocationPicker, { type Point } from "../components/LocationPicker";
 import PageLoading from "../components/PageLoading";
@@ -11,7 +11,6 @@ import { REGIONS } from "../data/regions";
 import { submitObservation } from "../services/observationQueue";
 import type { DangerSign, ObservationType } from "../types/observation";
 import { nearestRegionId } from "../utils/geo";
-import { prepareImage } from "../utils/image";
 import { t } from "../i18n";
 
 /** "YYYY-MM-DDTHH:mm" in local time, for <input type="datetime-local">. */
@@ -30,15 +29,8 @@ export default function NewObservationPage() {
   const [signs, setSigns] = useState<DangerSign[]>([]);
   const [snowDepth, setSnowDepth] = useState("");
   const [image, setImage] = useState<Blob | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    return () => {
-      if (preview) URL.revokeObjectURL(preview);
-    };
-  }, [preview]);
 
   if (loading) return <PageLoading />;
   if (!user || !token) return <Navigate to="/logga-in?next=/observationer/ny" replace />;
@@ -51,22 +43,6 @@ export default function NewObservationPage() {
         <VerifyEmailNotice />
       </div>
     );
-  }
-
-  async function onImage(file: File | undefined) {
-    setError(null);
-    if (!file) {
-      setImage(null);
-      setPreview(null);
-      return;
-    }
-    try {
-      const blob = await prepareImage(file);
-      setImage(blob);
-      setPreview(URL.createObjectURL(blob));
-    } catch {
-      setError(t("Kunde inte läsa bilden. Prova en annan bild (JPEG eller PNG)."));
-    }
   }
 
   async function onSubmit(e: FormEvent) {
@@ -181,11 +157,10 @@ export default function NewObservationPage() {
           />
         </label>
 
-        <label className="form__field">
-          {t("Bild")}{" "}<span className="form__hint">{t("(valfritt; platsdata i bilden tas bort)")}</span>
-          <FilePicker accept="image/*" buttonLabel={t("Välj bild")} onFile={(f) => void onImage(f)} />
-        </label>
-        {preview && <img className="form__preview" src={preview} alt={t("Förhandsvisning av bilden")} />}
+        <div className="form__field">
+          <span>{t("Bild")}{" "}<span className="form__hint">{t("(valfritt; platsdata i bilden tas bort)")}</span></span>
+          <PhotoField onChange={setImage} onError={setError} />
+        </div>
 
         {error && <p className="error" role="alert">{error}</p>}
         <button type="submit" className="button button--primary" disabled={busy}>

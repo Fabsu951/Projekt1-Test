@@ -4,6 +4,7 @@ import { Geolocation } from "@capacitor/geolocation";
 import { useAuth } from "../auth/useAuth";
 import LocationPicker, { type Point } from "../components/LocationPicker";
 import PageLoading from "../components/PageLoading";
+import PhotoField from "../components/PhotoField";
 import VerifyEmailNotice from "../components/VerifyEmailNotice";
 import { QUICK_CHOICES, quickObservation, toggleChoice, type QuickChoice } from "../data/quickObservation";
 import { REGIONS } from "../data/regions";
@@ -18,14 +19,15 @@ const ROUGH_ACCURACY_M = 500;
 
 /**
  * "Snabbobservation": what you saw with big buttons, position from the
- * phone, the time is now. Ten seconds with gloves on; the full form is one
- * link away for details, a photo or snow depth.
+ * phone, the time is now, a photo straight from the camera if wanted. Ten
+ * seconds with gloves on; the full form is one link away for snow depth etc.
  */
 export default function QuickObservationPage() {
   const { user, token, loading } = useAuth();
   const navigate = useNavigate();
   const [chosen, setChosen] = useState<QuickChoice[]>([]);
   const [note, setNote] = useState("");
+  const [image, setImage] = useState<Blob | null>(null);
   const [fix, setFix] = useState<Fix>({ kind: "locating" });
   const [picked, setPicked] = useState<Point | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +81,7 @@ export default function QuickObservationPage() {
         regionId: nearestRegionId(point, REGIONS),
         observedAt: new Date(),
         description: observation.description,
-        image: null,
+        image,
         dangerSigns: observation.dangerSigns,
         snowDepthCm: null,
       });
@@ -130,6 +132,11 @@ export default function QuickObservationPage() {
         />
       </label>
 
+      <div className="form__field quick-obs__photo">
+        <span>{t("Bild")}{" "}<span className="form__hint">{t("(valfritt; platsdata i bilden tas bort)")}</span></span>
+        <PhotoField onChange={setImage} onError={setError} />
+      </div>
+
       <p className="quick-obs__position" role="status">
         {fix.kind === "locating" && t("Hämtar din position…")}
         {fix.kind === "found" && !picked && t("Position från telefonen (±{m} m).", { m: fix.accuracyM })}
@@ -153,7 +160,7 @@ export default function QuickObservationPage() {
         {busy ? t("Skickar…") : !observation ? t("Välj vad du ser") : !point ? t("Väntar på position…") : t("Skicka observationen")}
       </button>
       <p className="muted quick-obs__more">
-        {t("Vill du lägga till bild, snödjup eller mer text?")}{" "}<Link to="/observationer/ny">{t("Använd hela formuläret")}</Link>.
+        {t("Vill du lägga till snödjup eller mer text?")}{" "}<Link to="/observationer/ny">{t("Använd hela formuläret")}</Link>.
       </p>
     </div>
   );
