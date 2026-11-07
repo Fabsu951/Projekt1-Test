@@ -28,8 +28,10 @@ const EMPTY_PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC
 async function mapPage(fullscreen = false) {
   const page = await rec.open("/karta", { theme: "dark", forecasts: offSeasonForecasts });
   await wait(page, 2500); // the map page may still move itself once its data has loaded
-  if (fullscreen) {
-    await page.getByRole("button", { name: /Helskärm/ }).first().click();
+  // On phones the map now opens in full screen by itself; only press the button when needed.
+  const enter = page.getByRole("button", { name: "Helskärm", exact: true });
+  if (fullscreen && (await enter.count())) {
+    await enter.first().click();
     await wait(page, 800);
   }
   return page;
