@@ -253,7 +253,7 @@ export default function AboutPage() {
             <strong>{t("Följare, kommentarer och gilla:")}</strong>{" "}{t("vilka du följer, vilka som följer dig, och de kommentarer och gillamarkeringar du gör. Antalet följare syns för alla, men bara du ser vilka det är. Kommentarer syns för alla som kan se inlägget. Turer du delar med \"Bara de som följer mig\" syns bara för dina följare och finns inte med i värmekartan. Blockerar du någon sparar vi det tills du slutar blockera personen eller raderar kontot.")}
           </li>
           <li>
-            <strong>{t("Notiser:")}</strong>{" "}{t("när någon följer dig, kommenterar, gillar eller svarar sparas en notis till dig (vem, vad och när). Notiser raderas efter 90 dagar. Slår du på \"Skicka notiserna till den här enheten\" sparar vi webbläsarens push-adress kopplad till ditt konto, tills du stänger av det.")}
+            <strong>{t("Notiser om ditt konto:")}</strong>{" "}{t("när någon följer dig, kommenterar, gillar eller svarar sparas en notis till dig (vem, vad och när). Notiser raderas efter 90 dagar. Slår du på \"Skicka notiserna till den här enheten\" sparar vi webbläsarens push-adress kopplad till ditt konto, tills du stänger av det.")}
           </li>
           <li>
             <strong>{t("Profilbild och erfarenhet:")}</strong>{" "}{t("om du lägger till en profilbild beskärs och komprimeras den i appen innan den laddas upp, vilket också tar bort inbäddad information som GPS-position. Bilden och din erfarenhetsnivå syns för alla. Nivån räknas fram ur antalet turer, höjdmeter och observationer du har – vi sparar inget extra för den.")}
@@ -262,7 +262,7 @@ export default function AboutPage() {
             <strong>{t("Inloggning och säkerhet:")}</strong>{" "}{t("inloggningssessioner, tillfälliga länkar för att bekräfta e-post och återställa lösenord, samt anmälningar av inlägg (vem som anmälde vad). För att stoppa lösenordsgissning och skräpkonton räknar vi misslyckade inloggningar och nya konton per e-postadress och IP-adress. Det sparas bara i krypterad (hashad) form och raderas efter ett dygn.")}
           </li>
           <li>
-            <strong>{t("Notiser:")}</strong>{" "}{t("om du slår på notiser för dina områden sparar vi den adress som din webbläsares push-tjänst (Google, Mozilla eller Apple) ger oss, och vilka områden du valt. Den kopplas inte till ditt konto. Notisernas innehåll skickas krypterat. Stänger du av notiserna raderas uppgifterna.")}
+            <strong>{t("Farogradsnotiser i webbläsaren:")}</strong>{" "}{t("om du slår på notiser för dina områden sparar vi den adress som din webbläsares push-tjänst (Google, Mozilla eller Apple) ger oss, och vilka områden du valt. Den kopplas inte till ditt konto. Notisernas innehåll skickas krypterat. Stänger du av notiserna raderas uppgifterna.")}
           </li>
           <li>
             <strong>{t("Notiser i mobilappen:")}</strong>{" "}{t("i Android- och iPhone-appen skickas notiser via Googles Firebase Cloud Messaging (till iPhone vidare via Apple). Slår du på notiser sparar vi telefonens notis-id från Firebase, om det är Android eller iPhone, vilka områden du valt och, bara om du slår på notiser för ditt konto, kopplingen till kontot. Notisens text (till exempel ny farograd eller vem som kommenterade) passerar Google och Apple på vägen till telefonen. Stänger du av notiserna raderas uppgifterna. Loggar du ut slutar telefonen få notiser om kontot.")}
