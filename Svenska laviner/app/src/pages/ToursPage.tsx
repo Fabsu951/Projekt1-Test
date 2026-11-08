@@ -44,8 +44,11 @@ export default function ToursPage() {
           <Link to="/karta?turer=varmekarta" className="button">
             {t("Visa värmekarta")}
           </Link>
-          <Link to={user ? "/turer/ny" : "/logga-in?next=/turer/ny"} className="button button--primary">
+          <Link to={user ? "/turer/ny" : "/logga-in?next=/turer/ny"} className="button">
             {t("+ Lägg till tur från klockan")}
+          </Link>
+          <Link to="/turer/spela-in" className="button button--primary">
+            {t("Spela in tur")}
           </Link>
         </div>
       </header>

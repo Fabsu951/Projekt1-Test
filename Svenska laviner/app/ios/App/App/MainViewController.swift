@@ -5,5 +5,6 @@ class MainViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
         bridge?.registerPluginInstance(BackgroundImportPlugin())
         bridge?.registerPluginInstance(ShareLocationPlugin())
+        bridge?.registerPluginInstance(TourRecorderPlugin())
     }
 }

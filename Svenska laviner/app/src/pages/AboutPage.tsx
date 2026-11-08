@@ -210,7 +210,7 @@ export default function AboutPage() {
 
       <section className="section privacy" id="integritet">
         <h2>{t("Integritetspolicy")}</h2>
-        <p className="muted">{t("Senast uppdaterad 30 oktober 2026.")}</p>
+        <p className="muted">{t("Senast uppdaterad 8 november 2026.")}</p>
         {isEnglish() && <p className="muted">This is a translation. The Swedish version of the privacy policy is the one that applies.</p>}
         <p>
           <strong>{t("Personuppgiftsansvarig")}</strong>{" "}{t("är Fabian Sund, som driver Snöläge som privatperson")}
@@ -236,6 +236,9 @@ export default function AboutPage() {
           </li>
           <li>
             <strong>{t("Turer:")}</strong>{" "}{t("GPS-spår du laddar upp (positioner, höjd och tidpunkter), med den titel och beskrivning du skriver. Turer är delade med andra som standard, men du kan göra en tur privat. För delade turer döljer vi som standard de första och sista 500 metrarna för andra, så att det inte syns var du bor eller parkerade. Du väljer själv avståndet, eller stänger av det.")}
+          </li>
+          <li>
+            <strong>{t("Inspelade turer:")}</strong>{" "}{t("om du spelar in en tur i appen sparas GPS-punkterna (position, höjd, tidpunkt och noggrannhet) bara i din telefon eller webbläsare tills du sparar turen. Då skickas spåret till oss och behandlas som en uppladdad tur. I Android- och iPhone-appen fortsätter inspelningen när skärmen är släckt, och det syns med en notis (Android) eller den blå platsmarkeringen (iPhone). Slänger du inspelningen raderas den från telefonen. När du sparar hämtar appen markhöjder för spåret från Mapterhorn, så att höjdmetrarna blir rätt.")}
           </li>
           <li>
             <strong>{t("Health Connect (Android) och Apple Hälsa (iPhone):")}</strong>{" "}{t("om du kopplar Health Connect eller Apple Hälsa läser appen dina träningspass och deras GPS-rutter från den senaste månaden, aldrig puls, vikt eller annan hälsodata. Läsningen sker på telefonen. Bara de pass du själv väljer att importera skickas till oss, och de sparas som privata turer tills du väljer att dela dem. Slår du på automatisk import läggs nya skidpass till som privata turer när du öppnar appen eller går tillbaka till den. Slår du på \"Påminn mig om nya skidpass\" i appen kollar telefonen, även när appen är stängd, om det finns nya pass (Android ungefär en gång i timmen, iPhone när Apple Hälsa sparar ett nytt pass), och visar då en notis. Den kollen sker helt på telefonen och skickar ingenting till oss. Vi sparar passets id hos turen så att samma pass inte importeras två gånger. Uppgifter från Health Connect och Apple Hälsa används bara för din turdagbok: aldrig för reklam, de säljs inte och lämnas inte vidare till någon annan. Du kan sluta när som helst, i appen, i Health Connect eller i Apple Hälsa (Inställningar → Hälsa → Dataåtkomst och enheter).")}

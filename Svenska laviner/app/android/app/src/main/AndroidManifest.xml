@@ -60,6 +60,11 @@
             android:name=".ShareLocationService"
             android:exported="false"
             android:foregroundServiceType="location" />
+        <!-- "Spela in tur" with the screen off (TourRecorderService.kt). -->
+        <service
+            android:name=".TourRecorderService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
     </application>
 
     <!-- Permissions -->

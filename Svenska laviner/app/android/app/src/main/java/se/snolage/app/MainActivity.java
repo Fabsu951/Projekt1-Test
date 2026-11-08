@@ -11,6 +11,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(HealthRoutesPlugin.class);
         registerPlugin(BackgroundImportPlugin.class);
         registerPlugin(ShareLocationPlugin.class);
+        registerPlugin(TourRecorderPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

@@ -5848,3 +5848,114 @@ h1 .admin-badge {
     margin-left: 0;
   }
 }
+
+/* "Spela in tur" (RecordTourPage): the moving time is the one big thing;
+   distance and climb sit quietly under it; buttons big enough for gloves. */
+.recording__header {
+  margin-bottom: 12px;
+}
+
+.recording__title {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.recording__clock {
+  margin: 0;
+  font-family: var(--font-display);
+  font-stretch: var(--display-stretch);
+  font-weight: 700;
+  font-size: clamp(4.2rem, 22vw, 7rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.recording__stats {
+  display: flex;
+  gap: 32px;
+  margin: 10px 0 0;
+}
+
+.recording__stats div {
+  display: flex;
+  flex-direction: column;
+}
+
+.recording__stats dt {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.recording__stats dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-stretch: var(--display-stretch);
+  font-size: 1.9rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.recording__gps {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.recording-map {
+  position: relative;
+  height: 300px;
+}
+
+.recording-map__here {
+  fill: var(--accent);
+  fill-opacity: 1;
+  stroke: var(--snow);
+  stroke-width: 3;
+}
+
+.recording-map__follow {
+  position: absolute;
+  z-index: 500;
+  right: 10px;
+  bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.recording__buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.recording__buttons .button,
+.recording__start {
+  min-height: 56px;
+  font-size: 1.1rem;
+}
+
+.recording__start {
+  width: 100%;
+  margin: 4px 0 16px;
+}
+
+.recording__confirm p {
+  margin: 12px 0 0;
+  font-weight: 600;
+}
+
+.recording__notes {
+  margin: 0 0 16px;
+  padding-left: 1.2em;
+  color: var(--text-muted);
+}
+
+.recording__notes li + li {
+  margin-top: 6px;
+}
+
+.recording__discard {
+  margin-top: 18px;
+}

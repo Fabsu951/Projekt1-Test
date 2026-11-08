@@ -16,6 +16,7 @@ import "./App.css";
 const RegionDetail = lazy(() => import("./pages/RegionDetail"));
 const OfflinePage = lazy(() => import("./pages/OfflinePage"));
 const SeasonPage = lazy(() => import("./pages/SeasonPage"));
+const RecordTourPage = lazy(() => import("./pages/RecordTourPage"));
 const MapPage = lazy(() => import("./pages/MapPage"));
 const SafetyGuide = lazy(() => import("./pages/SafetyGuide"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -66,6 +67,7 @@ function App() {
         <Route path="/turer" element={<ToursPage />} />
         <Route path="/turer/halsa" element={<HealthImportPage />} />
         <Route path="/turer/ny" element={<NewTourPage />} />
+        <Route path="/turer/spela-in" element={<RecordTourPage />} />
         <Route path="/turer/:id" element={<TourPage />} />
         <Route path="/flode" element={<FeedPage />} />
         <Route path="/person/:id" element={<PersonPage />} />

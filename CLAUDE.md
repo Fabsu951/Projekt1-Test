@@ -1519,6 +1519,30 @@ the start, exact map point.
   trigger a deploy – dispatch deploy.yml). Verified 2026-10-19: notification
   "Snöläge delar din position till kl. …" + STOPPA shows, tapping it ends the
   share. Not yet tried on a real phone.
+- **Spela in tur (2026-11-08, Fabian: "som Strava – starta turen i appen utan
+  klocka"):** `/turer/spela-in` (`RecordTourPage`, lazy; "Spela in tur" on
+  `/turer`). Recorder `services/tourRecorder.ts`: apps = own plugin
+  `TourRecorder` (Android `TourRecorderService.kt` foreground service type
+  location, GPS every 3 s/5 m, notification with chronometer + Pausa/Fortsätt,
+  tap → `/turer/spela-in`, state in prefs `snolage-recording`; iOS
+  `TourRecorderPlugin.swift`, CLLocationManager background updates, pbxproj ids
+  `A1…0A`/`A1…1A`, state in UserDefaults `snolage.recording.*`, restarts in
+  `load()`), both append lines to a file (`lat,lon,ele,time,acc` / `P,t` /
+  `R,t`) so nothing needs coverage and an app kill loses nothing; browser =
+  `Geolocation.watchPosition` + Wake Lock, lines in localStorage
+  `fjallkoll:tour-recording` (only while the page is open).
+  `utils/recording.ts` parses + filters (accuracy ≤ 50 m, no jumps > 45 m/s,
+  pauses split segments), distance with an 8 m step, live climb with 10 m
+  hysteresis ("ca"), `recordingToTrack` → `simplify`. `hooks/useRecording.ts`
+  reads only new lines every 3 s. `RecordingBanner` (Layout) shows a running /
+  paused / unsaved recording and calls `keepRecordingAlive()` at start. Finish →
+  `/turer/ny?inspelning=1` (NewTourPage without file picker): heights swapped for
+  Mapterhorn ground heights (`utils/groundElevation.ts`, keeps GPS heights if
+  < 95 % load within 15 s), default title "Tur <weekday date>", on success
+  `discardRecording()`, offline → "Turen ligger kvar i telefonen". Privacy
+  policy "Inspelade turer" (updated 8 Nov). **Play Console's foreground-service
+  (location) declaration should mention tour recording too.** Native parts only
+  compiled by CI, not tried on a real phone yet.
 - **Share as an image (2026-10-19, marketing):** `services/shareImage.ts` draws
   today's forecast on a canvas in the paper-map look (paper `#f6f7f6`, ink, lake
   blue, contour rings, the danger band + `DangerStair`, problems with

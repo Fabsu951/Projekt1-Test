@@ -4,6 +4,7 @@ import PageLoading from "./PageLoading";
 import ObservationQueueBanner from "./ObservationQueueBanner";
 import ObservationQueueBridge from "./ObservationQueueBridge";
 import LocationShareBanner from "./LocationShareBanner";
+import RecordingBanner from "./RecordingBanner";
 import LocationShareBridge from "./LocationShareBridge";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { defaultTitle, fullTitle, PageTitleContext } from "./pageTitle";
@@ -209,6 +210,7 @@ export default function Layout() {
       <OfflineBanner />
       <ObservationQueueBanner />
       <LocationShareBanner />
+      <RecordingBanner />
       <NativePushBridge />
       <ObservationQueueBridge />
       <LocationShareBridge />
