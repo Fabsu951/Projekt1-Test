@@ -85,7 +85,7 @@ export default function SnowDepthCard({ regionId, lat, lon }: Props) {
             ))}
           </ul>
           <p className="muted snow-depth__note">
-            {t("Modellberäkning för {day} från NVE och MET Norway (seNorge), för rutor på 1 × 1 km. Den är inte utvärderad på svensk sida. Vinden flyttar snön, så det kan finnas mycket mer eller mindre där du åker, och siffrorna säger inget om lavinfaran.", { day: day(cells[0].date) })}{" "}
+            {t("Modellberäkning för {day} från NVE och MET Norway (seNorge, CC BY 3.0), för rutor på 1 × 1 km. Den är inte utvärderad på svensk sida. Vinden flyttar snön, så det kan finnas mycket mer eller mindre där du åker, och siffrorna säger inget om lavinfaran.", { day: day(cells[0].date) })}{" "}
             <a href={SENORGE_PAGE} target="_blank" rel="noreferrer">
               {t("seNorge")}
               <Icon name="external" className="icon--link" />

@@ -1120,7 +1120,9 @@ the start, exact map point.
   (-9 = none), checked live; shown as a 1–2 cm per mm range by
   `utils/snowRange.ts`, a second small snow1g request) and the SMHI stations.
   About lists seNorge. deploy.yml prints `/snow/model` (warning only). Attribution
-  text still to confirm with Jess (licence NLOD vs CC BY 4.0).
+  confirmed by Jess (NVE, 9 Nov): "NVE/MET Norway (seNorge)", licence **CC BY 3.0**
+  (api.nve.no's GTS page – not 4.0); ten cells a few times a day is well within
+  NVE's API terms. Shown in About and under the cells on area pages.
 - **Snabbobservation (2026-10-10):** `/observationer/snabb`
   (`QuickObservationPage`, lazy): big toggle buttons from
   `data/quickObservation.ts` (`QUICK_CHOICES`: Färsk lavin → lavin,

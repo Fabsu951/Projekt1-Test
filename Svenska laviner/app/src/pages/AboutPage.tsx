@@ -106,7 +106,7 @@ export default function AboutPage() {
           <li>
             {t("Beräknat snödjup på fjället:")}{" "}
             <a href="https://www.senorge.no" target="_blank" rel="noreferrer">{t("seNorge")}</a>{" "}
-            {t("från NVE och MET Norway, med NVE:s tillåtelse. Modellen är inte utvärderad på svensk sida. Väntat snöfall räknar Snöläge fram från SMHI:s prognos.")}
+            {t("från NVE och MET Norway (CC BY 3.0), med NVE:s tillåtelse. Modellen är inte utvärderad på svensk sida. Väntat snöfall räknar Snöläge fram från SMHI:s prognos.")}
           </li>
           <li>
             {t("Lavinprognoser:")}{" "}<a href="https://www.lavinprognoser.se" target="_blank" rel="noreferrer">
