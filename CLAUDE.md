@@ -1542,7 +1542,13 @@ the start, exact map point.
   `discardRecording()`, offline → "Turen ligger kvar i telefonen". Privacy
   policy "Inspelade turer" (updated 8 Nov). **Play Console's foreground-service
   (location) declaration should mention tour recording too.** Native parts only
-  compiled by CI, not tried on a real phone yet.
+  compiled by CI, not tried on a real phone yet. **Play declaration (2026-11-09):**
+  "Other" under Background location updates with video
+  `https://snolage.se/play/spela-in-tur.mp4` (`scripts/play-video/drive-record.mjs`,
+  run by play-video.yml before drive.mjs; the demo build turns the notification's
+  chronometer off, since a ticking clock keeps uiautomator from ever reading the
+  screen). 1.0.9 built the same day (run 42575962605); Play refused production on
+  9 Nov (more tester engagement) – apply again from 23 Nov.
 - **Share as an image (2026-10-19, marketing):** `services/shareImage.ts` draws
   today's forecast on a canvas in the paper-map look (paper `#f6f7f6`, ink, lake
   blue, contour rings, the danger band + `DangerStair`, problems with
