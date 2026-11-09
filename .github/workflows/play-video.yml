@@ -68,6 +68,10 @@ jobs:
           npm run build
           sed -i "s|  backgroundColor: '#0b1722',|  backgroundColor: '#0b1722',\n  android: { allowMixedContent: true },|" capacitor.config.ts
           sed -i 's|<application|<application android:usesCleartextTraffic="true"|' android/app/src/main/AndroidManifest.xml
+          # A ticking clock in the recording notification keeps the screen from ever going
+          # idle, and uiautomator then can't read it to find "Pause": no clock in the demo.
+          sed -i 's|builder.setUsesChronometer(true)|builder.setUsesChronometer(false)|' android/app/src/main/java/se/snolage/app/TourRecorderService.kt
+          grep -q "setUsesChronometer(false)" android/app/src/main/java/se/snolage/app/TourRecorderService.kt
           rm -rf dist/presskit  # press images are for the website only
           npx cap sync android
           cd android
