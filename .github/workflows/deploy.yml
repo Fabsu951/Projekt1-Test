@@ -85,7 +85,7 @@ jobs:
         working-directory: Svenska laviner/app
         run: |
           # Play's demo video (play-video.yml) is only on the website, not in the apps.
-          if [ -f "../google-play/dela-position.mp4" ]; then mkdir -p dist/play && cp ../google-play/dela-position.mp4 dist/play/; fi
+          mkdir -p dist/play && for f in dela-position spela-in-tur positionstjanster; do if [ -f "../google-play/$f.mp4" ]; then cp "../google-play/$f.mp4" dist/play/; fi; done
           npx --yes wrangler@4 pages deploy dist --project-name=fjallkoll --branch=production --commit-hash="$GITHUB_SHA" --commit-message="$(git log -1 --format=%s)" --commit-dirty=true
 
       - name: Check the live site and worker

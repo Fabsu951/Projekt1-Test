@@ -1,10 +1,12 @@
-# Records the demo video Google Play asks for in the "Foreground service
-# permissions" declaration (Dela position in the background): the real app
+# Records the demo videos Google Play asks for in the "Foreground service
+# permissions" declaration (location: Dela position and Spela in tur in the
+# background): the real app
 # in an Android emulator, driven by app/scripts/play-video/drive.mjs, with
 # app/scripts/play-video/server.mjs standing in for the worker (made-up people,
-# no danger levels). The video is committed to
-# "Svenska laviner/google-play/dela-position.mp4" and published on the site at
-# https://snolage.se/play/dela-position.mp4 by the next deploy.
+# no danger levels); drive-record.mjs records "Spela in tur". The videos are
+# committed to "Svenska laviner/google-play/" (dela-position.mp4,
+# spela-in-tur.mp4) and published on the site under https://snolage.se/play/
+# by the next deploy.
 # Runs when this file or the scripts change.
 
 name: Play-video
@@ -16,6 +18,7 @@ on:
       - ".github/workflows/play-video.yml"
       # The video's own script; helper changes (emulator.mjs) are tested by android-e2e.yml.
       - "Svenska laviner/app/scripts/play-video/drive.mjs"
+      - "Svenska laviner/app/scripts/play-video/drive-record.mjs"
   workflow_dispatch:
 
 concurrency:
@@ -106,6 +109,7 @@ jobs:
           working-directory: Svenska laviner/app
           script: |
             adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+            node scripts/play-video/drive-record.mjs "$RUNNER_TEMP/spela-in-tur.mp4"
             node scripts/play-video/drive.mjs "$RUNNER_TEMP/dela-position.mp4"
 
       - name: Server log
@@ -117,19 +121,26 @@ jobs:
         with:
           name: dela-position-video
           path: |
-            ${{ runner.temp }}/dela-position.mp4
-            ${{ runner.temp }}/dela-position-fel.png
+            ${{ runner.temp }}/*.mp4
+            ${{ runner.temp }}/*-fel.png
           if-no-files-found: warn
 
       - name: Commit the video
         working-directory: .
         run: |
           mkdir -p "Svenska laviner/google-play"
-          cp "$RUNNER_TEMP/dela-position.mp4" "Svenska laviner/google-play/dela-position.mp4"
+          # Both in one file, for a declaration form that takes a single video link.
+          if [ -f "$RUNNER_TEMP/spela-in-tur.mp4" ] && [ -f "$RUNNER_TEMP/dela-position.mp4" ]; then
+            printf "file '%s'\nfile '%s'\n" "$RUNNER_TEMP/spela-in-tur.mp4" "$RUNNER_TEMP/dela-position.mp4" > "$RUNNER_TEMP/list.txt"
+            ffmpeg -y -loglevel error -f concat -safe 0 -i "$RUNNER_TEMP/list.txt" -c copy "$RUNNER_TEMP/positionstjanster.mp4" || true
+          fi
+          for f in dela-position spela-in-tur positionstjanster; do
+            if [ -f "$RUNNER_TEMP/$f.mp4" ]; then cp "$RUNNER_TEMP/$f.mp4" "Svenska laviner/google-play/$f.mp4"; fi
+          done
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "Svenska laviner/google-play/dela-position.mp4"
-          git commit -m "Demo video for Play's foreground service declaration" || exit 0
+          git add "Svenska laviner/google-play/"*.mp4
+          git commit -m "Demo videos for Play's foreground service declaration" || exit 0
           git checkout -- .
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
