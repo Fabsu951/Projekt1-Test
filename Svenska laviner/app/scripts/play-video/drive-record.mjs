@@ -8,6 +8,8 @@ import { spawn } from "node:child_process";
 import { adb, diagnose, find, moveTo, pkg, shell, signIn, sleep, startApp, tap } from "./emulator.mjs";
 
 const OUT = process.argv[2] ?? "spela-in-tur.mp4";
+// Declared before the top-level await below, which runs the walk.
+let step = 0;
 const { device, app, go } = await startApp();
 
 let recorder = null;
@@ -35,7 +37,6 @@ try {
 }
 
 /** A short walk north-east from the start, a fix every few seconds (the recorder takes one per 3 s / 5 m). */
-let step = 0;
 async function walk(n) {
   for (let i = 0; i < n; i++) {
     step++;
