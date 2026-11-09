@@ -57,6 +57,7 @@ import { checkForecastHealth } from "./health";
 import { seasonStartReport } from "./seasonReport";
 import { runBackup } from "./backup";
 import { fetchWarnings, WARNINGS_PAGE } from "./warnings";
+import { fetchSnowModel, SNOW_CELLS } from "./snowModel";
 import { fcmConfigured, type FcmEnv } from "./fcm";
 import { stockholmDate } from "./model";
 import type { VapidEnv } from "./webpush";
@@ -526,6 +527,31 @@ async function warningsResponse(request: Request, ctx: ExecutionContext, origin:
   }
 }
 
+/** seNorge updates once a day; a few hours keeps NVE's server out of every page view. */
+const SNOW_MODEL_CACHE_TTL_SECONDS = 60 * 60 * 3;
+
+/** GET /snow/model?region=<id>: modelled snow depth (seNorge) at three heights in the area. */
+async function snowModelResponse(request: Request, ctx: ExecutionContext, origin: string): Promise<Response> {
+  const regionId = new URL(request.url).searchParams.get("region") ?? "";
+  if (!SNOW_CELLS[regionId]) return error("Okänt område.", origin, 404);
+  const cache = caches.default;
+  const key = new Request(new URL(`/snow/model?region=${encodeURIComponent(regionId)}&v=1`, request.url).toString());
+  const hit = await cache.match(key);
+  if (hit) return new Response(hit.body, { headers: { ...corsHeaders(origin), "Content-Type": "application/json" } });
+  try {
+    const model = await fetchSnowModel(regionId);
+    if (!model || model.cells.length === 0) return error("Snödata från seNorge kunde inte hämtas just nu.", origin, 502);
+    const response = new Response(JSON.stringify(model), {
+      headers: { ...corsHeaders(origin), "Content-Type": "application/json", "Cache-Control": `public, max-age=${SNOW_MODEL_CACHE_TTL_SECONDS}` },
+    });
+    ctx.waitUntil(cache.put(key, response.clone()));
+    return response;
+  } catch (err) {
+    console.error("seNorge failed", err);
+    return error("Snödata från seNorge kunde inte hämtas just nu.", origin, 502);
+  }
+}
+
 /** The weekly backup's cron in wrangler.toml; the others fetch forecasts. */
 const BACKUP_CRON = "37 2 * * 1";
 /** Every quarter of an hour: position shares that ran out without being stopped, and queued push. */
@@ -657,6 +683,7 @@ export default {
     }
 
     if (url.pathname === "/warnings" && request.method === "GET") return warningsResponse(request, ctx, origin);
+    if (url.pathname === "/snow/model" && request.method === "GET") return snowModelResponse(request, ctx, origin);
 
     const tile = request.method === "GET" ? parseTilePath(url.pathname) : null;
     if (tile) return serveTile(request, env, ctx, origin, tile);

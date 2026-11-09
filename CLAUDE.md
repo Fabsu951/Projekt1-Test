@@ -1103,6 +1103,24 @@ the start, exact map point.
   earlier (±12 h). `cached("snow-depth:<region>")` for offline.
   `SnowDepthCard` (section "Snödjup" after Väder on area pages, hidden when
   nothing fresh; 0 cm → "Barmark"; note that valley stations ≠ mountain).
+  **Snow on the mountain + expected snowfall (2026-11-09, NVE OK'd the use by
+  email – Rune Engeset: "Du kan bruke data fra oss"; technical questions to Jess;
+  "Vi har ikke evaluert simuleringen på svensk side"):** worker
+  `src/snowModel.ts` → `GET /snow/model?region=<id>` (3 h edge cache): seNorge
+  GridTimeSeries (`gts.nve.no/api/GridTimeSeries/{x}/{y}/{from}/{to}/{theme}.json`,
+  UTM33 via own `toUtm33`, tested against proj4; themes `sd` cm + `sdfsw3d` cm;
+  answers `{Altitude, NoDataValue, StartDate, Data[]}`, the series runs into
+  forecast days, so the value for today's index is used), three fixed cells per
+  area at different heights (`SNOW_CELLS`, picked from a live 5×5 survey – snow
+  varies 0–42 cm within 10 km at Kebnekaise), sorted highest first. App:
+  `services/snowModelService.ts`; `SnowDepthCard` now has "På fjället, beräknat"
+  (warning: not evaluated on the Swedish side, wind, says nothing about the
+  danger), "Väntat snöfall" (`snowfallOutlook` in `weatherService.ts`: Σ
+  `precipitation_amount_mean` mm/h × step hours × `precipitation_frozen_part` %
+  (-9 = none), checked live; shown as a 1–2 cm per mm range by
+  `utils/snowRange.ts`, a second small snow1g request) and the SMHI stations.
+  About lists seNorge. deploy.yml prints `/snow/model` (warning only). Attribution
+  text still to confirm with Jess (licence NLOD vs CC BY 4.0).
 - **Snabbobservation (2026-10-10):** `/observationer/snabb`
   (`QuickObservationPage`, lazy): big toggle buttons from
   `data/quickObservation.ts` (`QUICK_CHOICES`: Färsk lavin → lavin,

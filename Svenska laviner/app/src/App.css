@@ -4159,6 +4159,40 @@ h1 .admin-badge {
   font-size: 0.82rem;
 }
 
+.snow-depth__heading {
+  margin: 18px 0 8px;
+  font-size: 1rem;
+}
+
+.snow-depth__heading:first-of-type {
+  margin-top: 4px;
+}
+
+.snow-depth__fall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  margin: 0;
+}
+
+.snow-depth__fall div {
+  display: flex;
+  flex-direction: column;
+}
+
+.snow-depth__fall dt {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.snow-depth__fall dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-stretch: var(--display-stretch);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
 /* Snabbobservation: big targets, usable with gloves */
 .quick-obs__choices {
   display: grid;

@@ -104,6 +104,11 @@ export default function AboutPage() {
             {t("öppna data (CC BY 4.0). Vindlasten per väderstreck är Snöläges egen beräkning från SMHI:s vind.")}
           </li>
           <li>
+            {t("Beräknat snödjup på fjället:")}{" "}
+            <a href="https://www.senorge.no" target="_blank" rel="noreferrer">{t("seNorge")}</a>{" "}
+            {t("från NVE och MET Norway, med NVE:s tillåtelse. Modellen är inte utvärderad på svensk sida. Väntat snöfall räknar Snöläge fram från SMHI:s prognos.")}
+          </li>
+          <li>
             {t("Lavinprognoser:")}{" "}<a href="https://www.lavinprognoser.se" target="_blank" rel="noreferrer">
               {t("Naturvårdsverket")}
             </a>

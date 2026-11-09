@@ -108,6 +108,10 @@ jobs:
           # A zoom-15 tile at border cairn 237 (MORE_MOUNTAIN_BOXES, imported 2026-11-01).
           type=$(curl -fsS --retry 3 --retry-all-errors -o /dev/null -w '%{content_type}' https://kartor.snolage.se/topowebb/15/17869/8075.png)
           case "$type" in image/*) ;; *) { echo "::error::kartor.snolage.se border tile answered $type"; exit 1; } ;; esac
+          # seNorge snow (NVE's server, not ours): printed, a warning only if it fails.
+          snow=$(curl -sS --max-time 40 "$worker/snow/model?region=kebnekaisefjallen" || true)
+          echo "snow/model: $snow" | head -c 1200; echo
+          echo "$snow" | jq -e '.cells | length > 0' > /dev/null 2>&1 || echo "::warning::/snow/model gave no cells (seNorge unreachable?)"
           echo "Live checks OK"
 
       - name: Summary
