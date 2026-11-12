@@ -481,6 +481,11 @@ utan pengar.
 
 ## 9. Veckokoll (söndagar, 15 min)
 
+**Senaste analys:** `marknad/statistik/ANALYS-2026-11-12.md` – du i bild och
+humor i kroken ger flest följare och mest räckvidd; klipp utan person eller
+bara text når få. Facebook-publiken är män 45–65+. Följ reglerna där när nya
+inlägg görs.
+
 Skriv in siffrorna i en anteckning i telefonen:
 
 | Var | Vad du tittar på |
