@@ -556,8 +556,13 @@ the start, exact map point.
   single-use, stored hashed, max 3 emails/hour/user/purpose; a password
   reset logs out all sessions and also verifies the email.
 - **Privacy policy** on `/om-appen#integritet`. `PRIVACY_CONTACT_EMAIL` in
-  `app/src/data/contact.ts` is `fabian.n.sund@gmail.com` (Fabian's choice,
-  2026-09-26; may move to a Fjällkoll address/domain later).
+  `app/src/data/contact.ts` is `fabian@snolage.se` since 2026-11-12
+  (Cloudflare Email Routing on snolage.se forwards it to Fabian's own inbox;
+  catch-all off; never delete that rule – it is also his new Apple-ID address).
+  Same address in the worker's request headers, `VAPID_SUBJECT` and
+  APPSTORE/GOOGLEPLAY.docx; reviewer demo accounts and Fabian's own login unchanged.
+  **App Store:** Fabian's own enrollment is blocked (case 103016180277), so his
+  dad enrolls as Individual and invites Fabian as Admin in App Store Connect.
 - **Admin:** Fabian's account (`fabian.n.sund@gmail.com`) has `is_admin = 1`
   (set 2026-09-26). The admin page is reached via "Anmälda inlägg" on
   `/profil`, not from the main nav.

@@ -17,7 +17,7 @@ $ErrorActionPreference = "Stop"
 $base = "https://nvgis.naturvardsverket.se/geoserver/lavinprognoser/ows"
 $outDir = Join-Path $PSScriptRoot "..\src\fixtures\nvgis"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
-$ua = "Snolage-fixtures (fabian.n.sund@gmail.com)"
+$ua = "Snolage-fixtures (fabian@snolage.se)"
 
 function Save($name, $url) {
   $file = Join-Path $outDir $name

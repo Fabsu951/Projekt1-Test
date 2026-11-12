@@ -37,8 +37,8 @@ describe("AboutPage", () => {
     expect(screen.getByText(/visas aldrig för andra/)).toBeInTheDocument();
     expect(screen.getByText(/radera hela ditt/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Integritetsskyddsmyndigheten/ })).toHaveAttribute("href", "https://www.imy.se");
-    for (const link of screen.getAllByRole("link", { name: "fabian.n.sund@gmail.com" })) {
-      expect(link).toHaveAttribute("href", "mailto:fabian.n.sund@gmail.com");
+    for (const link of screen.getAllByRole("link", { name: "fabian@snolage.se" })) {
+      expect(link).toHaveAttribute("href", "mailto:fabian@snolage.se");
     }
     // The app stores link straight to this: how to delete an account.
     expect(screen.getByRole("heading", { name: "Radera ditt konto" })).toHaveAttribute("id", "radera-konto");

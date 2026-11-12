@@ -71,7 +71,7 @@ inte sönder.
   verifieras i Resend. Då kan mejlen skickas från till exempel
   `noreply@snolage.se`.
 - **Kontaktadress** som `kontakt@snolage.se` kan vidarebefordras gratis
-  till din Gmail via Cloudflare **Email Routing**.
+  till din Gmail via Cloudflare **Email Routing** (gjort 12 nov 2026: fabian@snolage.se).
 
 Klistra aldrig in lösenord, API-nycklar eller koder från Cloudflare,
 återförsäljaren eller Resend i chatten.

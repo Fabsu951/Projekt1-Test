@@ -215,7 +215,7 @@ export default function AboutPage() {
 
       <section className="section privacy" id="integritet">
         <h2>{t("Integritetspolicy")}</h2>
-        <p className="muted">{t("Senast uppdaterad 8 november 2026.")}</p>
+        <p className="muted">{t("Senast uppdaterad 12 november 2026.")}</p>
         {isEnglish() && <p className="muted">This is a translation. The Swedish version of the privacy policy is the one that applies.</p>}
         <p>
           <strong>{t("Personuppgiftsansvarig")}</strong>{" "}{t("är Fabian Sund, som driver Snöläge som privatperson")}

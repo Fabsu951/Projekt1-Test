@@ -177,7 +177,7 @@ async function fetchRegion(regionId: string, slugs: string[]): Promise<RegionFor
 /** Naturvårdsverket's API and pages: an answer within this, or the next fallback. */
 const UPSTREAM_TIMEOUT_MS = 10_000;
 
-const API_HEADERS = { "User-Agent": "Snolage/1.0 (https://snolage.se; fabian.n.sund@gmail.com)" };
+const API_HEADERS = { "User-Agent": "Snolage/1.0 (https://snolage.se; fabian@snolage.se)" };
 
 /** One API answer; if the server dislikes our property list, asks again for everything. */
 async function apiForecasts(urlWith: string, urlWithout: string): Promise<ApiForecast[]> {
