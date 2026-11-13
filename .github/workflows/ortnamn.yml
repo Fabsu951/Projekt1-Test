@@ -1,0 +1,45 @@
+name: Ortnamn till kartsökningen
+
+# Fetches place names from OpenStreetMap (Overpass) into
+# app/src/data/ortnamn.json and commits it. Runs when the script or this
+# file changes; re-run by touching either (e.g. once a season).
+on:
+  push:
+    branches: [claude/bold-lamport-juktha, svenska-laviner]
+    paths:
+      - "Svenska laviner/app/scripts/ortnamn.mjs"
+      - ".github/workflows/ortnamn.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ortnamn-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      BRANCH: ${{ github.ref_name }}
+    defaults:
+      run:
+        working-directory: "Svenska laviner"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch place names
+        run: node app/scripts/ortnamn.mjs
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/data/ortnamn.json
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "Ortnamn för kartsökningen (automatiskt)"
+          for i in 1 2 3; do git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH" && exit 0; sleep 5; done
+          exit 1
