@@ -1518,4 +1518,7 @@ export const EN: Record<string, string> = {
   "Ingen nämnvärd snö": "Hardly any snow",
   "Från SMHI:s prognos för områdets mittpunkt: {mm} mm nederbörd som snö de närmaste 3 dygnen. En millimeter blir oftast 1–2 cm nysnö, och vinden samlar snön i läsidor.": "From SMHI's forecast for the middle of the area: {mm} mm of precipitation as snow over the next 3 days. One millimetre usually makes 1–2 cm of new snow, and wind gathers the snow on lee slopes.",
   "Vid SMHI:s mätstationer": "At SMHI's weather stations",
+  "Läs mer": "Read more",
+  "Lutningen visar terrängen, inte lavinfaran.": "The slope shows the terrain, not the avalanche danger.",
+  "Lila visar terrängen du valt – inte var det är säkert.": "Purple shows the terrain you picked – not where it is safe.",
 };

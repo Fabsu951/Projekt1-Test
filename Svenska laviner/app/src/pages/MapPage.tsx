@@ -8,6 +8,7 @@ import "leaflet/dist/leaflet.css";
 import { REGIONS } from "../data/regions";
 import { loadForecasts } from "../services/avalancheService";
 import type { AvalancheForecast } from "../types/avalanche";
+import LayerNotice from "../components/LayerNotice";
 import TerrainFinderLayer from "../components/TerrainFinderLayer";
 import TerrainFinderControls from "../components/TerrainFinderControls";
 import { forecastFilter, loadFilter, nearestArea, saveFilter, type TerrainFilter } from "../utils/terrainFinder";
@@ -518,21 +519,24 @@ export default function MapPage() {
         )}
 
         {officialTerrain && (
-          <p className="notice">
-            {t("Lutningskartan kommer från Naturvårdsverkets lavinprognostjänst och i Norge från NVE. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos. Zooma in om lagret inte syns.")}
-          </p>
+          <LayerNotice
+            short={t("Lutningen visar terrängen, inte lavinfaran.")}
+            full={t("Lutningskartan kommer från Naturvårdsverkets lavinprognostjänst och i Norge från NVE. Den visar terrängen, inte lavinfaran – läs alltid dagens prognos. Zooma in om lagret inte syns.")}
+          />
         )}
 
         {showDetailedSlope && (
-          <p className="notice notice--stale">
-            {t("Den detaljerade lutningen är beräknad från Lantmäteriets höjdmodell med 1 m upplösning, i steg om ett par meter. Under 30° visas ingenting. Den visar terrängen, inte lavinfaran, och snö och skavlar kan ändra den verkliga lutningen.")}
-          </p>
+          <LayerNotice
+            short={t("Lutningen visar terrängen, inte lavinfaran.")}
+            full={t("Den detaljerade lutningen är beräknad från Lantmäteriets höjdmodell med 1 m upplösning, i steg om ett par meter. Under 30° visas ingenting. Den visar terrängen, inte lavinfaran, och snö och skavlar kan ändra den verkliga lutningen.")}
+          />
         )}
 
         {showFinder && (
-          <p className="notice notice--stale">
-            {t("Det färgade är terräng med den lutning och det väderstreck du valt – inte var det är säkert. Även under 30° kan en lavin nå dig från brantare terräng ovanför eller bredvid, och snö och skavlar ändrar lutningen. Läs alltid dagens prognos.")}
-          </p>
+          <LayerNotice
+            short={t("Lila visar terrängen du valt – inte var det är säkert.")}
+            full={t("Det färgade är terräng med den lutning och det väderstreck du valt – inte var det är säkert. Även under 30° kan en lavin nå dig från brantare terräng ovanför eller bredvid, och snö och skavlar ändrar lutningen. Läs alltid dagens prognos.")}
+          />
         )}
       </div>
 

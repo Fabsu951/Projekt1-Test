@@ -5993,3 +5993,27 @@ h1 .admin-badge {
 .recording__discard {
   margin-top: 18px;
 }
+
+/* Terrain-layer disclaimers: one line, the rest behind "Läs mer". */
+.layer-notice summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.layer-notice summary::-webkit-details-marker {
+  display: none;
+}
+
+.layer-notice__more {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.layer-notice[open] .layer-notice__more {
+  display: none;
+}
+
+.layer-notice p {
+  margin: 6px 0 0;
+}
