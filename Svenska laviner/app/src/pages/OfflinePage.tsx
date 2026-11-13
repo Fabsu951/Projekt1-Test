@@ -7,6 +7,7 @@ import { formatMegabytes, listAreas, listViews, OFFLINE_LEVELS, offlineSupported
 import { listOfflineRoutes } from "../services/offlineRoutes";
 import { offlineMapsAvailable } from "../services/mapTiles";
 import { useAuth } from "../auth/useAuth";
+import Icon from "../components/Icon";
 import { t, locale } from "../i18n";
 
 // "Utan täckning": what Snöläge can do without a connection, and what this
@@ -111,6 +112,15 @@ export default function OfflinePage() {
           {t("Snöläge fungerar till stor del utan mobilnät, men bara med det som redan finns sparat på telefonen. Förbered dig medan du har täckning.")}
         </p>
       </header>
+
+      <Link to="/var-ar-jag" className="where-link">
+        <Icon name="locate" size={22} />
+        <span>
+          <strong>{t("Var är jag?")}</strong>
+          <span className="muted">{t("Dina koordinater att läsa upp för 112 – fungerar utan täckning.")}</span>
+        </span>
+        <Icon name="arrowRight" className="icon--link" />
+      </Link>
 
       <section className="section" aria-labelledby="offline-device">
         <h2 id="offline-device">{t("Sparat på den här enheten")}</h2>

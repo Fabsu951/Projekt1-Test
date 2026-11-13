@@ -15,6 +15,7 @@ import "./App.css";
 // shows PageLoading while a page loads.
 const RegionDetail = lazy(() => import("./pages/RegionDetail"));
 const OfflinePage = lazy(() => import("./pages/OfflinePage"));
+const WhereAmIPage = lazy(() => import("./pages/WhereAmIPage"));
 const SeasonPage = lazy(() => import("./pages/SeasonPage"));
 const RecordTourPage = lazy(() => import("./pages/RecordTourPage"));
 const MapPage = lazy(() => import("./pages/MapPage"));
@@ -60,6 +61,7 @@ function App() {
         <Route path="/sakerhetsguide" element={<SafetyGuide />} />
         <Route path="/om-appen" element={<AboutPage />} />
         <Route path="/offline" element={<OfflinePage />} />
+        <Route path="/var-ar-jag" element={<WhereAmIPage />} />
         <Route path="/press" element={<PressPage />} />
         <Route path="/observationer" element={<ObservationsPage />} />
         <Route path="/observationer/ny" element={<NewObservationPage />} />

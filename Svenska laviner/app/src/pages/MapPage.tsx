@@ -18,6 +18,7 @@ import OfficialTerrainLegend from "../components/OfficialTerrainLegend";
 import { detailedSlopeAvailable, officialTerrainAvailable, type OfficialTerrain } from "../services/mapTiles";
 import TopoLayer from "../components/TopoLayer";
 import MyPosition from "../components/MyPosition";
+import { requestCompassPermission } from "../utils/compass";
 import { isPhoneLayout } from "../hooks/usePhoneLayout";
 import FriendPositions from "../components/FriendPositions";
 import { fetchObservations } from "../services/observationService";
@@ -166,7 +167,8 @@ export default function MapPage() {
       .catch(() => setTours([]));
   }, [showTours, token]);
   const [observations, setObservations] = useState<Observation[]>([]);
-  const [showPosition, setShowPosition] = useState(false);
+  // "Visa på kartan" on Var är jag? opens /karta?position=1.
+  const [showPosition, setShowPosition] = useState(() => searchParams.get("position") === "1");
   // People sharing their position with you ("Dela position"); a notification opens /karta?kompisar=1.
   const friendsFromLink = searchParams.get("kompisar") === "1";
   const [showFriends, setShowFriends] = useState(true);
@@ -361,6 +363,8 @@ export default function MapPage() {
             aria-pressed={showPosition}
             aria-label={showPosition ? t("Dölj min position") : t("Visa min position")}
             onClick={() => {
+              // iPhones ask for motion access (the direction arrow) only from a tap.
+              if (!showPosition) requestCompassPermission();
               setShowPosition((on) => !on);
               setPositionStatus(null);
             }}
