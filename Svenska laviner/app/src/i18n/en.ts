@@ -1569,4 +1569,5 @@ export const EN: Record<string, string> = {
   "Sök plats på kartan": "Search for a place on the map",
   "Toppar, stugor, sjöar och orter i fjällen är inbyggda i appen.": "Peaks, huts, lakes and villages in the mountains are built into the app.",
   "Dina koordinater att läsa upp för 112, med bara GPS.": "Your coordinates to read out to 112, with GPS alone.",
+  "Gränsröse": "Border cairn",
 };

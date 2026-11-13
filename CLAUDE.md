@@ -1579,14 +1579,17 @@ the start, exact map point.
   `/karta`; under 400 px in full screen the layers button shows an icon instead
   of "Kartlager" so five buttons fit): place names in `src/data/ortnamn.json`
   (`{source, fetched, places: [name, lat, lon, kind, ele, alts?]}`, kinds
-  p/m/g/h/s/t/v/l/d/r), built from OpenStreetMap via Overpass by
+  p/m/g/h/s/t/v/l/d/r/b), ~38 000 names, 0.6 MB gzip, built from OpenStreetMap via Overpass by
   `app/scripts/ortnamn.mjs` in workflow `ortnamn.yml` (runs when the script or
-  workflow changes; bbox 61–69.5 N, 11–24.5 E in bands; commits the file – the
+  workflow changes; bbox 61–69.5 N, 11–24.5 E in bands, then only the mountains:
+  2.5° west of the border to just east of the fjäll edge – without it 110 000
+  names, mostly farms and forest lakes; no isolated_dwelling; huts, mountain
+  stations/hostels and border cairns included; commits the file – the
   bot commit doesn't deploy, dispatch deploy.yml). ODbL: credited under the
   results and in About. Loaded by dynamic import on first search (hashed asset,
   precached by sw.js → offline). `utils/placeSearch.ts`: `fold` (case, accents,
   Sami letters), whole name > start > word start > inside, then 50 km distance
-  buckets from the map centre at opening, then kind order. Pick →
+  buckets from the map centre at opening, then kind order; same name + kind within 10 km shown once. Pick →
   `PickedPlace` pin + popup, zoom ≥ 13. (2) `/var-ar-jag` (`WhereAmIPage`,
   lazy): live GPS in WGS 84 decimal + degrees/decimal minutes + SWEREF 99 TM
   (`utils/coordinates.ts`, Krüger, tested against proj4), accuracy (warning

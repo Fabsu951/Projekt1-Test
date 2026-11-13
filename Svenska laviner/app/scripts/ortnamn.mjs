@@ -58,8 +58,8 @@ function kindOf(tags) {
   if (tags.natural === "peak" || tags.natural === "volcano") return "p";
   if (tags.natural === "saddle" || tags.mountain_pass === "yes") return "m";
   if (tags.natural === "glacier") return "g";
+  if (tags.historic) return "b"; // border cairns such as Treriksröset
   if (tags.tourism) return "h"; // huts, mountain stations, hostels
-  if (tags.historic) return "v"; // border cairns such as Treriksröset
   if (tags.amenity === "shelter") return "s";
   if (tags.railway) return "t";
   if (tags.place) return "v";

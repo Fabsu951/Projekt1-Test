@@ -55,6 +55,15 @@ describe("searchPlaces", () => {
     expect(south[0].lat).toBe(63.18);
   });
 
+  it("shows a name once when OSM has it twice close together", () => {
+    const twins = buildIndex([
+      ["Kebnekaise", 67.893, 18.451, "r", 0],
+      ["Kebnekaise", 67.9, 18.521, "r", 0],
+      ["Kebnekaise", 63.0, 14.0, "r", 0],
+    ]);
+    expect(searchPlaces(twins, "kebnekaise", { lat: 67.9, lon: 18.5 })).toHaveLength(2);
+  });
+
   it("returns nothing for gibberish", () => {
     expect(searchPlaces(index, "xyzzy", null)).toEqual([]);
   });

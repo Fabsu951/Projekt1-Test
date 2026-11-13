@@ -5,7 +5,7 @@ import { t } from "../i18n";
 // "Áhkká" all match), prefers whole names and name starts, and among equal
 // matches the one nearest the map – there are many lakes called Storsjön.
 
-export type PlaceKind = "p" | "m" | "g" | "h" | "s" | "t" | "v" | "l" | "d" | "r";
+export type PlaceKind = "p" | "m" | "g" | "h" | "s" | "t" | "v" | "l" | "d" | "r" | "b";
 
 /** As stored: [name, lat, lon, kind, ele (0 = unknown), other names?]. */
 export type PlaceRow = [string, number, number, PlaceKind, number, string[]?];
@@ -31,10 +31,11 @@ export const KIND_LABELS: Record<PlaceKind, string> = {
   l: t("Sjö"),
   d: t("Dal"),
   r: t("Fjällkam"),
+  b: t("Gränsröse"),
 };
 
 // Among equally good matches: places people head for before features.
-const KIND_ORDER: PlaceKind[] = ["v", "p", "h", "s", "t", "l", "g", "m", "d", "r"];
+const KIND_ORDER: PlaceKind[] = ["v", "p", "h", "s", "t", "b", "l", "g", "m", "d", "r"];
 
 const SPECIAL: Record<string, string> = { ŋ: "n", đ: "d", ŧ: "t", ø: "o", æ: "ae", ß: "ss", ł: "l" };
 
@@ -105,8 +106,18 @@ export function searchPlaces(index: PlaceIndex, query: string, near: { lat: numb
     if (ka !== kb) return ka - kb;
     return a.dist - b.dist;
   });
-  return hits.slice(0, limit).map(({ i, alt }) => {
+  // OSM often has the same name twice close together (a massif as a range
+  // and as a ridge, a lake as two parts): show it once.
+  const out: Place[] = [];
+  for (const { i, alt } of hits) {
     const [name, lat, lon, kind, ele, alts] = index.rows[i];
-    return { name, lat, lon, kind, ele: ele > 0 ? ele : null, alsoKnownAs: alt > 0 ? (alts?.[alt - 1] ?? null) : null };
-  });
+    const twin = out.some((p) => p.name === name && p.kind === kind && distanceKm(p.lat, p.lon, lat, lon) < DUPLICATE_KM);
+    if (twin) continue;
+    out.push({ name, lat, lon, kind, ele: ele > 0 ? ele : null, alsoKnownAs: alt > 0 ? (alts?.[alt - 1] ?? null) : null });
+    if (out.length >= limit) break;
+  }
+  return out;
 }
+
+/** Same name and kind this close counts as one place. */
+const DUPLICATE_KM = 10;
