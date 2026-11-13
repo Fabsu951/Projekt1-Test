@@ -104,6 +104,13 @@ export default function AboutPage() {
             {t("öppna data (CC BY 4.0). Vindlasten per väderstreck är Snöläges egen beräkning från SMHI:s vind.")}
           </li>
           <li>
+            {t("Ortnamnen i kartans sökning:")}{" "}
+            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+              {t("© OpenStreetMap-bidragsgivare")}
+            </a>{" "}
+            {t("(ODbL). De ingår i appen, så sökningen fungerar utan täckning.")}
+          </li>
+          <li>
             {t("Beräknat snödjup på fjället:")}{" "}
             <a href="https://www.senorge.no" target="_blank" rel="noreferrer">{t("seNorge")}</a>{" "}
             {t("från NVE och MET Norway (CC BY 3.0), med NVE:s tillåtelse. Modellen är inte utvärderad på svensk sida. Väntat snöfall räknar Snöläge fram från SMHI:s prognos.")}

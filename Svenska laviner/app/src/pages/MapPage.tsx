@@ -18,6 +18,9 @@ import OfficialTerrainLegend from "../components/OfficialTerrainLegend";
 import { detailedSlopeAvailable, officialTerrainAvailable, type OfficialTerrain } from "../services/mapTiles";
 import TopoLayer from "../components/TopoLayer";
 import MyPosition from "../components/MyPosition";
+import PlaceSearch, { PickedPlace } from "../components/PlaceSearch";
+import type { Place } from "../utils/placeSearch";
+import Icon from "../components/Icon";
 import { requestCompassPermission } from "../utils/compass";
 import { isPhoneLayout } from "../hooks/usePhoneLayout";
 import FriendPositions from "../components/FriendPositions";
@@ -173,6 +176,8 @@ export default function MapPage() {
   const friendsFromLink = searchParams.get("kompisar") === "1";
   const [showFriends, setShowFriends] = useState(true);
   const [friendCount, setFriendCount] = useState<number | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [pickedPlace, setPickedPlace] = useState<Place | null>(null);
   const [layersOpen, setLayersOpen] = useState(readLayersOpen);
   const toggleLayers = () =>
     setLayersOpen((open) => {
@@ -374,12 +379,24 @@ export default function MapPage() {
           </button>
           <button
             type="button"
+            className={searchOpen ? "button map-toolbar__search map-toolbar__search--on" : "button map-toolbar__search"}
+            aria-pressed={searchOpen}
+            aria-label={t("Sök plats")}
+            onClick={() => setSearchOpen((on) => !on)}
+          >
+            <Icon name="search" size={20} />
+            <span className="map-toolbar__label">{t("Sök")}</span>
+          </button>
+          <button
+            type="button"
             className="button map-toolbar__layers"
             aria-expanded={layersOpen}
             aria-controls="map-layers"
             onClick={toggleLayers}
           >
-            {t("Kartlager")}{activeLayers > 0 && t(" ({n} på)", { n: activeLayers })}
+            <Icon name="layers" size={20} className="map-toolbar__layers-icon" />
+            <span className="map-toolbar__layers-text">{t("Kartlager")}</span>
+            {activeLayers > 0 && t(" ({n} på)", { n: activeLayers })}
             <span className={layersOpen ? "map-toolbar__chevron map-toolbar__chevron--open" : "map-toolbar__chevron"} aria-hidden="true" />
           </button>
           <button
@@ -404,6 +421,16 @@ export default function MapPage() {
           </button>
         </div>
 
+        {searchOpen && (
+          <PlaceSearch
+            near={viewBounds ? { lat: (viewBounds.north + viewBounds.south) / 2, lon: (viewBounds.east + viewBounds.west) / 2 } : null}
+            onPick={(place) => {
+              setPickedPlace(place);
+              setSearchOpen(false);
+            }}
+            onClose={() => setSearchOpen(false)}
+          />
+        )}
         <div id="map-layers" className="map-toolbar map-layers" hidden={!layersOpen}>
           <div className="map-layers__group" role="group" aria-labelledby="layers-show">
             <p id="layers-show" className="map-layers__title">
@@ -564,6 +591,7 @@ export default function MapPage() {
           <OfficialTerrainLayer layer={officialTerrain} />
           <DetailedSlopeLayer enabled={showDetailedSlope} />
           <MyPosition enabled={showPosition} onStatus={onPositionStatus} />
+          <PickedPlace place={pickedPlace} />
           {friendsShown && token && <FriendPositions token={token} fit={friendsFromLink} onCount={setFriendCount} />}
           {showHeatmap && <TourHeatmap lines={heatLines} />}
           {showObservations && <ObservationMarkers observations={observations} />}

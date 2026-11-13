@@ -21,6 +21,8 @@ const WORKS: Array<[string, string]> = [
   [t("Sparade kartor"), t("Områdeskartor, sparade kartvyer och kartan längs rutter du sparat offline.")],
   [t("Rutter sparade offline"), t("Karta, höjdprofil, lutning och jämförelsen med prognosen du hade när du sparade.")],
   [t("Min position"), t("GPS fungerar utan mobilnät. Den blå pricken syns på sparade kartor.")],
+  [t("Sök plats på kartan"), t("Toppar, stugor, sjöar och orter i fjällen är inbyggda i appen.")],
+  [t("Var är jag?"), t("Dina koordinater att läsa upp för 112, med bara GPS.")],
   [t("Observationer, turer, flöde, notiser"), t("Det du senast tittade på visas igen, med tid.")],
   [t("Inloggningen"), t("Du är fortfarande inloggad och ser dina egna listor.")],
 ];

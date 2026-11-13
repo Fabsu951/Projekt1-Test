@@ -1574,6 +1574,33 @@ the start, exact map point.
   chronometer off, since a ticking clock keeps uiautomator from ever reading the
   screen). 1.0.9 built the same day (run 42575962605); Play refused production on
   9 Nov (more tester engagement) – apply again from 23 Nov.
+- **Map search, "Var är jag?", direction arrow (2026-11-13, Fabian picked 1–3
+  after comparing with Guru Maps):** (1) `PlaceSearch` (toolbar magnifier on
+  `/karta`; under 400 px in full screen the layers button shows an icon instead
+  of "Kartlager" so five buttons fit): place names in `src/data/ortnamn.json`
+  (`{source, fetched, places: [name, lat, lon, kind, ele, alts?]}`, kinds
+  p/m/g/h/s/t/v/l/d/r), built from OpenStreetMap via Overpass by
+  `app/scripts/ortnamn.mjs` in workflow `ortnamn.yml` (runs when the script or
+  workflow changes; bbox 61–69.5 N, 11–24.5 E in bands; commits the file – the
+  bot commit doesn't deploy, dispatch deploy.yml). ODbL: credited under the
+  results and in About. Loaded by dynamic import on first search (hashed asset,
+  precached by sw.js → offline). `utils/placeSearch.ts`: `fold` (case, accents,
+  Sami letters), whole name > start > word start > inside, then 50 km distance
+  buckets from the map centre at opening, then kind order. Pick →
+  `PickedPlace` pin + popup, zoom ≥ 13. (2) `/var-ar-jag` (`WhereAmIPage`,
+  lazy): live GPS in WGS 84 decimal + degrees/decimal minutes + SWEREF 99 TM
+  (`utils/coordinates.ts`, Krüger, tested against proj4), accuracy (warning
+  > 100 m), GPS height, Ring 112 (`tel:112`), copy, share, "Visa på kartan"
+  (`/karta?position=1`), accident advice (search first, one calls 112), never
+  a replacement for a beacon/transceiver. Linked from the map dot's popup and
+  the top of `/offline`. (3) `MyPosition` is now a divIcon (dot + cone) whose
+  cone is rotated directly on the element: compass from `utils/compass.ts`
+  (`deviceorientationabsolute` alpha on Android, `webkitCompassHeading` on
+  iPhone + screen angle, smoothed the short way round), else the GPS course
+  when moving ≥ 1 m/s; hidden without either. iPhone needs
+  `DeviceOrientationEvent.requestPermission()` from a tap –
+  `requestCompassPermission()` in the "Visa min position" click. Not yet tried
+  on a real phone.
 - **Share as an image (2026-10-19, marketing):** `services/shareImage.ts` draws
   today's forecast on a canvas in the paper-map look (paper `#f6f7f6`, ink, lake
   blue, contour rings, the danger band + `DangerStair`, problems with

@@ -1859,6 +1859,7 @@ p.muted a:not(.button) {
   }
 
   .page--map-full .map-toolbar__fullscreen,
+  .page--map-full .map-toolbar__search,
   .page--map-full .map-toolbar__plan,
   .page--map-full .map-toolbar__layers,
   .page--map-full .map-toolbar__locate {
@@ -6134,4 +6135,116 @@ h1 .admin-badge {
   display: grid;
   flex: 1;
   gap: 2px;
+}
+
+/* Map search */
+.place-search {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 8px;
+  margin-bottom: 12px;
+  max-width: 480px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+}
+
+.place-search__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.place-search__bar input {
+  flex: 1;
+  min-width: 0;
+  font-size: 1rem;
+  min-height: 44px;
+}
+
+.place-search__results {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  max-height: min(50vh, 420px);
+  overflow-y: auto;
+}
+
+.place-search__results button {
+  display: grid;
+  width: 100%;
+  gap: 1px;
+  padding: 8px 10px;
+  border: 0;
+  border-top: 1px solid var(--divider);
+  background: none;
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.place-search__results li:first-child button {
+  border-top: 0;
+}
+
+.place-search__results button:hover,
+.place-search__results button:focus-visible {
+  background: var(--bg-raised);
+}
+
+.place-search__name {
+  font-weight: 600;
+}
+
+.place-search__meta,
+.place-search__note,
+.place-search__credit {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.place-search__note {
+  margin: 8px 4px 2px;
+}
+
+.place-search__credit {
+  margin: 6px 4px 0;
+}
+
+.place-pin {
+  background: none;
+  border: 0;
+}
+
+.place-pin svg {
+  width: 28px;
+  height: 36px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+.map-toolbar__search {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.map-toolbar__search--on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.map-toolbar__layers-icon {
+  display: none;
+}
+
+/* Narrow phones in full screen: an icon instead of the word, so five buttons fit on one row. */
+@media (max-width: 400px) {
+  .page--map-full .map-toolbar__layers-icon {
+    display: inline-block;
+    margin-right: 4px;
+  }
+
+  .page--map-full .map-toolbar__layers-text {
+    display: none;
+  }
 }
