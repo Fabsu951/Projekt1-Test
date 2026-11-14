@@ -41,6 +41,8 @@
 	<false/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Used to show where you are on the map, which forecast area is closest, where an observation was made and, if you choose to share your location, to send it to the people you picked, and to record your tour when you start a recording.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Used to show where you are on the map and where an observation was made. While a tour recording or location sharing that you started is running, your position is also used with the screen off – nothing is recorded or sent otherwise.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
