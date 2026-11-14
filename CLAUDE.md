@@ -189,7 +189,26 @@ repo cloned locally at `C:\Users\fabia\Documents\fjallvarning-repo`.
   BackgroundImport plugin answers, Firebase skips without the plist). `App.entitlements` (HealthKit + background delivery, aps)
   is wired via `CODE_SIGN_ENTITLEMENTS`; `UIRequiredDeviceCapabilities` is
   arm64. Fabian's steps (Apple Developer Program, App ID, App Store Connect
-  app, API key, secrets, TestFlight) in APPAR.md § 3; not done yet.
+  app, API key, secrets, TestFlight) in APPAR.md § 3.
+  **Live 2026-11-14:** Fabian's own enrollment is blocked (his trusted phone
+  number is Taiwanese while his Apple ID is Swedish – Apple's hint; he is in
+  Taiwan until early January), so his dad enrolled as Individual (team
+  `SL96264GN2`, seller shown as his dad's legal name), registered App ID
+  `se.snolage.app` (HealthKit + Push), created the App Store Connect app
+  "Snöläge" (Swedish, SKU `snolage`) and invited Fabian as Admin. Fabian made
+  the team API key (Admin) and the four secrets. Signing in ios.yml is
+  **manual**: `app/scripts/ios-signing.mjs` (ASC API, ES256 JWT) replaces the
+  previous run's "Snolage CI App Store" profile + its distribution
+  certificate, creates a new DISTRIBUTION certificate for a fresh CSR and an
+  IOS_APP_STORE profile; the step imports them into a temp keychain (macOS
+  LibreSSL p12), sets Manual + "Apple Distribution" + the profile on the App
+  target's Release config only (command-line overrides hit the SPM resource
+  bundles: "conflicting provisioning settings") and aps-environment →
+  production. Automatic signing failed with "Your team has no devices". The
+  job picks the newest non-beta Xcode ≥ 26 (App Store refuses the iOS 18.5
+  SDK); macos-15 had Xcode 26.3 / iOS 26.2 SDK. First upload OK (run
+  43591576927, build = commit count). Only the dad can accept new Apple
+  agreements and renew the membership.
 - **One-command deploy:** `Svenska laviner/deploy.ps1` (pull, worker npm
   install + D1 migrations + deploy, app build + Pages deploy; stops at the
   first failing step). Fabian runs it with
