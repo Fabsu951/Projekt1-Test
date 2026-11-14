@@ -39,6 +39,29 @@ jobs:
           # The build number is the number of commits.
           fetch-depth: 0
 
+      - name: Pick the newest Xcode (App Store needs the iOS 26 SDK or later)
+        # The image's default was Xcode 16.4 / iOS 18.5 SDK, and App Store
+        # Connect refused that upload (2026-11-14).
+        run: |
+          ls -d /Applications/Xcode*.app
+          best=""; best_ver=0
+          for app in /Applications/Xcode*.app; do
+            ver=$(defaults read "$app/Contents/Info" CFBundleShortVersionString 2>/dev/null || echo 0)
+            major=${ver%%.*}
+            # Skip betas/release candidates: their builds can't go to the App Store.
+            case "$app" in *beta*|*Beta*|*RC*|*_rc*) continue ;; esac
+            if [ "$major" -ge 26 ] 2>/dev/null && [ "$(printf '%s\n%s\n' "$best_ver" "$ver" | sort -V | tail -1)" = "$ver" ]; then
+              best="$app"; best_ver="$ver"
+            fi
+          done
+          if [ -z "$best" ]; then
+            echo "::error::No Xcode 26 or later on this runner – change runs-on to a newer macOS image."
+            exit 1
+          fi
+          sudo xcode-select -s "$best/Contents/Developer"
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+
       - uses: actions/setup-node@v5
         with:
           node-version: 22
