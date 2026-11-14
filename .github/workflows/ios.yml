@@ -97,6 +97,9 @@ jobs:
         env:
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
         run: |
+          # Archive straight with a distribution identity: the default
+          # (development) needs a registered test device, and the team has
+          # none ("Your team has no devices", first run 2026-11-14).
           key="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
           printf '%s' "$ASC_KEY_P8" > "$key"
           auth=(-allowProvisioningUpdates -authenticationKeyPath "$key" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
@@ -104,6 +107,7 @@ jobs:
           xcodebuild -project App.xcodeproj -scheme App -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic CURRENT_PROJECT_VERSION="$build" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             "${auth[@]}" archive | tail -n 80
           test "${PIPESTATUS[0]}" -eq 0
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
