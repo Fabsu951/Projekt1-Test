@@ -107,7 +107,7 @@ const PIN = L.divIcon({
 });
 
 /** The picked place on the map: flies there and marks it with a pin. */
-export function PickedPlace({ place }: { place: Place | null }) {
+export function PickedPlace({ place, onClear }: { place: Place | null; onClear: () => void }) {
   const map = useMap();
   const marker = useRef<L.Marker | null>(null);
   useEffect(() => {
@@ -125,6 +125,10 @@ export function PickedPlace({ place }: { place: Place | null }) {
         <br />
         {KIND_LABELS[place.kind]}
         {place.ele ? `, ${t("{m} m ö.h.", { m: place.ele.toLocaleString(locale()) })}` : ""}
+        <br />
+        <button type="button" className="link-button place-pin__remove" onClick={onClear}>
+          {t("Ta bort nålen")}
+        </button>
       </Popup>
     </Marker>
   );

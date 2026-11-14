@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { saveTextFile } from "../services/native";
 import { MapContainer, useMap } from "react-leaflet";
@@ -17,7 +17,8 @@ import DetailedSlopeLayer from "../components/DetailedSlopeLayer";
 import OfficialTerrainLegend from "../components/OfficialTerrainLegend";
 import { detailedSlopeAvailable, officialTerrainAvailable, type OfficialTerrain } from "../services/mapTiles";
 import TopoLayer from "../components/TopoLayer";
-import MyPosition from "../components/MyPosition";
+import MyPosition, { type PositionFix } from "../components/MyPosition";
+import { formatDecimal } from "../utils/coordinates";
 import PlaceSearch, { PickedPlace } from "../components/PlaceSearch";
 import type { Place } from "../utils/placeSearch";
 import Icon from "../components/Icon";
@@ -178,6 +179,7 @@ export default function MapPage() {
   const [friendCount, setFriendCount] = useState<number | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [pickedPlace, setPickedPlace] = useState<Place | null>(null);
+  const [myFix, setMyFix] = useState<PositionFix | null>(null);
   const [layersOpen, setLayersOpen] = useState(readLayersOpen);
   const toggleLayers = () =>
     setLayersOpen((open) => {
@@ -537,6 +539,16 @@ export default function MapPage() {
           </p>
         )}
 
+        {showPosition && myFix && (
+          <Link to="/var-ar-jag" className="position-chip">
+            <span className="my-position__legend" aria-hidden="true" />
+            <span className="position-chip__coords">{formatDecimal(myFix.lat, myFix.lon)}</span>
+            <span className="position-chip__meta">
+              {t("±{m} m", { m: Math.round(myFix.accuracy) })}, {t("visa stort och ring 112")}
+            </span>
+          </Link>
+        )}
+
         {positionStatus && (
           <p className="notice" role="status">
             {positionStatus}
@@ -590,8 +602,8 @@ export default function MapPage() {
           <TerrainFinderLayer filter={showFinder ? finderFilter : null} />
           <OfficialTerrainLayer layer={officialTerrain} />
           <DetailedSlopeLayer enabled={showDetailedSlope} />
-          <MyPosition enabled={showPosition} onStatus={onPositionStatus} />
-          <PickedPlace place={pickedPlace} />
+          <MyPosition enabled={showPosition} onStatus={onPositionStatus} onFix={setMyFix} />
+          <PickedPlace place={pickedPlace} onClear={() => setPickedPlace(null)} />
           {friendsShown && token && <FriendPositions token={token} fit={friendsFromLink} onCount={setFriendCount} />}
           {showHeatmap && <TourHeatmap lines={heatLines} />}
           {showObservations && <ObservationMarkers observations={observations} />}

@@ -25,9 +25,17 @@ const COMPASS_FRESH_MS = 3000;
 /** Slower than this (m/s) the GPS course is noise. */
 const MIN_COURSE_SPEED = 1;
 
+export interface PositionFix {
+  lat: number;
+  lon: number;
+  accuracy: number;
+}
+
 interface Props {
   enabled: boolean;
   onStatus: (message: string | null) => void;
+  /** Each new fix (null when turned off), for the coordinate box over the map. */
+  onFix?: (fix: PositionFix | null) => void;
 }
 
 // The blue dot with a cone for the way the phone points; the cone turns by
@@ -49,7 +57,7 @@ const ICON = L.divIcon({
  * while moving). Tapping the dot shows the coordinates. The map jumps to the
  * first fix only, so the user can pan freely after that.
  */
-export default function MyPosition({ enabled, onStatus }: Props) {
+export default function MyPosition({ enabled, onStatus, onFix }: Props) {
   const map = useMap();
   const [fix, setFix] = useState<Fix | null>(null);
   const centered = useRef(false);
@@ -74,6 +82,7 @@ export default function MyPosition({ enabled, onStatus }: Props) {
       const moving = typeof speed === "number" && speed >= MIN_COURSE_SPEED && typeof heading === "number" && Number.isFinite(heading);
       const next = { lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy, course: moving ? heading : null };
       setFix(next);
+      onFix?.({ lat: next.lat, lon: next.lon, accuracy: next.accuracy });
       onStatus(null);
       if (!centered.current) {
         centered.current = true;
@@ -93,9 +102,10 @@ export default function MyPosition({ enabled, onStatus }: Props) {
       if (watchId) void Geolocation.clearWatch({ id: watchId });
       // Next time, start fresh: no old dot, and jump to the new first fix.
       setFix(null);
+      onFix?.(null);
       centered.current = false;
     };
-  }, [enabled, map, onStatus]);
+  }, [enabled, map, onStatus, onFix]);
 
   // Turns the cone to the freshest direction we have, or hides it.
   const paint = useMemo(
