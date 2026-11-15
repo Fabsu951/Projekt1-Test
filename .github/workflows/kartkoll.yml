@@ -1,0 +1,51 @@
+# One-off check (removed after): NVE's "Bratthet med utløp" service – layers,
+# legend and the colours in a tile over Lyngen – before the app shows it.
+name: Kartkoll
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha]
+    paths: [".github/workflows/kartkoll.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: NVE runout service
+        run: |
+          B=https://gis3.nve.no/arcgis/rest/services/wmts
+          echo "== folder"; curl -sS -m 30 "$B?f=json" | head -c 4000; echo
+          for s in Bratthet_med_utlop_2024 Bratthet_2024; do
+            echo "== $s service"; curl -sS -m 30 "$B/$s/MapServer?f=json" | head -c 3000; echo
+            echo "== $s legend"; curl -sS -m 30 "$B/$s/MapServer/legend?f=json" | sed 's/"imageData":"[^"]*"/"imageData":"…"/g' | head -c 6000; echo
+          done
+          mkdir k && cd k && npm init -y >/dev/null && npm i sharp@0.34 >/dev/null 2>&1
+          cat > run.mjs <<'JS'
+          import sharp from "sharp";
+          const B = "https://gis3.nve.no/arcgis/rest/services/wmts";
+          // Lyngen Alps around 69.6 N 20.2 E, and a Swedish tile near Abisko (68.35 N 18.8 E).
+          const tile = (lat, lon, z) => { const n = 2 ** z; const x = Math.floor(((lon + 180) / 360) * n); const r = lat * Math.PI / 180; const y = Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n); return [x, y]; };
+          for (const [name, lat, lon] of [["lyngen", 69.6, 20.2], ["abisko", 68.35, 18.8], ["narvik", 68.42, 17.5]]) {
+            for (const z of [10, 12, 14]) {
+              const [x, y] = tile(lat, lon, z);
+              for (const s of ["Bratthet_med_utlop_2024", "Bratthet_2024"]) {
+                const res = await fetch(`${B}/${s}/MapServer/tile/${z}/${y}/${x}`);
+                const buf = Buffer.from(await res.arrayBuffer());
+                if (!res.ok) { console.log(name, z, s, res.status, res.headers.get("content-type")); continue; }
+                const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+                const counts = new Map();
+                for (let i = 0; i < data.length; i += 4) { const k = data[i + 3] === 0 ? "transparent" : `${data[i]},${data[i + 1]},${data[i + 2]},${data[i + 3]}`; counts.set(k, (counts.get(k) ?? 0) + 1); }
+                const top = [...counts].sort((a, b) => b[1] - a[1]).slice(0, 12).map(([k, c]) => `${k}:${(c / (info.width * info.height) * 100).toFixed(1)}%`).join("  ");
+                console.log(name, z, s, res.headers.get("content-type"), info.width, top);
+              }
+            }
+          }
+          JS
+          node run.mjs
