@@ -199,6 +199,20 @@ export const NORWAY_SLOPE_LEGEND: Array<[string, string]> = [
 ];
 
 /**
+ * NVE's "Bratthet med utløp": the same slope classes from 30° plus the
+ * possible runout zones below steep ground in three blues (layers
+ * runout_encoded_sh/me/lo). Norway only, transparent over Sweden; colours
+ * read from their legend and tiles 2026-11-15.
+ */
+export const NORWAY_RUNOUT_URL = "https://gis3.nve.no/arcgis/rest/services/wmts/Bratthet_med_utlop_2024/MapServer/tile/{z}/{y}/{x}";
+export const NORWAY_RUNOUT_ATTRIBUTION = t('Bratthet og utløp i Norge: &copy; <a href="https://www.nve.no/">NVE</a>');
+export const NORWAY_RUNOUT_LEGEND: Array<[string, string]> = [
+  [t("Kort räckvidd"), "#004da8"],
+  [t("Medellång räckvidd"), "#4c9bff"],
+  [t("Lång räckvidd"), "#9ab1e6"],
+];
+
+/**
  * The detailed slope map, made from Lantmäteriet's 1 m height model by
  * worker/scripts/import-slope.ts and hosted by the worker. Only offered once
  * the worker says it exists (GET /tiles/slope/meta).

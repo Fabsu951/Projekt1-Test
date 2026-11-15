@@ -29,7 +29,13 @@ function paramValue(entry: SmhiTimeSeriesEntry, ...names: string[]): number {
   return 0;
 }
 
+/** The next 24 forecast steps (hourly at first). */
 export async function fetchWeather(lat: number, lon: number): Promise<WeatherPoint[]> {
+  return (await fetchWeatherSeries(lat, lon)).slice(0, 24);
+}
+
+/** SMHI's whole forecast for a point, about ten days (hourly, then 3, 6 and 12 hours apart). */
+export async function fetchWeatherSeries(lat: number, lon: number): Promise<WeatherPoint[]> {
   const url = `${SMHI_BASE}/geotype/point/lon/${lon}/lat/${lat}/data.json`;
   const res = await timedFetch(url);
   if (!res.ok) {
@@ -37,7 +43,7 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherPoi
   }
   const data: SmhiResponse = await res.json();
 
-  return data.timeSeries.slice(0, 24).map((entry) => ({
+  return data.timeSeries.map((entry) => ({
     time: entry.time,
     temperature: paramValue(entry, "air_temperature"),
     windSpeed: paramValue(entry, "wind_speed"),

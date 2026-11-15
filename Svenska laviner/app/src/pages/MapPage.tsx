@@ -14,7 +14,7 @@ import TerrainFinderControls from "../components/TerrainFinderControls";
 import { forecastFilter, loadFilter, nearestArea, saveFilter, type TerrainFilter } from "../utils/terrainFinder";
 import OfficialTerrainLayer from "../components/OfficialTerrainLayer";
 import DetailedSlopeLayer from "../components/DetailedSlopeLayer";
-import OfficialTerrainLegend from "../components/OfficialTerrainLegend";
+import OfficialTerrainLegend, { RunoutLegend } from "../components/OfficialTerrainLegend";
 import { detailedSlopeAvailable, officialTerrainAvailable, type OfficialTerrain } from "../services/mapTiles";
 import TopoLayer from "../components/TopoLayer";
 import MyPosition, { type PositionFix } from "../components/MyPosition";
@@ -40,6 +40,8 @@ import OfflineViewBox from "../components/OfflineViewBox";
 import { offlineAnalysisFor } from "../services/offlineRoutes";
 import type { Bounds } from "../services/offlineMap";
 import RouteForecastCheck from "../components/RouteForecastCheck";
+import RouteWeather from "../components/RouteWeather";
+import PointInfo from "../components/PointInfo";
 import { checkRouteAgainstForecast, regionForRoute } from "../utils/routeForecast";
 import { useRouteDraft } from "../hooks/useRouteDraft";
 import { fetchRoute } from "../services/routeService";
@@ -144,6 +146,8 @@ export default function MapPage() {
     };
   }, []);
   const [officialTerrain, setOfficialTerrain] = useState<OfficialTerrain | null>(null);
+  // NVE's possible runout zones, Norway only.
+  const [showRunout, setShowRunout] = useState(false);
   const [showObservations, setShowObservations] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const { token, loading: authLoading } = useAuth();
@@ -293,10 +297,11 @@ export default function MapPage() {
     setOfficialTerrain(preset === "plan" && planSlope === "official" ? "lutning" : null);
     setPlanning(preset === "plan");
     setShowFinder(false);
+    setShowRunout(false);
   };
   const slopeOn = showDetailedSlope || officialTerrain === "lutning";
   const currentPreset: Preset | null =
-    showFinder
+    showFinder || showRunout
       ? null
       : showObservations && !showTours && !showHeatmap && !slopeOn && officialTerrain === null && !planning
       ? "now"
@@ -318,6 +323,7 @@ export default function MapPage() {
     showDetailedSlope,
     showFinder,
     officialTerrain !== null,
+    showRunout,
     friendsShown && (friendCount ?? 0) > 0,
   ].filter(Boolean).length;
   const [positionStatus, setPositionStatus] = useState<string | null>(null);
@@ -526,11 +532,21 @@ export default function MapPage() {
                     {label}
                   </label>
                 ))}
-                {officialTerrain && <OfficialTerrainLegend layer={officialTerrain} />}
+                {officialTerrain && <OfficialTerrainLegend layer={officialTerrain} norway={!showRunout} />}
               </div>
             )}
+            <label className="map-toolbar__toggle">
+              <input type="checkbox" checked={showRunout} onChange={(e) => setShowRunout(e.target.checked)} />
+              <span>
+                {t("Möjliga utlöpszoner")}{" "}<span className="map-layers__sub">{t("(bara Norge, NVE – zooma in)")}</span>
+              </span>
+            </label>
+            {showRunout && <RunoutLegend />}
           </div>
           <OfflineViewBox bounds={viewBounds} onShow={setFlyTarget} />
+          <p className="map-layers__tip">
+            {t("Tips: tryck länge på kartan (högerklicka på en dator) för höjd, lutning, väderstreck, koordinater och väder på just den platsen.")}
+          </p>
         </div>
 
         {routeError && (
@@ -568,6 +584,13 @@ export default function MapPage() {
           />
         )}
 
+        {showRunout && (
+          <LayerNotice
+            short={t("Utlöpszonerna finns bara för Norge och visar terrängen, inte lavinfaran.")}
+            full={t("NVE:s karta visar var laviner från brant terräng (30° och brantare) kan nå, beräknat från terrängen: mörkblått för kort räckvidd, ljusblått för de sällsynta, mycket stora lavinerna. Den visar terrängen, inte dagens lavinfara, och för Sverige finns ingen motsvarande officiell karta. En lavin kan nå längre än zonerna.")}
+          />
+        )}
+
         {showDetailedSlope && (
           <LayerNotice
             short={t("Lutningen visar terrängen, inte lavinfaran.")}
@@ -584,7 +607,8 @@ export default function MapPage() {
       </div>
 
       <div className="map-container">
-        <MapContainer center={SWEDEN_FJALL_CENTER} zoom={DEFAULT_ZOOM} scrollWheelZoom>
+        {/* tapHold: a long press opens the point info on every touch screen, not only in Safari (Leaflet's default). */}
+        <MapContainer center={SWEDEN_FJALL_CENTER} zoom={DEFAULT_ZOOM} scrollWheelZoom tapHold>
           <FitToContainer fullscreen={fullscreen} />
           <ViewTracker onChange={setViewBounds} />
           <FlyTo target={flyTarget} />
@@ -600,7 +624,7 @@ export default function MapPage() {
           )}
           <TopoLayer />
           <TerrainFinderLayer filter={showFinder ? finderFilter : null} />
-          <OfficialTerrainLayer layer={officialTerrain} />
+          <OfficialTerrainLayer layer={officialTerrain} runout={showRunout} />
           <DetailedSlopeLayer enabled={showDetailedSlope} />
           <MyPosition enabled={showPosition} onStatus={onPositionStatus} onFix={setMyFix} />
           <PickedPlace place={pickedPlace} onClear={() => setPickedPlace(null)} />
@@ -609,6 +633,7 @@ export default function MapPage() {
           {showObservations && <ObservationMarkers observations={observations} />}
           {showTours && <TourMarkers tours={tours} />}
           <RegionMarkers forecasts={forecasts} />
+          <PointInfo forecasts={forecasts} />
         </MapContainer>
         {showHeatmap && heatLines.length > 0 && <HeatLegend />}
       </div>
@@ -640,6 +665,7 @@ export default function MapPage() {
             forecast={routeForecast}
             check={forecastCheck}
           />
+          {analysis && <RouteWeather samples={analysis.samples} />}
           <RouteSaveBox
             draft={route.draft}
             dirty={route.dirty}

@@ -155,10 +155,10 @@ export default function AboutPage() {
             {t(". Bearbetad: lutningen är uträknad och indelad i steg.")}
           </li>
           <li>
-            {t("Lutning i Norge:")}{" "}<a href="https://www.nve.no/" target="_blank" rel="noreferrer">
+            {t("Lutning och utlöpszoner i Norge:")}{" "}<a href="https://www.nve.no/" target="_blank" rel="noreferrer">
               {t("NVE")}
             </a>{" "}
-            {t("(Bratthet, samma karta som Varsom visar), ©NVE. Visas obearbetad.")}
+            {t("(Bratthet och Bratthet med utløp, samma kartor som Varsom visar), ©NVE. Visas obearbetade.")}
           </li>
           <li>
             {t("Appen bygger på öppen källkod, bland annat React, Leaflet, React Leaflet, Capacitor och Firebase.")}{" "}
@@ -222,7 +222,7 @@ export default function AboutPage() {
 
       <section className="section privacy" id="integritet">
         <h2>{t("Integritetspolicy")}</h2>
-        <p className="muted">{t("Senast uppdaterad 12 november 2026.")}</p>
+        <p className="muted">{t("Senast uppdaterad 15 november 2026.")}</p>
         {isEnglish() && <p className="muted">This is a translation. The Swedish version of the privacy policy is the one that applies.</p>}
         <p>
           <strong>{t("Personuppgiftsansvarig")}</strong>{" "}{t("är Fabian Sund, som driver Snöläge som privatperson")}
@@ -286,7 +286,7 @@ export default function AboutPage() {
             <strong>{t("På din enhet:")}</strong>{" "}{t("appen sparar din inloggning och senast hämtade prognoser och väder lokalt, så att den fungerar utan täckning. Vi använder inga kakor för spårning och ingen annonsering.")}
           </li>
           <li>
-            <strong>{t("Tjänster som appen hämtar från direkt:")}</strong>{" "}{t("för väder hämtar appen data direkt från SMHI, för höjder och lutning från Mapterhorn, kartan över Norge från Kartverket, lutningskartan över Norge från NVE och utanför fjällen kan kartan hämtas från OpenStreetMap. Vid registrering kontrollerar Cloudflare Turnstile att du inte är en robot. De tjänsterna ser då din IP-adress, som vid vanlig surfning, men inget om ditt konto.")}
+            <strong>{t("Tjänster som appen hämtar från direkt:")}</strong>{" "}{t("för väder hämtar appen data direkt från SMHI, för höjder och lutning från Mapterhorn, kartan över Norge från Kartverket, lutnings- och utlöpskartorna över Norge från NVE och utanför fjällen kan kartan hämtas från OpenStreetMap. Vid registrering kontrollerar Cloudflare Turnstile att du inte är en robot. De tjänsterna ser då din IP-adress, som vid vanlig surfning, men inget om ditt konto.")}
           </li>
           <li>
             <strong>{t("Besöksstatistik:")}</strong>{" "}{t("på webbplatsen snolage.se räknar Cloudflare Web Analytics besök och sidvisningar – vilken sida, varifrån du kom (t.ex. en länk på Instagram), land och typ av enhet och webbläsare – utan kakor och utan att känna igen dig mellan besök. Vi ser bara totaler, aldrig enskilda besökare. Apparna räknas inte.")}

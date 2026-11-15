@@ -1623,6 +1623,26 @@ the start, exact map point.
   `DeviceOrientationEvent.requestPermission()` from a tap –
   `requestCompassPermission()` in the "Visa min position" click. Not yet tried
   on a real phone.
+- **Long press, route weather, Norway runout zones (2026-11-15, after Fabian
+  compared with the competitor Skida):** (1) `PointInfo` on `/karta`: Leaflet
+  `contextmenu` (right click; long press via `tapHold` on every touch screen –
+  Leaflet's default is Safari only and the Capacitor iOS user agent has no
+  "Safari"; a repeat within 800 ms is ignored) → popup with height, slope +
+  aspect (`ElevationSampler`, `describeTerrain` in `utils/mapPointInfo.ts`),
+  WGS 84 + SWEREF, SMHI weather now, the nearest area's `ForecastBadge` (never a
+  guessed level), copy. Keyed by press time with a memoised `position` – a new
+  array each render made react-leaflet close/reopen the popup (it stayed at
+  opacity 0). Tip line at the bottom of Kartlager. (2) `RouteWeather` in the
+  route panel: SMHI `fetchWeatherSeries` at the route's highest and lowest
+  sample (one request when < 2.5 km apart), "nu" + a 3-hourly 24 h table
+  (`pickSteps`, `weatherCell`); note that SMHI uses the square's mean height.
+  (3) "Möjliga utlöpszoner (bara Norge, NVE)" in Kartlager → Terräng: NVE
+  `Bratthet_med_utlop_2024` (same tile cache folder; slope ≥ 30° classes +
+  runout layers sh/me/lo = `#004da8`/`#4c9bff`/`#9ab1e6` = kort/medellång/lång
+  räckvidd, read from their legend JSON by a one-off workflow); replaces the
+  Norway part of the official slope layer when on (`OfficialTerrainLayer
+  runout`), `RunoutLegend`, notice; Sweden has no official equivalent. About,
+  press page and privacy policy (updated 15 Nov) name NVE's runout map.
 - **Share as an image (2026-10-19, marketing):** `services/shareImage.ts` draws
   today's forecast on a canvas in the paper-map look (paper `#f6f7f6`, ink, lake
   blue, contour rings, the danger band + `DangerStair`, problems with

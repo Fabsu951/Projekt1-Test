@@ -6286,3 +6286,127 @@ h1 .admin-badge {
   margin-top: 6px;
   font-size: 0.85rem;
 }
+
+/* Long press on the map: what's at this point */
+.point-info {
+  display: grid;
+  gap: 4px;
+  min-width: 200px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Leaflet's own popup styles give paragraphs a wide margin. */
+.leaflet-popup-content .point-info p {
+  margin: 0;
+}
+
+.point-info__height {
+  font-family: var(--font-display);
+  font-stretch: var(--display-stretch);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.point-info__slope,
+.point-info__forecast {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.point-info__swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+.point-info__coords {
+  font-variant-numeric: tabular-nums;
+}
+
+.point-info__forecast a {
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.point-info .link-button {
+  justify-self: start;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+.point-info__note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.map-layers__tip {
+  flex-basis: 100%;
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Weather at the route's top and bottom */
+.route-weather__now {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+}
+
+.route-weather__now div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+}
+
+.route-weather__now dt {
+  color: var(--text-muted);
+}
+
+.route-weather__now dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.route-weather__more {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+}
+
+.route-weather__more summary {
+  cursor: pointer;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.route-weather__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.route-weather__table th,
+.route-weather__table td {
+  padding: 4px 6px 4px 0;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--divider);
+}
+
+.route-weather__table thead th {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.route-weather__table tbody th {
+  font-weight: 500;
+  white-space: nowrap;
+}
