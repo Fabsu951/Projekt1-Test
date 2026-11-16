@@ -40,6 +40,36 @@ onsdag. Ungefär 3 timmar i veckan.
 **Under säsongen:** Snöläget inför helgen varje torsdag kväll, och en fast
 rytm måndag till söndag (avsnitt 7). Ungefär 3–4 timmar i veckan.
 
+## Budskapet (skärpt 16 november)
+
+**Lyft det som är gratis och unikt för Snöläge**, i varje inlägg där det passar:
+
+- **Allt är gratis** – även offlinekartorna. Inga betalväggar, ingen reklam.
+- **Den svenska prognosen förklarad på svenska:** "Vad betyder det för mig?"
+  under farograden och "Så hanterar du det" för varje lavinproblem.
+- **Hitta åk:** välj lutning och väderstreck – terrängen som matchar färgas.
+- **Gemenskapen:** observationer, turer, turdag med kompisar, "Ni frågade –
+  nu finns det".
+- **Fungerar utan täckning:** sparad karta, observationer som skickas när
+  nätet kommer tillbaka.
+
+**Nämn aldrig andra appar och jämför inte öppet.** Prata om Snöläge, inte
+om någon annan. "Gratis, även offlinekartor" räcker – den som har betalat
+för det någon annanstans förstår ändå.
+
+## Tidsplan för apparna (16 november)
+
+| När | Vad | Vem |
+| --- | --- | --- |
+| Nu | **Version 1.0 ute i butikerna**, så att appen finns att hitta. Ingen stor satsning än – profilen, höjdpunkterna och de vanliga inläggen räcker. | Fabian |
+| **Från 23 nov** | **Ansök om produktion igen i Google Play** (Android), så att båda apparna helst är ute före premiären. | Fabian |
+| Före premiären | **Notiser i iPhone-appen** (Firebase + Apples nyckel för notiser). Butikstexten lovar "Notis när farograden ändras i dina områden" – det måste fungera innan många laddar ner, annars blir det dåliga recensioner. | App-sessionen guidar Fabian |
+| Före premiären | **Nytt iPhone-bygge** med de senaste funktionerna, via TestFlight och ny granskning (oftast 1–3 dygn). | App-sessionen |
+| Samtidigt | **Uppdatera butikstexterna** med de nya funktionerna (Hitta åk, Norge, gratis offlinekartor). | App-sessionen |
+| **Mitten av december** | **Den stora satsningen**, när prognoserna börjar. Då har folk ett skäl att öppna appen varje dag, och "Dela som bild" fungerar med riktiga farograder. | Alla |
+
+Tills iPhone-notiserna fungerar: lova inte notiser i inläggen.
+
 ---
 
 ## 1. Läget i dag

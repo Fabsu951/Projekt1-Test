@@ -1,0 +1,34 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Snolage//Plan tillagg 16 nov//SV
+CALSCALE:GREGORIAN
+X-WR-CALNAME:Snöläge Instagram + Facebook
+BEGIN:VEVENT
+UID:snolage-igfb-t1@snolage.se
+DTSTAMP:20261116T120000Z
+DTSTART:20261123T190000
+DTEND:20261123T193000
+SUMMARY:Snöläge: Ansök om produktion igen (Google Play)
+DESCRIPTION:Play Console → Ansök om åtkomst till produktion. Svaren finns i
+  chatten (målgrupp\, värde\, ändringar\, 0–10K installationer).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Ansök om produktion igen
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:snolage-igfb-t2@snolage.se
+DTSTAMP:20261116T120000Z
+DTSTART:20261130T190000
+DTEND:20261130T193000
+SUMMARY:Snöläge: Appen klar för premiären?
+DESCRIPTION:Fungerar notiserna i iPhone-appen? Är det nya iPhone-bygget god
+ känt? Är butikstexterna uppdaterade? Annars: lova inte notiser i inläggen.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Appen klar för premiären?
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+END:VCALENDAR
