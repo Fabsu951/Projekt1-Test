@@ -7,8 +7,8 @@ Material i `marknad/film/november/` och `marknad/film/vinter/`:
 
 | Tid | Bild | Du säger | Text i bild |
 | --- | --- | --- | --- |
-| 0–3 s | Du, kisar mot mobilen | "Min karta förut: pixelmos." | **Förut: pixelmos 😵‍💫** |
-| 3–6 s | `N3-2-fore-nu.mp4` (suddig zoom 15 → skarp zoom 16, Kebnekaise sydtopp) | "Min karta nu:" | **Nu: zoom 16** |
+| 0–3 s | Du, kisar mot mobilen | "Min karta förut: suddig." | **Förut: suddigt 😵‍💫** |
+| 3–6 s | `N3-2-fore-nu.mp4` (suddig zoom 15 → skarp zoom 16, Kebnekaise Nordtoppen) | "Min karta nu:" | **Nu: zoom 16** |
 | 6–10 s | `N3-1-zoom.mp4` (från massivet ner till toppen) | "Skarp ända in – i hela fjällen." | Skarpare fjällkarta |
 | 10–13 s | `N3-3-lutning.mp4` (lutningskartan tonar in) | "Med lutningskartan på – i Sverige och Norge." | Lutning: Sverige + Norge |
 | 13–20 s | `vinter/J1-turdag-med-kompisar.mp4` (korta till ca 7 s: välj dag, rutt, bjud in) | "Planera turdagen och bjud med kompisarna – ni ser prognosen för just er dag." | Turdag med kompisar |
@@ -20,7 +20,7 @@ Lutningen visar terrängen, inte lavinfaran – står i inläggstexten.
 ## Inläggstext
 
 ```
-Min karta förut: pixelmos. Min karta nu: 👇 ❄️
+Min karta förut: suddig. Min karta nu: knivskarp. ❄️
 
 4 veckor kvar till säsongspremiären! Fjällkartan i Snöläge är nu skarp ända in till zoom 16 i hela fjällen, lutningskartan fortsätter in i Norge – och du kan planera turdagen och bjuda med kompisarna.
 
