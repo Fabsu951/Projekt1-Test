@@ -254,6 +254,60 @@ const CLIPS = {
       await page.context().close();
     }
   },
+  N3: async () => {
+    // "Skarpare fjällkarta": zoom 16 before (zoom 15 enlarged) and now, then the
+    // slope from 1 m height data. Kebnekaise's south top.
+    const TOP = [67.9032, 18.5300];
+    const Z16 = /\/topowebb\/16\//;
+    let before;
+    {
+      const page = await mapPage(true);
+      await page.route(Z16, (r) => r.fulfill({ status: 404, body: "" }));
+      await jump(page, TOP, 16);
+      await tilesLoaded(page);
+      await wait(page, 3000);
+      await cleanMap(page);
+      before = await rec.shot(page, ".N3-fore");
+      await page.context().close();
+    }
+    {
+      const page = await mapPage(true);
+      await jump(page, TOP, 16);
+      await tilesLoaded(page);
+      await wait(page, 3000);
+      const undo = await cleanMap(page);
+      const now = await rec.shot(page, "N3-nu");
+      rec.fade("N3-2-fore-nu", before, now, 3);
+      await undo();
+      // The zoom in, from the whole massif to zoom 16.
+      await jump(page, TOP, 12);
+      await tilesLoaded(page);
+      await wait(page, 2000);
+      const undo2 = await cleanMap(page);
+      await rec.zoomFrames(page, "N3-1-zoom", TOP, 16, 5);
+      await undo2();
+      // The detailed slope layer at zoom 15.
+      await jump(page, TOP, 15);
+      await tilesLoaded(page);
+      await wait(page, 2500);
+      const undo3 = await cleanMap(page);
+      const topo = await rec.shot(page, ".N3-topo15");
+      await undo3();
+      await page.getByRole("button", { name: /^Kartlager/ }).click();
+      await wait(page, 400);
+      const box = page.getByLabel(/^Lutning, detaljerad/);
+      await box.scrollIntoViewIfNeeded();
+      await box.check();
+      await page.getByRole("button", { name: /^Kartlager/ }).click();
+      await jump(page, TOP, 15);
+      await tilesLoaded(page);
+      await wait(page, 4000);
+      await cleanMap(page);
+      const slope = await rec.shot(page, "N3-lutning");
+      rec.fade("N3-3-lutning", topo, slope, 3);
+      await page.context().close();
+    }
+  },
   N2: async () => {
     await quoteCard("N2-1-krok", "En skidåkare i ett mejl", "Vore det inte coolt med en funktion där man kan välja spann på lutning och aspekt och exempelvis få ut allt som lutar 20–30 grader och ligger i aspekten NO till SO?");
 
