@@ -256,7 +256,7 @@ const CLIPS = {
   },
   N3: async () => {
     // "Skarpare fjällkarta": zoom 16 before (zoom 15 enlarged) and now, then the
-    // slope from 1 m height data. Kebnekaise's south top.
+    // official slope map (Naturvårdsverket, NVE in Norway). Kebnekaise's south top.
     const TOP = [67.9032, 18.5300];
     const Z16 = /\/topowebb\/16\//;
     let before;
@@ -286,19 +286,14 @@ const CLIPS = {
       const undo2 = await cleanMap(page);
       await rec.zoomFrames(page, "N3-1-zoom", TOP, 16, 5);
       await undo2();
-      // The detailed slope layer at zoom 15.
+      // The official slope map at zoom 15.
       await jump(page, TOP, 15);
       await tilesLoaded(page);
       await wait(page, 2500);
       const undo3 = await cleanMap(page);
       const topo = await rec.shot(page, ".N3-topo15");
       await undo3();
-      await page.getByRole("button", { name: /^Kartlager/ }).click();
-      await wait(page, 400);
-      const box = page.getByLabel(/^Lutning, detaljerad/);
-      await box.scrollIntoViewIfNeeded();
-      await box.check();
-      await page.getByRole("button", { name: /^Kartlager/ }).click();
+      await slopeOn(page);
       await jump(page, TOP, 15);
       await tilesLoaded(page);
       await wait(page, 4000);
