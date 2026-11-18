@@ -194,4 +194,5 @@ jobs:
           rm -f "$key"
           security delete-keychain "$kc" || true
           echo "### iPhone-app" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Version 1.0 ($build) uppladdad till TestFlight. Den syns i TestFlight-appen när Apple har behandlat den (oftast 5–30 min)." >> "$GITHUB_STEP_SUMMARY"
+          version=$(grep -m1 "MARKETING_VERSION" App.xcodeproj/project.pbxproj | sed "s/[^0-9.]//g")
+          echo "- Version $version ($build) uppladdad till TestFlight. Den syns i TestFlight-appen när Apple har behandlat den (oftast 5–30 min)." >> "$GITHUB_STEP_SUMMARY"
