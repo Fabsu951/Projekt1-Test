@@ -85,16 +85,33 @@ jobs:
           fi
 
       - name: Check that the app builds (simulator, unsigned)
+        # Reported, never blocks the TestFlight upload: on 2026-11-18 the
+        # simulator SDK's own modules (Metal, UIKit) failed to build on the
+        # runner while nothing in the app had changed.
+        id: simcheck
+        continue-on-error: true
         working-directory: Svenska laviner/app/ios/App
         run: |
+          set +e
           xcodebuild -project App.xcodeproj -scheme App -configuration Debug \
             -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
-            CODE_SIGNING_ALLOWED=NO build | tail -n 80
-          exit "${PIPESTATUS[0]}"
+            CODE_SIGNING_ALLOWED=NO build > "$RUNNER_TEMP/sim-build.log" 2>&1
+          status=$?
+          tail -n 40 "$RUNNER_TEMP/sim-build.log"
+          if [ "$status" -ne 0 ]; then
+            echo "--- first errors ---"
+            grep -n -m 25 -E "error:|fatal error" "$RUNNER_TEMP/sim-build.log" | cut -c1-400
+            echo "--- disk ---"; df -h / | tail -1
+            xcodebuild -showComponent MetalToolchain 2>&1 | head -5 || true
+            echo "### iPhone-simulator" >> "$GITHUB_STEP_SUMMARY"
+            echo "- **Simulatorbygget misslyckades** – se loggen (första felen). TestFlight-steget körs ändå." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit $status
 
       - name: Start the app in an iPhone simulator
         # A smoke test: does it start without crashing, and does the web view
         # have Cache Storage ("Karta offline")? Reported, never blocks.
+        if: steps.simcheck.outcome == 'success'
         continue-on-error: true
         run: |
           udid=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')))")
@@ -167,11 +184,18 @@ jobs:
           open(path, "w").write(text[:start] + block + text[end:])
           PY
           sed -i '' 's#<string>development</string>#<string>production</string>#' App/App.entitlements
+          status=0
           xcodebuild -project App.xcodeproj -scheme App -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CURRENT_PROJECT_VERSION="$build" \
-            OTHER_CODE_SIGN_FLAGS="--keychain $kc" archive | tail -n 80
-          test "${PIPESTATUS[0]}" -eq 0
+            OTHER_CODE_SIGN_FLAGS="--keychain $kc" archive > "$RUNNER_TEMP/archive.log" 2>&1 || status=$?
+          tail -n 60 "$RUNNER_TEMP/archive.log"
+          if [ "$status" -ne 0 ]; then
+            echo "--- first errors ---"
+            grep -n -m 25 -E "error:|fatal error" "$RUNNER_TEMP/archive.log" | cut -c1-400
+            security delete-keychain "$kc" || true
+            exit "$status"
+          fi
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
