@@ -254,6 +254,23 @@ const CLIPS = {
       await page.context().close();
     }
   },
+  S: async () => {
+    // A plain screenshot of the slope map as users see it (UI visible), Kebnekaise.
+    const page = await mapPage(true);
+    await slopeOn(page);
+    await jump(page, [67.905, 18.56], 13);
+    await tilesLoaded(page);
+    await wait(page, 4000);
+    await rec.shot(page, "S-lutning-app");
+    // With the layer panel open, so the legend shows.
+    await page.getByRole("button", { name: /^Kartlager/ }).click();
+    await wait(page, 600);
+    const legend = page.locator(".official-terrain");
+    await legend.scrollIntoViewIfNeeded().catch(() => {});
+    await wait(page, 800);
+    await rec.shot(page, "S-lutning-app-panel");
+    await page.context().close();
+  },
   N3: async () => {
     // "Skarpare fjällkarta": zoom 16 before (zoom 15 enlarged) and now, then the
     // official slope map (Naturvårdsverket, NVE in Norway). Kebnekaise's south top.
