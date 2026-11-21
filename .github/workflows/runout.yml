@@ -23,8 +23,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  MODE: calibrate
-  ALPHAS: "30,25,20"
+  MODE: import
+  ALPHAS: "30,26,22"
   WORKER: https://fjallkoll-worker.fabian-n-sund.workers.dev
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   CLOUDFLARE_ACCOUNT_ID: dba2a7031f0d281c2f34301d23a315ca

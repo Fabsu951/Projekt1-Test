@@ -41,7 +41,8 @@ export interface RunoutOptions {
   runup?: number;
 }
 
-export const DEFAULT_ALPHAS = [30, 25, 20];
+/** Calibrated 2026-11-21 against NVE in four Norwegian areas (best match 32/28/24°), set 2° flatter so the zones err on the large side: they cover 91 / 87 / 83 % of NVE's short / medium / long zones. */
+export const DEFAULT_ALPHAS = [30, 26, 22];
 const DEFAULTS = { releaseMin: 30, releaseMax: 60, spread: 0.7, flatTan: Math.tan((3 * Math.PI) / 180), runup: 0.3 };
 
 const DX = [-1, 0, 1, -1, 1, -1, 0, 1];
