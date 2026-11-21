@@ -149,14 +149,14 @@ export default function MapPage() {
   // Possible runout zones: NVE's in Norway, Snöläge's own in Sweden once made.
   const [showRunout, setShowRunout] = useState(false);
   const [swedenRunout, setSwedenRunout] = useState(false);
+  // Asked when the map opens (one small request), so the layer's label is right from the start.
   useEffect(() => {
-    if (!showRunout) return;
     let live = true;
     void swedenRunoutAvailable().then((ok) => live && setSwedenRunout(ok));
     return () => {
       live = false;
     };
-  }, [showRunout]);
+  }, []);
   const [showObservations, setShowObservations] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const { token, loading: authLoading } = useAuth();

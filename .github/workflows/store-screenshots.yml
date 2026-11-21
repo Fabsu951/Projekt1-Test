@@ -19,7 +19,8 @@ permissions:
 
 jobs:
   shots:
-    runs-on: ubuntu-latest
+    # Playwright 1.56 doesn't support ubuntu-latest's 26.04 (seen 2026-11-21).
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     defaults:
       run:
