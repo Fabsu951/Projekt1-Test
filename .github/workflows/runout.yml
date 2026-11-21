@@ -1,0 +1,82 @@
+# Snöläge's own runout-zone map for the Swedish mountains
+# (worker/scripts/import-runout.ts, model in runout.ts). MODE:
+#   calibrate – compare with NVE's runout map in four Norwegian areas and print
+#               the alpha angles that match it best (uploads nothing)
+#   dry-run   – compute a few Swedish blocks and report size and time
+#   import    – compute every mountain block and upload the tiles to the map
+#               bucket (kartor.snolage.se/runout/…) with a fresh upload token
+# Runs when this file changes (dispatch only works on the default branch).
+
+name: Utlöpszoner
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha]
+    paths: [".github/workflows/runout.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: runout
+  cancel-in-progress: false
+
+env:
+  MODE: calibrate
+  ALPHAS: "30,25,20"
+  WORKER: https://fjallkoll-worker.fabian-n-sund.workers.dev
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: dba2a7031f0d281c2f34301d23a315ca
+
+jobs:
+  runout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    defaults:
+      run:
+        working-directory: Svenska laviner/worker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Model tests
+        run: npx vitest run scripts/runout.test.ts
+
+      - name: Calibrate against NVE
+        if: env.MODE == 'calibrate'
+        run: npx tsx scripts/import-runout.ts --calibrate
+
+      - name: Dry run
+        if: env.MODE == 'dry-run'
+        run: npx tsx scripts/import-runout.ts --dry-run --limit 4 --alphas "$ALPHAS"
+
+      - name: Wait for the worker with the runout upload route
+        if: env.MODE == 'import'
+        run: |
+          for i in $(seq 1 90); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$WORKER/admin/tiles/runout/meta")
+            if [ "$code" = "401" ]; then echo "route is live"; exit 0; fi
+            echo "route answers $code, waiting…"; sleep 20
+          done
+          exit 1
+
+      - name: Fresh upload token
+        if: env.MODE == 'import'
+        run: |
+          token=$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=')
+          echo "::add-mask::$token"
+          printf '%s' "$token" | npx wrangler secret put TILE_UPLOAD_TOKEN
+          echo "TILE_UPLOAD_TOKEN=$token" >> "$GITHUB_ENV"
+          sleep 15
+
+      - name: Import
+        if: env.MODE == 'import'
+        run: |
+          npx tsx scripts/import-runout.ts --alphas "$ALPHAS"
+          curl -sS "https://kartor.snolage.se/runout/meta.json"; echo

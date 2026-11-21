@@ -10,7 +10,7 @@ export const WORKER = process.env.FJALLKOLL_WORKER_URL ?? "https://fjallkoll-wor
 /** The Worker ran out of CPU/memory for this request (Cloudflare error 1102) – a smaller batch will do. */
 const tooBig = (status: number, text: string) => status === 413 || ((status === 503 || status === 500) && /1102|exceeded resource limits/i.test(text));
 
-export async function uploadTiles(token: string, layer: "topowebb" | "slope", tiles: Tile[]): Promise<void> {
+export async function uploadTiles(token: string, layer: "topowebb" | "slope" | "runout", tiles: Tile[]): Promise<void> {
   const body = encodeTiles(tiles);
   for (let attempt = 1; ; attempt++) {
     try {

@@ -694,6 +694,8 @@ export default {
     }
     if (url.pathname === "/admin/tiles/slope" && request.method === "POST") return uploadTiles(request, env, origin, "slope");
     if (url.pathname === "/admin/tiles/slope/meta" && request.method === "POST") return saveSlopeMeta(request, env, origin);
+    if (url.pathname === "/admin/tiles/runout" && request.method === "POST") return uploadTiles(request, env, origin, "runout");
+    if (url.pathname === "/admin/tiles/runout/meta" && request.method === "POST") return saveSlopeMeta(request, env, origin, "runout");
     if (url.pathname === "/admin/tiles/migrate" && request.method === "POST") return migrateTiles(request, env, origin);
     if (url.pathname === "/admin/tiles/cleanup" && request.method === "POST") return cleanupOldTiles(request, env, origin);
     if (url.pathname === "/admin/lantmateriet/topowebb-3857.gpkg" && request.method === "GET") return proxyTopowebbFile(request, env);

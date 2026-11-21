@@ -47,3 +47,22 @@ describe("detailed slope map", () => {
     expect(await res.json()).toMatchObject({ minZoom: 12, maxZoom: 15 });
   });
 });
+
+describe("runout-zone map", () => {
+  it("stores tiles and meta in the public map bucket, only with the upload token", async () => {
+    const images = memoryBucket();
+    const tiles = memoryBucket();
+    const env = { IMAGES: images, TILES: tiles, TILE_UPLOAD_TOKEN: "hemlig" } as unknown as TilesEnv;
+    const body = encodeTiles([{ z: 12, x: 2262, y: 1031, data: new Uint8Array([0x89, 0x50, 0x4e, 0x47, 1]) }]);
+    const post = (token: string) =>
+      new Request("https://w.test/admin/tiles/runout", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body });
+    expect((await uploadTiles(post("fel"), env, "*", "runout")).status).toBe(401);
+    expect((await uploadTiles(post("hemlig"), env, "*", "runout")).status).toBe(200);
+    const meta = (token: string) =>
+      new Request("https://w.test/admin/tiles/runout/meta", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ alphas: [30, 25, 20] }) });
+    expect((await saveSlopeMeta(meta("fel"), env, "*", "runout")).status).toBe(401);
+    expect((await saveSlopeMeta(meta("hemlig"), env, "*", "runout")).status).toBe(200);
+    expect([...tiles.store.keys()].sort()).toEqual(["runout/12/2262/1031.png", "runout/meta.json"]);
+    expect(images.store.size).toBe(0);
+  });
+});

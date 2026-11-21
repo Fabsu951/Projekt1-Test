@@ -65,7 +65,8 @@ export function fetchable(z: number, x: number, y: number): boolean {
 }
 const MAX_BATCH_TILES = 1000;
 
-export type TileLayer = "topowebb" | "slope";
+/** "runout": Snöläge's own runout-zone map (scripts/import-runout.ts), read straight from kartor.snolage.se. */
+export type TileLayer = "topowebb" | "slope" | "runout";
 
 /** Where tiles used to be kept, in IMAGES. */
 export const tileKey = (z: number, x: number, y: number, layer: TileLayer = "topowebb") => `maptiles/${layer}/${z}/${x}/${y}`;
@@ -315,8 +316,8 @@ export async function slopeMeta(env: TilesEnv, origin: string): Promise<Response
   return new Response(stored.body, { headers });
 }
 
-/** POST /admin/tiles/slope/meta (upload token): marks the slope map as present. */
-export async function saveSlopeMeta(request: Request, env: TilesEnv, origin: string): Promise<Response> {
+/** POST /admin/tiles/slope/meta and /admin/tiles/runout/meta (upload token): marks a made map as present. */
+export async function saveSlopeMeta(request: Request, env: TilesEnv, origin: string, layer: "slope" | "runout" = "slope"): Promise<Response> {
   const json = (data: unknown, status = 200) =>
     new Response(JSON.stringify(data), { status, headers: { ...corsHeaders(origin), "Content-Type": "application/json" } });
   const token = request.headers.get("Authorization")?.match(/^Bearer\s+(\S+)$/)?.[1] ?? "";
@@ -328,6 +329,12 @@ export async function saveSlopeMeta(request: Request, env: TilesEnv, origin: str
     return json({ error: "Ogiltig JSON." }, 400);
   }
   const httpMetadata = { contentType: "application/json", cacheControl: "public, max-age=3600" };
+  if (layer === "runout") {
+    // Only in the public bucket: the app reads kartor.snolage.se/runout/meta.json directly.
+    if (!env.TILES) return json({ error: "Kartbucketen saknas." }, 500);
+    await env.TILES.put("runout/meta.json", JSON.stringify(meta), { httpMetadata });
+    return json({ ok: true });
+  }
   if (env.TILES) await env.TILES.put(PUBLIC_SLOPE_META_KEY, JSON.stringify(meta), { httpMetadata });
   else await env.IMAGES.put(SLOPE_META_KEY, JSON.stringify(meta), { httpMetadata });
   return json({ ok: true });
