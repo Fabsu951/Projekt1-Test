@@ -1643,6 +1643,32 @@ the start, exact map point.
   Norway part of the official slope layer when on (`OfficialTerrainLayer
   runout`), `RunoutLegend`, notice; Sweden has no official equivalent. About,
   press page and privacy policy (updated 15 Nov) name NVE's runout map.
+- **Swedish runout zones, own model (2026-11-21, Fabian: "uppdatera appen med
+  en egen beräkning" while Petter at NV is asked about an official map):**
+  `worker/scripts/runout.ts` = alpha-angle model: release cells 30–60° (Horn
+  slope), an energy line E = z_release − tan(α)·L propagated with a max-heap
+  (Float64 energies – a Float32 copy rounded above the queued key and skipped
+  cells) to neighbours falling ≥ 0.7 × the steepest drop, on flat ground
+  (< 3°) to all neighbours ≤ 0.3 m higher; a cell's class = number of angles
+  reaching it, steep cells (≥ 30°) 0 (the slope map shows them). Tested on
+  synthetic slopes (`runout.test.ts`). `import-runout.ts`: Mapterhorn
+  Terrarium z11 (512 px ≈ 15 m, decoded with sharp), blocks = one z9 tile + one
+  z11 tile margin (3072² cells, ~8 s for three angles), 153 blocks for all
+  mountain boxes; output z12 tiles (1 tile px = 1 cell) + parents to z8
+  (`runoutTiles.ts`: max of 2×2, palette PNG in NVE's blues), tiles wholly
+  > 3 km into Norway skipped (`tileInNorwayOnly`). `--calibrate` compares with
+  NVE's `Bratthet_med_utlop_2024` z12 tiles in Rondane, Trollheimen,
+  Sulitjelma, Skjomen: best IoU at 32/28/24°; **used 30/26/22°** (2° flatter,
+  covering 91/87/83 % of NVE's short/medium/long zones). Worker: `TileLayer`
+  "runout", `POST /admin/tiles/runout` (→ `snolage-kartor` `runout/z/x/y.png`)
+  and `/admin/tiles/runout/meta` (→ `runout/meta.json`). Workflow
+  `runout.yml` ("Utlöpszoner", push on itself; `MODE: calibrate | dry-run |
+  import`, `ALPHAS`). App: `SWEDEN_RUNOUT_URL` (kartor domain, z8–12, 404 →
+  transparent `errorTileUrl`), `swedenRunoutAvailable()` probes the meta; the
+  "Möjliga utlöpszoner" toggle then shows NVE in Norway + ours in Sweden on
+  NV's slope map, label "(i Norge NVE, i Sverige beräknat av Snöläge)",
+  `RunoutLegend sweden`, notice "Snöläges egen beräkning – inte officiella",
+  attribution and About line.
 - **Share as an image (2026-10-19, marketing):** `services/shareImage.ts` draws
   today's forecast on a canvas in the paper-map look (paper `#f6f7f6`, ink, lake
   blue, contour rings, the danger band + `DangerStair`, problems with

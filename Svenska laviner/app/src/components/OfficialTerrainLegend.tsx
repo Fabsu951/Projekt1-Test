@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NORWAY_RUNOUT_LEGEND, NORWAY_SLOPE_LEGEND, officialTerrainLegendUrl, type OfficialTerrain } from "../services/mapTiles";
+import { NORWAY_RUNOUT_LEGEND, NORWAY_SLOPE_LEGEND, officialTerrainAvailable, officialTerrainLegendUrl, type OfficialTerrain } from "../services/mapTiles";
 import { t } from "../i18n";
 
 const NAMES: Record<OfficialTerrain, string> = { lutning: "lutning" };
@@ -37,10 +37,21 @@ export default function OfficialTerrainLegend({ layer, norway = true }: { layer:
   );
 }
 
-/** NVE's map with runout zones (Norway only): its slope classes from 30° and the three runout blues. */
-export function RunoutLegend() {
+/**
+ * The runout zones: the three blues (NVE's in Norway, the same in Snöläge's
+ * Swedish map), NVE's slope classes from 30° and, with the Swedish zones,
+ * Naturvårdsverket's slope legend for the Swedish side.
+ */
+export function RunoutLegend({ sweden = false }: { sweden?: boolean }) {
   return (
     <>
+      {sweden && officialTerrainAvailable && (
+        <>
+          <p className="official-terrain__title">{t("Lutning i Sverige (Naturvårdsverket)")}</p>
+          <OfficialTerrainLegend layer="lutning" norway={false} />
+          <p className="official-terrain__title">{t("Lutning i Norge (NVE)")}</p>
+        </>
+      )}
       <div className="slope-legend">
         {NORWAY_SLOPE_LEGEND.slice(1).map(([label, color]) => (
           <span key={label} className="slope-legend__item">
@@ -49,6 +60,7 @@ export function RunoutLegend() {
           </span>
         ))}
       </div>
+      <p className="official-terrain__title">{t("Utlöpszoner")}</p>
       <div className="slope-legend">
         {NORWAY_RUNOUT_LEGEND.map(([label, color]) => (
           <span key={label} className="slope-legend__item">

@@ -15,7 +15,7 @@ import { forecastFilter, loadFilter, nearestArea, saveFilter, type TerrainFilter
 import OfficialTerrainLayer from "../components/OfficialTerrainLayer";
 import DetailedSlopeLayer from "../components/DetailedSlopeLayer";
 import OfficialTerrainLegend, { RunoutLegend } from "../components/OfficialTerrainLegend";
-import { detailedSlopeAvailable, officialTerrainAvailable, type OfficialTerrain } from "../services/mapTiles";
+import { detailedSlopeAvailable, officialTerrainAvailable, swedenRunoutAvailable, type OfficialTerrain } from "../services/mapTiles";
 import TopoLayer from "../components/TopoLayer";
 import MyPosition, { type PositionFix } from "../components/MyPosition";
 import { formatDecimal } from "../utils/coordinates";
@@ -146,8 +146,17 @@ export default function MapPage() {
     };
   }, []);
   const [officialTerrain, setOfficialTerrain] = useState<OfficialTerrain | null>(null);
-  // NVE's possible runout zones, Norway only.
+  // Possible runout zones: NVE's in Norway, Snöläge's own in Sweden once made.
   const [showRunout, setShowRunout] = useState(false);
+  const [swedenRunout, setSwedenRunout] = useState(false);
+  useEffect(() => {
+    if (!showRunout) return;
+    let live = true;
+    void swedenRunoutAvailable().then((ok) => live && setSwedenRunout(ok));
+    return () => {
+      live = false;
+    };
+  }, [showRunout]);
   const [showObservations, setShowObservations] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const { token, loading: authLoading } = useAuth();
@@ -538,10 +547,13 @@ export default function MapPage() {
             <label className="map-toolbar__toggle">
               <input type="checkbox" checked={showRunout} onChange={(e) => setShowRunout(e.target.checked)} />
               <span>
-                {t("Möjliga utlöpszoner")}{" "}<span className="map-layers__sub">{t("(bara Norge, NVE – zooma in)")}</span>
+                {t("Möjliga utlöpszoner")}{" "}
+                <span className="map-layers__sub">
+                  {swedenRunout ? t("(i Norge NVE, i Sverige beräknat av Snöläge – zooma in)") : t("(bara Norge, NVE – zooma in)")}
+                </span>
               </span>
             </label>
-            {showRunout && <RunoutLegend />}
+            {showRunout && <RunoutLegend sweden={swedenRunout && officialTerrain === null} />}
           </div>
           <OfflineViewBox bounds={viewBounds} onShow={setFlyTarget} />
           <p className="map-layers__tip">
@@ -584,7 +596,14 @@ export default function MapPage() {
           />
         )}
 
-        {showRunout && (
+        {showRunout && swedenRunout && (
+          <LayerNotice
+            short={t("Utlöpszonerna i Sverige är Snöläges egen beräkning – inte officiella, och de visar terrängen, inte lavinfaran.")}
+            full={t("I Norge visas NVE:s officiella karta. I Sverige finns ingen officiell karta, så där har Snöläge räknat fram zonerna själv från Lantmäteriets höjddata (ca 15 m rutor): från brant terräng (30–60°) följs terrängen nedåt så långt en lavin med en viss utlöpsvinkel kan nå – mörkblått för kort räckvidd, ljusblått för de sällsynta, mycket stora lavinerna. Vinklarna är jämförda med NVE:s karta i Norge. Modellen känner inte till snö, vind eller skog, kan missa små branter och terrängfällor, och en lavin kan nå längre än zonerna. Läs alltid dagens prognos.")}
+          />
+        )}
+
+        {showRunout && !swedenRunout && (
           <LayerNotice
             short={t("Utlöpszonerna finns bara för Norge och visar terrängen, inte lavinfaran.")}
             full={t("NVE:s karta visar var laviner från brant terräng (30° och brantare) kan nå, beräknat från terrängen: mörkblått för kort räckvidd, ljusblått för de sällsynta, mycket stora lavinerna. Den visar terrängen, inte dagens lavinfara, och för Sverige finns ingen motsvarande officiell karta. En lavin kan nå längre än zonerna.")}
@@ -624,7 +643,7 @@ export default function MapPage() {
           )}
           <TopoLayer />
           <TerrainFinderLayer filter={showFinder ? finderFilter : null} />
-          <OfficialTerrainLayer layer={officialTerrain} runout={showRunout} />
+          <OfficialTerrainLayer layer={officialTerrain} runout={showRunout} swedenRunout={swedenRunout} />
           <DetailedSlopeLayer enabled={showDetailedSlope} />
           <MyPosition enabled={showPosition} onStatus={onPositionStatus} onFix={setMyFix} />
           <PickedPlace place={pickedPlace} onClear={() => setPickedPlace(null)} />

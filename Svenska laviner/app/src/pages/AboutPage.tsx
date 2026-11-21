@@ -161,6 +161,9 @@ export default function AboutPage() {
             {t("(Bratthet och Bratthet med utløp, samma kartor som Varsom visar), ©NVE. Visas obearbetade.")}
           </li>
           <li>
+            {t("Utlöpszoner i Sverige: beräknade av Snöläge med en alfavinkelmodell från höjddata med ca 15 m upplösning (Lantmäteriets höjdmodell via Mapterhorn), jämförda med NVE:s karta i Norge. Inte officiella – det finns ingen officiell karta för Sverige.")}
+          </li>
+          <li>
             {t("Appen bygger på öppen källkod, bland annat React, Leaflet, React Leaflet, Capacitor och Firebase.")}{" "}
             <a href="/licenser.txt">
               {t("Licenser för öppen källkod")}

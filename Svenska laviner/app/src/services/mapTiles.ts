@@ -213,6 +213,32 @@ export const NORWAY_RUNOUT_LEGEND: Array<[string, string]> = [
 ];
 
 /**
+ * Snöläge's own runout zones for the Swedish mountains (worker
+ * scripts/import-runout.ts: an alpha-angle model on 15 m heights, calibrated
+ * against NVE's map in Norway), straight from the map bucket. Zoom 8–12, the
+ * same three blues as NVE; empty ground has no tile (404 → transparent).
+ * Offered once runout/meta.json exists.
+ */
+export const SWEDEN_RUNOUT_URL = DIRECT_BASE ? `${DIRECT_BASE}/runout/{z}/{x}/{y}.png` : null;
+export const SWEDEN_RUNOUT_MIN_ZOOM = 8;
+export const SWEDEN_RUNOUT_MAX_NATIVE_ZOOM = 12;
+export const SWEDEN_RUNOUT_ATTRIBUTION = t("Utlöpszoner i Sverige: beräknade av Snöläge från höjddata (Lantmäteriet via Mapterhorn), inte officiella");
+
+let runoutMetaCheck: Promise<boolean> | null = null;
+
+/** Whether Snöläge's Swedish runout map has been made. */
+export function swedenRunoutAvailable(): Promise<boolean> {
+  if (!DIRECT_BASE) return Promise.resolve(false);
+  runoutMetaCheck ??= timedFetch(`${DIRECT_BASE}/runout/meta.json`, {}, 10_000)
+    .then((res) => res.ok)
+    .catch(() => {
+      runoutMetaCheck = null; // try again later, e.g. when back online
+      return false;
+    });
+  return runoutMetaCheck;
+}
+
+/**
  * The detailed slope map, made from Lantmäteriet's 1 m height model by
  * worker/scripts/import-slope.ts and hosted by the worker. Only offered once
  * the worker says it exists (GET /tiles/slope/meta).
