@@ -84,7 +84,17 @@ jobs:
           GOOGLE_SERVICE_INFO_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
         run: |
           if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
-            printf '%s' "$GOOGLE_SERVICE_INFO_PLIST" > "Svenska laviner/app/ios/App/App/GoogleService-Info.plist"
+            plist="Svenska laviner/app/ios/App/App/GoogleService-Info.plist"
+            printf '%s' "$GOOGLE_SERVICE_INFO_PLIST" > "$plist"
+            # Check it is the iPhone app's file (no values printed).
+            bundle=$(/usr/libexec/PlistBuddy -c "Print :BUNDLE_ID" "$plist" 2>/dev/null || echo "?")
+            echo "### Notiser" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$bundle" = "se.snolage.app" ]; then
+              echo "- Firebase-inställningarna finns med (bundle se.snolage.app) – notiser påslagna i bygget." >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::error::GoogleService-Info.plist gäller inte se.snolage.app (BUNDLE_ID: $bundle)"
+              exit 1
+            fi
           fi
 
       - name: Check that the app builds (simulator, unsigned)
