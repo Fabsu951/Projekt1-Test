@@ -70,6 +70,9 @@ jobs:
 
       - name: Web app – install, build, copy into iOS
         working-directory: Svenska laviner/app
+        env:
+          # The app offers notices only when this build gets Firebase's plist (next step).
+          VITE_IOS_PUSH: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST != '' && 'yes' || 'no' }}
         run: |
           npm ci
           npm run build

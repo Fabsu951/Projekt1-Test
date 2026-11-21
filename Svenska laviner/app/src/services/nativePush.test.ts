@@ -5,8 +5,9 @@ const calls: Array<{ path: string; token?: string | null; json?: unknown }> = []
 const listeners: Record<string, (e: unknown) => void> = {};
 let permission = "granted";
 let tokenError: string | null = null;
+let platform = "android";
 
-vi.mock("@capacitor/core", () => ({ Capacitor: { isNativePlatform: () => true, getPlatform: () => "android" } }));
+vi.mock("@capacitor/core", () => ({ Capacitor: { isNativePlatform: () => true, getPlatform: () => platform } }));
 vi.mock("@capacitor/preferences", () => ({
   Preferences: {
     get: async ({ key }: { key: string }) => ({ value: store.get(key) ?? null }),
@@ -42,6 +43,7 @@ beforeEach(() => {
   calls.length = 0;
   permission = "prompt";
   tokenError = null;
+  platform = "android";
 });
 
 describe("app push (Firebase)", () => {
@@ -63,6 +65,17 @@ describe("app push (Firebase)", () => {
     await expect(attempt).rejects.toBeInstanceOf(push.NativePushMissingError);
     await expect(push.enableNativeAccountPush("auth-1")).rejects.toThrow(/den här versionen av appen/);
     expect(calls.filter((c) => c.path === "/native/register")).toHaveLength(0);
+    expect(await push.nativePushAvailable()).toBe(false);
+  });
+
+  it("recognises the iPhone's wording for missing Firebase settings too", async () => {
+    tokenError = "Firebase is not configured. GoogleService-Info.plist is missing from the apple bundle.";
+    await expect(push.enableNativeRegionPush(["riksgransfjallen"], null)).rejects.toBeInstanceOf(push.NativePushMissingError);
+    expect(await push.nativePushAvailable()).toBe(false);
+  });
+
+  it("doesn't offer app notices in an iPhone build without Firebase's settings", async () => {
+    platform = "ios";
     expect(await push.nativePushAvailable()).toBe(false);
   });
 

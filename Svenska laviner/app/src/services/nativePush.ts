@@ -26,8 +26,20 @@ const EMPTY: NativePushState = { regions: [], account: false };
 /** The app build that turned out to lack Firebase settings (no google-services.json / plist). */
 const MISSING_KEY = "fjallkoll:native-push-missing";
 
-/** Firebase's own words when the app was built without its settings file. */
-const NOT_CONFIGURED = /FirebaseApp|Firebase app|initializeApp|not (yet )?been configured|google-services/i;
+/**
+ * Firebase's own words when the app was built without its settings file –
+ * Android: "Default FirebaseApp is not initialized…"; iPhone: "Firebase is not
+ * configured. GoogleService-Info.plist is missing from the apple bundle."
+ * (reported by a user, 2026-11-21).
+ */
+const NOT_CONFIGURED = /FirebaseApp|Firebase app|initializeApp|not (yet )?(been )?configured|google-?services|GoogleService-Info/i;
+
+/**
+ * Whether this iPhone build has Firebase's settings: ios.yml sets
+ * VITE_IOS_PUSH=yes only when the GoogleService-Info.plist secret exists, so a
+ * build without it never offers app notices.
+ */
+const IOS_PUSH_BUILT = import.meta.env.VITE_IOS_PUSH === "yes";
 
 /** Thrown instead of Firebase's raw English when this build can't get app notices. */
 export class NativePushMissingError extends Error {
@@ -72,6 +84,7 @@ export function isNativeApp(): boolean {
 /** Whether the worker can send app notices (it has the Firebase secret). */
 export async function nativePushAvailable(): Promise<boolean> {
   if (!isNativeApp() || (await knownMissing())) return false;
+  if (Capacitor.getPlatform() === "ios" && !IOS_PUSH_BUILT) return false;
   try {
     return (await api<{ enabled: boolean }>("/native/status")).enabled;
   } catch {
