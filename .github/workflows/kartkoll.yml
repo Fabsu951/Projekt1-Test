@@ -1,0 +1,54 @@
+# One-off check (removed after): the live runout layer on snolage.se at
+# Kebnekaise and at the border near Riksgränsen (screenshots as base64).
+name: Kartkoll
+
+on:
+  push:
+    branches: [claude/bold-lamport-juktha]
+    paths: [".github/workflows/kartkoll.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Live runout layer
+        run: |
+          mkdir k && cd k && npm init -y >/dev/null && npm i playwright@1.56.1 sharp@0.34 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+          cat > run.mjs <<'JS'
+          import { chromium } from "playwright";
+          import sharp from "sharp";
+          const browser = await chromium.launch();
+          for (const [name, lat, lon] of [["kebnekaise", 67.905, 18.56], ["riksgransen", 68.43, 18.13], ["abisko", 68.33, 18.75]]) {
+            const ctx = await browser.newContext({ viewport: { width: 900, height: 700 }, locale: "sv-SE", geolocation: { latitude: lat, longitude: lon, accuracy: 5 }, permissions: ["geolocation"] });
+            await ctx.addInitScript(() => { localStorage.setItem("fjallkoll:welcome-done", "1"); localStorage.setItem("fjallkoll:map-layers-open", "0"); });
+            const page = await ctx.newPage();
+            const runout = [];
+            page.on("response", (r) => { if (r.url().includes("/runout/")) runout.push(`${r.status()} ${r.url().split("/runout/")[1]}`); });
+            await page.goto("https://snolage.se/karta", { waitUntil: "networkidle" });
+            await page.getByRole("button", { name: "Helskärm" }).click();
+            await page.getByRole("button", { name: "Visa min position" }).click();
+            await page.waitForTimeout(3000);
+            await page.locator(".map-toolbar__layers").click();
+            await page.getByRole("checkbox", { name: /Möjliga utlöpszoner/ }).check();
+            console.log(name, "label:", (await page.getByRole("checkbox", { name: /Möjliga utlöpszoner/ }).locator("xpath=..").innerText()).replace(/\n/g, " "));
+            await page.locator(".map-toolbar__layers").click();
+            await page.waitForTimeout(6000);
+            for (const step of [0, 1]) {
+              if (step) { await page.locator(".leaflet-control-zoom-out").click(); await page.waitForTimeout(5000); }
+              const small = await sharp(await page.screenshot()).resize(600).jpeg({ quality: 60 }).toBuffer();
+              console.log(`IMG ${name}-${step} ${small.toString("base64")}`);
+            }
+            console.log(name, "runout responses:", runout.length, runout.slice(0, 6).join(", "));
+            await ctx.close();
+          }
+          await browser.close();
+          JS
+          node run.mjs
