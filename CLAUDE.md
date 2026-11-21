@@ -686,8 +686,20 @@ the start, exact map point.
   remembered per app build (`fjallkoll:native-push-missing`), so the toggles hide.
   **Set up 2026-10-07:** Firebase project `snolage-1ce89` (Spark, no
   Analytics), Android app `se.snolage.app` with `google-services.json` on
-  Fabian's PC (not in git), `FCM_SERVICE_ACCOUNT` secret uploaded. iOS
-  (plist, APNs key, Xcode capability) still to do — needs a Mac.
+  Fabian's PC (not in git), `FCM_SERVICE_ACCOUNT` secret uploaded.
+  **iPhone done 2026-11-21 (no Mac needed):** APNs auth key "Snolage Push"
+  (Sandbox & Production, team-scoped; Apple refuses å/ä/ö in key names) made
+  in the dad's developer account (Fabian's Apple ID isn't on the developer
+  site, only App Store Connect), uploaded to Firebase for both environments;
+  Firebase iOS app "Snöläge iOS"; repo secret `GOOGLE_SERVICE_INFO_PLIST`.
+  ios.yml writes the plist, checks its BUNDLE_ID is `se.snolage.app`, and sets
+  `VITE_IOS_PUSH=yes` for the web build – without it `nativePushAvailable()`
+  is false on iOS (a TestFlight user got Firebase's raw "Firebase is not
+  configured. GoogleService-Info.plist is missing…" before; `NOT_CONFIGURED`
+  now matches the iOS wording too). **1.1 (395)** – push, long press, route
+  weather, runout zones in Norway + Sweden – submitted for review 21 Nov
+  (automatic release); 1.0 is live in 172 countries (China mainland left out:
+  it needs a security assessment, AIGC declaration and an ICP filing).
 - **Turdagbok (tour diary, 2026-09-27, idea from Fabian's parents):**
   users upload GPX/FIT files from their watch (`app/src/utils/trackImport.ts`,
   FIT via our own `utils/fitDecoder.ts` since 2026-10-17 – Garmin's FIT SDK licence
